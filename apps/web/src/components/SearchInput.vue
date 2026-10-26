@@ -25,9 +25,12 @@ const props = withDefaults(
 		filter?: Filter | null;
 		autofocus?: boolean;
 		placeholder?: string | undefined;
+		/** Backoffice (spec 023, D-187): "JSON path" under json fields of the filter (Content page and item drawer). */
+		includeJsonPath?: boolean;
 	}>(),
 	{
 		showSearch: true,
+		includeJsonPath: false,
 		showFilter: true,
 		collection: undefined,
 		filter: null,
@@ -222,7 +225,13 @@ const collisionBoundary = computed(() => drawerBody?.value ?? null);
 				@escape-key-down="disable"
 				@interact-outside="onInteractOutside"
 			>
-				<SystemFilter inline :value="filter" :collection-name="collection" @input="emit('update:filter', $event)" />
+				<SystemFilter
+					inline
+					:value="filter"
+					:collection-name="collection"
+					:include-json-path="includeJsonPath"
+					@input="emit('update:filter', $event)"
+				/>
 			</PopoverContent>
 		</PopoverPortal>
 	</PopoverRoot>

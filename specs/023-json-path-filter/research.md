@@ -479,3 +479,23 @@ lỗi 403; spec, contracts, quickstart sửa câu chữ 400 → 403 (không đ�
 - Vòng import: `fn/types.ts` không import `getDatabaseClient` (database/index → helpers → fn → types), dùng bảng tên client
   cục bộ cho gate.
 - `sort=json(f, p[, type])`: dạng chuỗi bị `sanitizeSort` tách ở dấu phẩy ở cả hai app; test dùng `sort[0]=...`.
+
+## Kết quả lượt 2 (2026-10-27, env parity Postgres local, profile web)
+
+- Unit web: `utils/json-path.test.ts`, `sf/utils.test.ts`, `sf/JsonPathForm.test.ts`, `sf/SystemFilter.test.ts` (5 case
+  JSON path), `components/FieldList.test.ts`, `components/SearchInput.test.ts`, `drawers/DrawerCollection.test.ts`;
+  browser `sf/SystemFilter.browser.test.ts` (bàn phím + axe sáng/tối) và `modules/content/a11y.browser.test.ts` (popover
+  với form ở trạng thái lỗi, sáng/tối) xanh.
+- E2E `content-filter-json-path.spec.ts` (4 test: Content bàn phím + preset + sửa chip; drawer m2o với `items[*].sku`;
+  Settings > Policies không có mục; Files/Users không có mục) xanh ở `proxy-api`, `proxy-directus`, `cors` (2 lượt mỗi
+  cấu hình) và `chromium-768`; `content-filter-bookmark` xanh ở `proxy-api`. Spec không có tag `@core` nên ngoài
+  chromium không chạy (quy ước 014).
+- Kiểu ở form là `BoSelect` theo quyết định C1 (Input + Select); bản nháp đầu dùng radio đã đổi lại trước commit.
+- `proxy-directus`: sau Apply, layout DR hiện lỗi `FORBIDDEN` và nút "Reset Page Preferences" (bảng không giữ dòng):
+  đúng hành vi DR khi `/items` lỗi; đã sửa câu chữ SC-005 và mục Testing của spec (trước ghi "bảng giữ nguyên").
+- Bài học E2E: tên `treeitem` của field quan hệ/json bắt đầu bằng ligature `chevron_right` (dùng `/Payload$/`); bộ lọc
+  permission hiện tên field thô (`payload`); preset đầu tiên của collection mới là `POST /presets`; reload cần
+  `/utils/cache/clear` (CACHE_ENABLED); preset còn rule json ở `proxy-directus` làm drawer lỗi theo → xóa preset trong
+  `beforeEach`; sign-in cần `resetLastPage`.
+- `tests/parity/src/vendors.test.ts` mong glob cũ `src/items/{crud,export}.test.ts` (CI 40391510176 `quality` đỏ): sửa
+  theo glob mới và thêm kiểm `json-path.test.ts` trong REDUCED.

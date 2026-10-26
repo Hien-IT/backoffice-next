@@ -248,7 +248,7 @@ nhận path json.
 - **FR-018**: Test: unit API cho Postgres (cột json, jsonb) và SQLite (mọi kiểu, toán tử, `[*]`, path lồng, thiếu path,
   khác kiểu, m2o, quyền, permission bị từ chối, vendor không hỗ trợ); bộ đối chiếu ở proxy-api ghi khác biệt D-184..D-187
   và chứng minh FR-012; E2E Content và drawer ở ba cấu hình (proxy tới Directus, proxy tới API mới, cross-site), gồm bước
-  bàn phím (ở proxy tới Directus, Apply cho lỗi API D-184.1 và bảng giữ nguyên; sửa khi plan 2026-10-27); GraphQL so với
+  bàn phím (ở proxy tới Directus, Apply cho lỗi API D-184.1: layout hiện lỗi `FORBIDDEN` và nút "Reset Page Preferences" như DR app; sửa khi plan 2026-10-27, câu chữ sửa khi implement lượt 2); GraphQL so với
   REST; benchmark lọc theo path trên seed 10 triệu dòng.
 
 ### Key Entities
@@ -390,8 +390,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - **SC-003**: 0 test đối chiếu, blackbox và E2E hiện có bị đổi kết quả (request không dùng tính năng giống Directus).
 - **SC-004**: REST và GraphQL trả cùng tập item cho 100% điều kiện mẫu của US4.
 - **SC-005**: Trên 100% lượt E2E ở `proxy-api` và `cors`, luồng US2 làm được bằng bàn phím và bookmark mở lại cho cùng
-  kết quả; ở `proxy-directus` (API là Directus), Apply báo lỗi API và bảng giữ nguyên (D-184.1) (sửa khi analyze
-  2026-10-27).
+  kết quả; ở `proxy-directus` (API là Directus), Apply báo lỗi API: layout hiện `FORBIDDEN` và nút "Reset Page Preferences" như DR app
+  (D-184.1) (sửa khi analyze 2026-10-27; câu chữ sửa khi implement lượt 2).
 - **SC-006**: Scenario benchmark hiện có của Backoffice không tệ hơn Directus quá 10% (Nguyên tắc X; sửa khi analyze
   2026-10-27); thời gian trả trang đầu khi lọc theo path trên
   seed 10 triệu dòng được đo, có và không có index do admin tạo, và ghi vào research.

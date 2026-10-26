@@ -20,12 +20,21 @@ export function fieldHasFunction(field: string) {
 	return field.includes('(') && field.includes(')');
 }
 
+/**
+ * Backoffice (spec 023): splits a field path at the dots outside parentheses, so a json path key keeps its own dots
+ * (`author.json(meta, a.b, number)` → `['author', 'json(meta, a.b, number)']`). Used as a lodash path array: a string
+ * path would also split at the `.` and `[` inside the key.
+ */
+export function splitFieldPath(field: string): string[] {
+	return field.split(/\.(?![^(]*\))/);
+}
+
 export function getComparator(node: Record<string, any>): string {
-	return getNodeName(get(node, getField(node)));
+	return getNodeName(get(node, splitFieldPath(getField(node))));
 }
 
 export function fieldToFilter(field: string, operator: string, value: any): Record<string, any> {
-	return fieldToFilterR(field.split('.'));
+	return fieldToFilterR(splitFieldPath(field));
 
 	function fieldToFilterR(sections: string[]): Record<string, any> {
 		const section = sections.shift();

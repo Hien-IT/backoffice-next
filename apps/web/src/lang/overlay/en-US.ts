@@ -78,4 +78,11 @@ export default {
 	pagination: 'Pagination',
 	// Spec 022 (D-182): the card title of the bo_show_* toggles in the Data Model collection form.
 	collection_content_toggles: 'Content: Search, Import, Export',
+	// Spec 023 (D-187): the JSON path entry of the Content filter (field list item, form, type names, error).
+	json_path: 'JSON path',
+	json_path_type_text: 'Text',
+	json_path_type_number: 'Number',
+	json_path_type_boolean: 'Boolean',
+	json_path_invalid: 'Invalid JSON path. Examples: Amount, items[0].sku, items[*].sku',
+	json_path_apply: 'Apply',
 };

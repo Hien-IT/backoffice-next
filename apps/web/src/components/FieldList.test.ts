@@ -139,6 +139,20 @@ describe('FieldList', () => {
 		expect(wrapper.emitted('add')).toEqual([[['year(date)']], [['count(tags)']]]);
 	});
 
+	// Backoffice (spec 023, D-187)
+	test('JSON path entry of json fields only with includeJsonPath; it emits json(<field>) as a placeholder', async () => {
+		const plain = setup({ collection: 'bo_std', includeFunctions: true });
+		await expand(plain, 'Tags');
+		expect(tree(plain).filter((row) => row.startsWith('2:'))).toEqual(['2:Count (Tags)']);
+
+		const wrapper = setup({ collection: 'bo_std', includeFunctions: true, includeJsonPath: true });
+		await expand(wrapper, 'Tags');
+		expect(tree(wrapper).filter((row) => row.startsWith('2:'))).toEqual(['2:Count (Tags)', '2:JSON path (Tags)']);
+
+		await item(wrapper, 'JSON path (Tags)', 2).trigger('click');
+		expect(wrapper.emitted('add')).toEqual([[['json(tags)']]]);
+	});
+
 	test('search filters the tree and opens matching groups', async () => {
 		const wrapper = setup({ collection: 'bo_std' });
 

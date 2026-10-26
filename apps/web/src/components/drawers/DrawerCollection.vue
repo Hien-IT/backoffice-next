@@ -200,7 +200,8 @@ function useActions() {
 			</template>
 
 			<template #actions>
-				<SearchInput v-model="search" v-model:filter="presetFilter" :collection="collection" />
+				<!-- Backoffice (spec 023, D-187): "JSON path" under json fields of the filter. -->
+				<SearchInput v-model="search" v-model:filter="presetFilter" :collection="collection" include-json-path />
 
 				<BoButton icon="check" :aria-label="t('save')" :disabled="!hasSelectionChanged" @click="save" />
 			</template>

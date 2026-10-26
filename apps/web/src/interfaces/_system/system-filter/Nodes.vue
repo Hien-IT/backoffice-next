@@ -8,6 +8,9 @@
 // are labelled buttons (FR-027). "Wrap in group" of the recipe is not added (no DR equivalent). Owner 2026-10-23
 // (D-170): while a row is dragged (`bo-filter-dragging` on body from start to end), every AND/OR group shows a faint
 // dashed frame, an empty one 32px high, so the drop target is clear; the Sortable options stay those of DR.
+// Spec 023 (D-187): a json path rule shows "Field › path (Type)", offers the operators of its type and, with
+// `includeJsonPath`, opens JsonPathForm from its chip to change the path or the type; field paths split at the dots
+// outside parentheses (splitFieldPath), as a json path has its own.
 import type {
 	FieldFilter,
 	FieldFilterOperator,
@@ -28,7 +31,15 @@ import BoMenu, { type BoMenuItem } from '../../../components/BoMenu.vue';
 import FieldList from '../../../components/FieldList.vue';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useRelationsStore } from '../../../stores/relations.ts';
+import {
+	formatJsonPathKey,
+	jsonFilterType,
+	parseJsonPathKey,
+	type JsonPathKey,
+	type JsonPathType,
+} from '../../../utils/json-path.ts';
 import InputGroup from './InputGroup.vue';
+import JsonPathForm from './JsonPathForm.vue';
 import {
 	extractFieldFromFunction,
 	fieldHasFunction,
@@ -36,6 +47,7 @@ import {
 	getComparator,
 	getField,
 	getNodeName,
+	splitFieldPath,
 } from './utils.ts';
 
 type FilterInfo = {
@@ -65,6 +77,8 @@ interface Props {
 	relationalFieldSelectable?: boolean;
 	rawFieldNames?: boolean;
 	variableInputEnabled: boolean | undefined;
+	/** Backoffice (spec 023): json path rules can change their path and type. */
+	includeJsonPath?: boolean;
 }
 
 // Backoffice: a multi-word name (vue/multi-word-component-names); the template refers to itself by it.
@@ -78,6 +92,7 @@ const props = withDefaults(defineProps<Props>(), {
 	includeRelations: true,
 	relationalFieldSelectable: true,
 	rawFieldNames: false,
+	includeJsonPath: false,
 });
 
 const emit = defineEmits<{
@@ -129,11 +144,26 @@ const filterInfo = computed<(FilterInfo | FilterInfoField)[]>({
 	},
 });
 
+/** Backoffice (spec 023): the json path of a rule key, with the relational parts before it. */
+function jsonPathOf(fieldKey: string): { parts: string[]; json: JsonPathKey } | null {
+	const parts = splitFieldPath(fieldKey);
+	const json = parseJsonPathKey(parts.at(-1)!);
+	return json ? { parts: parts.slice(0, -1), json } : null;
+}
+
 function getFieldPreview(node: Record<string, any>) {
 	const fieldKey = getField(node);
-	const fieldParts = fieldKey.split('.');
+	const fieldParts = splitFieldPath(fieldKey);
 
 	const fieldNames = fieldParts.map((fieldKey, index) => {
+		const json = parseJsonPathKey(fieldKey);
+
+		if (json) {
+			const field = fieldsStore.getField(props.collection, [...fieldParts.slice(0, index), json.field].join('.'));
+			const name = (props.rawFieldNames ? field?.field : field?.name) ?? json.field;
+			return `${name} › ${json.path} (${t(`json_path_type_${json.type}`)})`;
+		}
+
 		const hasFunction = fieldHasFunction(fieldKey);
 
 		let key = fieldKey;
@@ -197,8 +227,7 @@ function updateComparator(index: number, operator: keyof FieldFilterOperator) {
 	const nodeInfo = filterInfo.value[index]!;
 	if (nodeInfo.isField === false) return;
 
-	const valuePath = nodeInfo.field + '.' + nodeInfo.comparator;
-	const value = get(nodeInfo.node, valuePath);
+	const value = get(nodeInfo.node, [...splitFieldPath(nodeInfo.field), nodeInfo.comparator]);
 
 	switch (operator) {
 		case '_in':
@@ -254,8 +283,7 @@ function updateField(index: number, newField: string) {
 
 	if (nodeInfo.isField === false) return;
 
-	const valuePath = nodeInfo.field + '.' + nodeInfo.comparator;
-	let value = get(nodeInfo.node, valuePath);
+	let value = get(nodeInfo.node, [...splitFieldPath(nodeInfo.field), nodeInfo.comparator]);
 	let comparator = nodeInfo.comparator;
 
 	if (oldFieldInfo?.type !== newFieldInfo?.type) {
@@ -269,6 +297,30 @@ function updateField(index: number, newField: string) {
 	});
 }
 
+/** Backoffice (spec 023): a new path or type for a json path rule; another type resets the operator and the value. */
+function updateJsonPath(index: number, { path, type }: { path: string; type: JsonPathType }) {
+	jsonEditOpen.value = null;
+
+	const nodeInfo = filterInfo.value[index]!;
+	if (nodeInfo.isField === false) return;
+
+	const current = jsonPathOf(nodeInfo.field);
+	if (!current) return;
+
+	const newField = [...current.parts, formatJsonPathKey(current.json.field, path, type)].join('.');
+	let comparator = nodeInfo.comparator;
+	let value = get(nodeInfo.node, [...splitFieldPath(nodeInfo.field), nodeInfo.comparator]);
+
+	if (type !== current.json.type) {
+		comparator = getCompareOptions(newField)[0]!.value;
+		value = ['_null', '_nnull', '_empty', '_nempty'].includes(comparator) ? true : null;
+	}
+
+	replaceNode(index, fieldToFilter(newField, comparator, value) as Filter);
+}
+
+const jsonEditOpen = ref<number | null>(null);
+
 function replaceNode(index: number, newFilter: Filter) {
 	filterSync.value = filterSync.value.map((val, filterIndex) => {
 		if (filterIndex === index) return newFilter;
@@ -279,8 +331,12 @@ function replaceNode(index: number, newFilter: Filter) {
 function getCompareOptions(name: string) {
 	let type: Type;
 
+	const json = jsonPathOf(name);
+
 	if (name === '$version') {
 		type = 'string';
+	} else if (json) {
+		type = jsonFilterType(json.json.type);
 	} else if (fieldHasFunction(name)) {
 		const functionName = name.split('(')[0] as FieldFunction;
 		type = getOutputTypeForFunction(functionName);
@@ -309,9 +365,10 @@ function isExistingField(node: Record<string, any>): boolean {
 	let fieldKey = getField(node);
 
 	if (fieldHasFunction(fieldKey)) {
-		const keyParts = fieldKey.split('.');
+		const keyParts = splitFieldPath(fieldKey);
 		// the function is always in the last key part
-		const { field } = extractFieldFromFunction(keyParts.at(-1)!);
+		const json = parseJsonPathKey(keyParts.at(-1)!);
+		const field = json ? json.field : extractFieldFromFunction(keyParts.at(-1)!).field;
 		fieldKey = [...keyParts.slice(0, -1), field].join('.');
 	}
 
@@ -432,7 +489,29 @@ const POPOVER =
 								size="sm"
 								class="drag-handle cursor-grab text-gray-500 dark:text-gray-400"
 							/>
-							<span v-if="field || !isExistingField(element)" class="whitespace-nowrap">
+							<PopoverRoot
+								v-if="includeJsonPath && jsonPathOf(getField(element)) && isExistingField(element)"
+								:open="jsonEditOpen === index"
+								@update:open="jsonEditOpen = $event ? index : null"
+							>
+								<PopoverTrigger class="field-button json-path-button" :class="CHIP_BTN">
+									{{ getFieldPreview(element) }}
+								</PopoverTrigger>
+								<PopoverPortal>
+									<PopoverContent :side-offset="4" align="start" :collision-padding="8" :class="POPOVER">
+										<JsonPathForm
+											:title="getFieldPreview(element).split(' › ')[0]!"
+											:path="jsonPathOf(getField(element))!.json.path"
+											:type="jsonPathOf(getField(element))!.json.type"
+											@apply="updateJsonPath(index, $event)"
+										/>
+									</PopoverContent>
+								</PopoverPortal>
+							</PopoverRoot>
+							<span
+								v-else-if="field || !isExistingField(element) || jsonPathOf(getField(element))"
+								class="whitespace-nowrap"
+							>
 								{{ getFieldPreview(element) }}
 							</span>
 							<PopoverRoot v-else>
@@ -560,6 +639,7 @@ const POPOVER =
 							:inline="inline"
 							:raw-field-names="rawFieldNames"
 							:variable-input-enabled="variableInputEnabled"
+							:include-json-path="includeJsonPath"
 							@change="$emit('change')"
 							@remove-node="$emit('remove-node', [`${index}.${filterInfo[index]!.name}`, ...$event])"
 							@update:filter="replaceNode(index, { [filterInfo[index]!.name]: $event } as Filter)"

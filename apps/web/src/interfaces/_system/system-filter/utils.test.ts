@@ -8,6 +8,7 @@ import {
 	getComparator,
 	getField,
 	getNodeName,
+	splitFieldPath,
 } from './utils.ts';
 
 describe('getNodeName', () => {
@@ -60,5 +61,25 @@ describe('extractFieldFromFunction', () => {
 
 	test('Returns function extracted', () => {
 		expect(extractFieldFromFunction('year(date_created)')).toEqual({ fn: 'year', field: 'date_created' });
+	});
+});
+
+// Backoffice (spec 023): json path keys keep their own dots and brackets.
+describe('json path keys', () => {
+	test('splitFieldPath splits at dots outside parentheses only', () => {
+		expect(splitFieldPath('author.json(meta, items[0].sku, text)')).toEqual([
+			'author',
+			'json(meta, items[0].sku, text)',
+		]);
+		expect(splitFieldPath('a.count(b)')).toEqual(['a', 'count(b)']);
+		expect(splitFieldPath('author.first_name')).toEqual(['author', 'first_name']);
+		expect(splitFieldPath('title')).toEqual(['title']);
+	});
+
+	test('fieldToFilter and getComparator with a dotted json path', () => {
+		const filter = fieldToFilter('author.json(meta, a.b[0], number)', '_gt', 5);
+		expect(filter).toEqual({ author: { 'json(meta, a.b[0], number)': { _gt: 5 } } });
+		expect(getField(filter)).toBe('author.json(meta, a.b[0], number)');
+		expect(getComparator(filter)).toBe('_gt');
 	});
 });

@@ -1,7 +1,7 @@
 // Ported from directus/app/src/views/private/components/search-input.test.ts
 // Backoffice: real Pinia instead of @pinia/testing; buttons instead of v-icon stubs (same `icon-*` classes); SystemFilter
 // is stubbed; a portaled Reka layer (`data-reka-popper-content-wrapper`) plays the `.v-menu-content` part.
-import { DOMWrapper, enableAutoUnmount, mount, VueWrapper } from '@vue/test-utils';
+import { DOMWrapper, enableAutoUnmount, flushPromises, mount, VueWrapper } from '@vue/test-utils';
 import { createPinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../lang/index.ts';
@@ -12,7 +12,7 @@ vi.mock('../interfaces/_system/system-filter/SystemFilter.vue', () => ({
 	__esModule: true,
 	default: {
 		name: 'SystemFilter',
-		props: ['value', 'collectionName', 'inline'],
+		props: ['value', 'collectionName', 'inline', 'includeJsonPath'],
 		template: '<div class="system-filter" />',
 	},
 }));
@@ -191,6 +191,27 @@ describe('Backoffice', () => {
 		expect(wrapper.find('.search-input').classes()).toContain('w-11');
 		expect(wrapper.find('.search-input').classes()).not.toContain('active');
 		expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+	});
+
+	// Spec 023 (D-187): the Content page and the item drawer turn on the JSON path entry of the filter.
+	it('includeJsonPath goes to the filter, off by default', async () => {
+		for (const [props, expected] of [
+			[{}, false],
+			[{ includeJsonPath: true }, true],
+		] as const) {
+			const wrapper = mount(SearchInput, {
+				props: { modelValue: null, collection: 'bo_std', ...props },
+				global,
+				attachTo: document.body,
+			});
+
+			await wrapper.find('.search-input').trigger('click');
+			await wrapper.find('.icon-filter').trigger('click');
+			await flushPromises();
+
+			expect(wrapper.findComponent({ name: 'SystemFilter' }).props('includeJsonPath')).toBe(expected);
+			wrapper.unmount();
+		}
 	});
 
 	it('showSearch and showFilter false: nothing is rendered', () => {

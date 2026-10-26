@@ -14,6 +14,7 @@ import { useUserStore } from '../../stores/user.ts';
 import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { loadSnapshot } from '../../test-utils/fixtures.ts';
 import { createMemoryHistory, createRouter } from 'vue-router';
+import SearchInput from '../SearchInput.vue';
 import DrawerCollection from './DrawerCollection.vue';
 
 enableAutoUnmount(afterEach);
@@ -82,6 +83,12 @@ describe('DrawerCollection', () => {
 		mount(DrawerCollection, { props: { collection: 'bo_rel_target' }, global: { plugins: [i18n] } });
 		await flushPromises();
 		expect(drawerCalls()).toEqual([]);
+	});
+
+	// Spec 023 (D-187): the drawer filter offers the JSON path entry, like the Content page.
+	test('the search bar of the drawer turns on the JSON path entry', async () => {
+		const wrapper = await mountDrawer();
+		expect(wrapper.findComponent(SearchInput).props('includeJsonPath')).toBe(true);
 	});
 
 	test('default columns: first 4 visible fields (sorted), sort field, limit 25, page 1; title and subtitle', async () => {

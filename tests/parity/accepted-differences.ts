@@ -376,4 +376,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'A permission whose row filter or validation uses a json path is refused at Backoffice (400), saved at Directus.',
 	},
+	{
+		id: 'D-187',
+		feature: '023',
+		kind: 'doc',
+		reason:
+			'The web filter of the Content page and the item drawer lists "JSON path" under json fields (path and type form, rule chip Field › path (Type)); the Directus app and the other Backoffice filters (Files, Users, permissions, flows, insights, validation) do not.',
+	},
 ];

@@ -73,4 +73,11 @@ export default {
 	pagination: 'Phân trang',
 	// Spec 022 (D-182): the card title of the bo_show_* toggles in the Data Model collection form.
 	collection_content_toggles: 'Content: tìm kiếm, Import, Export',
+	// Spec 023 (D-187): the JSON path entry of the Content filter (field list item, form, type names, error).
+	json_path: 'Đường dẫn JSON',
+	json_path_type_text: 'Chữ',
+	json_path_type_number: 'Số',
+	json_path_type_boolean: 'Đúng/Sai',
+	json_path_invalid: 'Đường dẫn JSON không hợp lệ. Ví dụ: Amount, items[0].sku, items[*].sku',
+	json_path_apply: 'Áp dụng',
 };

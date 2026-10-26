@@ -220,54 +220,54 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T024 [P] [US2] Tạo `web/utils/json-path.test.ts`: `parseJsonPathKey` (2–3 tham số, placeholder `json(meta)` →
+- [X] T024 [P] [US2] Tạo `web/utils/json-path.test.ts`: `parseJsonPathKey` (2–3 tham số, placeholder `json(meta)` →
       `null`, key không phải json → `null`, m2o `author.json(meta, a, text)`), `formatJsonPathKey`, `jsonPathError`
       (rỗng, `items[`, `a[*].b[*]`, `?`, `@`, `$`, depth > 10 → lỗi; `Amount`, `a.b`, `items[0].sku`, `items[*].sku` → `null`),
       `jsonFilterType`; chép case của `fn/json/parse-function.test.ts`. Chạy đỏ.
-- [ ] T025 [P] [US2] Thêm vào `sf/utils.test.ts`: `splitFieldPath('author.json(meta, items[0].sku, text)')` → `['author',
+- [X] T025 [P] [US2] Thêm vào `sf/utils.test.ts`: `splitFieldPath('author.json(meta, items[0].sku, text)')` → `['author',
       'json(meta, items[0].sku, text)']`; `getField`, `getComparator`, `fieldToFilter` với key json có `.` và `[`; key cũ
       (`title`, `author.name`, `year(date)`, `a.count(b)`) cho kết quả như trước. Chạy đỏ.
-- [ ] T026 [P] [US2] Thêm vào `web/components/FieldList.test.ts` (cạnh "functions per field type", L127-140, `bo_std`
+- [X] T026 [P] [US2] Thêm vào `web/components/FieldList.test.ts` (cạnh "functions per field type", L127-140, `bo_std`
       `Tags`): không `includeJsonPath` → không có hàng `json`, có `Count (Tags)`; có prop → hàng "JSON path (Tags)", emit
       `add` `['json(tags)']`; qua m2o emit `json(<m2o>.<field>)`. Chạy đỏ.
-- [ ] T027 [P] [US2] Thêm vào `sf/SystemFilter.test.ts` (helper `setup`, `openAddFilter`, `addField`, `operator`,
+- [X] T027 [P] [US2] Thêm vào `sf/SystemFilter.test.ts` (helper `setup`, `openAddFilter`, `addField`, `operator`,
       `typeIn`): có `includeJsonPath`: chọn "JSON path" → form; path `items[` → lỗi `Invalid JSON path`, không emit; path
       `Amount` + Number + Apply → emit `{ "json(tags, Amount, number)": { "_eq": null } }` (toán tử đầu của `float`); hàng
       hiện `Tags › Amount (Number)` và chỉ toán tử số; Boolean → input toggle; sửa path/kiểu qua chip → key mới, đổi
       kiểu thì toán tử về đầu danh sách và xóa giá trị; hàng json trong nhóm `_and`/`_or` vẫn có prop; key m2o. Không
       prop: hàng json đã có vẫn hiện, chip chỉ đọc, không có mục thêm. Chạy đỏ.
-- [ ] T028 [P] [US2] Thêm vào `web/components/SearchInput.test.ts` (describe "Backoffice", L154-200): prop
+- [X] T028 [P] [US2] Thêm vào `web/components/SearchInput.test.ts` (describe "Backoffice", L154-200): prop
       `includeJsonPath` truyền xuống `SystemFilter`; mặc định `false`. Chạy đỏ.
-- [ ] T029 [P] [US2] Thêm vào `sf/SystemFilter.browser.test.ts` (keyboard, L43) luồng bàn phím: Tab/Enter tới
+- [X] T029 [P] [US2] Thêm vào `sf/SystemFilter.browser.test.ts` (keyboard, L43) luồng bàn phím: Tab/Enter tới
       `treeitem` "JSON path (...)", gõ path, Tab tới kiểu, chọn Number, Enter Apply; và vào
       `web/modules/content/a11y.browser.test.ts` (helper `bothSchemes`, cạnh case D-179 L288): popover bộ lọc với form
       JSON path, trạng thái lỗi, sáng và tối, 0 vi phạm serious/critical. Chạy đỏ.
 
 ### Implementation for User Story 2
 
-- [ ] T030 [P] [US2] Tạo `web/utils/json-path.ts` theo `contracts/web.md` (ngữ pháp R2, chép từ
+- [X] T030 [P] [US2] Tạo `web/utils/json-path.ts` theo `contracts/web.md` (ngữ pháp R2, chép từ
       `fn/json/parse-function.ts`, ghi nguồn ở comment đầu). T024 xanh.
-- [ ] T031 [US2] Sửa `sf/utils.ts` (`splitFieldPath`, path mảng trong `getComparator`, `fieldToFilter`) và mọi `get`/
+- [X] T031 [US2] Sửa `sf/utils.ts` (`splitFieldPath`, path mảng trong `getComparator`, `fieldToFilter`) và mọi `get`/
       `set` chuỗi path trong `sf/SystemFilter.vue` (L143 → `fieldToFilter`), `sf/Nodes.vue` (L134, L200-201, L257-258,
       L312), `sf/InputGroup.vue` (L92). T025 xanh; `SystemFilter.test.ts`, `utils.test.ts` hiện có xanh.
-- [ ] T032 [US2] Sửa `web/components/FieldList.vue`: prop `includeJsonPath` (mặc định `false`), `supportedFunctions`
+- [X] T032 [US2] Sửa `web/components/FieldList.vue`: prop `includeJsonPath` (mặc định `false`), `supportedFunctions`
       (L175-178) lọc `json` khi không có prop, nhãn L397 `row.fn === 'json' ? $t('json_path') : ...`. T026 xanh.
-- [ ] T033 [P] [US2] Tạo `sf/JsonPathForm.vue` theo `contracts/web.md` (`BoInput` path có `label`, `error`, `autofocus`;
+- [X] T033 [P] [US2] Tạo `sf/JsonPathForm.vue` theo `contracts/web.md` (`BoInput` path có `label`, `error`, `autofocus`;
       `BoSelect` kiểu; nút Apply; link quay lại; Enter = Apply; chỉ token theme) và test component riêng
       `sf/JsonPathForm.test.ts` (emit `apply` chỉ khi hợp lệ, `back`, nhãn liên kết).
-- [ ] T034 [US2] Sửa `sf/SystemFilter.vue` (prop `includeJsonPath`; truyền cho FieldList L236 và Nodes L199; placeholder
+- [X] T034 [US2] Sửa `sf/SystemFilter.vue` (prop `includeJsonPath`; truyền cho FieldList L236 và Nodes L199; placeholder
       `json(<key>)` → hiện `JsonPathForm` trong `PopoverContent` L235-268; Apply → `addNode(formatJsonPathKey(...))` với
       kiểu qua `jsonFilterType`), `sf/Nodes.vue` (prop, truyền FieldList L444 và node đệ quy L556; `getFieldPreview`
       nhánh json `Field › path (Type)`; `getCompareOptions` L279-305 và `updateField` L250-270 theo kiểu json;
       `isExistingField` qua `splitFieldPath`; chip hàng json mở `JsonPathForm` điền sẵn khi có prop, Apply →
       `replaceNode` L272), `sf/InputGroup.vue` (`fieldInfo` giả `{ type }` cho key json). T027, T029 (phần
       SystemFilter) xanh.
-- [ ] T035 [US2] Sửa `web/components/SearchInput.vue` (prop `includeJsonPath` → `SystemFilter` L225) và
+- [X] T035 [US2] Sửa `web/components/SearchInput.vue` (prop `includeJsonPath` → `SystemFilter` L225) và
       `web/modules/content/routes/CollectionRoute.vue` (L417 `:include-json-path="true"`). T028 xanh.
-- [ ] T036 [P] [US2] Thêm khóa vào `web/lang/overlay/en-US.ts` và `web/lang/overlay/vi-VN.ts` theo `contracts/web.md`
+- [X] T036 [P] [US2] Thêm khóa vào `web/lang/overlay/en-US.ts` và `web/lang/overlay/vi-VN.ts` theo `contracts/web.md`
       "i18n" (comment `// Spec 023 (D-187)`; trước khi thêm, grep base `web/lang/translations/en-US.json` và bỏ khóa đã
       có); `web/lang/overlay.test.ts` xanh.
-- [ ] T037 [US2] Tạo `e2e/content-filter-json-path.spec.ts` (helper `helpers/requests.ts` `test`, `helpers/api.ts`
+- [X] T037 [US2] Tạo `e2e/content-filter-json-path.spec.ts` (helper `helpers/requests.ts` `test`, `helpers/api.ts`
       `AdminApi`, `helpers/content.ts`, `helpers/login.ts`; mẫu tạo/xóa collection `content-navigation.spec.ts:64-72`):
       `beforeAll` tạo `bo_json_<run>` (field `payload` json + 4 item theo spec) và xóa cache ở mọi API; luồng chuột:
       Filter → Add Filter → mở `Payload` → `treeitem` "JSON path (Payload)" → `items[` → lỗi tại chỗ và không request
@@ -275,10 +275,10 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
       /presets/:id`), reload, mở bookmark → cùng bảng; sửa chip sang `Currency` Text; luồng bàn phím riêng; nhánh
       `e2eConfig === 'proxy-directus'`: sau Apply có notice lỗi API và bảng giữ nguyên (D-184.1). Thêm path tạo
       collection/field vào `e2e/allowed-paths.ts` nếu thiếu.
-- [ ] T038 [US2] Thêm vào `e2e/content-filter-json-path.spec.ts` case FR-015: mở bộ lọc ở `/files`, `/users`, Settings >
+- [X] T038 [US2] Thêm vào `e2e/content-filter-json-path.spec.ts` case FR-015: mở bộ lọc ở `/files`, `/users`, Settings >
       Policies (filter của permission) → mở field json (`tags`) → có `Count`, không có "JSON path"; và vào
       `tests/parity/accepted-differences.ts` `D-187` `kind: 'doc'`.
-- [ ] T039 [P] [US2] Thêm gạch đầu dòng "JSON path form" vào mục Q-7 của `design-system/docs/component-specs.md`
+- [X] T039 [P] [US2] Thêm gạch đầu dòng "JSON path form" vào mục Q-7 của `design-system/docs/component-specs.md`
       (L1265-1312) theo `contracts/web.md` "design-system".
 
 **Checkpoint**: US2 chạy độc lập trên trang Content (cần lượt 1 cho `proxy-api`, `cors`).
@@ -291,13 +291,13 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T040 [P] [US3] Thêm vào `web/components/drawers/DrawerCollection.test.ts` (L80-230): `SearchInput` nhận
+- [X] T040 [P] [US3] Thêm vào `web/components/drawers/DrawerCollection.test.ts` (L80-230): `SearchInput` nhận
       `includeJsonPath` `true`; filter json path của drawer được gửi trong request `/items` (SDK, JSON). Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Sửa `web/components/drawers/DrawerCollection.vue` (L203 `:include-json-path="true"`). T040 xanh.
-- [ ] T042 [US3] Thêm vào `e2e/content-filter-json-path.spec.ts` case drawer: gán `tags: ["e2e-<run>"]` cho một user qua
+- [X] T041 [US3] Sửa `web/components/drawers/DrawerCollection.vue` (L203 `:include-json-path="true"`). T040 xanh.
+- [X] T042 [US3] Thêm vào `e2e/content-filter-json-path.spec.ts` case drawer: gán `tags: ["e2e-<run>"]` cho một user qua
       `AdminApi` (`directus_users.tags` là mảng chuỗi json); mở một item `bo_content` → field `author` → drawer
       `directus_users` → Filter → `Tags` → "JSON path" → path `[*]` (phần tử bất kỳ của mảng gốc) + Text → Equals
       `e2e-<run>` → chỉ user đó hiện; chọn user như bình thường; xóa tag sau test.

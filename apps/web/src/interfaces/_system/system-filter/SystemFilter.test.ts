@@ -344,3 +344,119 @@ describe('system-filter', () => {
 		expect(s.last()).toEqual({ _and: [{ id: { _eq: '$CURRENT_ROLE' } }] });
 	});
 });
+
+// Backoffice (spec 023, D-187): the JSON path entry of json fields (bo_std.tags is a json field).
+describe('JSON path (spec 023)', () => {
+	const form = () => document.body.querySelector<HTMLFormElement>('.json-path-form');
+	const pathInput = () => form()!.querySelector<HTMLInputElement>('input[placeholder]')!;
+
+	async function fillForm(path: string, typeIndex?: number) {
+		const input = pathInput();
+		input.value = path;
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+		await flushPromises();
+
+		if (typeIndex !== undefined) {
+			// The type Select: Reka moves focus between options in a setTimeout.
+			const press = async (name: string, el: Element = document.activeElement!) => {
+				await key(el, name);
+				await new Promise((resolve) => setTimeout(resolve));
+				await flushPromises();
+			};
+			const trigger = form()!.querySelector<HTMLElement>('[role="combobox"]')!;
+			trigger.focus();
+			await press('Enter', trigger);
+			await press('Home');
+			for (let i = 0; i < typeIndex; i++) await press('ArrowDown');
+			await press('Enter');
+		}
+
+		form()!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+		await flushPromises();
+	}
+
+	async function openJsonPath(s: Setup, ...path: string[]) {
+		await openAddFilter(s);
+
+		for (const segment of path.slice(0, -1)) {
+			treeItem(segment).querySelector('button')!.click();
+			await flushPromises();
+		}
+
+		treeItem(path.at(-1)!).click();
+		await flushPromises();
+	}
+
+	test('adding: path and type form, an invalid path is not emitted, operators of the type', async () => {
+		const s = setup(null, { collectionName: 'bo_std', includeJsonPath: true });
+		await openJsonPath(s, 'Tags', 'JSON path (Tags)');
+
+		expect(form()).not.toBeNull();
+		await fillForm('items[');
+		expect(form()!.textContent).toContain('Invalid JSON path');
+		expect(s.last()).toBeUndefined();
+
+		await fillForm('Amount', 1);
+		await s.sync();
+		expect(s.last()).toEqual({ _and: [{ 'json(tags, Amount, number)': { _eq: null } }] });
+		expect(s.wrapper.get('.json-path-button').text()).toBe('Tags › Amount (Number)');
+
+		s.wrapper.get('.comparator').element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+		await flushPromises();
+		const items = [...document.body.querySelectorAll('[role="menuitem"]')].map(visibleText);
+		expect(items).toContain('Greater than');
+		expect(items).not.toContain('Contains');
+	});
+
+	test('editing the path and the type from the rule chip', async () => {
+		const s = setup(
+			{ _and: [{ 'json(tags, Amount, number)': { _gt: '5' } }] },
+			{ collectionName: 'bo_std', includeJsonPath: true },
+		);
+
+		await s.wrapper.get('.json-path-button').trigger('click');
+		await flushPromises();
+		expect(pathInput().value).toBe('Amount');
+
+		await fillForm('Total');
+		await s.sync();
+		expect(s.last()).toEqual({ _and: [{ 'json(tags, Total, number)': { _gt: '5' } }] });
+
+		await s.wrapper.get('.json-path-button').trigger('click');
+		await flushPromises();
+		await fillForm('Total', 0);
+		await s.sync();
+		expect(s.last()).toEqual({ _and: [{ 'json(tags, Total, text)': { _contains: null } }] });
+	});
+
+	test('a dotted path and a group: the key keeps its dots, the prop reaches nested rules', async () => {
+		const value = { _and: [{ _or: [{ 'json(tags, a.b[0], boolean)': { _eq: true } }] }] };
+		const s = setup(value, { collectionName: 'bo_std', includeJsonPath: true });
+
+		expect(s.wrapper.get('.json-path-button').text()).toBe('Tags › a.b[0] (Boolean)');
+		expect(s.wrapper.findAll('.comparator').map((c) => c.text())).toEqual(['Equals']);
+	});
+
+	test('through m2o: Author → Tags → JSON path gives author.json(tags, ...)', async () => {
+		const s = setup(null, { collectionName: 'bo_content', includeJsonPath: true });
+		await openJsonPath(s, 'Author', 'Tags', 'JSON path (Tags)');
+		await fillForm('[*]');
+		await s.sync();
+
+		expect(s.last()).toEqual({ _and: [{ author: { 'json(tags, [*], text)': { _contains: null } } }] });
+		expect(s.wrapper.get('.json-path-button').text()).toBe('Author -> Tags › [*] (Text)');
+	});
+
+	test('without includeJsonPath: no JSON path entry (Count stays), a saved json rule is shown read-only', async () => {
+		const s = setup({ _and: [{ 'json(tags, Amount, number)': { _eq: 1 } }] }, { collectionName: 'bo_std' });
+
+		expect(s.wrapper.find('.json-path-button').exists()).toBe(false);
+		expect(s.wrapper.get('.rule-header').text()).toContain('Tags › Amount (Number)');
+
+		await openAddFilter(s);
+		treeItem('Tags').querySelector('button')!.click();
+		await flushPromises();
+		expect(treeItem('Count (Tags)')).toBeDefined();
+		expect(treeItem('JSON path (Tags)')).toBeUndefined();
+	});
+});

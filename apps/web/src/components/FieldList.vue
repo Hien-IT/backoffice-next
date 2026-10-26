@@ -44,6 +44,8 @@ const props = withDefaults(
 		fieldTree?: FieldNode[] | undefined;
 		loadPathLevel?: ((fieldPath: string) => void) | undefined;
 		depth?: number | undefined;
+		/** Backoffice (spec 023, D-187): offer the `json` function of json fields as "JSON path" (Content and drawer). */
+		includeJsonPath?: boolean;
 	}>(),
 	{
 		field: undefined,
@@ -58,6 +60,7 @@ const props = withDefaults(
 		fieldTree: undefined,
 		loadPathLevel: undefined,
 		depth: undefined,
+		includeJsonPath: false,
 	},
 );
 
@@ -174,7 +177,9 @@ function filter(field: Field, parent?: FieldNode): boolean {
 // --- VFieldListItem.vue, flattened into rows ---
 function supportedFunctions(field: FieldInfo): string[] {
 	if (!props.includeFunctions || field.group || field._loading) return [];
-	return getFunctionsForType(field.type);
+	// Backoffice (spec 023, D-187): `json` without a path is refused by both APIs, so it is only offered as the
+	// JSON path entry where that is enabled; `count` stays.
+	return getFunctionsForType(field.type).filter((fn) => fn !== 'json' || props.includeJsonPath);
 }
 
 /** Groups open while searching: a group whose parents are all groups (DR openWhileSearching + parentOpen). */
@@ -394,7 +399,7 @@ const TOGGLE =
 					<BoIcon name="auto_awesome" size="sm" class="text-brand-500 dark:text-brand-400" />
 					<BoTextOverflow
 						class="min-w-0 flex-1 text-brand-600 dark:text-brand-400"
-						:text="`${$t(`functions.${row.fn}`)} (${displayName(row.node)})`"
+						:text="`${row.fn === 'json' ? $t('json_path') : $t(`functions.${row.fn}`)} (${displayName(row.node)})`"
 					/>
 				</template>
 

@@ -300,6 +300,26 @@ describe('collection page', () => {
 
 		await bothSchemes();
 	}, 30_000);
+
+	test('spec 023 D-187: the filter popover with the JSON path form in its error state', async () => {
+		await mountPage('/content/bo_content');
+		await vi.waitFor(() => expect(document.querySelector('tbody tr')).not.toBeNull(), { timeout: 10000 });
+		await userEvent.click(document.querySelector<HTMLElement>('.search-input .icon-filter')!);
+		await userEvent.click(await found(() => byText('button', t('interfaces.filter.add_filter'))));
+
+		// Author (m2o to directus_users) → Tags (json) → JSON path.
+		for (const name of ['Author', 'Tags']) {
+			const row = await found(() => byText('[role="treeitem"] .truncate', name)?.closest('[role="treeitem"]'));
+			await userEvent.click(row.querySelector('button')!);
+		}
+
+		await userEvent.click(await found(() => byText('[role="treeitem"]', t('json_path') + ' (Tags)')));
+		await userEvent.keyboard('items[[{Enter}');
+		await found(() => document.querySelector('.json-path-form [role="alert"]'));
+		await settle();
+
+		await bothSchemes();
+	}, 30_000);
 });
 
 describe('item page', () => {

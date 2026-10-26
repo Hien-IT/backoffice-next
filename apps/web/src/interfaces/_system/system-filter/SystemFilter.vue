@@ -3,7 +3,8 @@
 // Backoffice: recipe "Search and advanced filter (Q-7)": the rule list is a bordered box (none when `inline`), "Add
 // filter" is a ghost button opening FieldList (readable fields only, functions, lazy relations) in a Reka popover with
 // "And / Or group" on top, as the DR v-menu + v-field-list `#prepend`. Values, operators and the emitted JSON
-// follow DR (SC-004).
+// follow DR (SC-004). Spec 023 (D-187): with `includeJsonPath` (Content page, item drawer) the "JSON path" entry of a
+// json field turns the popover into JsonPathForm; Apply adds `json(field, path, type)` with the operators of the type.
 import type { ClientFilterOperator, FieldFunction, Filter, Type } from '@directus/types';
 import {
 	getFilterOperatorsForType,
@@ -13,14 +14,22 @@ import {
 } from '@directus/utils';
 import { cloneDeep, get, isEmpty, set } from 'lodash-es';
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
-import { computed, inject, ref } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoNotice from '../../../components/BoNotice.vue';
 import FieldList from '../../../components/FieldList.vue';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useRelationsStore } from '../../../stores/relations.ts';
+import {
+	formatJsonPathKey,
+	isJsonPathPlaceholder,
+	jsonFilterType,
+	parseJsonPathKey,
+	type JsonPathType,
+} from '../../../utils/json-path.ts';
+import JsonPathForm from './JsonPathForm.vue';
 import Nodes from './Nodes.vue';
-import { getNodeName } from './utils.ts';
+import { fieldToFilter, getNodeName } from './utils.ts';
 
 interface Props {
 	value?: Record<string, any> | string | null | undefined;
@@ -41,6 +50,8 @@ interface Props {
 	relationalFieldSelectable?: boolean;
 	rawFieldNames?: boolean;
 	rawEditorEnabled?: boolean;
+	/** Backoffice (spec 023, D-187): offer "JSON path" under json fields (Content page and item drawer only). */
+	includeJsonPath?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -56,11 +67,37 @@ const props = withDefaults(defineProps<Props>(), {
 	injectVersionField: false,
 	relationalFieldSelectable: true,
 	rawFieldNames: false,
+	includeJsonPath: false,
 });
 
 const emit = defineEmits<{ input: [value: Filter | null] }>();
 
 const menuOpen = ref(false);
+
+// Backoffice (spec 023): the json field whose path and type are being entered (popover step 2), e.g. `author.tags`.
+const jsonPathField = ref<string | null>(null);
+watch(menuOpen, (open) => {
+	if (!open) jsonPathField.value = null;
+});
+
+function onFieldListAdd(key: string) {
+	if (props.includeJsonPath && isJsonPathPlaceholder(key)) {
+		jsonPathField.value = key.slice('json('.length, -1).trim();
+		return;
+	}
+
+	addNode(key);
+}
+
+function applyJsonPath({ path, type }: { path: string; type: JsonPathType }) {
+	addNode(formatJsonPathKey(jsonPathField.value!, path, type));
+}
+
+const jsonPathTitle = computed(() => {
+	if (!jsonPathField.value) return '';
+	const field = fieldsStore.getField(collection.value, jsonPathField.value);
+	return (props.rawFieldNames ? field?.field : field?.name) ?? jsonPathField.value;
+});
 
 const values = inject('values', ref<Record<string, any>>({}));
 
@@ -113,8 +150,14 @@ function addNode(key: string) {
 		const field = fieldsStore.getField(collection.value, key);
 		const isVersion = key === '$version';
 
+		const jsonPath = parseJsonPathKey(key);
+
 		if (isVersion) {
 			type = 'string';
+		} else if (jsonPath) {
+			// Backoffice (spec 023, FR-003): the operators of the type chosen for the value at the path.
+			type = jsonFilterType(jsonPath.type);
+			key = parseFilterFunctionPath(key);
 		} else if (key.includes('(') && key.includes(')')) {
 			const functionName = key.split('(')[0] as FieldFunction;
 			type = getOutputTypeForFunction(functionName);
@@ -140,7 +183,8 @@ function addNode(key: string) {
 		const booleanOperators: ClientFilterOperator[] = ['empty', 'nempty', 'null', 'nnull'];
 		const initialValue = operator && booleanOperators.includes(operator) ? true : null;
 
-		const node = set({}, key, { ['_' + operator]: initialValue });
+		// Backoffice (spec 023): fieldToFilter splits the key at dots outside parentheses (a json path keeps its own).
+		const node = fieldToFilter(key, '_' + operator, initialValue);
 		innerValue.value = innerValue.value.concat(node);
 	}
 }
@@ -207,6 +251,7 @@ const POPOVER =
 				:relational-field-selectable="relationalFieldSelectable"
 				:raw-field-names="rawFieldNames"
 				:variable-input-enabled="rawEditorEnabled"
+				:include-json-path="includeJsonPath"
 				@remove-node="removeNode($event)"
 				@change="emitValue"
 			/>
@@ -233,16 +278,24 @@ const POPOVER =
 			</PopoverTrigger>
 			<PopoverPortal>
 				<PopoverContent :side-offset="4" align="start" :collision-padding="8" :class="POPOVER">
+					<JsonPathForm
+						v-if="collectionRequired && jsonPathField"
+						:title="jsonPathTitle"
+						back
+						@apply="applyJsonPath"
+						@back="jsonPathField = null"
+					/>
 					<FieldList
-						v-if="collectionRequired"
+						v-else-if="collectionRequired"
 						:collection="collection"
 						include-functions
+						:include-json-path="includeJsonPath"
 						:include-relations="includeRelations"
 						:inject-version-field="injectVersionField"
 						:relational-field-selectable="relationalFieldSelectable"
 						:allow-select-all="false"
 						:raw-field-names="rawFieldNames"
-						@add="addNode($event[0]!)"
+						@add="onFieldListAdd($event[0]!)"
 					>
 						<template #prepend>
 							<button type="button" class="add-group" :class="MENU_ITEM" @click="addNode('$group')">

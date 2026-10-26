@@ -11,8 +11,9 @@ import { useCollection } from '../../../composables/use-collection.ts';
 import { useFakeVersionField } from '../../../composables/use-fake-version-field.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useRelationsStore } from '../../../stores/relations.ts';
+import { jsonFilterType, parseJsonPathKey } from '../../../utils/json-path.ts';
 import InputComponent from './InputComponent.vue';
-import { fieldToFilter, getComparator, getField } from './utils.ts';
+import { fieldToFilter, getComparator, getField, splitFieldPath } from './utils.ts';
 
 // Workaround because you cannot cast directly to union types inside
 // the template block without running into eslint/prettier issues
@@ -42,6 +43,20 @@ const { fakeVersionField } = useFakeVersionField(toRef(props, 'collection'), ver
 const fieldInfo = computed(() => {
 	if (isVersionField.value) {
 		return fakeVersionField.value;
+	}
+
+	// Backoffice (spec 023): a json path rule takes the input of the type chosen for the value at the path.
+	const json = parseJsonPathKey(splitFieldPath(fieldPath.value).at(-1)!);
+
+	if (json) {
+		return {
+			collection: props.collection,
+			field: fieldPath.value,
+			name: json.path,
+			type: jsonFilterType(json.type),
+			meta: null,
+			schema: null,
+		} as unknown as ReturnType<typeof fieldsStore.getField>;
 	}
 
 	const fieldInfo = fieldsStore.getField(props.collection, fieldPath.value);
@@ -89,7 +104,7 @@ const interfaceType = computed(() => {
 });
 
 const fieldValue = computed(() => {
-	return get(props.field, `${fieldPath.value}.${comparator.value}`);
+	return get(props.field, [...splitFieldPath(fieldPath.value), comparator.value]);
 });
 
 const {

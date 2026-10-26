@@ -1310,6 +1310,14 @@ Built: `components/SearchInput.vue`, `components/FieldList.vue`,
   the §9 rules of layout-patterns); relational fields have a `chevron_right` toggle (`size-6`, turns 90°, lazy
   children); functions listed under date fields (`auto_awesome`, brand text); no match = `role="status"` text.
   Deviation: no search highlight (BoTextOverflow has none) and no `$version` field yet.
+- JSON path form (spec 023, D-187; owner as design owner 2026-10-27: built from this recipe and the Input and Select
+  recipes, no new component recipe): with `includeJsonPath` (Content page, item drawer) a json field lists "JSON path
+  (Field)" after `count`; choosing it turns the same `POPOVER` into step 2: an `arrow_back` icon Button back to the field
+  list, the `json_path` title, a labelled Input for the path (placeholder `Amount, items[*].sku`, error under it with
+  `role="alert"` and `aria-describedby`), the type as a labelled Select (Text, Number, Boolean; its listbox opens
+  above the popover like the Select of the tabular options) and a small primary Button `json_path_apply`; Enter in the
+  input applies; an invalid path shows the error and adds nothing. The rule chip of a json path reads
+  `Field › path (Type)` and, with `includeJsonPath`, opens the same form prefilled; elsewhere it is plain text.
 
 ### Page header controls (Q-8; bookmark, version menu, save split button, notices)
 

@@ -414,7 +414,14 @@ function clearFilters() {
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 
-				<SearchInput v-model="search" v-model:filter="filter" :collection="collection" :show-search="showSearch" />
+				<!-- Backoffice (spec 023, D-187): "JSON path" under json fields of the filter. -->
+				<SearchInput
+					v-model="search"
+					v-model:filter="filter"
+					:collection="collection"
+					:show-search="showSearch"
+					include-json-path
+				/>
 
 				<template v-if="selection.length > 0">
 					<BoButton
