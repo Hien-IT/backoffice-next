@@ -3,8 +3,10 @@
 **Feature Branch**: `023-json-path-filter` (làm trên `main` như 012–022, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=023-json-path-filter`)
 **Created**: 2026-10-27
-**Status**: Draft (spec và clarify 2026-10-27; plan 2026-10-27: research R1–R16, data-model, contracts, quickstart; D-184..D-187
-duyệt 2026-10-27, chủ dự án kiêm tech lead)
+**Status**: Implemented 2026-10-27, ba lượt trên `main` (`7412cb45`..`9033b7d7`), CI 40404290750 và 40423967360 xanh,
+benchmark-items 40423999222 và benchmark-web 40415449804 xanh; T055 (nightly vendor khác) để chủ dự án quyết định (spec
+và clarify 2026-10-27; plan 2026-10-27: research R1–R16, data-model, contracts, quickstart; D-184..D-187 duyệt
+2026-10-27, chủ dự án kiêm tech lead; C1: form path + kiểu ghép từ recipe Q-7, Input, Select)
 **Input**: User description: "Feature 023: filter theo path trong field json (json-path-filter). Bối cảnh: field kiểu json
 (cột json hoặc jsonb) hiện chỉ filter được _null/_nnull. API trả 400 "Invalid filter key" cho key json(field, path) trong
 filter; FieldList có mục "functions.json" nhưng gửi json(field) không có path nên cũng 400. Directus 11.17.4 giống vậy.
@@ -366,6 +368,13 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   kiểu", `_null`/`_nnull`/`_empty`. FR-013: bộ lọc của mục Export không có mục "JSON path". FR-018: E2E ở proxy tới
   Directus mong lỗi D-184.1. Edge Cases: `fields`/`sort` với `type`, giá trị Text `true`/`false`/`null`. D-186: collection
   hệ thống chạm tới từ scope items, bỏ so ETag.
+
+### Sửa khi implement (2026-10-27)
+
+- Lượt 2: kiểu ở form là Select (`BoSelect`) theo C1; SC-005 và mục Testing: ở `proxy-directus` layout hiện lỗi
+  `FORBIDDEN` và nút "Reset Page Preferences" như DR app (trước ghi "bảng giữ nguyên").
+- Lượt 3: input `<field>_json` thiếu hoặc thừa kiểu (`text`, `number`, `boolean`) trả `INVALID_QUERY`; filter của
+  mutation chỉ lọc item trả về, mutation update vẫn cần `ids` như DR.
 
 ## Assumptions
 

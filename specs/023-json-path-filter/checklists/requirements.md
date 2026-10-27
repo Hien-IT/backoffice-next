@@ -44,3 +44,6 @@
   kiểu, H1 SC-005 theo cấu hình E2E, I1–I4, A1, G1, L1–L3, CQ1).
 - SC-006 chỉ đặt ngưỡng cho benchmark hiện có; thời gian lọc theo path chỉ đo và ghi lại, vì Directus không có tính năng
   này để so.
+- Sau implement (2026-10-27): mọi FR và SC có test (unit, parity `json-path`/GraphQL, E2E ba cấu hình, benchmark);
+  kết quả ở `research.md` "Kết quả lượt 1/2/3". Sửa câu chữ khi implement (Select theo C1, SC-005 ở `proxy-directus`,
+  `INVALID_QUERY` của GraphQL) ghi ở Clarifications. SC-006 đạt ở benchmark-items 40423999222.

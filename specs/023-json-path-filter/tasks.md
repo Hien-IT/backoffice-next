@@ -203,7 +203,7 @@ D-185 trên Postgres và SQLite.
 - [X] T022 [US5] Thêm `D-185` `kind: 'http'` vào `tests/parity/accepted-differences.ts` (`endpoints: ['POST
       /permissions', 'PATCH /permissions/*', 'PATCH /permissions']`, `when: { backofficeCode: 'INVALID_PAYLOAD' }`,
       `location: { any: true }`); chạy T018, T020 và `json-path.test.ts` đủ trên Postgres và SQLite, xanh.
-- [ ] T023 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `api:test` các file đã sửa và cả
+- [X] T023 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `api:test` các file đã sửa và cả
       `aq/`, `fn/`, `permissions/` (coverage BE ≥ 80 %); parity Postgres (`json-path`, `crud`, `export`, blackbox
       `json-fields`), SQLite và MySQL (`json-path`, `crud`; MySQL kiểm vendor gate, SC-002) local xanh; `git add` theo đường dẫn (Phase 1–4 và `research.md`);
       commit `feat(023): filter items by a path inside a json field (D-184, D-184.2, D-185)`; push khi `main` rảnh; gửi
@@ -301,7 +301,7 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
       `AdminApi` (`directus_users.tags` là mảng chuỗi json); mở một item `bo_content` → field `author` → drawer
       `directus_users` → Filter → `Tags` → "JSON path" → path `[*]` (phần tử bất kỳ của mảng gốc) + Text → Equals
       `e2e-<run>` → chỉ user đó hiện; chọn user như bình thường; xóa tag sau test.
-- [ ] T043 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e parity-tests`; `web:test` các file đã sửa và
+- [X] T043 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e parity-tests`; `web:test` các file đã sửa và
       cả `sf/`, `components/` (coverage FE ≥ 60 %), browser project (`SystemFilter.browser`, `a11y.browser`); `web:build`;
       E2E `content-filter-json-path`, `content-filter-bookmark` local `proxy-api`; `git add` theo đường dẫn; commit
       `feat(023): JSON path filter in the Content filter and the item drawer (D-187)`; push khi `main` rảnh; gửi số run
@@ -362,7 +362,7 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
       Amount, number)":{"_eq":6000}}&limit=25&fields=id,title`, admin, `ROUNDS` vòng; lần 1 không index, lần 2 sau
       `CREATE INDEX` đúng biểu thức của `quickstart.md` "Index" + `ANALYZE`; log `EXPLAIN`; gate chỉ `errors`; bảng riêng
       vào `GITHUB_STEP_SUMMARY`); `bench/web-content.ts` một dòng reported-only cho 8172 (preset filter json path).
-- [ ] T054 Chạy `gh workflow run benchmark.yml -f job=benchmark-items` và `-f job=benchmark-web`; ghi số đo (p95, req/s,
+- [X] T054 Chạy `gh workflow run benchmark.yml -f job=benchmark-items` và `-f job=benchmark-web`; ghi số đo (p95, req/s,
       có/không index, `EXPLAIN` có index scan không) vào `specs/023-json-path-filter/research.md` "Kết quả lượt 3" và
       `quickstart.md` "Index"; scenario hiện có ≤ 10 % so với Directus (SC-006). Index không được dùng thì sửa biểu thức
       R4 hoặc hướng dẫn index, ghi lại.
@@ -373,10 +373,10 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
 - [X] T056 [P] Thêm gạch đầu dòng 023 vào `tests/parity/README.md` mục "Test items (feature 005)" (L115-133:
       `json-path.test.ts`, D-184..D-187, bước jsonb, vendor) và ghi chú vào `deploy/README.md` cạnh L160 (shared-domain:
       request có json path rơi vào Directus nhận 403, D-184; separate-domain, standalone không ảnh hưởng).
-- [ ] T057 Ghi `specs/023-json-path-filter/research.md` "Kết quả lượt 1/2/3" (T001, T002, T017, T054, T055);
+- [X] T057 Ghi `specs/023-json-path-filter/research.md` "Kết quả lượt 1/2/3" (T001, T002, T017, T054, T055);
       `spec.md` Status → Implemented (ngày, ba lượt, CI run); `checklists/requirements.md` note; `SPECKIT-GUIDE.md` mục
       023 trạng thái; `CLAUDE.md` Recent Changes thêm dòng 023.
-- [ ] T058 Đóng lượt 3: `pnpm nx run-many -t lint,typecheck -p api web parity-tests benchmark`; `api:test` `gql/`;
+- [X] T058 Đóng lượt 3: `pnpm nx run-many -t lint,typecheck -p api web parity-tests benchmark`; `api:test` `gql/`;
       parity GraphQL Postgres local xanh; `git add` theo đường dẫn; commit `feat(023): GraphQL json path filter, parity
       normalizer, benchmark and docs (D-186)`; push khi `main` rảnh; gửi số run cho phiên 021; CI xanh; `graphify update
       .`; báo chủ dự án kết quả SC-001..SC-006.

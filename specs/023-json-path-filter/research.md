@@ -512,3 +512,15 @@ lỗi 403; spec, contracts, quickstart sửa câu chữ 400 → 403 (không đ�
   2 skip có sẵn. Mutation update của DR/Backoffice cần `ids`; filter chỉ lọc item trả về.
 - Index: trên Postgres 13 của env, `PREPARE` với tham số như knex (`ARRAY[$1]::text[]`, `$3` numeric) dùng
   `Bitmap Index Scan` của index biểu thức trong `quickstart.md` "Index" (plan tùy biến, tham số được gập thành hằng).
+- Benchmark (seed 10 triệu dòng, `payload` json `{Amount: g % 10000, Currency}`): `benchmark-items` 40423999222 xanh,
+  14 scenario hiện có trong 10 % so với DR (SC-006). Lọc `json(payload, Amount, number) = 6000` (1 000 dòng khớp), chỉ
+  Backoffice, admin, no-store: không index 1 kết nối p95 217 ms, 3 req/s (`Seq Scan`, dừng khi đủ 25 dòng); có index
+  biểu thức 50 kết nối 460,9 req/s, p95 128 ms (`Index Scan using bench_articles_payload_amount`, `Index Cond` đúng
+  biểu thức CASE). Run 40415424870 trước đó đo không index ở 50 kết nối: mọi request timeout (0,2 req/s, 136 lỗi) vì
+  mỗi request quét bảng trên runner 2 lõi; đã đổi sang 1 kết nối (9033b7d7). Cùng run đó `POST create (user)` vượt
+  CPU 13 % (Backoffice 8,10 ms/req, bằng run 40236253415 trước 023: 8,16; DR 7,14 thay vì 7,45), rerun đạt (5,81 so
+  với 5,81): không phải hồi quy của 023.
+- `benchmark-web` 40415449804 xanh: trang Content với preset `json(payload, Amount, number) = 6000` (web → API, list +
+  2 count) p95 1 448 ms, so với preset `status` 939 ms; DR trả 403 (D-184) nên chỉ ghi lại.
+- T055 (nightly MariaDB, MSSQL, Oracle, CockroachDB, postgres10) không chạy: chủ dự án quyết định (workflow chạy tay).
+  Vendor gate có unit theo client (T006) và parity MySQL `reduced` xanh ở CI 40391510176, 40404290750, 40423967360.

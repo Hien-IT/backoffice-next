@@ -58,7 +58,9 @@ CREATE INDEX transactions_amount ON transactions
 ANALYZE transactions;
 ```
 
-`[*]` không dùng được index. Số đo trên seed 10 triệu dòng: research "Kết quả lượt 3".
+`[*]` không dùng được index. Số đo trên seed 10 triệu dòng (benchmark 40423999222, 1 000 dòng khớp, trang 25 dòng):
+không index 1 kết nối p95 217 ms (`Seq Scan`), nhưng 50 kết nối đồng thời làm timeout trên runner 2 lõi; có index 50
+kết nối 460,9 req/s, p95 128 ms (`Index Scan`). Chi tiết: research "Kết quả lượt 3".
 
 ## Lỗi thường gặp
 

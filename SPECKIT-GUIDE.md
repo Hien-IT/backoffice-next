@@ -1702,7 +1702,7 @@ Ghi chú đưa vào spec và plan 022 (đọc code ngày 2026-10-26, chưa chạ
 
 ### 023: Filter theo path trong field json
 
-Trạng thái: Chưa chạy. Soạn 2026-10-27 cùng chủ dự án. Thư mục: `specs/023-json-path-filter/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi".
+Trạng thái: đã xong 2026-10-27. Ba lượt trên `main` (`7412cb45`..`9033b7d7`), 57/58 task, CI 40404290750 và 40423967360 xanh, benchmark-items 40423999222 và benchmark-web 40415449804 xanh; D-184..D-187 đã duyệt (C1: form path + kiểu ghép từ recipe Q-7, Input, Select). T055 (nightly MariaDB, MSSQL, Oracle, CockroachDB, postgres10) chưa chạy: chủ dự án quyết định. Kết quả từng lượt ở `research.md` "Kết quả lượt 1/2/3". Thư mục: `specs/023-json-path-filter/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi".
 
 **1. `/speckit.specify`**
 
