@@ -65,15 +65,15 @@ describe('one change, every node', () => {
 		);
 
 		try {
-			// Any change broadcasts a reload; every node syncs the whole location.
+			// Any change broadcasts a reload; every node syncs the whole location. One change per step: a second queued
+			// reload could still be syncing when the folder is removed, and a sync that misses a listed key exits the
+			// node (process.exit(1), as Directus; CI 40589749926).
 			await patch(directus!.url, other.id, false);
-			await patch(directus!.url, other.id, true);
 
 			await everywhere(`/${folder}`, 200);
 			expect((await extRows()).filter((row) => row.folder === folder)).toHaveLength(1);
 		} finally {
 			mc(`mc rm --recursive --force local/directus/extensions/${folder}`);
-			await patch(directus!.url, other.id, false);
 			await patch(directus!.url, other.id, true);
 			await everywhere(`/${folder}`, 404);
 			await hostDb()('directus_extensions').where({ folder }).delete();
