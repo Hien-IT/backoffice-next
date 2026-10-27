@@ -287,3 +287,43 @@ describe('DrawerCollection layouts (014 FR-029)', () => {
 		expect(wrapper.emitted('input')?.[0]?.[0]).toHaveLength(1);
 	});
 });
+
+// Spec 024 (FR-014, D-188.3): the drawer follows bo_show_search of its collection like the Content page (022): the
+// API refuses a search there, so the keyword box is hidden and the preset search is not sent.
+describe('DrawerCollection with the search toggle (spec 024)', () => {
+	function toggle(value: boolean | null) {
+		const collection = useCollectionsStore().getCollection('bo_rel_target')!;
+		collection.meta = { ...collection.meta!, bo_show_search: value } as any;
+	}
+
+	function presetSearch(search: string) {
+		usePresetsStore().collectionPresets = [
+			{ id: 1, bookmark: null, user: null, role: null, collection: 'bo_rel_target', layout: 'tabular', search },
+		] as any;
+	}
+
+	test('off: no keyword box, the filter stays, the preset search is not sent and the preset is not written', async () => {
+		toggle(false);
+		presetSearch('two');
+
+		const wrapper = await mountDrawer();
+
+		expect(wrapper.findComponent(SearchInput).props('showSearch')).toBe(false);
+		expect(panel().querySelector('input[type="search"]')).toBeNull();
+		expect(panel().querySelector('button[aria-label="Filter"]')).not.toBeNull();
+		expect(listCalls().every((call) => !call.includes('search='))).toBe(true);
+		expect(rows()).toHaveLength(5);
+		// The preset keeps its search: the drawer never writes presets (FR-019 of 014).
+		expect(drawerCalls().some((call) => call.includes('/presets'))).toBe(false);
+	});
+
+	test.each([null, true])('%s: the keyword box and the preset search as before', async (value) => {
+		toggle(value);
+		presetSearch('two');
+
+		const wrapper = await mountDrawer();
+
+		expect(wrapper.findComponent(SearchInput).props('showSearch')).toBe(true);
+		expect(listCalls()[0]).toContain('search=two');
+	});
+});

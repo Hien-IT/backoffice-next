@@ -410,6 +410,24 @@ describe('list-m2m (fixture bo_rel.m2m_table)', () => {
 		);
 	});
 
+	// Spec 024 (FR-014, D-188.3): `search` goes to the junction collection, so its bo_show_search decides; the
+	// toggle of the related collection does not hide the box.
+	test('spec 024: bo_show_search off on the junction hides the search box; off on the related collection does not', async () => {
+		const create = Array.from({ length: 11 }, (_, i) => ({ bo_rel_target_id: { name: `New ${i}` } }));
+		const off = (collection: string) => {
+			const info = useCollectionsStore().getCollection(collection)!;
+			info.meta = { ...info.meta!, bo_show_search: false } as any;
+		};
+
+		off('bo_rel_target');
+		const related = await mountList('m2m_table', { value: { create, update: [], delete: [] } });
+		expect(related.find('input[type="search"]').exists()).toBe(true);
+
+		off('bo_junction_m2m_table');
+		const junction = await mountList('m2m_table', { value: { create, update: [], delete: [] } });
+		expect(junction.find('input[type="search"]').exists()).toBe(false);
+	});
+
 	test('header sort is sent to the API', async () => {
 		const wrapper = await mountList('m2m_table');
 

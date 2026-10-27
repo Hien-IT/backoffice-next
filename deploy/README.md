@@ -271,6 +271,14 @@ Helm) request có json path rơi vào Directus nhận 403 `FORBIDDEN` (D-184), k
 app web mới hiện lỗi API như khi `/items` lỗi. Chế độ domain riêng và standalone (pool chỉ có Backoffice) không bị ảnh
 hưởng. Bookmark có json path lưu trong `directus_presets` dùng chung; Directus app mở bookmark đó cũng nhận 403 (D-184.1).
 
+**Cài đặt tìm kiếm, Import, Export của collection chặn cả API (spec 024).** Tắt `bo_show_search`, `bo_show_import` hay
+`bo_show_export` (Settings > Data Model, card "Content: Search, Import, Export") thì API Backoffice trả 403 `FORBIDDEN`
+(câu của lỗi quyền collection) cho tìm kiếm, import, export trên collection đó, với mọi người gọi kể cả admin (D-188).
+Directus 11.17.4 không đọc ba cài đặt này: ở chế độ chung domain request rơi vào Directus vẫn được trả lời, không định
+tuyến riêng ở lb; muốn chặn đủ thì dùng domain riêng hoặc standalone. Lưu cài đặt ở app nào cũng có tác dụng ngay trên
+mọi replica Backoffice (bus `schemaChanged`); sửa thẳng bằng SQL thì gọi `POST /utils/cache/clear` (hoặc
+`node cli.js cache clear`).
+
 **Ingress annotation.** Chart không đặt annotation riêng của controller. Upload lớn cần bỏ giới hạn body và không đệm
 body; request dài cần timeout đọc đủ lâu (FR-051):
 

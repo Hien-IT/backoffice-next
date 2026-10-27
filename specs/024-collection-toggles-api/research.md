@@ -235,6 +235,9 @@ reduced dòng 15, full dòng 43):
 - `deploy/README.md` (sau đoạn D-184 dòng 270): D-188 ở shared-domain; `tests/parity/README.md` (gần dòng 132): file
   mới và D-188; `CLAUDE.md` Active Technologies + Recent Changes; `SPECKIT-GUIDE.md` trạng thái 024.
 - `design-system/docs/migration-guide.md`: không đổi (không màu, component mới).
+- Kết quả T040 (2026-10-27): đã kiểm; lượt 2 chỉ thêm `showSearch`/`activeSearch` và một `v-if` ở DrawerCollection,
+  `ListO2M`, `ListM2M` (prop `show-search` có từ 022), không token, màu, component hay bố cục mới, nên migration-guide
+  giữ nguyên.
 
 ## R10. Chia lượt
 

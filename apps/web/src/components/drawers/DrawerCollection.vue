@@ -59,6 +59,13 @@ const { collection } = toRefs(props);
 const { info: collectionInfo } = useCollection(collection);
 const { layout, layoutOptions, layoutQuery, search, filter: presetFilter } = usePreset(collection, ref(null), true);
 
+// Backoffice (spec 024, D-188.3): bo_show_search off hides the keyword box like the Content page (022); the API
+// refuses a search there, so the preset search is not sent and the preset keeps it.
+const showSearch = computed(
+	() => (collectionInfo.value?.meta as Record<string, unknown> | null | undefined)?.['bo_show_search'] !== false,
+);
+const activeSearch = computed(() => (showSearch.value ? search.value : null));
+
 // This is a local copy of the layout. This means that we can sync it the layout without
 // having use-preset auto-save the values
 const localOptions = ref(layoutOptions.value);
@@ -176,7 +183,7 @@ function useActions() {
 		:filter="mergeFilters(presetFilter, filter ?? null)"
 		:filter-user="presetFilter"
 		:filter-system="filter ?? null"
-		:search="search"
+		:search="activeSearch"
 		:collection="collection"
 		select-mode
 		:show-select="multiple ? 'multiple' : 'one'"
@@ -201,7 +208,13 @@ function useActions() {
 
 			<template #actions>
 				<!-- Backoffice (spec 023, D-187): "JSON path" under json fields of the filter. -->
-				<SearchInput v-model="search" v-model:filter="presetFilter" :collection="collection" include-json-path />
+				<SearchInput
+					v-model="search"
+					v-model:filter="presetFilter"
+					:collection="collection"
+					:show-search="showSearch"
+					include-json-path
+				/>
 
 				<BoButton icon="check" :aria-label="t('save')" :disabled="!hasSelectionChanged" @click="save" />
 			</template>

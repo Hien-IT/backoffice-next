@@ -135,6 +135,15 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   chối ở Backoffice (D-185). GraphQL `<f>_json` (D-186) ở `src/graphql/read.test.ts`, normalizer bỏ type
   `json_path_filter_operators` khỏi introspection/SDL; D-187 là phần web. Request đọc gửi `Cache-Control: no-store` vì
   key cache response dùng chung giữa hai app.
+- `src/items/collection-toggles.test.ts` (spec 024, bộ `full` và `reduced` trên mọi vendor): `bo_show_search`,
+  `bo_show_import`, `bo_show_export` tắt chặn API Backoffice. Request đọc (`GET`/`SEARCH /items`, `PATCH`/`DELETE` theo
+  query không khớp dòng nào) gửi tới hai app, khác biệt chấp nhận là D-188 (`http`, collection `parity_toggles_*`,
+  `when.backofficeCode: FORBIDDEN`); đường ghi, import, export, GraphQL (gốc, `_aggregated`, field lồng,
+  `/graphql/system`, mutation) và `/users?deep` so riêng từng app (Backoffice trước, dữ liệu không đổi). Người gọi:
+  admin, user (JWT và static token), share, public. Thêm case cache do Directus ghi trước (D-188.4) và case đổi cài đặt ở
+  Directus không xóa cache tay (bus). File thêm alias o2m trên `directus_users` (chỉ dòng `directus_fields`), chạy một
+  mình (`fileParallelism: false`). `flows/operations.test.ts` và `extensions/endpoints.test.ts` có case cài đặt tắt mà
+  flow, endpoint extension vẫn chạy như Directus.
 - Cặp chính đặt `CACHE_SKIP_ALLOWED=true`, `CACHE_STATUS_HEADER=x-cache-status`; `capture()` gửi
   `Cache-Control: no-store` cho `GET`, `HEAD` khi request chưa đặt, nên bộ so sánh luôn đọc mới ở cả hai app và so
   header `x-cache-status`.

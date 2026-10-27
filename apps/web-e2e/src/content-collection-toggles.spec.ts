@@ -7,7 +7,7 @@
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, e2eConfig } from './helpers/config.js';
-import { e2eName, openCollection, openSidebar, waitForTable } from './helpers/content.js';
+import { e2eName, openCollection, openItem, openSidebar, waitForTable } from './helpers/content.js';
 import { Fixtures, type TestUser } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
@@ -15,20 +15,106 @@ import { expect, test } from './helpers/requests.js';
 // The values every collection has (the column default); null also means shown (FR-007, unit tests and the bookmark case).
 const TOGGLES = { bo_show_search: true, bo_show_import: true, bo_show_export: true };
 
+// Spec 024 (US4, D-188.3): collections of this configuration for the item drawer (an m2o to bo_content) and the
+// Search Filter of list-o2m (children of a parent), made through the API of the configuration.
+const SUFFIX = e2eConfig.replace('-', '_');
+const REF = `bo_toggles_ref_${SUFFIX}`;
+const PARENTS = `bo_toggles_parents_${SUFFIX}`;
+const CHILDREN = `bo_toggles_children_${SUFFIX}`;
+
 let api: AdminApi;
 let fixtures: Fixtures;
 let reader: TestUser;
+let refItem: number;
+let parentItem: number;
+
+async function dropCollections() {
+	for (const collection of [REF, CHILDREN, PARENTS]) {
+		await api.call('DELETE', `/collections/${collection}`).catch(() => undefined);
+	}
+}
+
+async function createCollections() {
+	const id = {
+		field: 'id',
+		type: 'integer',
+		meta: { hidden: true },
+		schema: { is_primary_key: true, has_auto_increment: true },
+	};
+	const m2o = (field: string, interfaceName: string) => ({
+		field,
+		type: 'integer',
+		meta: { interface: interfaceName, special: ['m2o'] },
+	});
+
+	await api.call('POST', '/collections', {
+		data: { collection: REF, schema: {}, meta: {}, fields: [id, m2o('target', 'select-dropdown-m2o')] },
+	});
+	await api.call('POST', '/relations', {
+		data: { collection: REF, field: 'target', related_collection: 'bo_content', schema: {}, meta: {} },
+	});
+
+	await api.call('POST', '/collections', {
+		data: {
+			collection: PARENTS,
+			schema: {},
+			meta: {},
+			fields: [
+				id,
+				{
+					field: 'children',
+					type: 'alias',
+					meta: { interface: 'list-o2m', special: ['o2m'], options: { enableSearchFilter: true, layout: 'table' } },
+				},
+			],
+		},
+	});
+	await api.call('POST', '/collections', {
+		data: {
+			collection: CHILDREN,
+			schema: {},
+			meta: { display_template: '{{title}}' },
+			fields: [
+				id,
+				{ field: 'title', type: 'string', meta: { interface: 'input' } },
+				m2o('parent', 'select-dropdown-m2o'),
+			],
+		},
+	});
+	await api.call('POST', '/relations', {
+		data: {
+			collection: CHILDREN,
+			field: 'parent',
+			related_collection: PARENTS,
+			schema: {},
+			meta: { one_field: 'children' },
+		},
+	});
+
+	refItem = (await api.call<{ id: number }>('POST', `/items/${REF}`, { data: {} })).id;
+	parentItem = (await api.call<{ id: number }>('POST', `/items/${PARENTS}`, { data: {} })).id;
+	await api.call('POST', `/items/${CHILDREN}`, {
+		data: Array.from({ length: 11 }, (_, i) => ({ title: `child ${i}`, parent: parentItem })),
+	});
+	await api.call('POST', '/utils/cache/clear?system');
+}
 
 test.beforeAll(async ({ playwright }) => {
 	api = new AdminApi(await playwright.request.newContext());
 	fixtures = new Fixtures(api);
+	await dropCollections();
+	await createCollections();
 	reader = await fixtures.user('toggles-reader', {
-		role: await fixtures.role('toggles reader', { read: ['bo_content'] }),
+		role: await fixtures.role('toggles reader', {
+			read: ['bo_content', REF, PARENTS, CHILDREN],
+			update: [REF, PARENTS],
+		}),
 	});
 });
 
 test.afterAll(async () => {
 	await api.call('PATCH', '/collections/bo_content', { data: { meta: TOGGLES } });
+	await dropCollections();
 	await fixtures.cleanup();
 });
 
@@ -178,6 +264,50 @@ test('both false: no Import / Export section; the API refuses them (US2-3; spec 
 	).rejects.toThrow(/: 403 .*FORBIDDEN/);
 	expect(await count()).toBe(before);
 });
+
+for (const who of ['admin', 'reader'] as const) {
+	test(`${who}: the item drawer of bo_content follows bo_show_search: no keyword box, the filter by keyboard (spec 024 US4-1)`, async ({
+		page,
+	}) => {
+		await toggle({ bo_show_search: false });
+		await signIn(page, who === 'admin' ? ADMIN : reader);
+		await openItem(page, REF, refItem);
+
+		await page.getByRole('button', { name: /Select an item/ }).click();
+		// The layout of the preset: a table for the admin, the cards of the global preset of the fixture set for the reader.
+		const drawer = page.getByRole('dialog', { name: 'Select Item' });
+		await expect(drawer.getByRole('status').filter({ hasText: /of \d+ Items/ })).toBeVisible();
+
+		await expect(drawer.getByRole('searchbox')).toHaveCount(0);
+		const filter = drawer.getByRole('button', { name: 'Filter', exact: true });
+		await filter.focus();
+		await expect(filter).toBeFocused();
+		await page.keyboard.press('Enter');
+		await expect(page.locator('[data-reka-popper-content-wrapper]').first()).toBeVisible();
+	});
+
+	test(`${who}: the Search Filter of list-o2m follows bo_show_search of the related collection (spec 024 US4-4)`, async ({
+		page,
+	}) => {
+		await api.call('PATCH', `/collections/${CHILDREN}`, { data: { meta: { bo_show_search: false } } });
+		await api.call('POST', '/utils/cache/clear');
+
+		try {
+			await signIn(page, who === 'admin' ? ADMIN : reader);
+			await openItem(page, PARENTS, parentItem);
+			const main = page.getByRole('main');
+			await expect(main.getByText('11 Items', { exact: true })).toBeVisible();
+			await expect(main.getByRole('searchbox')).toHaveCount(0);
+
+			await api.call('PATCH', `/collections/${CHILDREN}`, { data: { meta: { bo_show_search: true } } });
+			await api.call('POST', '/utils/cache/clear');
+			await page.reload();
+			await expect(main.getByRole('searchbox')).toBeVisible();
+		} finally {
+			await api.call('PATCH', `/collections/${CHILDREN}`, { data: { meta: { bo_show_search: true } } });
+		}
+	});
+}
 
 test('the Data Model form has the three toggles; saving one is read back (FR-002, US4-4)', async ({
 	page,

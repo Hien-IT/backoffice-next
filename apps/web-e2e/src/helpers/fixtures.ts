@@ -18,6 +18,8 @@ export interface PolicyOptions {
 	enforceTfa?: boolean;
 	/** Collections the policy may read (all fields). */
 	read?: string[];
+	/** Collections the policy may update (all fields), so their item pages open editable (spec 024). */
+	update?: string[];
 	/** The user may update its own tfa_secret: POST /users/me/tfa/enable checks it (403 without, like Directus). */
 	ownTfa?: boolean;
 	/**
@@ -53,6 +55,12 @@ export class Fixtures {
 		for (const collection of options.read ?? []) {
 			await this.api.call('POST', '/permissions', {
 				data: { policy: policy.id, collection, action: 'read', fields: ['*'], permissions: {}, validation: {} },
+			});
+		}
+
+		for (const collection of options.update ?? []) {
+			await this.api.call('POST', '/permissions', {
+				data: { policy: policy.id, collection, action: 'update', fields: ['*'], permissions: {}, validation: {} },
 			});
 		}
 

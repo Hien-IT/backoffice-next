@@ -294,34 +294,34 @@ collection nhận từ khóa tắt `bo_show_search`, giữ bộ lọc, không g�
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T030 [P] [US4] Thêm vào `web/components/drawers/DrawerCollection.test.ts`: meta `bo_show_search: false` →
+- [X] T030 [P] [US4] Thêm vào `web/components/drawers/DrawerCollection.test.ts`: meta `bo_show_search: false` →
       `SearchInput` nhận `showSearch` `false`, layout wrapper nhận `search` `null` dù preset có `search`; `true`/`null` →
       như cũ. Chạy đỏ.
-- [ ] T031 [P] [US4] Thêm vào `web/interfaces/list-o2m/ListO2M.test.ts`: `enableSearchFilter: true`, collection liên quan
+- [X] T031 [P] [US4] Thêm vào `web/interfaces/list-o2m/ListO2M.test.ts`: `enableSearchFilter: true`, collection liên quan
       meta `bo_show_search: false`, 11 item → không ô search (`input[type=search]`), `query` truyền cho
       `useRelationMultiple` không có `search`; meta `true` → ô hiện như cũ. Chạy đỏ.
-- [ ] T032 [P] [US4] Thêm vào `web/interfaces/list-m2m/ListM2M.test.ts`: như T031 theo meta của collection trung gian
+- [X] T032 [P] [US4] Thêm vào `web/interfaces/list-m2m/ListM2M.test.ts`: như T031 theo meta của collection trung gian
       (`relationInfo.junctionCollection`); meta của collection liên quan tắt nhưng trung gian bật → ô vẫn hiện (research
       R5). Chạy đỏ.
 
 ### Implementation for User Story 4
 
-- [ ] T033 [P] [US4] Sửa `web/components/drawers/DrawerCollection.vue`: `showSearch = computed(() =>
+- [X] T033 [P] [US4] Sửa `web/components/drawers/DrawerCollection.vue`: `showSearch = computed(() =>
       collectionInfo.value?.meta?.bo_show_search !== false)`, `activeSearch = computed(() => (showSearch.value ?
       search.value : null))`; `:search="activeSearch"` (dòng 179), `<SearchInput :show-search="showSearch" ...>` (dòng 204);
       comment `// Backoffice (spec 024, D-188.3)` như `web/modules/content/routes/CollectionRoute.vue:139-144`. T030 xanh.
-- [ ] T034 [P] [US4] Sửa `web/interfaces/list-o2m/ListO2M.vue`: `showSearch` theo
+- [X] T034 [P] [US4] Sửa `web/interfaces/list-o2m/ListO2M.vue`: `showSearch` theo
       `relationInfo.value?.relatedCollection.meta?.bo_show_search !== false`; `v-if="enableSearchFilter && showSearch &&
       (...)"` (dòng 556); `if (search.value && showSearch.value) q.search = search.value` (dòng 163). T031 xanh.
-- [ ] T035 [P] [US4] Sửa `web/interfaces/list-m2m/ListM2M.vue`: như T034 với `relationInfo.value?.junctionCollection.meta`
+- [X] T035 [P] [US4] Sửa `web/interfaces/list-m2m/ListM2M.vue`: như T034 với `relationInfo.value?.junctionCollection.meta`
       (dòng 191, 598). T032 xanh.
-- [ ] T036 [US4] Thêm vào `e2e/content-collection-toggles.spec.ts` test drawer (US4-1, US4-2): collection per-run
+- [X] T036 [US4] Thêm vào `e2e/content-collection-toggles.spec.ts` test drawer (US4-1, US4-2): collection per-run
       `e2e_toggles_<run>` (tên qua `e2eName`) có m2o `target` → `bo_content` (interface `select-dropdown-m2o`, như
       `e2e/content-filter-json-path.spec.ts:64-69`); `toggle({ bo_show_search: false })`; mở item mới của collection
       per-run, bấm field `target` → dialog có `table`: không `searchbox`, có nút `Filter`, bảng có dòng; Tab tới Filter,
       Enter mở popover; admin và reader (reader có quyền đọc collection per-run); xóa collection trong `afterAll`. Thêm
       path tạo collection/field/relation vào `e2e/allowed-paths.ts` nếu thiếu.
-- [ ] T037 [US4] Thêm vào `e2e/content-collection-toggles.spec.ts` test `list-o2m` (US4-4): collection per-run
+- [X] T037 [US4] Thêm vào `e2e/content-collection-toggles.spec.ts` test `list-o2m` (US4-4): collection per-run
       `e2e_toggles_parents_<run>` có o2m `children` (interface `list-o2m`, `enableSearchFilter: true`) ←
       `e2e_toggles_<run>.parent`; seed 11 con cho một cha; tắt search của collection con; mở item cha: field `children` có
       bảng 11 dòng (hoặc trang đầu), không ô search; bật lại → ô hiện.
@@ -330,18 +330,18 @@ collection nhận từ khóa tắt `bo_show_search`, giữ bộ lọc, không g�
 
 ## Phase 8: Polish & Cross-Cutting (lượt 2)
 
-- [ ] T038 [P] Sửa `specs/022-collection-ui-toggles/spec.md`: FR-008 thêm "(sửa bởi 024: API Backoffice cũng chặn,
+- [X] T038 [P] Sửa `specs/022-collection-ui-toggles/spec.md`: FR-008 thêm "(sửa bởi 024: API Backoffice cũng chặn,
       D-188)", FR-009 thêm "(sửa bởi 024: DrawerCollection, `list-o2m`, `list-m2m` theo cài đặt tìm kiếm, D-188.3)", US2
       kịch bản 4 và FR-019 (bước API của E2E) ghi chú tương tự.
-- [ ] T039 [P] Sửa `deploy/README.md` (sau đoạn D-184, dòng 270): D-188 ở shared-domain (request rơi vào Directus không
+- [X] T039 [P] Sửa `deploy/README.md` (sau đoạn D-184, dòng 270): D-188 ở shared-domain (request rơi vào Directus không
       bị chặn), sửa SQL thì `POST /utils/cache/clear`; `tests/parity/README.md` (gần dòng 132): file
       `items/collection-toggles.test.ts`, D-188 `http`, case cache, flow, extension.
-- [ ] T040 [P] Kiểm `design-system/docs/migration-guide.md`: 024 không thêm màu, token, component (chỉ ẩn ô có sẵn) nên
+- [X] T040 [P] Kiểm `design-system/docs/migration-guide.md`: 024 không thêm màu, token, component (chỉ ẩn ô có sẵn) nên
       không đổi; ghi "Kết quả T040" một dòng vào `specs/024-collection-toggles-api/research.md` R9.
 - [ ] T041 [P] Sửa `CLAUDE.md`: dòng Active Technologies của 024 đổi "planned" thành "implemented 2026-10-xx", thêm mục
       Recent Changes 024 (D-188..D-188.4, guard trước cache, drawer/o2m/m2m); `SPECKIT-GUIDE.md` mục 024 dòng Trạng thái
       (lượt, commit, CI).
-- [ ] T042 Chạy `quickstart.md` trên env parity (`proxy-api`): các lệnh `curl` cho đúng status ghi trong file; sai thì
+- [X] T042 Chạy `quickstart.md` trên env parity (`proxy-api`): các lệnh `curl` cho đúng status ghi trong file; sai thì
       sửa quickstart hoặc code.
 - [ ] T043 Chạy workflow `benchmark-items` và `benchmark-web` trên CI sau push lượt 1 (hoặc lượt 2) như 023; SC-006:
       scenario hiện có không tệ hơn Directus quá 10 %; ghi "Kết quả benchmark" vào

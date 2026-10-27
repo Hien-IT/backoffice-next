@@ -140,6 +140,13 @@ const limit = ref(props.limit);
 const page = ref(1);
 const search = ref('');
 const searchFilter = ref<Filter>();
+// Backoffice (spec 024, D-188.3): `search` goes to the related collection; its bo_show_search off makes the API
+// refuse it, so the box is hidden.
+const showSearch = computed(
+	() =>
+		(relationInfo.value?.relatedCollection.meta as Record<string, unknown> | null | undefined)?.['bo_show_search'] !==
+		false,
+);
 
 const manualSort = ref<BoTableSort | null>(
 	props.sort && !relationInfo.value?.sortField ? { by: props.sort, desc: props.sortDirection === '-' } : null,
@@ -160,7 +167,7 @@ const query = computed<RelationQueryMultiple>(() => {
 		q.filter = searchFilter.value;
 	}
 
-	if (search.value) {
+	if (search.value && showSearch.value) {
 		q.search = search.value;
 	}
 
@@ -553,7 +560,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 				<template v-if="!nonEditable">
 					<div
-						v-if="enableSearchFilter && (totalItemCount > 10 || search || searchFilter)"
+						v-if="enableSearchFilter && showSearch && (totalItemCount > 10 || search || searchFilter)"
 						class="search"
 						:class="{ 'order-first w-full': width.includes('half') }"
 					>

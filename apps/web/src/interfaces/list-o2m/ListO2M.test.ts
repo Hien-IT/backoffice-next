@@ -368,6 +368,19 @@ describe('list-o2m (fixture bo_rel.o2m_table)', () => {
 		expect(off.find('input[type="search"]').exists()).toBe(false);
 	});
 
+	// Spec 024 (FR-014, D-188.3): the API refuses a search on a collection whose bo_show_search is off, so the Search
+	// Filter box of the related collection (bo_rel_target, which receives `search`) is hidden.
+	test('spec 024: bo_show_search off on the related collection hides the search box, nothing searched', async () => {
+		const target = useCollectionsStore().getCollection('bo_rel_target')!;
+		target.meta = { ...target.meta!, bo_show_search: false } as any;
+
+		const create = Array.from({ length: 11 }, (_, i) => ({ name: `New ${i}` }));
+		const wrapper = await mountList('o2m_table', { value: { create, update: [], delete: [] } });
+
+		expect(wrapper.find('input[type="search"]').exists()).toBe(false);
+		expect(listCalls().some((c) => c.includes('search='))).toBe(false);
+	});
+
 	test('row click and Enter on a focused row open the item drawer (v-table click:row)', async () => {
 		const wrapper = await mountList('o2m_table');
 

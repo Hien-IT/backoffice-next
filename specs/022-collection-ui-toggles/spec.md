@@ -61,7 +61,7 @@ còn phần tương ứng. Tắt cả hai thì không còn mục Import/Export.
 3. **Given** cả hai tắt, **When** mở detail panel, **Then** không có mục Import/Export; layout, archive, refresh, flows
    giữ nguyên thứ tự.
 4. **Given** cài đặt tắt, **When** người dùng có quyền gọi thẳng API import, export của A, **Then** API chạy như Directus
-   (FR-008).
+   (FR-008). Sửa bởi spec 024 (D-188.1, D-188.2): API Backoffice từ chối với lỗi quyền collection.
 
 ---
 
@@ -164,9 +164,11 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-006**: Cài đặt áp dụng cho mọi người dùng, kể cả admin.
 - **FR-007**: Giá trị null được hiểu là bật.
 - **FR-008**: Ba cài đặt chỉ là giao diện. API (`search`, `export`, `/utils/import`, `/utils/export`) KHÔNG ĐƯỢC đổi;
-  quyền vẫn do permission quyết định (Nguyên tắc III).
+  quyền vẫn do permission quyết định (Nguyên tắc III). Sửa bởi spec 024 (D-188..D-188.2): API Backoffice cũng chặn phần
+  bị tắt; Directus 11.17.4 không đổi.
 - **FR-009**: Phạm vi là trang collection của module Content trong Backoffice web. DrawerCollection, module khác và
-  Directus app không đổi.
+  Directus app không đổi. Sửa bởi spec 024 (D-188.3): DrawerCollection và ô "Search Filter" của `list-o2m`,
+  `list-m2m` theo `bo_show_search`.
 - **FR-010**: Directus 11.17.4 chạy cùng DB đã migrate PHẢI làm được mọi việc như trước: khởi động, đăng nhập, đọc,
   tạo, sửa, xóa collection, snapshot/diff/apply, `migrate:latest|up|down`; không cần file, biến môi trường hay cấu hình
   mới.
@@ -195,7 +197,8 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
   `backoffice_`.
 - **FR-019**: Test: unit cho ẩn hiện và bộ chạy migration (SQLite); E2E Content ba cấu hình (proxy tới Directus, proxy
   tới API mới, cross-site) với admin và user thường, gồm bước bàn phím (Tab tới nút bộ lọc, Enter mở popover, SC-004)
-  và bước gọi API khi cài đặt tắt (`?search=`, `?export=` vẫn 200, FR-008); profile `bootstrap` (chạy migration, chạy
+  và bước gọi API khi cài đặt tắt (`?search=`, `?export=` vẫn 200, FR-008; sửa bởi spec 024: 403 sau API Backoffice,
+  200 sau Directus); profile `bootstrap` (chạy migration, chạy
   lại, `start` không `bootstrap` dừng với thông điệp rồi `bootstrap` phục hồi; so dump với Directus bỏ qua
   `backoffice_migrations`, cột `bo_*` và dòng `directus_fields` của chúng); suite deploy (ba replica cùng lúc, một dòng
   mỗi migration; sửa khi analyze 2026-10-26); bộ đối chiếu và blackbox collections/fields/schema trên DB đã migrate (bỏ
