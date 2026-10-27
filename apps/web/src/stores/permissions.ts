@@ -38,8 +38,8 @@ export const usePermissionsStore = defineStore('permissionsStore', {
 	getters: {
 		/**
 		 * Backoffice (spec 025, FR-034): /permissions/me of Backoffice carries import and export (D-189); the one of
-		 * Directus (proxy to Directus, or an answer Directus cached, D-189.2) does not, and the web app then follows
-		 * the Directus rules for import and export.
+		 * DR (proxy to DR, or an answer DR cached, D-189.2) does not, and the web app then follows
+		 * the DR rules for import and export.
 		 */
 		hasBackofficeActions: (state) =>
 			Object.values(state.permissions).some((collection) => collection && 'import' in collection),

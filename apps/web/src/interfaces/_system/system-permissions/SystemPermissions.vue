@@ -79,7 +79,7 @@ const { update, remove, create, displayItems, getItemEdits, loading, resetActive
 	usePermissions(value, relationInfo, primaryKey, appAccess);
 
 // Backoffice (spec 025, D-189.3): the import and export cells come from backoffice_permissions (use-bo-permissions.ts);
-// without a staging (no policy page) or when the API is Directus (FR-034) the matrix has the DR columns only.
+// without a staging (no policy page) or when the API is DR (FR-034) the matrix has the DR columns only.
 const bo = useBoPermissions();
 const permissionsStore = usePermissionsStore();
 const boEnabled = computed(() => bo !== null && permissionsStore.hasBackofficeActions);

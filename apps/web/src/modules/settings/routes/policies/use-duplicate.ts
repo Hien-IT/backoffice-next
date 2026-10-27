@@ -65,7 +65,7 @@ export function useDuplicate({ source, name, onSuccess }: UseDuplicateOptions) {
 				);
 			}
 
-			// Backoffice (spec 025, FR-027): the import and export rows of backoffice_permissions too. A Directus API has no
+			// Backoffice (spec 025, FR-027): the import and export rows of backoffice_permissions too. A DR API has no
 			// such route (404): nothing to copy there (FR-034).
 			const boPermissions = await sdk
 				.request<Record<string, unknown>[]>(

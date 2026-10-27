@@ -14,7 +14,7 @@ import PermissionsToggle from './PermissionsToggle.vue';
 const props = withDefaults(
 	defineProps<{
 		collection: Collection;
-		/** Backoffice (spec 025, D-189.3): the columns of the matrix (no import, export when the API is Directus). */
+		/** Backoffice (spec 025, D-189.3): the columns of the matrix (no import, export when the API is DR). */
 		actions?: readonly MatrixAction[];
 		disabledActions?: readonly MatrixAction[] | undefined;
 		permissions: Permission[];
