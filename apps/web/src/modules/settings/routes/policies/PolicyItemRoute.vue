@@ -5,7 +5,7 @@
 // The form is BoForm on use-item of 014; its `permissions` field renders `system-permissions` from the field meta.
 // Errors open the error dialog (D-66).
 import type { Policy, PrimaryKey } from '@directus/types';
-import { ref, toRefs, type Ref } from 'vue';
+import { computed, provide, ref, toRefs, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import BoButton from '../../../../components/BoButton.vue';
 import BoDialog from '../../../../components/BoDialog.vue';
@@ -15,6 +15,11 @@ import RevisionsSidebarDetail from '../../../../components/sidebar/RevisionsSide
 import { useEditsGuard } from '../../../../composables/use-edits-guard.ts';
 import { useItem } from '../../../../composables/use-item/index.ts';
 import { useShortcut } from '../../../../composables/use-shortcut.ts';
+import { showUnexpectedError } from '../../../../composables/use-notices.ts';
+import {
+	BO_PERMISSIONS,
+	createBoPermissionsStaging,
+} from '../../../../interfaces/_system/system-permissions/use-bo-permissions.ts';
 import PrivateView from '../../../../layout/PrivateView.vue';
 import { useUserStore } from '../../../../stores/user.ts';
 import SettingsNavigation from '../../components/SettingsNavigation.vue';
@@ -32,10 +37,36 @@ const { primaryKey } = toRefs(props);
 
 const revisionsSidebarDetailRef = ref<InstanceType<typeof RevisionsSidebarDetail> | null>(null);
 
-const { edits, hasEdits, item, saving, loading, save, remove, deleting, validationErrors } = useItem<Policy>(
-	ref('directus_policies'),
-	primaryKey as unknown as Ref<PrimaryKey | null>,
-);
+const {
+	edits,
+	hasEdits: hasItemEdits,
+	item,
+	saving,
+	loading,
+	save: saveItem,
+	remove,
+	deleting,
+	validationErrors,
+} = useItem<Policy>(ref('directus_policies'), primaryKey as unknown as Ref<PrimaryKey | null>);
+
+// Backoffice (spec 025, FR-027, research R7): the import and export cells of the matrix are rows of
+// backoffice_permissions, staged here and written after the policy itself is saved.
+const boPermissions = createBoPermissionsStaging(primaryKey as unknown as Ref<string | null>);
+provide(BO_PERMISSIONS, boPermissions);
+
+const hasEdits = computed(() => hasItemEdits.value || boPermissions.hasEdits.value);
+
+async function save() {
+	if (hasItemEdits.value) await saveItem();
+
+	try {
+		await boPermissions.flush(primaryKey.value);
+	} catch (error) {
+		// The staged rows stay, so a second save writes them.
+		showUnexpectedError(error);
+		throw error;
+	}
+}
 
 const confirmDelete = ref(false);
 
@@ -101,12 +132,14 @@ async function deleteAndQuit() {
 function discardAndLeave() {
 	if (!leaveTo.value) return;
 	edits.value = {};
+	boPermissions.reset();
 	confirmLeave.value = false;
 	router.push(leaveTo.value);
 }
 
 function discardAndStay() {
 	edits.value = {};
+	boPermissions.reset();
 	confirmLeave.value = false;
 }
 </script>

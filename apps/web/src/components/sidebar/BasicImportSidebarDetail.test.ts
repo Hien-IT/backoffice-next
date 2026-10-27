@@ -74,12 +74,25 @@ test('FAILED_VALIDATION opens the import error dialog; other errors the error di
 	expect(useNotices().dialogs.value).toHaveLength(1);
 });
 
-test('hidden without create permission on the collection', async () => {
+// Backoffice (spec 025, FR-028, analyze I1): directus_dashboards is a system collection, so import is admin-only, as
+// the DR ImportService, whatever the policies allow.
+test('hidden for a non-admin, also with create, update and import on the collection', async () => {
 	useUserStore().currentUser = { id: 'u1', admin_access: false } as never;
-	usePermissionsStore().permissions = { directus_dashboards: { read: { access: 'full' } } } as never;
 
-	const wrapper = mountComponent();
-	await flushPromises();
+	for (const extra of [{}, { import: { access: 'full' }, export: { access: 'full' } }]) {
+		usePermissionsStore().permissions = {
+			directus_dashboards: {
+				read: { access: 'full' },
+				create: { access: 'full' },
+				update: { access: 'full' },
+				...extra,
+			},
+		} as never;
 
-	expect(wrapper.find('input[type="file"]').exists()).toBe(false);
+		const wrapper = mountComponent();
+		await flushPromises();
+
+		expect(wrapper.find('input[type="file"]').exists()).toBe(false);
+		wrapper.unmount();
+	}
 });

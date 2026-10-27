@@ -65,6 +65,29 @@ export function useDuplicate({ source, name, onSuccess }: UseDuplicateOptions) {
 				);
 			}
 
+			// Backoffice (spec 025, FR-027): the import and export rows of backoffice_permissions too. A Directus API has no
+			// such route (404): nothing to copy there (FR-034).
+			const boPermissions = await sdk
+				.request<Record<string, unknown>[]>(
+					requestEndpoint('/backoffice/permissions', {
+						params: {
+							filter: { policy: { _eq: item.id } },
+							limit: -1,
+							fields: ['collection', 'action', 'permissions', 'validation', 'presets', 'fields', 'options'],
+						},
+					}),
+				)
+				.catch(() => []);
+
+			if (boPermissions.length > 0) {
+				await sdk.request(
+					requestEndpoint('/backoffice/permissions', {
+						method: 'POST',
+						body: boPermissions.map((p) => ({ ...p, policy: newPolicyId })),
+					}),
+				);
+			}
+
 			await onSuccess();
 		} catch (error) {
 			showUnexpectedError(error);

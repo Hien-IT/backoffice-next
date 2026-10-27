@@ -1,9 +1,10 @@
-// US5 (T060, contracts/e2e.md §2): password reset, invitation, first-run setup and share sign-in. No mail is sent in
-// the parity environment (D-23, D-33): tokens are signed with SECRET like directus/api/src/services/users.ts.
+// US5 (T060, contracts/e2e.md §2): password reset, invitation and first-run setup (no share page since spec 025). No
+// mail is sent in the parity environment (D-23, D-33): tokens are signed with SECRET like
+// directus/api/src/services/users.ts.
 import knex, { type Knex } from 'knex';
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { CONTENT_URL, e2eConfig, isCors } from './helpers/config.js';
+import { CONTENT_URL, isCors } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { Fixtures, PASSWORD, type TestUser } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
@@ -12,7 +13,6 @@ import { inviteToken, passwordResetToken } from './helpers/tokens.js';
 
 const CONTACT_ADMIN = /administrator/i;
 const NEW_PASSWORD = 'web-e2e-Reset-Password3';
-const SHARE_COLLECTION = `web_e2e_share_${e2eConfig.replace(/-/g, '_')}`;
 
 let api: AdminApi;
 let fixtures: Fixtures;
@@ -87,45 +87,10 @@ test('the register link target says registration is not available yet (D-44)', a
 	await expect(page.getByRole('link', { name: 'Sign In' })).toHaveAttribute('href', '/admin/login');
 });
 
-test.describe('share', () => {
-	let shareId: string;
-	let itemId: number;
-
-	test.beforeAll(async () => {
-		await api.call('POST', '/collections', {
-			data: {
-				collection: SHARE_COLLECTION,
-				meta: { icon: 'share' },
-				schema: {},
-				fields: [
-					{ field: 'id', type: 'integer', schema: { is_primary_key: true, has_auto_increment: true }, meta: {} },
-					{ field: 'title', type: 'string', meta: {} },
-				],
-			},
-		});
-		itemId = (await api.call<{ id: number }>('POST', `/items/${SHARE_COLLECTION}`, { data: { title: 'shared' } })).id;
-		shareId = (
-			await api.call<{ id: string }>('POST', '/shares', {
-				data: { name: 'web-e2e share', collection: SHARE_COLLECTION, item: String(itemId), password: 'share-pass' },
-			})
-		).id;
-	});
-
-	test.afterAll(async () => {
-		await api.call('DELETE', `/shares/${shareId}`).catch(() => undefined);
-		await api.call('DELETE', `/collections/${SHARE_COLLECTION}`);
-	});
-
-	test('wrong password is refused, the right one opens the item frame (US5-5, FR-054)', async ({ page }) => {
-		await page.goto(`/admin/shared/${shareId}`);
-		await page.getByLabel('Password', { exact: true }).fill('wrong');
-		await page.getByRole('button', { name: 'Access Shared Page' }).click();
-		await expect(page.getByText('Wrong username or password')).toBeVisible();
-
-		await page.getByLabel('Password', { exact: true }).fill('share-pass');
-		await page.getByRole('button', { name: 'Access Shared Page' }).click();
-		await expect(page).toHaveURL(new RegExp(`/admin/content/${SHARE_COLLECTION}/${itemId}$`));
-	});
+// Backoffice (spec 025, FR-029, D-189.4): no share page; a share link is a private route like any other.
+test('a share link /admin/shared/<id> has no page of its own: the sign-in page', async ({ page }) => {
+	await page.goto('/admin/shared/0b9fd2a4-7c5e-4d31-9f0e-2a6f1d5e8c47');
+	await expect(page).toHaveURL(/\/admin\/login\?redirect=/);
 });
 
 test.describe('first-run setup on the setup pair (own empty Postgres)', () => {

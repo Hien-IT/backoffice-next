@@ -26,6 +26,7 @@ import BoChip from '../BoChip.vue';
 import BoDivider from '../BoDivider.vue';
 import BoInput from '../BoInput.vue';
 import BoRadio from '../BoRadio.vue';
+import BoSelect from '../BoSelect.vue';
 import FieldList from '../FieldList.vue';
 import ExportSidebarDetail from './ExportSidebarDetail.vue';
 import ImportErrorDialog from './ImportErrorDialog.vue';
@@ -414,5 +415,60 @@ describe('showImport and showExport', () => {
 		expect(wrapper.find('#import-file').exists()).toBe(true);
 		expect(has(wrapper, 'Start Import')).toBe(true);
 		expect(divider(wrapper)).toBe(false);
+	});
+});
+
+// Backoffice (spec 025, FR-028, FR-017): the import and export permissions of the policies (/permissions/me keys).
+describe('import and export by policy', () => {
+	const has = (wrapper: Wrapper, text: string) => wrapper.findAll('button').some((b) => b.text() === text);
+
+	function asUser(access: Record<string, unknown>) {
+		useUserStore().currentUser = { ...useUserStore().currentUser!, admin_access: false } as never;
+		usePermissionsStore().permissions = {
+			bo_content: { read: { access: 'full' }, create: { access: 'full' }, update: { access: 'full' }, ...access },
+		} as never;
+	}
+
+	test('neither allowed: no import and export section at all', async () => {
+		asUser({ import: { access: 'none' }, export: { access: 'none' } });
+		const wrapper = mountComponent();
+		await flushPromises();
+
+		expect(wrapper.html()).not.toContain('import-file');
+		expect(has(wrapper, 'Export Items')).toBe(false);
+		expect(has(wrapper, 'Download Page as CSV')).toBe(false);
+	});
+
+	test('import only: the import part without the divider; create and update alone are not enough', async () => {
+		asUser({ import: { access: 'full' }, export: { access: 'none' } });
+		const wrapper = mountComponent();
+		await flushPromises();
+
+		expect(wrapper.find('#import-file').exists()).toBe(true);
+		expect(has(wrapper, 'Export Items')).toBe(false);
+		expect(wrapper.findComponent(BoDivider).exists()).toBe(false);
+	});
+
+	test('export limited to CSV: the export part and the CSV link; the format select lists CSV only', async () => {
+		asUser({ import: { access: 'none' }, export: { access: 'partial', formats: ['csv'] } });
+		const wrapper = mountComponent({ onDownload: vi.fn(async () => {}) });
+		await flushPromises();
+
+		expect(wrapper.find('#import-file').exists()).toBe(false);
+		expect(has(wrapper, 'Download Page as CSV')).toBe(true);
+
+		await openDialog(wrapper);
+		const select = wrapper.findAllComponents(BoSelect).find((c) => c.props('label') === i18n.global.t('format'))!;
+		expect(select.props('items')).toEqual([{ text: 'CSV', value: 'csv' }]);
+	});
+
+	test('export limited to JSON: the format starts on JSON', async () => {
+		asUser({ import: { access: 'none' }, export: { access: 'partial', formats: ['json', 'yaml'] } });
+		const wrapper = mountComponent();
+		await flushPromises();
+
+		await openDialog(wrapper);
+		const select = wrapper.findAllComponents(BoSelect).find((c) => c.props('label') === i18n.global.t('format'))!;
+		expect(select.props('modelValue')).toBe('json');
 	});
 });

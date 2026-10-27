@@ -16,6 +16,7 @@ import { showUnexpectedError as unexpectedError } from '../../../../composables/
 import { isPermissionEmpty } from '../../../../utils/is-permission-empty.ts';
 import { appAccessMinimalPermissions } from '../app-permissions.ts';
 import FieldsTab from './FieldsTab.vue';
+import FormatsTab from './FormatsTab.vue';
 import PermissionsTab from './PermissionsTab.vue';
 import PresetsTab from './PresetsTab.vue';
 import ValidationTab from './ValidationTab.vue';
@@ -26,6 +27,8 @@ const props = defineProps<{
 	permissionKey: PrimaryKey | null;
 	policyEdits?: Record<string, any> | undefined;
 	edits: Record<string, any>;
+	/** Backoffice (spec 025, FR-026): a row of backoffice_permissions, given whole in `edits` (no read). */
+	backoffice?: boolean | undefined;
 }>();
 
 const emit = defineEmits<{
@@ -68,7 +71,9 @@ const tabsValue = computed(() => {
 
 	const tabs: { label: string; value: string; hasValue: boolean }[] = [];
 
-	if (['read', 'update', 'delete', 'share'].includes(action)) {
+	// Backoffice (spec 025, FR-026, D-189.4): no share column any more; import and export have the row filter, the
+	// fields and the formats.
+	if (['read', 'update', 'delete', 'import', 'export'].includes(action)) {
 		tabs.push({
 			label: t('item_permissions'),
 			value: 'permissions',
@@ -76,7 +81,7 @@ const tabsValue = computed(() => {
 		});
 	}
 
-	if (['create', 'read', 'update'].includes(action)) {
+	if (['create', 'read', 'update', 'import', 'export'].includes(action)) {
 		tabs.push({
 			label: t('field_permissions'),
 			value: 'fields',
@@ -98,6 +103,11 @@ const tabsValue = computed(() => {
 			value: 'presets',
 			hasValue: permission.value.presets !== null && Object.keys(permission.value.presets).length > 0,
 		});
+	}
+
+	if (['import', 'export'].includes(action)) {
+		const options = (permission.value as { options?: { formats?: string[] } | null }).options;
+		tabs.push({ label: t('bo_formats'), value: 'formats', hasValue: (options?.formats?.length ?? 0) > 0 });
 	}
 
 	return tabs;
@@ -152,7 +162,10 @@ async function load() {
 			policy.value = { ...props.policyEdits } as Policy;
 		}
 
-		if (props.permissionKey !== null && props.permissionKey !== '+') {
+		if (props.backoffice) {
+			// No fields is every field for these rows (data-model.md): the tree shows them checked.
+			permission.value = { ...props.edits, fields: props.edits['fields'] ?? ['*'] } as Permission;
+		} else if (props.permissionKey !== null && props.permissionKey !== '+') {
 			const response = await sdk.request<Permission>(requestEndpoint(`/permissions/${props.permissionKey}`));
 			permission.value = { ...response, ...props.edits };
 		} else if (props.permissionKey === '+') {
@@ -182,7 +195,10 @@ function useActiveState() {
 }
 
 function save() {
-	if (permission.value && isPermissionEmpty(permission.value)) {
+	// Backoffice (spec 025): an import or export row without rules is full access, not "no row".
+	if (props.backoffice) {
+		emit('input', permission.value);
+	} else if (permission.value && isPermissionEmpty(permission.value)) {
 		emit('input', null);
 	} else {
 		emit('input', permission.value);
@@ -248,6 +264,7 @@ const wide = useMediaQuery('(min-width: 1024px)');
 						:app-minimal="appMinimal?.validation"
 					/>
 					<PresetsTab v-if="item.value === 'presets'" v-model:permission="permission" :policy="policy" />
+					<FormatsTab v-if="item.value === 'formats'" v-model:permission="permission" />
 				</template>
 			</BoTabs>
 		</div>

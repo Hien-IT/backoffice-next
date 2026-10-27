@@ -23,6 +23,8 @@ import PermissionsDetail from './detail/PermissionsDetail.vue';
 import PermissionsRow from './PermissionsRow.vue';
 import PermissionsToggle from './PermissionsToggle.vue';
 import SystemPermissions from './SystemPermissions.vue';
+import { BO_PERMISSIONS, type BoPermission, createBoPermissionsStaging } from './use-bo-permissions.ts';
+import { usePermissionsStore } from '../../../stores/permissions.ts';
 
 enableAutoUnmount(afterEach);
 
@@ -114,6 +116,7 @@ beforeEach(async () => {
 async function render(
 	props: Record<string, unknown> = {},
 	values: Record<string, unknown> = { app_access: false, admin_access: false },
+	provide: Record<symbol, unknown> = {},
 ) {
 	const valuesRef = ref(values);
 	// v-model of the form: the emitted value comes back as the `value` prop.
@@ -126,7 +129,7 @@ async function render(
 			onInput: (value: unknown) => wrapper.setProps({ value: value as never }),
 			...props,
 		},
-		global: { plugins: [pinia, i18n], provide: { values: valuesRef } },
+		global: { plugins: [pinia, i18n], provide: { values: valuesRef, ...provide } },
 		attachTo: document.body,
 	});
 	await flushPromises();
@@ -236,7 +239,8 @@ describe('levels and actions', () => {
 
 		wrapper.findAllComponents(PermissionsRow)[0]!.vm.$emit('setFullAccessAll');
 		await flushPromises();
-		expect((lastInput(wrapper) as any).create.map((p: Permission) => p.action)).toEqual(['update', 'delete', 'share']);
+		// Backoffice (spec 025, D-189.3): no share column, so the shortcut does not create a share permission.
+		expect((lastInput(wrapper) as any).create.map((p: Permission) => p.action)).toEqual(['update', 'delete']);
 
 		wrapper.findAllComponents(PermissionsRow)[0]!.vm.$emit('removeRow');
 		await flushPromises();
@@ -265,16 +269,12 @@ describe('levels and actions', () => {
 		const row = wrapper
 			.findAllComponents(PermissionsRow)
 			.find((r) => r.props('collection').collection === 'directus_extensions')!;
-		expect(row.findAllComponents(PermissionsToggle).map((item) => item.props('action'))).toEqual([
-			'read',
-			'update',
-			'share',
-		]);
+		expect(row.findAllComponents(PermissionsToggle).map((item) => item.props('action'))).toEqual(['read', 'update']);
 		expect(row.findAllComponents(ValueNull)).toHaveLength(2);
 
 		row.vm.$emit('setFullAccessAll');
 		await flushPromises();
-		expect((lastInput(wrapper) as any).create.map((p: Permission) => p.action)).toEqual(['read', 'update', 'share']);
+		expect((lastInput(wrapper) as any).create.map((p: Permission) => p.action)).toEqual(['read', 'update']);
 	});
 });
 
@@ -366,11 +366,11 @@ describe('add collection, detail drawer, reload', () => {
 			delete: [],
 		});
 
-		toggle(wrapper, 'bo_std', 'share').vm.$emit('edit');
+		toggle(wrapper, 'bo_std', 'delete').vm.$emit('edit');
 		await flushPromises();
 		expect(wrapper.findComponent(PermissionsDetail).props()).toMatchObject({
 			permissionKey: '+',
-			edits: { policy: 'p1', collection: 'bo_std', action: 'share', fields: null, permissions: null },
+			edits: { policy: 'p1', collection: 'bo_std', action: 'delete', fields: null, permissions: null },
 		});
 
 		wrapper.findComponent(PermissionsDetail).vm.$emit('input', null);
@@ -388,5 +388,130 @@ describe('add collection, detail drawer, reload', () => {
 		await flushPromises();
 
 		expect(calls(fetch).filter((call) => call.startsWith('GET /permissions'))).toHaveLength(2);
+	});
+});
+
+// Backoffice (spec 025, FR-022..FR-025, D-189.3): the import and export cells from backoffice_permissions.
+describe('import and export (backoffice_permissions)', () => {
+	const EXPORT: BoPermission = {
+		id: 9,
+		policy: 'p1',
+		collection: 'bo_std',
+		action: 'export',
+		permissions: null,
+		validation: null,
+		presets: null,
+		fields: ['*'],
+		options: null,
+	};
+
+	async function renderBo(boRows: BoPermission[] = [EXPORT], meta: Record<string, unknown> = {}) {
+		fetch = mockApi({
+			'GET /permissions': [...PERMISSIONS, { ...PERMISSIONS[0], id: 4, action: 'share' }],
+			'GET /policies/p1': { id: 'p1', name: 'Editors', app_access: false, admin_access: false },
+			'GET /backoffice/permissions': boRows,
+		});
+		// /permissions/me of Backoffice has the import and export keys (FR-034).
+		usePermissionsStore().permissions = { bo_std: { import: { access: 'none' }, export: { access: 'full' } } } as never;
+
+		if (Object.keys(meta).length > 0) {
+			const collections = useCollectionsStore();
+			collections.collections = collections.collections.map((c) =>
+				c.collection === 'bo_std' ? ({ ...c, meta: { ...c.meta, ...meta } } as never) : c,
+			);
+		}
+
+		const staging = createBoPermissionsStaging(ref('p1'));
+		const rendered = await render({ value: [1, 2, 3, 4] }, undefined, { [BO_PERMISSIONS]: staging });
+		return { ...rendered, staging };
+	}
+
+	const actions = (wrapper: Awaited<ReturnType<typeof render>>['wrapper'], collection: string) =>
+		wrapper
+			.findAllComponents(PermissionsRow)
+			.find((r) => r.props('collection').collection === collection)!
+			.findAllComponents(PermissionsToggle)
+			.map((item) => item.props('action'));
+
+	test('6 columns without share; the rows of the policy are read from /backoffice/permissions', async () => {
+		const { wrapper } = await renderBo();
+
+		expect(calls(fetch)).toContain('GET /backoffice/permissions?fields=*&filter={"policy":{"_eq":"p1"}}&limit=-1');
+		expect(actions(wrapper, 'bo_std')).toEqual(['create', 'read', 'update', 'delete', 'import', 'export']);
+		expect(wrapper.find('thead th[scope="colgroup"]').attributes('colspan')).toBe('7');
+		expect(toggle(wrapper, 'bo_std', 'export').find('button').attributes('aria-label')).toBe(
+			t('permissionsLevel.all', { action: t('export') }),
+		);
+	});
+
+	test('4 columns when /permissions/me has no import key (the API is Directus)', async () => {
+		const { wrapper } = await render({}, undefined, { [BO_PERMISSIONS]: createBoPermissionsStaging(ref('p1')) });
+
+		expect(actions(wrapper, 'bo_std')).toEqual(['create', 'read', 'update', 'delete']);
+		expect(calls(fetch).some((call) => call.includes('/backoffice/'))).toBe(false);
+	});
+
+	test('all access of a row: 2 DR permissions and an import row; no access keeps the share permission', async () => {
+		const { wrapper, staging } = await renderBo();
+		const row = () => wrapper.findAllComponents(PermissionsRow)[0]!;
+
+		row().vm.$emit('setFullAccessAll');
+		await flushPromises();
+		expect((lastInput(wrapper) as any).create.map((p: Permission) => p.action)).toEqual(['update', 'delete']);
+		expect(staging.displayItems.value.map((item) => [item.action, item.$type])).toEqual([
+			['export', 'updated'],
+			['import', 'created'],
+		]);
+
+		row().vm.$emit('setNoAccessAll');
+		await flushPromises();
+		// The share permission (id 4) is not a column: it stays.
+		expect(lastInput(wrapper)).toEqual({ create: [], update: [], delete: [2, 1] });
+		expect(staging.displayItems.value).toEqual([]);
+		expect(staging.hasEdits.value).toBe(true);
+	});
+
+	test('import of a system collection is locked; the all access of its row creates no import row', async () => {
+		const { wrapper, staging } = await renderBo([]);
+		const row = wrapper
+			.findAllComponents(PermissionsRow)
+			.find((r) => r.props('collection').collection === 'directus_users')!;
+
+		expect(actions(wrapper, 'directus_users')).toEqual(['create', 'read', 'update', 'delete', 'export']);
+
+		row.vm.$emit('setFullAccessAll');
+		await flushPromises();
+		expect(staging.displayItems.value.map((item) => [item.collection, item.action])).toEqual([
+			['directus_users', 'export'],
+		]);
+	});
+
+	test('use custom on export opens the drawer on the staged row; its result updates the row', async () => {
+		const { wrapper, staging } = await renderBo();
+
+		toggle(wrapper, 'bo_std', 'export').vm.$emit('edit');
+		await flushPromises();
+		expect(wrapper.findComponent(PermissionsDetail).props()).toMatchObject({
+			backoffice: true,
+			permissionKey: '+',
+			edits: EXPORT,
+		});
+
+		wrapper.findComponent(PermissionsDetail).vm.$emit('input', { ...EXPORT, options: { formats: ['csv'] } });
+		await flushPromises();
+		expect(staging.displayItems.value).toEqual([{ ...EXPORT, options: { formats: ['csv'] }, $type: 'updated' }]);
+		expect(toggle(wrapper, 'bo_std', 'export').find('button').attributes('aria-label')).toBe(
+			t('permissionsLevel.custom', { action: t('export') }),
+		);
+	});
+
+	test('a cell of a collection whose toggle is off is muted with the hint, and stays editable', async () => {
+		const { wrapper } = await renderBo([EXPORT], { bo_show_export: false });
+		const cell = toggle(wrapper, 'bo_std', 'export');
+
+		expect(cell.classes()).toContain('opacity-50');
+		expect(cell.find('[title]').attributes('title')).toContain(t('bo_toggle_off_hint'));
+		expect(cell.findComponent(BoMenu).exists()).toBe(true);
+		expect(toggle(wrapper, 'bo_std', 'import').classes()).not.toContain('opacity-50');
 	});
 });

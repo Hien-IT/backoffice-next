@@ -30,11 +30,13 @@ beforeEach(async () => {
 
 afterEach(() => vi.unstubAllGlobals());
 
-function api(permissions: unknown[]) {
+function api(permissions: unknown[], boPermissions?: unknown[]) {
 	return mockApi({
 		'GET /permissions': permissions,
 		'POST /policies': { id: 'new-policy-id' },
 		'POST /permissions': [],
+		// Backoffice (spec 025): a DR API has no such route (404).
+		...(boPermissions ? { 'GET /backoffice/permissions': boPermissions, 'POST /backoffice/permissions': [] } : {}),
 	});
 }
 
@@ -160,5 +162,42 @@ describe('useDuplicate', () => {
 		// Only the policy POST should have been called
 		expect(posts(fetch)).toHaveLength(1);
 		expect(posts(fetch)[0]![0]).toBe('/policies');
+	});
+
+	// Backoffice (spec 025, FR-027): the import and export rows of the policy are copied too.
+	it('POSTs the backoffice_permissions rows with the new policy id', async () => {
+		const row = {
+			collection: 'articles',
+			action: 'export',
+			permissions: { status: { _eq: 'published' } },
+			validation: null,
+			presets: null,
+			fields: ['id', 'title'],
+			options: { formats: ['csv'] },
+		};
+
+		const fetch = api([], [row]);
+
+		const { duplicate } = useDuplicate({ source: ref(source), name: ref('Editor (copy)'), onSuccess: vi.fn() });
+
+		await duplicate();
+
+		expect(calls(fetch)).toContain(
+			'GET /backoffice/permissions?fields=collection,action,permissions,validation,presets,fields,options&filter={"policy":{"_eq":"policy-abc"}}&limit=-1',
+		);
+		expect(posts(fetch)[1]).toEqual(['/backoffice/permissions', [{ ...row, policy: 'new-policy-id' }]]);
+	});
+
+	it('skips the backoffice_permissions POST when there are no rows or the API has no such route', async () => {
+		for (const boPermissions of [[], undefined]) {
+			const fetch = api([], boPermissions);
+			const onSuccess = vi.fn();
+			const { duplicate } = useDuplicate({ source: ref(source), name: ref('Editor (copy)'), onSuccess });
+
+			await duplicate();
+
+			expect(posts(fetch).map(([path]) => path)).toEqual(['/policies']);
+			expect(onSuccess).toHaveBeenCalledOnce();
+		}
 	});
 });

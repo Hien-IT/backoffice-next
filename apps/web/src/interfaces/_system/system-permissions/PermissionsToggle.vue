@@ -4,18 +4,21 @@
 // name and `title` (DR tooltip) and as an icon: all `check`, custom `rule`, none `block`; an app-minimal chip with
 // full access is static with a `lock` icon. Menu items as DR: all_access, no_access (not for app-minimal), a
 // divider, use_custom.
-import type { Permission, PermissionsAction } from '@directus/types';
+import type { Permission } from '@directus/types';
 import { computed, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoMenu, { type BoMenuItem } from '../../../components/BoMenu.vue';
 import type { Collection } from '../../../stores/collections.ts';
+import type { MatrixAction } from './app-permissions.ts';
 
 const props = defineProps<{
 	collection: Collection;
-	action: PermissionsAction;
+	action: MatrixAction;
 	permission?: Permission | undefined;
 	appMinimal?: Partial<Permission> | undefined;
+	/** Backoffice (spec 025, FR-025): the cell is muted with this hint (the bo_show_* toggle is off); still editable. */
+	mutedHint?: string | undefined;
 }>();
 
 const emit = defineEmits<{
@@ -34,7 +37,9 @@ const permissionLevel = computed<'all' | 'none' | 'custom'>(() => {
 	if (
 		permission.value.fields?.includes('*') &&
 		Object.keys(permission.value.permissions || {}).length === 0 &&
-		Object.keys(permission.value.validation || {}).length === 0
+		Object.keys(permission.value.validation || {}).length === 0 &&
+		// Backoffice (spec 025, FR-026): an import or export limited to some formats is custom.
+		!((permission.value as { options?: { formats?: string[] } | null }).options?.formats?.length ?? 0)
 	) {
 		return 'all';
 	}
@@ -58,7 +63,9 @@ const appMinimalLevel = computed(() => {
 const tooltip = computed(
 	() =>
 		(props.appMinimal && t('required_for_app_access')) ||
-		t(`permissionsLevel.${permissionLevel.value}`, { action: t(props.action) }),
+		[t(`permissionsLevel.${permissionLevel.value}`, { action: t(props.action) }), props.mutedHint]
+			.filter(Boolean)
+			.join('. '),
 );
 
 const levelName = computed(() => t(`permissionsLevel.${permissionLevel.value}`, { action: t(props.action) }));
@@ -96,7 +103,7 @@ const LEVEL_ICON = { all: 'check', custom: 'rule', none: 'block' };
 </script>
 
 <template>
-	<div :class="[{ 'has-app-minimal': !!appMinimal }, appMinimalLevel]">
+	<div :class="[{ 'has-app-minimal': !!appMinimal, 'muted opacity-50': !!mutedHint }, appMinimalLevel]">
 		<span
 			v-if="appMinimalLevel === 'full'"
 			:class="[CHIP, LEVEL.all]"

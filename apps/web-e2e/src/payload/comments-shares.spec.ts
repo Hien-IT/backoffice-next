@@ -1,24 +1,12 @@
-// Feature 014 US7 (T091, SC-004, contracts/tests.md §4): the item sidebar sends the comment and share writes of the
-// Directus app 11.17.4: a comment with a mention (POST /comments, `@<user id>` in the text), its edit (PATCH) and delete;
-// a share create (POST /shares), edit (PATCH), invite (POST /shares/invite) and delete. Each run gets its own item
-// (DATA_PREFIX), deleted in afterAll with its comments and shares. proxy-api only. Editing a share opens its drawer,
-// which reads GET /shares/<id>?fields=* like the Directus app (drawer-item): that call is not yet in
-// contracts/api-calls.md (helpers/allowed-paths.ts), so the request check of the share test fails until it is added.
+// Feature 014 US7 (T091, SC-004, contracts/tests.md §4): the item sidebar sends the comment writes of the Directus app
+// 11.17.4: a comment with a mention (POST /comments, `@<user id>` in the text), its edit (PATCH) and delete. Each run
+// gets its own item (DATA_PREFIX), deleted in afterAll with its comments. proxy-api only. The share case left with the
+// Shares section (spec 025, FR-029, D-189.4).
 import type { Browser, Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
 import { openItem, openSidebar } from '../helpers/content.js';
-import {
-	card,
-	goto,
-	onDirectusApp,
-	openSidebarSection,
-	postComment,
-	saveShare,
-	shareField,
-	sidebar,
-	sidebarItemMenu,
-} from '../helpers/directus-app.js';
+import { card, goto, onDirectusApp, postComment, sidebar, sidebarItemMenu } from '../helpers/directus-app.js';
 import { calls, normalize, recordWrites, RUN_TAG, signInBackoffice } from '../helpers/payload.js';
 import { expect, test } from '../helpers/requests.js';
 
@@ -26,7 +14,6 @@ test.skip(e2eConfig !== 'proxy-api', 'payload comparison runs in proxy-api only'
 test.use({ actionTimeout: 15_000 });
 
 const MENTION = 'Admin User';
-const INVITE = 'web-e2e-invite@example.com';
 
 let api: AdminApi;
 const items: number[] = [];
@@ -37,14 +24,12 @@ test.beforeAll(async ({ playwright }) => {
 
 test.afterAll(async () => {
 	await api.call('POST', '/utils/cache/clear');
-	for (const collection of ['comments', 'shares']) {
-		for (const item of items) {
-			const rows = await api.call<{ id: string }[]>(
-				'GET',
-				`/${collection}?fields=id&filter[collection][_eq]=bo_content&filter[item][_eq]=${item}`,
-			);
-			if (rows.length) await api.call('DELETE', `/${collection}`, { data: rows.map((r) => r.id) });
-		}
+	for (const item of items) {
+		const rows = await api.call<{ id: string }[]>(
+			'GET',
+			`/comments?fields=id&filter[collection][_eq]=bo_content&filter[item][_eq]=${item}`,
+		);
+		if (rows.length) await api.call('DELETE', '/comments', { data: rows.map((r) => r.id) });
 	}
 	if (items.length) await api.call('DELETE', '/items/bo_content', { data: items });
 });
@@ -141,63 +126,4 @@ test('comment with a mention: create, edit, delete', async ({ browser, page }) =
 	// "Edited comment" from the same Directus editor; the Backoffice textarea sends it in every browser.
 	expect(dir[1]!.body).toEqual({ comment: '\nEdited comment' });
 	expect(bo[1]!.body).toEqual({ comment: 'Edited comment' });
-});
-
-test('share: create, edit, invite, delete', async ({ browser, page }) => {
-	const [bo, dir] = await compare(
-		browser,
-		page,
-		'shares',
-		async (page, tag) => {
-			await openSidebarSection(page, 'Shares');
-			await sidebar(page).getByRole('button', { name: 'New Share' }).click();
-			await shareField(page, 'Name').fill(`${tag} share`);
-			await shareField(page, 'Max Uses').fill('3');
-			await saveShare(page);
-
-			await sidebarItemMenu(page, /Edit/);
-			await shareField(page, 'Max Uses').fill('5');
-			await saveShare(page);
-
-			await sidebarItemMenu(page, /Send Link/);
-			await card(page).getByRole('textbox', { name: 'admin@example.com, user@example.com...' }).fill(INVITE);
-			await card(page).getByRole('button', { name: 'Send Link' }).click();
-			await expect(card(page).getByRole('button', { name: 'Send Link' })).toHaveCount(0);
-
-			await sidebarItemMenu(page, /Delete/);
-			await card(page).getByRole('button', { name: 'Delete' }).click();
-			await expect(sidebar(page).getByText('No shares to show')).toBeVisible();
-		},
-		async (page, tag) => {
-			await boSection(page, 'Shares');
-			const side = boSidebar(page);
-			await side.getByRole('button', { name: 'New Share' }).click();
-			const drawer = boDialog(page);
-			await drawer.getByRole('textbox', { name: 'Name' }).fill(`${tag} share`);
-			await drawer.getByRole('spinbutton', { name: 'Max Uses' }).fill('3');
-			await drawer.getByRole('button', { name: 'Save' }).click();
-			await expect(drawer).toHaveCount(0);
-
-			const options = side.getByRole('button', { name: `Options for ${tag} share` });
-			await options.click();
-			await page.getByRole('menuitem', { name: 'Edit' }).click();
-			await drawer.getByRole('spinbutton', { name: 'Max Uses' }).fill('5');
-			await drawer.getByRole('button', { name: 'Save' }).click();
-			await expect(drawer).toHaveCount(0);
-
-			await options.click();
-			await page.getByRole('menuitem', { name: 'Send Link' }).click();
-			await boDialog(page).getByRole('textbox', { name: 'Emails' }).fill(INVITE);
-			await boDialog(page).getByRole('button', { name: 'Send Link' }).click();
-			await expect(boDialog(page)).toHaveCount(0);
-
-			await options.click();
-			await page.getByRole('menuitem', { name: 'Delete' }).click();
-			await boDialog(page).getByRole('button', { name: 'Delete' }).click();
-			await expect(side.getByText('No shares to show')).toBeVisible();
-		},
-	);
-
-	expect(calls(dir)).toEqual(['POST /shares', 'PATCH /shares/<id2>', 'POST /shares/invite', 'DELETE /shares/<id2>']);
-	expect(bo).toEqual(dir);
 });

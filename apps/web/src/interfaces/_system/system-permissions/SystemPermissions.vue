@@ -16,6 +16,7 @@ import { showUnexpectedError as unexpectedError } from '../../../composables/use
 import type { DisplayItem } from '../../../composables/use-relation-multiple.ts';
 import { type RelationO2M, useRelationO2M } from '../../../composables/use-relation-o2m.ts';
 import { type Collection, useCollectionsStore } from '../../../stores/collections.ts';
+import { usePermissionsStore } from '../../../stores/permissions.ts';
 import { isSystemCollection } from '../../../utils/get-item-route.ts';
 import AddCollection from './AddCollection.vue';
 import {
@@ -23,10 +24,14 @@ import {
 	appRecommendedPermissions,
 	disabledActions,
 	editablePermissionActions as PERMISSION_ACTIONS,
+	isBackofficeAction,
+	type BackofficeAction,
+	type MatrixAction,
 } from './app-permissions.ts';
 import PermissionsDetail from './detail/PermissionsDetail.vue';
 import PermissionsHeader from './PermissionsHeader.vue';
 import PermissionsRow from './PermissionsRow.vue';
+import { type BoDisplayItem, type BoPermission, useBoPermissions } from './use-bo-permissions.ts';
 
 type PermissionGroup = {
 	collection: Collection;
@@ -73,6 +78,41 @@ const value = computed({
 const { update, remove, create, displayItems, getItemEdits, loading, resetActive, resetSystemPermissions } =
 	usePermissions(value, relationInfo, primaryKey, appAccess);
 
+// Backoffice (spec 025, D-189.3): the import and export cells come from backoffice_permissions (use-bo-permissions.ts);
+// without a staging (no policy page) or when the API is Directus (FR-034) the matrix has the DR columns only.
+const bo = useBoPermissions();
+const permissionsStore = usePermissionsStore();
+const boEnabled = computed(() => bo !== null && permissionsStore.hasBackofficeActions);
+const matrixActions = computed(() =>
+	PERMISSION_ACTIONS.filter((action) => boEnabled.value || !isBackofficeAction(action)),
+);
+
+watch(
+	[primaryKey, boEnabled],
+	() => {
+		if (boEnabled.value) bo!.fetch().catch(unexpectedError);
+	},
+	{ immediate: true },
+);
+
+/** The locked cells of a row: DR's, and import of a system collection (admin-only as in DR, FR-007, FR-022). */
+function disabledFor(collection: string): MatrixAction[] {
+	return [...(disabledActions[collection] ?? []), ...(isSystemCollection(collection) ? (['import'] as const) : [])];
+}
+
+function emptyBoPermission(collection: string, action: BackofficeAction): BoPermission {
+	return {
+		policy: primaryKey.value,
+		collection,
+		action,
+		permissions: null,
+		validation: null,
+		presets: null,
+		fields: null,
+		options: null,
+	};
+}
+
 const { allPermissions, regularPermissions, systemPermissions, addEmptyPermission, removeEmptyCollection } =
 	useGroupedPermissions();
 
@@ -80,6 +120,10 @@ function getPermission(collection: string, action: PermissionsAction) {
 	return displayItems.value.find(
 		(item) => item['collection'] === collection && item['action'] === action && !isNil(item['policy']),
 	);
+}
+
+function getBoPermission(collection: string, action: BackofficeAction) {
+	return bo?.displayItems.value.find((item) => item.collection === collection && item.action === action);
 }
 
 function createEmptyPermission<P extends Permission>(
@@ -99,8 +143,22 @@ const currentlyEditingKey = ref<string | null>(null);
 const currentlyEditingItem = ref<DisplayItem | null>(null);
 const editsAtStart = ref<Record<string, any>>({});
 const newItem = ref(false);
+const editingBackoffice = ref(false);
 
-function editItem(collection: string, action: PermissionsAction) {
+function editItem(collection: string, action: MatrixAction) {
+	if (isBackofficeAction(action)) {
+		// Backoffice (spec 025): the drawer edits the staged row itself, no read of /permissions/:id.
+		const existing = getBoPermission(collection, action);
+		newItem.value = existing === undefined;
+		editingBackoffice.value = true;
+		editsAtStart.value = existing ?? emptyBoPermission(collection, action);
+		currentlyEditingKey.value = '+';
+		currentlyEditingItem.value = (existing ?? null) as DisplayItem | null;
+		return;
+	}
+
+	editingBackoffice.value = false;
+
 	if (!relationInfo.value) return;
 
 	const existingPermission = getPermission(collection, action);
@@ -124,6 +182,16 @@ function editItem(collection: string, action: PermissionsAction) {
 }
 
 function stageEdits(item: Permission | null) {
+	if (editingBackoffice.value) {
+		const current = currentlyEditingItem.value as BoDisplayItem | null;
+
+		if (newItem.value && item !== null) bo!.create(item as unknown as BoPermission);
+		else if (item && current) bo!.update({ ...current, ...(item as unknown as BoPermission) });
+		else if (current) bo!.remove(current);
+
+		return;
+	}
+
 	if (newItem.value && item !== null) {
 		create(item);
 	} else if (item) {
@@ -144,19 +212,29 @@ function removeCollection(collection: string) {
 }
 
 function setFullAccessAll(collection: string) {
-	for (const action of PERMISSION_ACTIONS) {
+	for (const action of matrixActions.value) {
 		setFullAccess(collection, action);
 	}
 }
 
 function setNoAccessAll(collection: string) {
-	for (const action of PERMISSION_ACTIONS) {
+	for (const action of matrixActions.value) {
 		setNoAccess(collection, action);
 	}
 }
 
-function setFullAccess(collection: string, action: PermissionsAction) {
-	if (disabledActions[collection]?.includes(action)) return;
+function setFullAccess(collection: string, action: MatrixAction) {
+	if (disabledFor(collection).includes(action)) return;
+
+	if (isBackofficeAction(action)) {
+		const existing = getBoPermission(collection, action);
+		const full = { fields: ['*'], permissions: null, validation: null, presets: null, options: null };
+
+		if (existing) bo!.update({ ...existing, ...full });
+		else bo!.create({ ...emptyBoPermission(collection, action), ...full });
+
+		return;
+	}
 
 	const existing = getPermission(collection, action);
 
@@ -180,8 +258,14 @@ function setFullAccess(collection: string, action: PermissionsAction) {
 	}
 }
 
-function setNoAccess(collection: string, action: PermissionsAction) {
-	if (disabledActions[collection]?.includes(action)) return;
+function setNoAccess(collection: string, action: MatrixAction) {
+	if (disabledFor(collection).includes(action)) return;
+
+	if (isBackofficeAction(action)) {
+		const existing = getBoPermission(collection, action);
+		if (existing) bo!.remove(existing);
+		return;
+	}
 
 	const existing = getPermission(collection, action);
 
@@ -506,7 +590,11 @@ function useGroupedPermissions() {
 
 	const groupedPermissions = computed(() => {
 		const groups = groupBy(
-			displayItems.value.filter(({ $type }) => $type !== 'deleted'),
+			[
+				...displayItems.value.filter(({ $type }) => $type !== 'deleted'),
+				// Backoffice (spec 025): a collection with import or export rows only is a row of the matrix too.
+				...((boEnabled.value ? bo!.displayItems.value : []) as unknown as DisplayItem[]),
+			],
 			'collection',
 		);
 
@@ -613,11 +701,11 @@ const LINK_BTN =
 					class="w-full border-separate border-spacing-0 text-theme-sm text-gray-700 dark:text-gray-400"
 				>
 					<caption class="sr-only">{{ $t('permissions') }}</caption>
-					<PermissionsHeader />
+					<PermissionsHeader :count="matrixActions.length + 1" />
 
 					<tbody>
 						<tr v-if="allPermissions.length === 0">
-							<td class="empty-state px-3 py-3 text-gray-500 dark:text-gray-400" colspan="7">
+							<td class="empty-state px-3 py-3 text-gray-500 dark:text-gray-400" :colspan="matrixActions.length + 2">
 								{{ $t('no_permissions') }}
 							</td>
 						</tr>
@@ -625,6 +713,7 @@ const LINK_BTN =
 						<PermissionsRow
 							v-for="group in regularPermissions"
 							:key="group.collection.collection"
+							:actions="matrixActions"
 							:permissions="group.permissions"
 							:collection="group.collection"
 							@edit-item="editItem(group.collection.collection, $event)"
@@ -637,7 +726,7 @@ const LINK_BTN =
 
 						<tr v-if="regularPermissions.length > 0 && systemPermissions.length > 0">
 							<td
-								colspan="7"
+								:colspan="matrixActions.length + 2"
 								class="system-divider border-t border-gray-200 bg-gray-50 px-3 py-2 text-theme-xs font-medium tracking-wide text-gray-500 uppercase dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400"
 							>
 								{{ $t('system_collections') }}
@@ -647,9 +736,10 @@ const LINK_BTN =
 						<PermissionsRow
 							v-for="group in systemPermissions"
 							:key="group.collection.collection"
+							:actions="matrixActions"
 							:permissions="group.permissions"
 							:collection="group.collection"
-							:disabled-actions="disabledActions[group.collection.collection]"
+							:disabled-actions="disabledFor(group.collection.collection)"
 							:app-minimal="
 								appAccess
 									? appAccessMinimalPermissions.filter(
@@ -669,7 +759,7 @@ const LINK_BTN =
 					<tfoot v-if="appAccess">
 						<tr>
 							<td
-								colspan="7"
+								:colspan="matrixActions.length + 2"
 								class="reset-toggle border-t border-gray-200 px-3 py-3 text-center text-gray-500 dark:border-gray-800 dark:text-gray-400"
 							>
 								{{ $t('reset_system_permissions_to') }}
@@ -701,6 +791,7 @@ const LINK_BTN =
 			:permission-key="currentlyEditingKey"
 			:policy-key="primaryKey"
 			:policy-edits="values"
+			:backoffice="editingBackoffice"
 			@input="stageEdits"
 			@update:active="cancelEdit"
 		/>

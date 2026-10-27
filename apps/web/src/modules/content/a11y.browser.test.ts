@@ -1,6 +1,6 @@
 // T095 (FR-123, SC-006): axe on the Content module screens over the fixture API, light and `html.dark`: the collection
 // page in the five layouts (map only with WebGL, like layouts/map/MapLayout.browser.test.ts), the item page with each
-// detail section open (revisions, comments, shares, flows), the comparison modal, the export dialog, the import error
+// detail section open (revisions, comments, flows), the comparison modal, the export dialog, the import error
 // dialog, the version menu and the collection tree. 0 serious or critical violations outside EXCEPTIONS.
 import { page, userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
@@ -327,7 +327,6 @@ describe('item page', () => {
 	test.each([
 		['revisions', 'Admin User'],
 		['comments', 'First comment'],
-		['shares', 'bo-share'],
 		['flows', 'bo-flow-item'],
 	])('with the %s section open', async (section, text) => {
 		await mountPage('/content/bo_content/1');

@@ -18,6 +18,7 @@ import { calls, mockApi } from '../../../../test-utils/fetch.ts';
 import { appAccessMinimalPermissions } from '../app-permissions.ts';
 import AppMinimal from './AppMinimal.vue';
 import FieldsTab from './FieldsTab.vue';
+import FormatsTab from './FormatsTab.vue';
 import PermissionsDetail from './PermissionsDetail.vue';
 import PresetsTab from './PresetsTab.vue';
 
@@ -130,7 +131,8 @@ describe('loading, title and tabs', () => {
 		['read', ['item_permissions', 'field_permissions']],
 		['update', ['item_permissions', 'field_permissions', 'field_validation', 'field_presets']],
 		['delete', ['item_permissions']],
-		['share', ['item_permissions']],
+		// Backoffice (spec 025, D-189.4): no share column, so no share tabs.
+		['share', []],
 	])('a new %s permission ("+") has the Directus tabs, without request for it', async (action, keys) => {
 		const wrapper = await render({
 			permissionKey: '+',
@@ -256,5 +258,55 @@ describe('presets and saving', () => {
 			.click();
 		await flushPromises();
 		expect(empty.emitted('input')).toEqual([[null]]);
+	});
+});
+
+// Backoffice (spec 025, FR-026, US4): a row of backoffice_permissions is given whole in `edits`, with no read.
+describe('import and export (backoffice_permissions)', () => {
+	const EXPORT = {
+		policy: 'p1',
+		collection: 'bo_std',
+		action: 'export',
+		permissions: null,
+		validation: null,
+		presets: null,
+		fields: null,
+		options: null,
+	};
+
+	test('item permissions, field permissions and formats tabs; title -> Export; no read of the row', async () => {
+		const wrapper = await render({ backoffice: true, permissionKey: '+', edits: EXPORT });
+
+		expect(calls(fetch)).toEqual(['GET /policies/p1?deep={"users":{"_limit":0}}']);
+		expect(document.body.textContent).toContain(`Editors -> bo_std -> ${t('export')}`);
+		expect(tabs(wrapper)).toEqual([
+			[t('item_permissions'), false],
+			// No fields means every field for these rows (data-model.md): shown checked.
+			[t('field_permissions'), true],
+			[t('bo_formats'), false],
+		]);
+	});
+
+	test('save emits the row, also without rules (full access, not "no row"); the formats tab sets options', async () => {
+		const wrapper = await render({ backoffice: true, permissionKey: '+', edits: { ...EXPORT, id: 7 } });
+
+		const formatsTrigger = [...document.querySelectorAll<HTMLElement>('[role="tab"]')].find((tab) =>
+			tab.textContent?.includes(t('bo_formats')),
+		)!;
+		formatsTrigger.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+		await flushPromises();
+
+		wrapper.findComponent(FormatsTab).vm.$emit('update:permission', {
+			...EXPORT,
+			id: 7,
+			fields: ['*'],
+			options: { formats: ['csv'] },
+		});
+		await flushPromises();
+		expect(tabs(wrapper).at(-1)).toEqual([t('bo_formats'), true]);
+
+		saveButton().click();
+		await flushPromises();
+		expect(wrapper.emitted('input')).toEqual([[{ ...EXPORT, id: 7, fields: ['*'], options: { formats: ['csv'] } }]]);
 	});
 });

@@ -171,6 +171,39 @@ describe('InsightsOverviewRoute', () => {
 		SLOW,
 	);
 
+	// Backoffice (spec 025, FR-028): export dashboard follows the export permission of the policies (DR: create).
+	test(
+		'export dashboard is disabled without the export permission, enabled with it',
+		async () => {
+			await setup();
+			useUserStore(appPinia).currentUser = { ...useUserStore(appPinia).currentUser!, admin_access: false } as never;
+
+			const exportItem = async (exportAccess: string) => {
+				usePermissionsStore(appPinia).permissions = {
+					directus_dashboards: {
+						read: { access: 'full' },
+						create: { access: 'full' },
+						import: { access: 'none' },
+						export: { access: exportAccess },
+					},
+				} as never;
+				await flushPromises();
+				await openRowMenu('bo_dash_all');
+				const item = [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) =>
+					el.textContent?.includes(t('export_dashboard')),
+				)!;
+				const disabled = item.getAttribute('aria-disabled') === 'true';
+				document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+				await flushPromises();
+				return disabled;
+			};
+
+			expect(await exportItem('none')).toBe(true);
+			expect(await exportItem('full')).toBe(false);
+		},
+		SLOW,
+	);
+
 	test(
 		'delete one asks first, DELETE /dashboards/<id> then GET /dashboards',
 		async () => {

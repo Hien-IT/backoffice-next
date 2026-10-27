@@ -1,5 +1,5 @@
 // Feature 014 US5 (T064; US5-1 to US5-3, US5-6, FR-080 to FR-084, FR-089): the detail panel of the item page on
-// bo_content/1 of the fixture set (two seeded edits, two comments, the share `bo-share`, the manual flow
+// bo_content/1 of the fixture set (two seeded edits, two comments, the manual flow
 // `bo-flow-item`). Comments a test posts are deleted afterwards. Not tagged @core: chromium only (SC-001).
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
@@ -74,15 +74,13 @@ test('comments: post with Ctrl/Cmd+Enter, then it shows in the list (US5-2, FR-0
 	await expect(page.getByRole('complementary').getByText(`${DATA_PREFIX} a comment`)).toBeVisible();
 });
 
-test('shares and flows: the seeded share and the manual flow of the item (US5-3, US5-6, FR-083, FR-089)', async ({
-	page,
-}) => {
+// Backoffice (spec 025, FR-029, D-189.4): no Shares section any more; the seeded share stays at the API.
+test('flows: the manual flow of the item, no Shares section (US5-6, FR-089)', async ({ page }) => {
 	await signIn(page);
 	await openItem(page, 'bo_content', 1);
 	await openSidebar(page);
 
-	await section(page, 'Shares').click();
-	await expect(page.getByRole('complementary').getByText('bo-share')).toBeVisible();
+	await expect(section(page, 'Shares')).toHaveCount(0);
 
 	await section(page, 'Flows').click();
 	await expect(page.getByRole('complementary').getByRole('button', { name: /bo-flow-item/ })).toBeVisible();

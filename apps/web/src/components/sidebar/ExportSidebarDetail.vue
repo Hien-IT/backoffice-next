@@ -99,7 +99,9 @@ const fileExtension = computed(() => {
 
 const { primaryKeyField, fields, info: collectionInfo } = useCollection(collection);
 
-const { createAllowed } = useCollectionPermissions(collection);
+// Backoffice (spec 025, FR-028, FR-017): import and export by the policies (DR: create, and always export), the
+// export formats limited by them.
+const { importAllowed, exportAllowed, exportFormats } = useCollectionPermissions(collection);
 
 const { info } = useServerStore();
 
@@ -172,6 +174,21 @@ watch(
 );
 
 const format = ref('csv');
+
+const formatItems = computed(() =>
+	['csv', 'csv_utf8', 'json', 'xml', 'yaml']
+		.filter((value) => !exportFormats.value || exportFormats.value.includes(value))
+		.map((value) => ({ text: t(value), value })),
+);
+
+// Backoffice (spec 025): the first allowed format when the current one is not.
+watch(
+	formatItems,
+	(items) => {
+		if (items.length > 0 && !items.some((item) => item.value === format.value)) format.value = items[0]!.value;
+	},
+	{ immediate: true },
+);
 const location = ref('download');
 const folder = ref<string | null>(null);
 
@@ -527,9 +544,15 @@ const POPOVER =
 </script>
 
 <template>
-	<SidebarDetail id="export" icon="import_export" :title="$t('import_export')">
+	<!-- Backoffice (spec 025): no empty section when the policies allow neither part. -->
+	<SidebarDetail
+		v-if="(importAllowed && showImport) || (exportAllowed && showExport)"
+		id="export"
+		icon="import_export"
+		:title="$t('import_export')"
+	>
 		<div class="flex flex-col gap-4">
-			<template v-if="createAllowed && showImport">
+			<template v-if="importAllowed && showImport">
 				<div>
 					<div
 						v-if="uploading || importing"
@@ -592,10 +615,10 @@ const POPOVER =
 					{{ $t('import_data_button') }}
 				</BoButton>
 
-				<BoDivider v-if="showExport" />
+				<BoDivider v-if="exportAllowed && showExport" />
 			</template>
 
-			<div v-if="showExport" class="flex flex-col gap-2">
+			<div v-if="exportAllowed && showExport" class="flex flex-col gap-2">
 				<BoButton full-width @click="openExportDialog">
 					{{ $t('export_items') }}
 				</BoButton>
@@ -623,17 +646,7 @@ const POPOVER =
 
 		<BoDialog v-model:open="exportDialogActive" :title="$t('export_items')">
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-				<BoSelect
-					v-model="format"
-					:label="$t('format')"
-					:items="[
-						{ text: $t('csv'), value: 'csv' },
-						{ text: $t('csv_utf8'), value: 'csv_utf8' },
-						{ text: $t('json'), value: 'json' },
-						{ text: $t('xml'), value: 'xml' },
-						{ text: $t('yaml'), value: 'yaml' },
-					]"
-				/>
+				<BoSelect v-model="format" :label="$t('format')" :items="formatItems" />
 
 				<BoInput
 					:model-value="exportSettings.limit"

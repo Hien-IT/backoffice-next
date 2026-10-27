@@ -42,7 +42,6 @@ import BoMenu from '../../../components/BoMenu.vue';
 import CommentsSidebarDetail from '../../../components/sidebar/CommentsSidebarDetail.vue';
 import FlowSidebarDetail from '../../../components/sidebar/FlowSidebarDetail.vue';
 import RevisionsSidebarDetail from '../../../components/sidebar/RevisionsSidebarDetail.vue';
-import SharesSidebarDetail from '../../../components/sidebar/SharesSidebarDetail.vue';
 import { useItemPermissions } from '../../../composables/use-permissions/index.ts';
 import { useFlows } from '../../../composables/use-run-manual-flow.ts';
 import { formColumnClass } from '../../../utils/form-column.ts';
@@ -120,7 +119,7 @@ const validationErrors = computed(() => {
 
 const {
 	collectionPermissions: { createAllowed, revisionsAllowed },
-	itemPermissions: { updateAllowed, deleteAllowed, saveAllowed, archiveAllowed, shareAllowed, fields },
+	itemPermissions: { updateAllowed, deleteAllowed, saveAllowed, archiveAllowed, fields },
 } = permissions;
 
 const { templateData } = useTemplateData(collectionInfo, primaryKey);
@@ -816,12 +815,7 @@ function useItemNavigation() {
 					:collection="collection"
 					:primary-key="actualPrimaryKey"
 				/>
-				<SharesSidebarDetail
-					v-if="currentVersion === null"
-					:collection="collection"
-					:primary-key="actualPrimaryKey"
-					:allowed="shareAllowed"
-				/>
+				<!-- Backoffice (spec 025, FR-029, D-189.4): no Shares section; /shares and share login stay at the API. -->
 				<FlowSidebarDetail v-if="currentVersion === null" :manual-flows="manualFlows" />
 			</template>
 		</template>

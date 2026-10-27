@@ -85,4 +85,11 @@ export default {
 	json_path_type_boolean: 'Boolean',
 	json_path_invalid: 'Invalid JSON path. Examples: Amount, items[0].sku, items[*].sku',
 	json_path_apply: 'Apply',
+	// Spec 025 (D-189.3): the import and export columns of the permission matrix, the Formats tab of their drawer and
+	// the hint of a cell whose bo_show_* toggle is off.
+	import: 'Import',
+	export: 'Export',
+	bo_formats: 'Formats',
+	bo_formats_hint: 'No format selected means every format',
+	bo_toggle_off_hint: 'Turned off in Data Model for this collection',
 };

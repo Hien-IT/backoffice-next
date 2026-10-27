@@ -9,8 +9,28 @@ export const appAccessMinimalPermissions = data.minimal as unknown as Partial<Pe
 
 export const appRecommendedPermissions = data.recommended as unknown as Partial<Permission>[];
 
-export const editablePermissionActions = ['create', 'read', 'update', 'delete', 'share'] as const;
-export type EditablePermissionsAction = (typeof editablePermissionActions)[number] & PermissionsAction;
+// Backoffice (spec 025, D-189.3): no share column; import and export from backoffice_permissions. The actions of DR
+// are unchanged at the API (PERMISSION_ACTIONS of @directus/constants).
+export const editablePermissionActions = ['create', 'read', 'update', 'delete', 'import', 'export'] as const;
+export type EditablePermissionsAction = (typeof editablePermissionActions)[number];
+
+/**
+ * Backoffice (spec 025, FR-003): a copy of BACKOFFICE_PERMISSION_ACTIONS of @backoffice/constants (apps/web has no
+ * @backoffice/* dependency, research T001 a): the formats each action supports.
+ */
+export const backofficeActions = {
+	import: { formats: ['csv', 'json'] },
+	export: { formats: ['csv', 'csv_utf8', 'json', 'xml', 'yaml'] },
+} as const;
+
+export type BackofficeAction = keyof typeof backofficeActions;
+
+/** An action of a matrix cell: one of DR (directus_permissions) or of Backoffice (backoffice_permissions). */
+export type MatrixAction = PermissionsAction | BackofficeAction;
+
+export function isBackofficeAction(action: string): action is BackofficeAction {
+	return action in backofficeActions;
+}
 
 export const disabledActions: Record<string, EditablePermissionsAction[]> = data.disabledActions as Record<
 	string,

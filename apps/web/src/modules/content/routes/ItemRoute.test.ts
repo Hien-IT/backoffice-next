@@ -13,6 +13,7 @@ import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
 import ItemRoute from './ItemRoute.vue';
 import PageHeader from '../../../layout/PageHeader.vue';
+import SidebarDetail from '../../../components/sidebar/SidebarDetail.vue';
 
 enableAutoUnmount(afterEach);
 
@@ -85,6 +86,19 @@ describe('ItemRoute', () => {
 		expect(column.className).toMatch(/max-w-\[47\.375rem\]/);
 		expect(column.className).not.toContain('mx-auto');
 		expect(document.body.querySelector('main header')!.className).not.toMatch(/mx-auto|max-w-/);
+	});
+
+	// Backoffice (spec 025, FR-029, D-189.4): no Shares section; revisions, comments and flows stay.
+	test('the detail sections have no Shares', async () => {
+		const { wrapper } = await setup({ collection: 'bo_content', primaryKey: '1' });
+		await flushPromises();
+		// The detail panel is a popover of the page header toggle (D-128).
+		button('Open sidebar')?.click();
+		await flushPromises();
+
+		const titles = wrapper.findAllComponents(SidebarDetail).map((detail) => detail.props('title'));
+		expect(titles).toEqual(expect.arrayContaining(['Revisions', 'Comments']));
+		expect(titles).not.toContain('Shares');
 	});
 
 	test('new item: creating title, no delete, save as copy disabled', async () => {

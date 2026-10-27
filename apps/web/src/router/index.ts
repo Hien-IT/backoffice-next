@@ -87,14 +87,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 			public: true,
 		},
 	},
-	{
-		name: 'shared',
-		path: '/shared/:id([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})',
-		component: () => import('../routes/SharedRoute.vue'),
-		meta: {
-			public: true,
-		},
-	},
+	// Backoffice (spec 025, FR-029, D-189.4): no /shared/:id page; such a link falls to the not found route.
 	{
 		name: 'private-404',
 		path: '/:_(.+)+',

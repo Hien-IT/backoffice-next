@@ -64,6 +64,45 @@ describe('useCollectionPermissions', () => {
 		expect(p.deleteAllowed.value).toBe(true);
 	});
 
+	// Backoffice (spec 025, FR-028, FR-034, research R8).
+	test('import and export from the import and export keys of /permissions/me (Backoffice)', () => {
+		setPermissions({
+			articles: {
+				read: { access: 'full' },
+				import: { access: 'none' },
+				export: { access: 'partial', formats: ['csv'] },
+			},
+			directus_users: { read: { access: 'full' }, import: { access: 'full' }, export: { access: 'none' } },
+		});
+
+		const p = useCollectionPermissions('articles');
+		expect([p.importAllowed.value, p.exportAllowed.value, p.exportFormats.value]).toEqual([false, true, ['csv']]);
+
+		// A system collection: import is admin-only, as DR.
+		const users = useCollectionPermissions('directus_users');
+		expect([users.importAllowed.value, users.exportAllowed.value]).toEqual([false, false]);
+
+		setUser(true);
+		expect([users.importAllowed.value, users.exportAllowed.value]).toEqual([true, true]);
+	});
+
+	test('without import and export keys (Directus): export follows read, import create and update', () => {
+		setPermissions({
+			articles: { read: { access: 'full' }, create: { access: 'full' } },
+			directus_users: { read: { access: 'full' }, create: { access: 'full' }, update: { access: 'full' } },
+		});
+
+		const p = useCollectionPermissions('articles');
+		expect([p.importAllowed.value, p.exportAllowed.value, p.exportFormats.value]).toEqual([false, true, null]);
+
+		setPermissions({
+			articles: { create: { access: 'full' }, update: { access: 'partial' } },
+			directus_users: { read: { access: 'full' }, create: { access: 'full' }, update: { access: 'full' } },
+		});
+		expect([p.importAllowed.value, p.exportAllowed.value]).toEqual([true, false]);
+		expect(useCollectionPermissions('directus_users').importAllowed.value).toBe(false);
+	});
+
 	test('sort needs a sort field and update on it; admins always may', () => {
 		setPermissions({ articles: { update: { access: 'full', fields: ['title'] } } });
 		expect(useCollectionPermissions('articles').sortAllowed.value).toBe(false);
@@ -117,7 +156,6 @@ describe('usePermissions (item)', () => {
 
 		const { itemPermissions } = usePermissions('articles', 7, false);
 		expect(itemPermissions.deleteAllowed.value).toBe(false);
-		expect(itemPermissions.shareAllowed.value).toBe(true);
 
 		// The item permissions are fetched lazily, on the first read (computedAsync `lazy`), like DR.
 		expect(itemPermissions.updateAllowed.value).toBe(false);

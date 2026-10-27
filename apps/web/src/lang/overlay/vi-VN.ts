@@ -80,4 +80,11 @@ export default {
 	json_path_type_boolean: 'Đúng/Sai',
 	json_path_invalid: 'Đường dẫn JSON không hợp lệ. Ví dụ: Amount, items[0].sku, items[*].sku',
 	json_path_apply: 'Áp dụng',
+	// Spec 025 (D-189.3): the import and export columns of the permission matrix, the Formats tab of their drawer and
+	// the hint of a cell whose bo_show_* toggle is off.
+	import: 'Import',
+	export: 'Export',
+	bo_formats: 'Định dạng',
+	bo_formats_hint: 'Không chọn định dạng nào nghĩa là mọi định dạng',
+	bo_toggle_off_hint: 'Đã tắt trong Data Model của collection này',
 };

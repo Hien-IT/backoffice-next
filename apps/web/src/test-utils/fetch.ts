@@ -255,6 +255,12 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 211, method: 'GET', path: new RegExp(`^/extensions/registry/extension/${ID}$`) },
 	{ id: 212, method: 'GET', path: new RegExp(`^/extensions/registry/account/${ID}$`) },
 	{ id: 213, method: 'GET', path: /^\/extensions\/sources\/[^/]+\.js$/ },
+	// Spec 025 (specs/025-policy-import-export/contracts/api.md, D-189.3): the import and export rows of a policy (214 is
+	// the /server/ping of apps/web-e2e).
+	{ id: 215, method: 'GET', path: /^\/backoffice\/permissions$/ },
+	{ id: 216, method: 'POST', path: /^\/backoffice\/permissions$/ },
+	{ id: 217, method: 'PATCH', path: /^\/backoffice\/permissions$/ },
+	{ id: 218, method: 'DELETE', path: /^\/backoffice\/permissions$/ },
 ];
 
 /**

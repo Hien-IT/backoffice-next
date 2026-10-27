@@ -100,6 +100,17 @@ describe('onBeforeEach', () => {
 		expect(hydrate).toHaveBeenCalledTimes(1);
 	});
 
+	// Backoffice (spec 025, FR-029, D-189.4): no /shared/:id page: the link is a private not found page.
+	test('/shared/<id> is no route of its own: login when signed out, not found when signed in', async () => {
+		const path = '/shared/0b9fd2a4-7c5e-4d31-9f0e-2a6f1d5e8c47';
+
+		expect(await go(path)).toBe(`/login?redirect=${path}`);
+
+		signIn(user({}));
+		expect(await go(path)).toBe(path);
+		expect(router.currentRoute.value.name).toBe('private-404');
+	});
+
 	test('public routes never hydrate', async () => {
 		signIn(user({}));
 		await go('/login');

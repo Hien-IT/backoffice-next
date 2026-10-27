@@ -6,12 +6,15 @@ import { defineStore } from 'pinia';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { useUserStore } from './user.ts';
 
-export type PermissionsAction = 'create' | 'read' | 'update' | 'delete' | 'share';
+// Backoffice (spec 025, D-189): import and export come from backoffice_permissions when the API is Backoffice.
+export type PermissionsAction = 'create' | 'read' | 'update' | 'delete' | 'share' | 'import' | 'export';
 
 export type ActionPermission = {
 	access: 'none' | 'partial' | 'full';
 	fields?: string[] | null;
 	presets?: Record<string, unknown> | null;
+	/** Backoffice (spec 025): the formats an import or export may use; absent = every format. */
+	formats?: string[];
 	[key: string]: unknown;
 };
 
@@ -32,6 +35,15 @@ export const usePermissionsStore = defineStore('permissionsStore', {
 	state: () => ({
 		permissions: {} as CollectionAccess,
 	}),
+	getters: {
+		/**
+		 * Backoffice (spec 025, FR-034): /permissions/me of Backoffice carries import and export (D-189); the one of
+		 * Directus (proxy to Directus, or an answer Directus cached, D-189.2) does not, and the web app then follows
+		 * the Directus rules for import and export.
+		 */
+		hasBackofficeActions: (state) =>
+			Object.values(state.permissions).some((collection) => collection && 'import' in collection),
+	},
 	actions: {
 		async hydrate() {
 			const userStore = useUserStore();

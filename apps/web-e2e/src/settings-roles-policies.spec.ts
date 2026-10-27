@@ -6,7 +6,7 @@
 import type { Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { AdminApi } from './helpers/api.js';
-import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
+import { ADMIN, CONTENT_URL, DATA_PREFIX, e2eConfig } from './helpers/config.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -36,6 +36,15 @@ const q = (value: unknown) => encodeURIComponent(JSON.stringify(value));
 
 const byName = (collection: 'roles' | 'policies', name: string) =>
 	api.call<Row[]>('GET', `/${collection}?filter=${q({ name: { _eq: name } })}&fields=id,name`);
+
+// Backoffice (spec 025, D-189.3): the import and export rows (backoffice_permissions); a Directus API has no such route.
+const hasBackofficePermissions = e2eConfig !== 'proxy-directus';
+
+const boPermissionsOf = (policy: string) =>
+	api.call<(Omit<PermissionRow, 'permissions'> & { options: { formats?: string[] } | null })[]>(
+		'GET',
+		`/backoffice/permissions?filter=${q({ policy: { _eq: policy } })}&limit=-1&fields=collection,action,fields,options`,
+	);
 
 const permissionsOf = (policy: string) =>
 	api.call<PermissionRow[]>(
@@ -185,6 +194,46 @@ test('the matrix: add bo_std, read all, create custom with one field; saved as d
 	]);
 });
 
+// Backoffice (spec 025, FR-022..FR-027, US1, US4): import and export cells from backoffice_permissions, no share; 4
+// columns when the API is Directus (FR-034).
+test('import and export: 6 columns without share; export by Use custom with CSV, saved after the policy', async ({
+	page,
+}) => {
+	const [policy] = await byName('policies', POLICY);
+	await signIn(page, `/settings/policies/${policy!.id}`);
+
+	const row = page.locator('[data-permissions-matrix] tr[data-collection="bo_std"]');
+	await expect(row.getByRole('button', { name: 'Full Read Access' })).toBeVisible();
+	await expect(row.getByRole('button', { name: /Share Access$/ })).toHaveCount(0);
+
+	if (!hasBackofficePermissions) {
+		await expect(row.getByRole('button', { name: /(Import|Export) Access$/ })).toHaveCount(0);
+		return;
+	}
+
+	await expect(row.getByRole('button', { name: 'No Import Access' })).toBeVisible();
+	await row.getByRole('button', { name: 'No Export Access' }).click();
+	await page.getByRole('menuitem', { name: 'Use Custom' }).click();
+	const drawer = page.getByRole('dialog', { name: new RegExp(`${POLICY} -> bo_std -> Export`) });
+	await drawer.getByRole('tab', { name: /Formats/ }).click();
+	await drawer.getByRole('checkbox', { name: 'CSV', exact: true }).click();
+	await drawer.getByRole('button', { name: 'Save' }).click();
+	await expect(drawer).toBeHidden();
+	await expect(row.getByRole('button', { name: 'Partial Export Access' })).toBeVisible();
+
+	// Nothing is written until the policy is saved.
+	expect(await boPermissionsOf(policy!.id)).toEqual([]);
+
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
+	await expect(page).toHaveURL(/\/admin\/settings\/policies$/);
+	expect(await boPermissionsOf(policy!.id)).toEqual([
+		{ collection: 'bo_std', action: 'export', fields: ['*'], options: { formats: ['csv'] } },
+	]);
+
+	await page.goto(`/admin/settings/policies/${policy!.id}`);
+	await expect(row.getByRole('button', { name: 'Partial Export Access' })).toBeVisible();
+});
+
 test('duplicate a policy: the copy has the same permissions, no users or roles (US4-4)', async ({ page }) => {
 	const [policy] = await byName('policies', POLICY);
 	await signIn(page, '/settings/policies');
@@ -199,6 +248,9 @@ test('duplicate a policy: the copy has the same permissions, no users or roles (
 	const [copy] = await byName('policies', COPY);
 	const key = (p: PermissionRow) => `${p.collection}.${p.action}`;
 	expect((await permissionsOf(copy!.id)).map(key).sort()).toEqual((await permissionsOf(policy!.id)).map(key).sort());
+
+	// Backoffice (spec 025, FR-027): the import and export rows are copied too.
+	if (hasBackofficePermissions) expect(await boPermissionsOf(copy!.id)).toEqual(await boPermissionsOf(policy!.id));
 });
 
 test('/content/directus_roles opens the role list (FR-002, D-72)', async ({ page }) => {

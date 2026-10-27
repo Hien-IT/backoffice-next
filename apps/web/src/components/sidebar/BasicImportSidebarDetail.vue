@@ -29,7 +29,8 @@ const { t } = useI18n();
 
 const { collection } = toRefs(props);
 
-const { createAllowed } = useCollectionPermissions(collection);
+// Backoffice (spec 025, FR-028): the import permission of the policies (DR: create).
+const { importAllowed } = useCollectionPermissions(collection);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -117,7 +118,7 @@ const FOCUS =
 
 <template>
 	<SidebarDetail id="import" icon="publish" :title="$t('label_import')">
-		<div v-if="createAllowed" class="flex flex-col gap-4">
+		<div v-if="importAllowed" class="flex flex-col gap-4">
 			<div>
 				<div
 					v-if="uploading || importing"

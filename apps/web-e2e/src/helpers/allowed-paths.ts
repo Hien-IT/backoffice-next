@@ -42,8 +42,7 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 25, method: 'GET', path: /^\/translations$/ },
 	{ id: 26, method: 'GET', path: /^\/notifications$/ },
 	{ id: 27, method: 'GET', path: new RegExp(`^/assets/${ID}$`) },
-	{ id: 28, method: 'GET', path: new RegExp(`^/shares/info/${ID}$`) },
-	{ id: 29, method: 'POST', path: /^\/shares\/auth$/ },
+	// 28 and 29 (/shares/info, /shares/auth) left with the /shared/:id page (spec 025, D-189.4).
 	{ id: 30, method: 'POST', path: /^\/files$/ },
 	{ id: 31, method: 'POST', path: /^\/utils\/resolve-redirect$/ },
 	{ id: 32, method: 'PATCH', path: /^\/users\/me\/track\/page$/ },
@@ -169,6 +168,11 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 213, method: 'GET', path: /^\/extensions\/sources\/[^/]+\.js$/ },
 	// Not an app call: the useApi request of the fixture interface parity-interface-color (extensions-app.spec.ts).
 	{ id: 214, method: 'GET', path: /^\/server\/ping$/ },
+	// Spec 025 (specs/025-policy-import-export/contracts/api.md, D-189.3): the import and export rows of a policy.
+	{ id: 215, method: 'GET', path: /^\/backoffice\/permissions$/ },
+	{ id: 216, method: 'POST', path: /^\/backoffice\/permissions$/ },
+	{ id: 217, method: 'PATCH', path: /^\/backoffice\/permissions$/ },
+	{ id: 218, method: 'DELETE', path: /^\/backoffice\/permissions$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

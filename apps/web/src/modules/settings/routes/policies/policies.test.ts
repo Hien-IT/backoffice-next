@@ -26,6 +26,10 @@ import { mountLayout, press } from '../../../../test-utils/layout.ts';
 import NewPolicy from './NewPolicy.vue';
 import PoliciesCollectionRoute from './PoliciesCollectionRoute.vue';
 import PolicyItemRoute from './PolicyItemRoute.vue';
+import {
+	BO_PERMISSIONS,
+	type BoPermissionsStaging,
+} from '../../../../interfaces/_system/system-permissions/use-bo-permissions.ts';
 
 enableAutoUnmount(afterEach);
 afterEach(() => {
@@ -221,6 +225,8 @@ describe('PoliciesCollectionRoute', () => {
 				'GET /permissions?fields=collection,action,permissions,validation,presets,fields,policy&filter={"policy":{"_eq":"p-editor"}}&limit=-1',
 				'POST /policies',
 				'POST /permissions',
+				// Backoffice (spec 025, FR-027): the import and export rows too (none here).
+				'GET /backoffice/permissions?fields=collection,action,permissions,validation,presets,fields,options&filter={"policy":{"_eq":"p-editor"}}&limit=-1',
 				expect.stringMatching(/^GET \/policies\?/),
 			]);
 			expect(bodyOf('POST', '/policies')).toEqual([
@@ -393,4 +399,91 @@ describe('PolicyItemRoute', () => {
 		},
 		SLOW,
 	);
+
+	// Backoffice (spec 025, FR-027, research R7): the import and export rows staged by the matrix.
+	describe('backoffice_permissions', () => {
+		const ROW = {
+			policy: 'p-editor',
+			collection: 'articles',
+			action: 'export' as const,
+			permissions: null,
+			validation: null,
+			presets: null,
+			fields: ['*'],
+			options: null,
+		};
+
+		const staging = (wrapper: Awaited<ReturnType<typeof setup>>['wrapper']) =>
+			(wrapper.findComponent(PolicyItemRoute).vm.$ as unknown as { provides: Record<symbol, BoPermissionsStaging> })
+				.provides[BO_PERMISSIONS as symbol]!;
+
+		test(
+			'save writes the staged rows after the policy, then reads them again',
+			async () => {
+				const { router, wrapper } = await setup('/settings/policies/p-editor', {
+					...answers,
+					'GET /backoffice/permissions': [],
+					'POST /backoffice/permissions': [],
+				});
+
+				staging(wrapper).create(ROW);
+				wrapper.findComponent(BoForm).vm.$emit('update:modelValue', { name: 'Renamed' });
+				await flushPromises();
+				button(t('save'))!.click();
+				await flushPromises();
+				await flushPromises();
+
+				const writes = calls(fetch).filter((c) => /^(POST|PATCH|DELETE) /.test(c));
+				expect(writes).toEqual(['PATCH /policies/p-editor', 'POST /backoffice/permissions']);
+				expect(bodyOf('POST', '/backoffice/permissions')).toEqual([[ROW]]);
+				expect(calls(fetch)).toContain(
+					'GET /backoffice/permissions?fields=*&filter={"policy":{"_eq":"p-editor"}}&limit=-1',
+				);
+				expect(router.currentRoute.value.name).toBe('settings-policies-collection');
+			},
+			SLOW,
+		);
+
+		test(
+			'a failed write shows the error and keeps the staged rows (the page stays, Save stays on)',
+			async () => {
+				const { router, wrapper } = await setup('/settings/policies/p-editor', {
+					...answers,
+					'POST /backoffice/permissions': () =>
+						json({ errors: [{ message: 'boom', extensions: { code: 'INTERNAL_SERVER_ERROR' } }] }, 500),
+				});
+
+				staging(wrapper).create(ROW);
+				await flushPromises();
+				button(t('save'))!.click();
+				await flushPromises();
+				await flushPromises();
+
+				expect(calls(fetch)).toContain('POST /backoffice/permissions');
+				expect(staging(wrapper).hasEdits.value).toBe(true);
+				expect(router.currentRoute.value.name).toBe('settings-policies-item');
+				expect(button(t('save'))!.hasAttribute('disabled')).toBe(false);
+			},
+			SLOW,
+		);
+
+		test(
+			'leaving with staged rows only asks first; discard drops them',
+			async () => {
+				const { router, wrapper } = await setup('/settings/policies/p-editor', answers);
+
+				staging(wrapper).create(ROW);
+				await flushPromises();
+				await router.push('/settings/policies');
+				await flushPromises();
+
+				expect(document.querySelector('[role="dialog"]')!.textContent).toContain(t('unsaved_changes'));
+				dialogButton(t('discard_changes')).click();
+				await flushPromises();
+				expect(router.currentRoute.value.name).toBe('settings-policies-collection');
+				expect(calls(fetch).filter((c) => c.includes('/backoffice/'))).toEqual([]);
+			},
+			SLOW,
+		);
+	});
 });

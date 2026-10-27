@@ -54,3 +54,17 @@ test('getPermission, hasPermission and dehydrate', () => {
 	store.dehydrate();
 	expect(store.permissions).toEqual({});
 });
+
+// Backoffice (spec 025, FR-034): import and export keys mean the API is Backoffice.
+test('hasBackofficeActions: true with an import key, false with the /permissions/me of Directus', () => {
+	const store = usePermissionsStore();
+
+	store.permissions = permissions as never;
+	expect(store.hasBackofficeActions).toBe(false);
+
+	store.permissions = {
+		...permissions,
+		articles: { ...permissions.articles, import: { access: 'none' }, export: { access: 'full' } },
+	} as never;
+	expect(store.hasBackofficeActions).toBe(true);
+});

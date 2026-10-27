@@ -42,7 +42,9 @@ const search = ref<string | null>(null);
 
 const createDialogActive = ref(false);
 
-const { createAllowed, updateAllowed, deleteAllowed } = useCollectionPermissions('directus_dashboards');
+// Backoffice (spec 025, FR-028): the export buttons follow the export permission (DR: create), the import sidebar the
+// import permission (admin-only for this system collection).
+const { createAllowed, updateAllowed, deleteAllowed, exportAllowed } = useCollectionPermissions('directus_dashboards');
 const batchDeleteAllowed = deleteAllowed;
 
 const internalSort = ref<BoTableSort>({ by: 'name', desc: false });
@@ -217,7 +219,12 @@ function menuItems(dashboard: Dashboard): BoMenuItem[] {
 			loading: duplicating.value === dashboard.id,
 			onSelect: () => duplicateDashboard(dashboard.id),
 		},
-		{ text: t('export_dashboard'), icon: 'download', onSelect: () => exportDashboard([dashboard.id]) },
+		{
+			text: t('export_dashboard'),
+			icon: 'download',
+			disabled: !exportAllowed.value,
+			onSelect: () => exportDashboard([dashboard.id]),
+		},
 		{
 			text: t('delete_dashboard'),
 			icon: 'delete',
@@ -265,9 +272,9 @@ const FOCUS =
 				v-if="selection.length > 0"
 				variant="secondary"
 				icon="download"
-				:aria-label="createAllowed ? $t('export_dashboard') : $t('not_allowed')"
-				:title="createAllowed ? $t('export_dashboard') : $t('not_allowed')"
-				:disabled="createAllowed !== true"
+				:aria-label="exportAllowed ? $t('export_dashboard') : $t('not_allowed')"
+				:title="exportAllowed ? $t('export_dashboard') : $t('not_allowed')"
+				:disabled="exportAllowed !== true"
 				@click="exportDashboard(selection)"
 			/>
 
