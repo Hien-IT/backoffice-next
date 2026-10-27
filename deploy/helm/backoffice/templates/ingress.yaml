@@ -33,6 +33,16 @@ spec:
             pathType: Prefix
             backend:
               service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
+          # Spec 025 (D-189.7): /permissions/me with the import and export keys and /backoffice/* from the Backoffice pods
+          # only.
+          - path: /permissions/me
+            pathType: Exact
+            backend:
+              service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
+          - path: /backoffice
+            pathType: Prefix
+            backend:
+              service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
           - path: /admin
             pathType: Prefix
             backend:

@@ -111,6 +111,14 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `$upstream_addr`. Playwright ở `tests/directus-app-e2e` (`BASE_URL=http://127.0.0.1:8160`).
 - Hai app của môi trường này bật response cache dùng chung (khóa theo user, path, query): ca đổi role khi token còn hạn
   dùng query khác nhau giữa các lần gọi, vì request của fixture (`appRequest`) không gửi `no-store`.
+- `src/permissions/backoffice-permissions.test.ts` (spec 025): quyền `import`, `export` theo policy ở bảng
+  `backoffice_permissions` (endpoint `/backoffice/permissions` chỉ có ở Backoffice). `GET /permissions/me` và
+  `permissions_me` của `/graphql/system` có thêm hai khóa (D-189, `directus: {absent: true}`); import, export bị policy
+  từ chối trả 403 ở Backoffice, 200 ở Directus (D-189.1, collection `parity_bo_perm_*`,
+  `when.backofficeCode: FORBIDDEN`); Use custom (bộ lọc dòng, field, định dạng), xóa policy, collection kéo theo dòng.
+  `normalizers.ts` bỏ bảng `backoffice_*` khỏi introspection, SDL; `parity.ts` không so ETag của `/permissions/me`.
+  Deploy: `src/deploy/backoffice-permissions.test.ts` (quyền đổi ở replica này có tác dụng ngay ở replica khác; lb đưa
+  `/permissions/me`, `/backoffice/*` tới Backoffice).
 
 ### Test items (feature 005)
 

@@ -50,6 +50,8 @@ check "no privilege escalation (both)" test "$(count "$d" 'allowPrivilegeEscalat
 check "all capabilities dropped (both)" test "$(count "$d" 'drop: \[ALL\]')" -eq 2
 check "Ingress: /admin to web, / to api" sh -c "grep -q 'name: bo-web, port: { number: 8080 }' '$d' && grep -q 'name: bo-api, port: { number: 8055 }' '$d'"
 check "Ingress: /extensions/sources to api-only, before /admin" sh -c "grep -q 'name: bo-api-only, port: { number: 8055 }' '$d' && awk '/path: \\/extensions\\/sources/{e=NR} /path: \\/admin/{a=NR} END{exit !(e && a && e<a)}' '$d'"
+# Spec 025 (D-189.7).
+check "Ingress: /permissions/me (Exact) and /backoffice to api-only, before /admin" sh -c "grep -A1 'path: /permissions/me' '$d' | grep -q 'pathType: Exact' && awk '/path: \\/permissions\\/me/{p=NR} /path: \\/backoffice\$/{b=NR} /path: \\/admin/{a=NR} END{exit !(p && b && a && p<a && b<a)}' '$d'"
 check "api-only Service selects the api pods, not the pool" sh -c "awk '/name: bo-api-only/{f=1} f&&/selector:/{s=1} s&&/app.kubernetes.io\\/component: api/{ok=1} END{exit !ok}' '$d' && ! awk '/name: bo-api-only/{f=1} f&&/backoffice.io\\/api-pool/{exit 0} END{exit 1}' '$d'"
 
 s=$out/separate.yaml

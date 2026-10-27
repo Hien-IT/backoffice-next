@@ -411,6 +411,34 @@ mặc định `true`) vào `directus_collections` và ba dòng `directus_fields`
 - **Nâng Directus lên bản sau 11.17.4:** trước khi ghim bản mới, `grep -rn "bo_\|backoffice_"
   directus/api/src/database/migrations` phải rỗng (tên cột hay bảng trùng sẽ làm migration của một bên lỗi).
 
+### Quyền import, export theo policy (spec 025)
+
+Migration `20261028A` tạo bảng `backoffice_permissions` (`policy`, `collection`, `action`, `permissions`, `validation`,
+`presets`, `fields`, `options`; index `(policy, collection, action)`, không khóa ngoại). Bảng giữ hai action `import` và
+`export` của mỗi policy trên mỗi collection; admin sửa ở Settings > Access Policies (cột Import, Export) hoặc qua
+`/backoffice/permissions`.
+
+- **Không seed:** sau khi cài, người không phải admin không import, export được ở API Backoffice cho tới khi admin cấp
+  lại cho từng policy (admin luôn được). Import vào collection hệ thống vẫn chỉ admin, như Directus.
+- **Gỡ tay** (Postgres), rồi `node cli.js cache clear --system`:
+
+  ```sql
+  DROP TABLE backoffice_permissions;
+  DELETE FROM backoffice_migrations WHERE version = '20261028A';
+  ```
+
+- **Migration hỏng giữa chừng** (bảng có, index thiếu): `bootstrap` thấy bảng thì bỏ qua bước tạo; tạo index tay:
+  `CREATE INDEX backoffice_permissions_policy_collection_action_index ON backoffice_permissions (policy, collection, action);`
+  rồi ghi dòng `20261028A` vào `backoffice_migrations` nếu chưa có (hoặc gỡ tay như trên và chạy lại `bootstrap`).
+- **Directus chạy chung** (khác biệt chủ dự án đã duyệt): Directus không kiểm `import`, `export`, nên request import,
+  export tới Directus vẫn trả 200 (D-189.1). Response cache của `/permissions/me` dùng chung khóa: Backoffice có thể trả
+  bản Directus đã cache (không có `import`, `export`; app web khi đó theo luật Directus) và ngược lại (D-189.2).
+  Directus app đặt sau proxy tới API Backoffice nhận 403 khi import, export cho tới khi admin cấp quyền. Activity của
+  Directus app hiện các dòng ghi vào `backoffice_permissions` (collection Directus chưa quản lý).
+- **Load balancer, Ingress (D-189.7):** `/permissions/me` (exact) và `/backoffice/*` chỉ tới Backoffice (`bo_pool` ở
+  compose shared-domain, Service `<release>-api-only` ở Helm), như `/extensions/sources/*`. Lb tự viết: thêm hai route
+  này; request import, export khác vẫn có thể rơi vào Directus và không bị chặn (như 023, 024).
+
 ## Lệnh CLI
 
 Image Backoffice có CLI của Directus 11.17.4 (021): cùng lệnh, option, log và mã thoát, tên chương trình `backoffice`
