@@ -88,7 +88,21 @@ function scenarios(seeded: ItemsSeed): Scenario[] {
 	return out;
 }
 
-async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: number, rate?: number): Promise<Round> {
+/** A fixed number of requests on fewer connections, for a request slower than the autocannon timeout under load. */
+interface Load {
+	connections: number;
+	amount: number;
+	timeout: number;
+}
+
+async function measure(
+	seeded: ItemsSeed,
+	s: Scenario,
+	app: App,
+	duration: number,
+	rate?: number,
+	load?: Load,
+): Promise<Round> {
 	// Without it the app warmed first keeps the permissions in memory and the other reads Redis on every lookup.
 	await flushPermissions();
 	const before = await snapshot(app);
@@ -98,8 +112,9 @@ async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: numbe
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
 		const options = {
 			url: app === 'directus' ? DIRECTUS : BACKOFFICE,
-			connections: CONNECTIONS,
+			connections: load?.connections ?? CONNECTIONS,
 			duration,
+			...(load ? { amount: load.amount, timeout: load.timeout } : {}),
 			requests: [
 				{
 					method: s.method,
@@ -136,16 +151,20 @@ async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: numbe
 }
 
 // Spec 023 (T053, SC-006): a json path filter at Backoffice only (Directus answers 403, D-184), without and with an
-// expression index on the exact expression of the app (quickstart.md "Index"); reported, gated on errors only.
+// expression index on the exact expression of the app (quickstart.md "Index"); reported, gated on errors only. Without
+// the index each request scans the whole table (seconds, CI 40415424870: 50 connections all timed out), so that case
+// is the first page time of one connection.
 const JSON_PATH_LIST = `/items/${ARTICLES}?filter=${encodeURIComponent(
 	JSON.stringify({ 'json(payload, Amount, number)': { _eq: 6000 } }),
 )}&limit=25&fields=id,title`;
 const JSON_PATH_INDEX = 'bench_articles_payload_amount';
+const JSON_PATH_SCAN: Load = { connections: 1, amount: 3, timeout: 120 };
 // The WHERE of the app for that key (postgres dialect, parameters bound like knex does).
 const JSON_PATH_SQL = `SELECT id, title FROM ${ARTICLES} WHERE CASE WHEN json_typeof("${ARTICLES}"."payload" #> ARRAY[?]::text[]) = 'number' THEN ("${ARTICLES}"."payload" #>> ARRAY[?]::text[])::numeric END = ? LIMIT 25`;
 
 interface JsonPathResult {
 	index: boolean;
+	connections: number;
 	rounds: Round[];
 	plan: string;
 }
@@ -161,25 +180,26 @@ async function jsonPathRun(seeded: ItemsSeed, index: boolean): Promise<JsonPathR
 	const explain = await db.raw(`EXPLAIN ${JSON_PATH_SQL}`, ['Amount', 'Amount', 6000]);
 	const plan = explain.rows.map((row: Record<string, string>) => row['QUERY PLAN']).join('\n');
 	const s: Scenario = { name: 'json path', method: 'GET', path: () => JSON_PATH_LIST, user: 'admin', fresh: true };
-	await measure(seeded, s, 'backoffice', WARMUP);
+	const load = index ? undefined : JSON_PATH_SCAN;
+	await measure(seeded, s, 'backoffice', WARMUP, undefined, load && { ...load, amount: 1 });
 	const rounds: Round[] = [];
-	for (let i = 0; i < ROUNDS; i++) rounds.push(await measure(seeded, s, 'backoffice', DURATION));
+	for (let i = 0; i < ROUNDS; i++) rounds.push(await measure(seeded, s, 'backoffice', DURATION, undefined, load));
 
-	return { index, rounds, plan };
+	return { index, connections: load?.connections ?? CONNECTIONS, rounds, plan };
 }
 
 function jsonPathTable(results: JsonPathResult[]): string {
-	const rows = results.map(({ index, rounds, plan }) => {
+	const rows = results.map(({ index, connections, rounds, plan }) => {
 		const p95 = median(rounds.map((r) => r.p95));
 		const rps = median(rounds.map((r) => r.rps));
 		const errors = rounds.reduce((sum, r) => sum + r.errors, 0);
 		const scan = /Index Scan|Bitmap Index Scan/.test(plan) ? 'index scan' : 'seq scan';
-		return `| ${index ? 'with' : 'without'} | ${rps} | ${p95} | ${errors} | ${scan} |`;
+		return `| ${index ? 'with' : 'without'} | ${connections} | ${rps} | ${p95} | ${errors} | ${scan} |`;
 	});
 
 	return [
-		'| expression index | req/s (50 connections) | p95 ms | errors | plan |',
-		'| --- | --- | --- | --- | --- |',
+		'| expression index | connections | req/s | p95 ms | errors | plan |',
+		'| --- | --- | --- | --- | --- | --- |',
 		...rows,
 	].join('\n');
 }
