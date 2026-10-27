@@ -1,5 +1,7 @@
 // Ported from directus/api/src/services/graphql/resolvers/query.test.ts
+import { ForbiddenError } from '@backoffice/errors';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { assertCollectionToggles } from '../../../utils/collection-toggles.js';
 import { parseArgs } from '../schema/parse-args.js';
 import { getQuery } from '../schema/parse-query.js';
 import { getAggregateQuery } from '../utils/aggregate-query.js';
@@ -10,6 +12,7 @@ vi.mock('../utils/replace-fragments.js');
 vi.mock('../schema/parse-args.js');
 vi.mock('../utils/aggregate-query.js');
 vi.mock('../schema/parse-query.js');
+vi.mock('../../../utils/collection-toggles.js');
 
 describe('resolveQuery', () => {
 	const mockReplaceFragments = vi.fn();
@@ -308,5 +311,58 @@ describe('resolveQuery', () => {
 			{ category: 'A', count: { id: 5 }, group: { category: 'A' } },
 			{ category: 'B', count: { id: 10 }, group: { category: 'B' } },
 		]);
+	});
+});
+
+// Backoffice (spec 024, D-188): the toggles checked on the query of the field, after the suffix is stripped and
+// before the read; the deep levels of nested fields are in that query (getQuery).
+describe('collection toggles', () => {
+	const gql = (scope = 'items') =>
+		({ scope, schema: { collections: {} }, accountability: {}, read: vi.fn(async () => []) }) as any;
+
+	const info = (fieldName: string) =>
+		({
+			fieldName,
+			fieldNodes: [{ selectionSet: { selections: [{}] }, arguments: [] }],
+			fragments: {},
+			variableValues: {},
+		}) as any;
+
+	beforeEach(() => {
+		vi.mocked(replaceFragmentsInSelections).mockReturnValue([{}] as any);
+		vi.mocked(parseArgs).mockReturnValue({});
+	});
+
+	test.each([
+		['posts', 'posts'],
+		['posts_by_id', 'posts'],
+		['posts_aggregated', 'posts'],
+	])('%s: checked on %s with the query and schema', async (fieldName, collection) => {
+		const query = { search: 'x', deep: { author: { _search: 'y' } } };
+		vi.mocked(getQuery).mockResolvedValue(query as any);
+		vi.mocked(getAggregateQuery).mockResolvedValue(query as any);
+		const g = gql();
+
+		await resolveQuery(g, info(fieldName));
+
+		expect(assertCollectionToggles).toHaveBeenCalledWith(collection, query, g.schema);
+	});
+
+	test('system scope: the directus_ name, so the root is never blocked but deep still is checked', async () => {
+		vi.mocked(getQuery).mockResolvedValue({ fields: [] } as any);
+		const g = gql('system');
+
+		await resolveQuery(g, info('users'));
+
+		expect(assertCollectionToggles).toHaveBeenCalledWith('directus_users', { fields: [] }, g.schema);
+	});
+
+	test('a refused search: the error of the field, nothing read', async () => {
+		vi.mocked(getQuery).mockResolvedValue({ search: 'x' } as any);
+		vi.mocked(assertCollectionToggles).mockRejectedValue(new ForbiddenError());
+		const g = gql();
+
+		await expect(resolveQuery(g, info('posts'))).rejects.toMatchObject({ code: 'FORBIDDEN' });
+		expect(g.read).not.toHaveBeenCalled();
 	});
 });

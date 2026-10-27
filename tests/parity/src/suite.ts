@@ -13,6 +13,8 @@ export const REDUCED_FILES = [
 	'src/items/crud.test.ts',
 	// Spec 023: json path filters (Postgres, SQLite) and the vendor gate (MySQL).
 	'src/items/json-path.test.ts',
+	// Spec 024: the collection toggles at the API (D-188).
+	'src/items/collection-toggles.test.ts',
 	// Feature 006: the HTTP contract of /collections, /fields, /relations (DDL differs per vendor, research R5).
 	'src/schema-management/crud.test.ts',
 	'src/schema-management/relations.test.ts',
@@ -40,7 +42,7 @@ export const FULL_FILES = [
 	'src/{server,startup,observability,schema,auth,permissions}/**/*.test.ts',
 	'src/{db-unchanged,readonly-account,redis-down}.test.ts',
 	// Feature 005: /items and export on the main pair.
-	'src/items/{crud,export,json-path}.test.ts',
+	'src/items/{crud,export,json-path,collection-toggles}.test.ts',
 	// Feature 006: data model routes, DDL compared in sequence on the shared DB, cross use (research R5, R6).
 	'src/schema-management/**/*.test.ts',
 	// Feature 007: files, folders, assets, import, TUS on both storage locations (research R8).

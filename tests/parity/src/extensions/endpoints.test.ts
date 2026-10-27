@@ -2,7 +2,7 @@
 // Express 4 idioms of parity-endpoint-express4(-path) answer the same too since endpoints run on Express 4 like
 // Directus (D-139 revised 2026-10-21, apps/api/src/extensions/lib/endpoint-app.ts).
 import { beforeAll, describe, expect, it } from 'vitest';
-import { appUrl } from '../directus-api.js';
+import { appRequest, appUrl } from '../directus-api.js';
 import { multipart } from '../files/helpers.js';
 import { capture, type Captured, type ParityRequest } from '../parity.js';
 import { admin, ensureExtensionCollections, same } from './helpers.js';
@@ -26,6 +26,22 @@ describe('parity-endpoint-demo', () => {
 		await same({ path: '/parity-endpoint-demo/items', headers });
 		await same({ path: '/parity-endpoint-demo/items' });
 		await same({ path: '/parity-endpoint-demo/nope', headers });
+	});
+
+	// Spec 024 (FR-009, SC-004): the toggles block /items, not the route of an endpoint extension, which reads
+	// bo_ext_items through ItemsService the same at both apps.
+	it('the services context with every toggle of bo_ext_items off (spec 024)', async () => {
+		const headers = await admin();
+		const meta = (value: boolean) => ({ bo_show_search: value, bo_show_import: value, bo_show_export: value });
+
+		await appRequest('directus', 'PATCH', '/collections/bo_ext_items', { meta: meta(false) });
+		await appRequest('backoffice', 'POST', '/utils/cache/clear');
+
+		try {
+			await same({ path: '/parity-endpoint-demo/items?search=x&export=csv', headers });
+		} finally {
+			await appRequest('directus', 'PATCH', '/collections/bo_ext_items', { meta: meta(true) });
+		}
 	});
 });
 

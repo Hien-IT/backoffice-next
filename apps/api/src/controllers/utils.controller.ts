@@ -22,6 +22,7 @@ import { RevisionsService } from '../services/revisions.service.js';
 import { UtilsService } from '../services/utils.service.js';
 import { generateHash } from '../utils/generate-hash.js';
 import { generateTranslations } from '../utils/generate-translations.js';
+import { assertCollectionToggles, assertToggle } from '../utils/collection-toggles.js';
 import { runMiddleware } from '../utils/run-middleware.js';
 import { sanitizeQuery } from '../utils/sanitize-query.js';
 
@@ -122,6 +123,8 @@ export class UtilsController {
 	@HttpCode(200)
 	async import(@Req() req: Request, @Res() res: Response): Promise<void> {
 		await runMiddleware(collectionExists, req, res);
+		// Backoffice (spec 024, D-188.2): import off, refused before the file is read.
+		await assertToggle(req.params['collection'] as string, 'import');
 
 		if (req.is('multipart/form-data') === false) {
 			throw new UnsupportedMediaTypeError({ mediaType: req.headers['content-type']!, where: 'Content-Type header' });
@@ -170,6 +173,8 @@ export class UtilsController {
 	@HttpCode(200)
 	async export(@Req() req: Request, @Res() res: Response): Promise<void> {
 		await runMiddleware(collectionExists, req, res);
+		// Backoffice (spec 024, D-188.1): export off, refused before the payload is checked.
+		await assertToggle(req.params['collection'] as string, 'export');
 
 		if (!req.body.query) {
 			throw new InvalidPayloadError({ reason: `"query" is required` });
@@ -185,6 +190,9 @@ export class UtilsController {
 		});
 
 		const sanitizedQuery = await sanitizeQuery(req.body.query, req.schema, req.accountability ?? null);
+
+		// Backoffice (spec 024, D-188): a search of the body query on a collection with search off (FR-017).
+		await assertCollectionToggles(req.params['collection'] as string, sanitizedQuery, req.schema);
 
 		// We're not awaiting this, as it's supposed to run async in the background
 		service.exportToFile(req.params['collection'] as string, sanitizedQuery, req.body.format, {

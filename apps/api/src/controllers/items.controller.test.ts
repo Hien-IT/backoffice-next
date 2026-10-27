@@ -317,3 +317,106 @@ test('create without read permission: 204 without body', async () => {
 	expect(res.text).toBe('');
 	expect(await state.db('articles').where({ title: 'u' })).toHaveLength(1);
 });
+
+describe('collection toggles (spec 024, D-188)', () => {
+	// The columns of the Backoffice migration 20261026A (spec 022), which createAuthDb leaves out.
+	async function toggles(values: Record<string, boolean | null>) {
+		await state.db.schema.alterTable('directus_collections', (t) => {
+			for (const column of ['bo_show_search', 'bo_show_import', 'bo_show_export']) t.boolean(column).defaultTo(true);
+		});
+
+		await state.db('directus_collections').where({ collection: 'articles' }).update(values);
+		await clearSystemCache();
+	}
+
+	const count = async () => (await state.db('articles')).length;
+
+	test('search off: query string of any method, the body of SEARCH, PATCH and DELETE by query (FR-002, FR-017)', async () => {
+		await toggles({ bo_show_search: false });
+		const agent = await start();
+		const before = await count();
+
+		for (const res of [
+			await agent.get('/items/articles?search=a').set('Authorization', admin()),
+			await agent.get('/items/articles?search=%20').set('Authorization', admin()),
+			await agent.get('/items/articles/1?search=a').set('Authorization', admin()),
+			await agent.get('/items/articles?search=a&aggregate[count]=*').set('Authorization', admin()),
+			await agent.post('/items/articles?search=a').set('Authorization', admin()).send({ title: 'x' }),
+			await agent.patch('/items/articles/1?search=a').set('Authorization', admin()).send({ title: 'x' }),
+			await agent
+				.search('/items/articles')
+				.set('Authorization', admin())
+				.send({ query: { search: 'a' } }),
+			await agent
+				.patch('/items/articles')
+				.set('Authorization', admin())
+				.send({ query: { search: 'a' }, data: { title: 'x' } }),
+			await agent
+				.delete('/items/articles')
+				.set('Authorization', admin())
+				.send({ query: { search: 'a' } }),
+		]) {
+			expect(res.status).toBe(403);
+			expect(res.body.errors[0]).toMatchObject({
+				message: forbiddenCollection('articles'),
+				extensions: { code: 'FORBIDDEN' },
+			});
+		}
+
+		expect(await count()).toBe(before);
+		expect(await state.db('articles').where({ title: 'x' })).toHaveLength(0);
+	});
+
+	test('search off: no search, an empty search and a filter still answer (FR-011)', async () => {
+		await toggles({ bo_show_search: false });
+		const agent = await start();
+
+		for (const path of ['/items/articles', '/items/articles?search=', '/items/articles?filter[title][_eq]=a']) {
+			const res = await agent.get(path).set('Authorization', admin());
+			expect(res.status).toBe(200);
+		}
+
+		const search = await agent
+			.search('/items/articles')
+			.set('Authorization', admin())
+			.send({ query: { filter: { title: { _eq: 'a' } } } });
+
+		expect(search.body.data).toHaveLength(1);
+	});
+
+	test('export off: ?export= on reads and writes is refused before the write (FR-004)', async () => {
+		await toggles({ bo_show_export: false });
+		const agent = await start();
+
+		for (const res of [
+			await agent.get('/items/articles?export=csv').set('Authorization', admin()),
+			await agent.get('/items/articles/1?export=json').set('Authorization', admin()),
+			await agent.post('/items/articles?export=csv').set('Authorization', admin()).send({ title: 'x' }),
+		]) {
+			expect(res.status).toBe(403);
+			expect(res.body.errors[0].extensions.code).toBe('FORBIDDEN');
+		}
+
+		expect(await state.db('articles').where({ title: 'x' })).toHaveLength(0);
+		expect((await agent.get('/items/articles?search=a').set('Authorization', admin())).status).toBe(200);
+	});
+
+	test('null and true answer as before (FR-008)', async () => {
+		await toggles({ bo_show_search: null, bo_show_export: true });
+		const agent = await start();
+
+		expect((await agent.get('/items/articles?search=draft').set('Authorization', admin())).body.data).toHaveLength(1);
+		expect((await agent.get('/items/articles?export=json').set('Authorization', admin())).status).toBe(200);
+	});
+
+	test('the user without read permission gets the same error as before (FR-006)', async () => {
+		await toggles({ bo_show_search: false });
+		const agent = await start();
+
+		const blocked = await agent.get('/items/articles?search=a').set('Authorization', token(USER));
+		const unread = await agent.get('/items/articles').set('Authorization', token(USER));
+
+		expect(blocked.status).toBe(403);
+		expect(blocked.body).toEqual(unread.body);
+	});
+});

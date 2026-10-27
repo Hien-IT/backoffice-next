@@ -12,6 +12,7 @@ import qs from 'qs';
 import emitter from './emitter.js';
 import { createExpressLogger } from './logger/index.js';
 import checkCacheMiddleware from './middleware/cache.js';
+import collectionTogglesGuard from './middleware/collection-toggles-guard.js';
 import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
 import authenticate from './middleware/authenticate.js';
@@ -163,6 +164,9 @@ export async function createExpressApp(options: ExpressAppOptions = {}): Promise
 	app.use(schema);
 
 	app.use(sanitizeQuery);
+
+	// Backoffice (spec 024, D-188): the bo_show_* toggles before the response cache shared with DR.
+	app.use(collectionTogglesGuard);
 
 	app.use(checkCacheMiddleware);
 

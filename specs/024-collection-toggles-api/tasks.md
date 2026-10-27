@@ -54,14 +54,14 @@ typecheck, test, build, E2E liên quan xanh, commit, push khi `main` rảnh, g�
 
 **Purpose**: chốt các điểm chưa kiểm trước khi viết code; kết quả có thể đổi chi tiết R2, R7.
 
-- [ ] T001 Kiểm và ghi "Kết quả T001" vào `specs/024-collection-toggles-api/research.md`: (a) dạng khóa `deep` của quan
+- [X] T001 Kiểm và ghi "Kết quả T001" vào `specs/024-collection-toggles-api/research.md`: (a) dạng khóa `deep` của quan
       hệ a2o ở REST sau `sanitizeDeep` (`api/utils/sanitize-query.ts:243-290`): `field:collection` hay khác, bằng một
       test tạm gọi `sanitizeQuery({ deep: ... })` với schema mock có quan hệ a2o; (b) `tests/parity/src/parity.ts` áp
       `when.backofficeCode` thế nào cho response GraphQL 200/200 (đọc `errors[0].extensions.code` của body hay chỉ khi
       status khác): đọc code và `parity.test.ts`; (c) câu lỗi Directus 11.17.4 trả cho user không có quyền đọc collection
       (`GET /items/<c>`) trên env parity Postgres, khớp `createCollectionForbiddenError` (FR-006). Sai chỗ nào thì sửa R2,
       R7, `contracts/api.md`, `contracts/tests.md` trước khi làm Phase 2.
-- [ ] T002 [P] Đo status Directus 11.17.4 trên env parity Postgres cho các hàng của `contracts/api.md` §1–§3 có cột
+- [X] T002 [P] Đo status Directus 11.17.4 trên env parity Postgres cho các hàng của `contracts/api.md` §1–§3 có cột
       Directus chưa chắc: `DELETE /items/<c>` theo `query.search` (204?), `GET /items/<c>/<pk>?search=` khi item không
       khớp từ khóa (403 hay 200 `data: null`), `POST /utils/import/<c>` (200 body rỗng), `POST /items/<c>?search=`; ghi
       "Kết quả T002" vào `specs/024-collection-toggles-api/research.md` và sửa cột Directus của `contracts/api.md` nếu khác.
@@ -76,7 +76,7 @@ typecheck, test, build, E2E liên quan xanh, commit, push khi `main` rảnh, g�
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T003 [P] Tạo `api/utils/collection-toggles.test.ts` (knex-mock-client như `api/services/*.test.ts`, cache bằng
+- [X] T003 [P] Tạo `api/utils/collection-toggles.test.ts` (knex-mock-client như `api/services/*.test.ts`, cache bằng
       `getCache()` với `CACHE_STORE=memory`): `getCollectionToggles` miss → đúng một `select collection, bo_show_search,
       bo_show_import, bo_show_export from directus_collections`, hit → không query; `false` và `0` = tắt, `null`, `true`,
       `1`, cột thiếu = bật (FR-008); `clearSystemCache()` xóa map; `hasSearchOff` đúng/sai; `assertToggle` ném lỗi có
@@ -84,33 +84,33 @@ typecheck, test, build, E2E liên quan xanh, commit, push khi `main` rảnh, g�
       `path`); `assertCollectionToggles`: `search` rỗng không ném, chỉ khoảng trắng ném, `export` ném, `deep` o2m (đích
       là collection nhiều), m2o, a2o (khóa của T001(a) và `field__collection` của GraphQL), field không có quan hệ bỏ qua,
       collection hệ thống (`directus_users`) không ném. Chạy đỏ.
-- [ ] T004 [P] Tạo `api/middleware/collection-toggles-guard.test.ts`: `GET /items/A?search=x` → lỗi trước `next`;
+- [X] T004 [P] Tạo `api/middleware/collection-toggles-guard.test.ts`: `GET /items/A?search=x` → lỗi trước `next`;
       `GET /items/A/1?search=x`, `POST /items/A?search=x`, `PATCH /items/A/1?search=x` → lỗi (FR-017, trước controller);
       `GET /items/A?export=csv`, `POST /items/A?export=csv`, `PATCH /items/A/1?export=json` → lỗi khi export tắt
       (FR-004, analyze U1); `GET /items/A` và `GET /items/A?search=` → `next()`;
       `GET /users?deep[rel][_search]=x` với quan hệ `directus_users.rel` → A (schema mock) → lỗi `Queried in "rel"`; `GET /parity-endpoint-demo/items?search=x`, `GET /server/info` → `next()` (FR-009);
       `POST /graphql` có `search` trong document → `res.locals.skipCacheRead === true` chỉ khi `hasSearchOff()`, không có
       collection tắt → không đặt cờ (FR-012, D-188.4). Chạy đỏ.
-- [ ] T005 [P] Thêm vào `api/middleware/cache.test.ts` case `res.locals.skipCacheRead = true`: không gọi `getCacheValue`,
+- [X] T005 [P] Thêm vào `api/middleware/cache.test.ts` case `res.locals.skipCacheRead = true`: không gọi `getCacheValue`,
       header `CACHE_STATUS_HEADER` = `MISS` khi bật, gọi `next()`. Chạy đỏ.
 
 ### Implementation
 
-- [ ] T006 Tạo `api/utils/collection-toggles.ts` (research R1, R2): `getCollectionToggles()` đọc/ghi key
+- [X] T006 Tạo `api/utils/collection-toggles.ts` (research R1, R2): `getCollectionToggles()` đọc/ghi key
       `collection-toggles` của `getCache().localSchemaCache` (miss: query của T003 bằng `getDatabase()`, giữ dòng có ít
       nhất một giá trị `false`/`0`); `hasSearchOff()`; `assertToggle(collection, kind, path = '')` ném
       `createCollectionForbiddenError(path, collection)`; `assertCollectionToggles(collection, query, schema)` kiểm
       `query.search` (chuỗi khác rỗng), `query.export`, rồi đi `query.deep` theo `getRelatedCollection`
       (`api/database/get-ast-from-query/utils/get-related-collection.ts`) và `getRelationInfo` (`@backoffice/utils`, a2o).
       T003 xanh.
-- [ ] T007 Tạo `api/middleware/collection-toggles-guard.ts` (research R2, R3): `asyncHandler`; collection gốc từ
+- [X] T007 Tạo `api/middleware/collection-toggles-guard.ts` (research R2, R3): `asyncHandler`; collection gốc từ
       `url.parse(req.originalUrl).pathname` (`/items/<c>[/<pk>]` → `<c>`; `/<x>...` → `directus_<x>` khi có trong
       `req.schema.collections`; còn lại `next()`); gọi `assertCollectionToggles(collection, req.sanitizedQuery,
       req.schema)`; với `/graphql*`: đặt `res.locals['skipCacheRead'] = true` khi `hasSearchOff()` và
       `getGraphqlQueryAndVariables(req).query` khớp `/\bsearch\b/`, kèm comment `// ponytail: a GraphQL document with
       "search" skips the shared cache read while a collection has search off (D-188.4); parse the document and resolve
       its collections before the cache when a benchmark asks for it.` T004 xanh.
-- [ ] T008 Sửa `api/middleware/cache.ts` (file port): dòng `// Backoffice (spec 024, D-188.4)` → khi
+- [X] T008 Sửa `api/middleware/cache.ts` (file port): dòng `// Backoffice (spec 024, D-188.4)` → khi
       `res.locals['skipCacheRead']` thì đặt `MISS` (nếu bật header) và `return next()`, trước `getCacheKey`; sửa
       `api/app-pipeline.ts`: `app.use(collectionTogglesGuard)` ngay trước `app.use(checkCacheMiddleware)` (dòng 167),
       comment Backoffice. T005 xanh; `api:test` của `app.test.ts`, `middleware/*.test.ts` xanh.
@@ -129,18 +129,18 @@ Postgres và SQLite: Backoffice 403/`errors`, Directus 200 (D-188), request khô
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T009 [P] [US1] Thêm vào `api/controllers/items.controller.test.ts`: `SEARCH /items/A` body `{"query":{"search":"x"}}`
+- [X] T009 [P] [US1] Thêm vào `api/controllers/items.controller.test.ts`: `SEARCH /items/A` body `{"query":{"search":"x"}}`
       → lỗi sau `validateBatch`; `PATCH /items/A` và `DELETE /items/A` body `{"query":{"search":"x"}, ...}` → lỗi, không
       gọi `updateByQuery`/`deleteByQuery`; toggle bật → như cũ. Chạy đỏ.
-- [ ] T010 [P] [US1] Thêm vào `gql/resolvers/query.test.ts`: `A(search: "x")`, `A_aggregated(search: "x")`, field lồng
+- [X] T010 [P] [US1] Thêm vào `gql/resolvers/query.test.ts`: `A(search: "x")`, `A_aggregated(search: "x")`, field lồng
       `B { rel(search: "x") }` (qua `query.deep`) → `ForbiddenError` đúng câu, không gọi `gql.read`; `search: ""` và
       `filter` → như cũ; scope `system` collection gốc `directus_users` → không chặn, nhưng field lồng
       `users { rel(search: "x") }` với `rel` → A → `ForbiddenError` `Queried in "rel"` (analyze C1). Chạy đỏ.
-- [ ] T011 [P] [US1] Tạo `gql/resolvers/mutation.test.ts`: `create_A_items(data, search: "x")`, `create_A_item`,
+- [X] T011 [P] [US1] Tạo `gql/resolvers/mutation.test.ts`: `create_A_items(data, search: "x")`, `create_A_item`,
       `update_A_items(ids, data, search: "x")`, `update_A_batch` → lỗi trước `createMany`/`updateMany`/`updateBatch`
       (spy không được gọi, clarify câu 1); không `search` → như cũ; singleton `update_S(search)` → lỗi trước
       `upsertSingleton`. Chạy đỏ.
-- [ ] T012 [US1] Tạo `parity/items/collection-toggles.test.ts` (dạng `parity/items/json-path.test.ts`): collection
+- [X] T012 [US1] Tạo `parity/items/collection-toggles.test.ts` (dạng `parity/items/json-path.test.ts`): collection
       per-run `parity_toggles_<run>` (`title` string), `parity_toggles_child_<run>` (m2o `parent` → gốc, o2m `children`)
       qua `createUserCollection`, `createField`, `POST /relations` của `parity/permissions/fixtures.ts`; seed vài dòng;
       user thường có policy đọc/sửa hai collection và static token (`createUser`, `permissions/fixtures.ts:204`); public:
@@ -160,7 +160,7 @@ Postgres và SQLite: Backoffice 403/`errors`, Directus 200 (D-188), request khô
       không xóa tay → `assertParity`. `afterAll`: bật lại, xóa alias trên `directus_users`, quan hệ, collection per-run,
       xóa quyền public đã thêm, xóa cache, `cleanup()`. Thêm file vào hai danh sách của `parity/suite.ts` (reduced cạnh `json-path`, full
       `src/items/{crud,export,json-path,collection-toggles}.test.ts`). Chạy đỏ ở Backoffice.
-- [ ] T013 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts`: `D-188` `kind: 'http'`, `feature: '024'`,
+- [X] T013 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts`: `D-188` `kind: 'http'`, `feature: '024'`,
       `endpoints: ['GET /items/parity_toggles_*', 'SEARCH /items/parity_toggles_*', 'POST /items/parity_toggles_*',
       'PATCH /items/parity_toggles_*', 'DELETE /items/parity_toggles_*', 'POST /utils/export/parity_toggles_*', 'POST
       /utils/import/parity_toggles_*', 'GET /users', 'POST /graphql', 'POST /graphql/system']`, `location: { any: true }`, `when: { backofficeCode: 'FORBIDDEN'
@@ -170,15 +170,15 @@ Postgres và SQLite: Backoffice 403/`errors`, Directus 200 (D-188), request khô
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Sửa `api/controllers/items.controller.ts`: `search()` gọi `assertCollectionToggles(req.collection,
+- [X] T014 [US1] Sửa `api/controllers/items.controller.ts`: `search()` gọi `assertCollectionToggles(req.collection,
       req.sanitizedQuery, req.schema)` sau `validateBatch('read')`; `updateMany` và `deleteMany` nhánh `req.body.query`
       (dòng 161, 221) gọi với `sanitizedQuery` của body trước service; comment `// Backoffice (spec 024, D-188)`. T009 xanh.
-- [ ] T015 [US1] Sửa `gql/resolvers/query.ts`: sau khối `isAggregate`/`getQuery` (dòng 25-41), trước `gql.read` (dòng
+- [X] T015 [US1] Sửa `gql/resolvers/query.ts`: sau khối `isAggregate`/`getQuery` (dòng 25-41), trước `gql.read` (dòng
       50), gọi `assertCollectionToggles(collection, query, gql.schema)`. T010 xanh.
-- [ ] T016 [US1] Sửa `gql/resolvers/mutation.ts`: sau khi bỏ hậu tố `_batch`/`_items`/`_item` (dòng 30-32), trước
+- [X] T016 [US1] Sửa `gql/resolvers/mutation.ts`: sau khi bỏ hậu tố `_batch`/`_items`/`_item` (dòng 30-32), trước
       `upsertSingleton` và `getService` (dòng 34-38), gọi `assertCollectionToggles(collection, query, gql.schema)`. T011
       xanh.
-- [ ] T017 [US1] Chạy `parity/items/collection-toggles.test.ts` phần search trên Postgres (cặp chính) và SQLite
+- [X] T017 [US1] Chạy `parity/items/collection-toggles.test.ts` phần search trên Postgres (cặp chính) và SQLite
       (`TEST_DB=sqlite3`, reduced) xanh; sửa code (không sửa test) đến khi xanh.
 
 **Checkpoint**: tìm kiếm bị chặn ở mọi đường của FR-002, FR-003, FR-017; request khác giống Directus.
@@ -195,10 +195,10 @@ file, không tạo dòng `directus_files`; `GET` không `export` giống Directu
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T018 [P] [US2] Thêm vào `api/controllers/utils.controller.test.ts`: `POST /utils/export/A` khi export tắt → lỗi,
+- [X] T018 [P] [US2] Thêm vào `api/controllers/utils.controller.test.ts`: `POST /utils/export/A` khi export tắt → lỗi,
       `exportToFile` không được gọi; export bật + body `query.search` khi search tắt → lỗi; export bật, không search →
       như cũ. Chạy đỏ.
-- [ ] T019 [US2] Thêm phần export vào `parity/items/collection-toggles.test.ts` (sau T012, cùng file): export tắt →
+- [X] T019 [US2] Thêm phần export vào `parity/items/collection-toggles.test.ts` (sau T012, cùng file): export tắt →
       `?export=csv`, `?export=json` (list và `:pk`), `POST /items?export=csv` và `PATCH /items/:pk?export=json` (số dòng
       và giá trị không đổi; FR-004, analyze U1), `POST /utils/export` (đếm dòng `directus_files` qua `hostDb()` không
       tăng sau 2 giây) với admin và user thường: D-188, Backoffice 403; `GET` không `export` → `assertParity`. Chạy đỏ
@@ -206,7 +206,7 @@ file, không tạo dòng `directus_files`; `GET` không `export` giống Directu
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Sửa `api/controllers/utils.controller.ts` `export/:collection` (dòng 169): sau `collectionExists`, trước
+- [X] T020 [US2] Sửa `api/controllers/utils.controller.ts` `export/:collection` (dòng 169): sau `collectionExists`, trước
       kiểm `query`/`format` của body: `assertToggle(collection, 'export')`; sau `sanitizeQuery` của body, trước
       `exportToFile`: `assertCollectionToggles(collection, sanitizedQuery, req.schema)`; comment Backoffice. T018, T019
       xanh (`?export=` của `/items` đã chặn ở guard T007).
@@ -224,15 +224,15 @@ Directus.
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T021 [P] [US3] Thêm vào `api/controllers/utils.controller.test.ts`: `POST /utils/import/A` multipart khi import tắt
+- [X] T021 [P] [US3] Thêm vào `api/controllers/utils.controller.test.ts`: `POST /utils/import/A` multipart khi import tắt
       → lỗi, `ImportService.import` không được gọi, busboy không đọc stream; import bật → như cũ. Chạy đỏ.
-- [ ] T022 [US3] Thêm phần import vào `parity/items/collection-toggles.test.ts` (sau T019): import tắt → `POST
+- [X] T022 [US3] Thêm phần import vào `parity/items/collection-toggles.test.ts` (sau T019): import tắt → `POST
       /utils/import` CSV 2 dòng (multipart của `parity/files/helpers.ts`) với admin và user thường: D-188, Backoffice 403,
       đếm dòng không tăng; `POST /items` một item và mảng → `assertParity` (dòng tạo xóa sau). Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Sửa `api/controllers/utils.controller.ts` `import/:collection` (dòng 121): `assertToggle(collection,
+- [X] T023 [US3] Sửa `api/controllers/utils.controller.ts` `import/:collection` (dòng 121): `assertToggle(collection,
       'import')` ngay sau `collectionExists`, trước kiểm `Content-Type` và busboy; comment Backoffice. T021, T022 xanh.
 
 **Checkpoint**: import bị chặn; T017, T019 vẫn xanh.
@@ -249,18 +249,18 @@ xanh ở ba cấu hình.
 
 ### Tests for User Story 5 (MANDATORY) ⚠️
 
-- [ ] T024 [US5] Thêm case cache vào `parity/items/collection-toggles.test.ts` (sau T022), chỉ trên cặp chính có cache
+- [X] T024 [US5] Thêm case cache vào `parity/items/collection-toggles.test.ts` (sau T022), chỉ trên cặp chính có cache
       (như `parity/items/cache-cross.test.ts:334`, không gửi `cache-control: no-store`): search tắt; `GET
       /items/parity_toggles_<run>?search=x` ở Directus (200, ghi cache) rồi cùng request, cùng token ở Backoffice → 403;
       cùng document GraphQL `{ parity_toggles_<run>(search: "x") { id } }` ở Directus rồi Backoffice → `errors`
       `FORBIDDEN` (US5-2, SC-003). Thêm case D-188.4: bật lại search của mọi collection → document có `search` ở
       Backoffice đọc cache như cũ (header `x-cache-status` `HIT` lần hai, như `parity/graphql/cache.test.ts:12`).
-- [ ] T025 [P] [US5] Thêm vào `parity/flows/operations.test.ts` case operation `item-read` có `query.search` trên một
+- [X] T025 [P] [US5] Thêm vào `parity/flows/operations.test.ts` case operation `item-read` có `query.search` trên một
       collection per-run tắt search: flow chạy ở hai app, dữ liệu trả giống nhau (FR-009, US5-3, SC-004); bật lại sau.
-- [ ] T026 [P] [US5] Thêm vào `parity/extensions/endpoints.test.ts` (profile `extensions`): tắt ba cài đặt của
+- [X] T026 [P] [US5] Thêm vào `parity/extensions/endpoints.test.ts` (profile `extensions`): tắt ba cài đặt của
       `bo_ext_items`, `same({ path: '/parity-endpoint-demo/items?search=x&export=csv' })` giống ở hai app; bật lại và xóa
       cache sau (FR-009, SC-004, checklist CHK027).
-- [ ] T027 [US5] Sửa `e2e/content-collection-toggles.spec.ts` test "both false" (dòng 143-157) và header comment (dòng
+- [X] T027 [US5] Sửa `e2e/content-collection-toggles.spec.ts` test "both false" (dòng 143-157) và header comment (dòng
       1-5, "the API still searches and exports (FR-008)" → hành vi 024): khi `e2eConfig !== 'proxy-directus'` (`import
       { e2eConfig } from './helpers/config.js'`) mong `GET /items/bo_content?search=Content&limit=1` và
       `?export=csv&limit=1` trả 403 `FORBIDDEN` (helper trả status, không ném), `POST /utils/export/bo_content` 403,
@@ -269,7 +269,7 @@ xanh ở ba cấu hình.
 
 ### Implementation for User Story 5
 
-- [ ] T028 [US5] Chạy và làm xanh (sửa code, không sửa test): T024 (Postgres cặp chính), T025, T026 (profile
+- [X] T028 [US5] Chạy và làm xanh (sửa code, không sửa test): T024 (Postgres cặp chính), T025, T026 (profile
       `extensions`), T027 (`E2E_CONFIG=proxy-api` và `proxy-directus` local); bộ hiện có không đổi kết quả (SC-002):
       `parity/items/{crud,export,json-path,cache-cross}.test.ts`, `parity/graphql/{read,write,schema,cache}.test.ts`,
       `parity/system/import-export.test.ts`, blackbox items (`parity/items/blackbox`) trên Postgres.

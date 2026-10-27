@@ -1,6 +1,7 @@
 // Ported from directus/api/src/services/graphql/resolvers/mutation.ts
 import type { Item, PrimaryKey } from '@backoffice/types';
 import type { GraphQLResolveInfo } from 'graphql';
+import { assertCollectionToggles } from '../../../utils/collection-toggles.js';
 import { getService } from '../../../utils/get-service.js';
 import { formatError } from '../errors/format.js';
 import type { GraphQLService } from '../index.js';
@@ -31,6 +32,10 @@ export async function resolveMutation(
 	if (collection.endsWith('_batch')) collection = collection.slice(0, -6);
 	if (collection.endsWith('_items')) collection = collection.slice(0, -6);
 	if (collection.endsWith('_item')) collection = collection.slice(0, -5);
+
+	// Backoffice (spec 024, D-188): the search of the read-back on a collection with bo_show_search off is refused
+	// before anything is written (clarify 2026-10-27).
+	await assertCollectionToggles(collection, query, gql.schema);
 
 	if (singleton && action === 'update') {
 		return await gql.upsertSingleton(collection, args['data'], query);

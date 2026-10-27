@@ -188,6 +188,88 @@ test('POST /utils/export/:collection: query and format required, exportToFile no
 	});
 });
 
+// Backoffice (spec 024, D-188.1, D-188.2): the bo_show_* columns of the Backoffice migration 20261026A (spec 022),
+// which createDataModelDb leaves out, set on articles.
+async function toggles(values: Record<string, boolean | null>) {
+	await state.db.schema.alterTable('directus_collections', (t) => {
+		for (const column of ['bo_show_search', 'bo_show_import', 'bo_show_export']) t.boolean(column).defaultTo(true);
+	});
+
+	await state.db('directus_collections').where({ collection: 'articles' }).update(values);
+	await clearSystemCache();
+}
+
+const forbiddenArticles = `You don't have permission to access collection "articles" or it does not exist. Queried in root.`;
+
+test('POST /utils/import/:collection with import off: the collection error before reading the file (FR-005)', async () => {
+	await toggles({ bo_show_import: false });
+	const request = await agent();
+
+	const res = await request
+		.post('/utils/import/articles')
+		.set('Authorization', admin())
+		.attach('file', Buffer.from('[]'), { filename: 'a.json', contentType: 'application/json' });
+
+	expect(res.status).toBe(403);
+	expect(res.body.errors[0]).toMatchObject({ message: forbiddenArticles, extensions: { code: 'FORBIDDEN' } });
+	expect(service.import).not.toHaveBeenCalled();
+
+	// Not multipart: the toggle answers first, like collectionExists before the 415.
+	expect((await request.post('/utils/import/articles').set('Authorization', admin()).send({})).status).toBe(403);
+});
+
+test('POST /utils/export/:collection: export off, or a search of the body query with search off (FR-004, FR-017)', async () => {
+	service.exportToFile.mockReturnValue(new Promise(() => undefined));
+	await toggles({ bo_show_export: false });
+	let request = await agent();
+
+	const off = await request.post('/utils/export/articles').set('Authorization', admin()).send({ format: 'csv' });
+	expect(off.status).toBe(403);
+	expect(off.body.errors[0].message).toBe(forbiddenArticles);
+
+	await app.nest.close();
+	await state
+		.db('directus_collections')
+		.where({ collection: 'articles' })
+		.update({ bo_show_export: true, bo_show_search: false });
+	await clearSystemCache();
+	request = await agent();
+
+	const search = await request
+		.post('/utils/export/articles')
+		.set('Authorization', admin())
+		.send({ query: { search: 'a' }, format: 'csv' });
+	expect(search.status).toBe(403);
+
+	const plain = await request
+		.post('/utils/export/articles')
+		.set('Authorization', admin())
+		.send({ query: {}, format: 'csv' });
+	expect(plain.status).toBe(204);
+	expect(service.exportToFile).toHaveBeenCalledOnce();
+});
+
+test('POST /utils/import and /utils/export with the toggles on or null: as before (FR-008)', async () => {
+	service.exportToFile.mockReturnValue(new Promise(() => undefined));
+	service.import.mockImplementation(async (_c: string, _m: string, stream: NodeJS.ReadableStream) => {
+		for await (const _chunk of stream);
+	});
+	await toggles({ bo_show_import: null, bo_show_export: true });
+	const request = await agent();
+
+	const imported = await request
+		.post('/utils/import/articles')
+		.set('Authorization', admin())
+		.attach('file', Buffer.from('[]'), { filename: 'a.json', contentType: 'application/json' });
+	expect(imported.status).toBe(200);
+
+	const exported = await request
+		.post('/utils/export/articles')
+		.set('Authorization', admin())
+		.send({ query: {}, format: 'csv' });
+	expect(exported.status).toBe(204);
+});
+
 test('POST /utils/translations/generate: admin only, the result through respond', async () => {
 	const request = await agent();
 

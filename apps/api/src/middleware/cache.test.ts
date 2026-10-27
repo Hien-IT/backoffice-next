@@ -23,8 +23,8 @@ beforeEach(() => {
 	vi.mocked(useEnv).mockReturnValue({ CACHE_ENABLED: true, CACHE_STATUS_HEADER: 'x-cache-status', CACHE_TTL: '5m' });
 });
 
-function run(req: Partial<Request> = {}) {
-	const res = { setHeader: vi.fn(), json: vi.fn() } as unknown as Response & { setHeader: any; json: any };
+function run(req: Partial<Request> = {}, locals: Record<string, unknown> = {}) {
+	const res = { setHeader: vi.fn(), json: vi.fn(), locals } as unknown as Response & { setHeader: any; json: any };
 	const next = vi.fn() as NextFunction;
 	const request = { method: 'GET', originalUrl: '/items/a', get: vi.fn(), ...req } as unknown as Request;
 
@@ -59,6 +59,14 @@ describe('passes through without reading', () => {
 		expect(next).toHaveBeenCalledWith();
 		expect(getCacheKey).not.toHaveBeenCalled();
 	});
+});
+
+test('skipCacheRead of the collection toggles guard → MISS without reading (spec 024, D-188.4)', async () => {
+	const { res, next } = await run({ method: 'POST', originalUrl: '/graphql' }, { skipCacheRead: true });
+	expect(res.setHeader).toHaveBeenCalledWith('x-cache-status', 'MISS');
+	expect(getCacheKey).not.toHaveBeenCalled();
+	expect(getCacheValue).not.toHaveBeenCalled();
+	expect(next).toHaveBeenCalledWith();
 });
 
 test('skip (Cache-Control: no-store with CACHE_SKIP_ALLOWED) → MISS without reading', async () => {

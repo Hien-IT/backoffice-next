@@ -390,4 +390,49 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'The web filter of the Content page and the item drawer lists "JSON path" under json fields (path and type form, rule chip Field › path (Type)); the Directus app and the other Backoffice filters (Files, Users, permissions, flows, insights, validation) do not.',
 	},
+	{
+		id: 'D-188',
+		feature: '024',
+		kind: 'http',
+		// Only the collections of src/items/collection-toggles.test.ts, and only where Backoffice refused the request.
+		// GraphQL, /users and the writes are checked per app in that file, so no broad endpoint is accepted here.
+		endpoints: [
+			'GET /items/parity_toggles_*',
+			'SEARCH /items/parity_toggles_*',
+			'PATCH /items/parity_toggles_*',
+			'DELETE /items/parity_toggles_*',
+		],
+		location: { any: true },
+		when: { backofficeCode: 'FORBIDDEN' },
+		reason:
+			'A search (search, a body query, deep._search, GraphQL search) on a collection whose bo_show_search is off: Backoffice answers the collection permission error for every caller, Directus searches (spec 024). Also covers ?export= with bo_show_export off (D-188.1).',
+	},
+	{
+		id: 'D-188.1',
+		feature: '024',
+		kind: 'doc',
+		reason:
+			'With bo_show_export off, ?export= on /items and POST /utils/export are refused by Backoffice (no file), Directus exports.',
+	},
+	{
+		id: 'D-188.2',
+		feature: '024',
+		kind: 'doc',
+		reason:
+			'With bo_show_import off, POST /utils/import is refused by Backoffice before reading the file, Directus imports.',
+	},
+	{
+		id: 'D-188.3',
+		feature: '024',
+		kind: 'doc',
+		reason:
+			'The web item drawer and the Search Filter of list-o2m and list-m2m hide the keyword box of a collection whose bo_show_search is off; the Directus app always shows it.',
+	},
+	{
+		id: 'D-188.4',
+		feature: '024',
+		kind: 'doc',
+		reason:
+			'While a collection has bo_show_search off, Backoffice does not read the response cache for a GraphQL document containing "search" (MISS, full Cache-Control TTL; the body is the same), so an entry Directus wrote never answers a blocked request.',
+	},
 ];

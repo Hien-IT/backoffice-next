@@ -12,6 +12,7 @@ import { validateBatch } from '../middleware/validate-batch.js';
 import type { ItemsServiceFactory, ServiceFactory } from '../providers.js';
 import { ItemsService } from '../services/items.service.js';
 import { MetaService } from '../services/meta.service.js';
+import { assertCollectionToggles } from '../utils/collection-toggles.js';
 import { runMiddleware } from '../utils/run-middleware.js';
 import { sanitizeQuery } from '../utils/sanitize-query.js';
 
@@ -78,6 +79,8 @@ export class ItemsController {
 	async search(@Req() req: Request, @Res() res: Response): Promise<void> {
 		await runMiddleware(collectionExists, req, res);
 		await runMiddleware(validateBatch('read'), req, res);
+		// Backoffice (spec 024, D-188): the query of the body replaced the query string the guard checked.
+		await assertCollectionToggles(req.collection, req.sanitizedQuery, req.schema);
 		return this.readHandler(req, res);
 	}
 
@@ -159,6 +162,8 @@ export class ItemsController {
 			keys = await service.updateMany(req.body.keys, req.body.data);
 		} else {
 			const sanitizedQuery = await sanitizeQuery(req.body.query, req.schema, req.accountability);
+			// Backoffice (spec 024, D-188): a search in the query of the body, refused before the write.
+			await assertCollectionToggles(req.collection, sanitizedQuery, req.schema);
 			keys = await service.updateByQuery(sanitizedQuery, req.body.data);
 		}
 
@@ -219,6 +224,8 @@ export class ItemsController {
 			await service.deleteMany(req.body.keys);
 		} else {
 			const sanitizedQuery = await sanitizeQuery(req.body.query, req.schema, req.accountability);
+			// Backoffice (spec 024, D-188): a search in the query of the body, refused before the delete.
+			await assertCollectionToggles(req.collection, sanitizedQuery, req.schema);
 			await service.deleteByQuery(sanitizedQuery);
 		}
 

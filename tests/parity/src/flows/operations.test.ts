@@ -150,6 +150,31 @@ describe('items', () => {
 		expect(all.public).toMatchObject({ code: 'FORBIDDEN' });
 	});
 
+	// Spec 024 (FR-009, SC-004): the toggles block only the HTTP layer; a flow still searches and exports a collection
+	// whose bo_show_* are off, the same at both apps.
+	test('item-read with a search on a collection whose toggles are off (spec 024)', async () => {
+		await appRequest('directus', 'PATCH', `/collections/${collection}`, {
+			meta: { bo_show_search: false, bo_show_import: false, bo_show_export: false },
+		});
+		await appRequest('backoffice', 'POST', '/utils/cache/clear');
+
+		try {
+			const id = await flow([
+				{
+					key: 'search',
+					type: 'item-read',
+					options: { collection, query: '{"search":"kept","fields":["title"]}', permissions: '$full' },
+				},
+			]);
+
+			expect((await run(id)).search).toEqual([{ title: 'kept' }]);
+		} finally {
+			await appRequest('directus', 'PATCH', `/collections/${collection}`, {
+				meta: { bo_show_search: true, bo_show_import: true, bo_show_export: true },
+			});
+		}
+	});
+
 	test.skipIf(!full)('a role uuid that does not exist rejects with the error of getAccountabilityForRole', async () => {
 		const role = randomUUID();
 		const id = await flow([

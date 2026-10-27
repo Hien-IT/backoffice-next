@@ -20,7 +20,9 @@ const checkCacheMiddleware: RequestHandler = asyncHandler(async (req, res, next)
 	if (env['CACHE_ENABLED'] !== true) return next();
 	if (!cache) return next();
 
-	if (shouldSkipCache(req)) {
+	// Backoffice (spec 024, D-188.4): set by collectionTogglesGuard for a GraphQL document with "search" while a
+	// collection has search off, so an entry DR wrote never answers a request the resolvers block.
+	if (res.locals['skipCacheRead'] || shouldSkipCache(req)) {
 		if (env['CACHE_STATUS_HEADER']) res.setHeader(`${env['CACHE_STATUS_HEADER']}`, 'MISS');
 		return next();
 	}

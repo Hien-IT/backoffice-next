@@ -3,6 +3,7 @@ import type { Item, Query } from '@backoffice/types';
 import { parseFilterFunctionPath } from '@backoffice/utils';
 import type { GraphQLResolveInfo } from 'graphql';
 import { omit } from 'lodash-es';
+import { assertCollectionToggles } from '../../../utils/collection-toggles.js';
 import type { GraphQLService } from '../index.js';
 import { parseArgs } from '../schema/parse-args.js';
 import { getQuery } from '../schema/parse-query.js';
@@ -40,6 +41,9 @@ export async function resolveQuery(gql: GraphQLService, info: GraphQLResolveInfo
 			query.versionRaw = true;
 		}
 	}
+
+	// Backoffice (spec 024, D-188): a search on a collection with bo_show_search off, at this field or below it (deep).
+	await assertCollectionToggles(collection, query, gql.schema);
 
 	// Transform count(a.b.c) into a.b.count(c)
 	if (query.fields?.length) {

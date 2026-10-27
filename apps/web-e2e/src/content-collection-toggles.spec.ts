@@ -1,11 +1,12 @@
 // Spec 022 (US1, US2, D-179): the per-collection toggles bo_show_search, bo_show_import, bo_show_export of
 // directus_collections on the Content page of bo_content, for the admin and a user reading bo_content (FR-006); the
-// Data Model form shows them with their labels in a card titled by the web app (FR-002, D-182); the API still searches
-// and exports (FR-008). The columns come from the Backoffice migration 20261026A that the API pair ran at start; behind
-// proxy-directus Directus returns them too.
+// Data Model form shows them with their labels in a card titled by the web app (FR-002, D-182). Spec 024 (D-188): the
+// Backoffice API refuses a search, an import or an export the toggles turn off (FR-008 of 022 revised); behind
+// proxy-directus the API is Directus 11.17.4, which still answers. The columns come from the Backoffice migration
+// 20261026A that the API pair ran at start; behind proxy-directus Directus returns them too.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { ADMIN } from './helpers/config.js';
+import { ADMIN, e2eConfig } from './helpers/config.js';
 import { e2eName, openCollection, openSidebar, waitForTable } from './helpers/content.js';
 import { Fixtures, type TestUser } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
@@ -140,7 +141,7 @@ test('bo_show_export false: import only, no export button and no CSV link (US2-2
 	await expect(page.getByRole('button', { name: 'Download Page as CSV' })).toHaveCount(0);
 });
 
-test('both false: no Import / Export section; the API still searches and exports (US2-3, US2-4, FR-008)', async ({
+test('both false: no Import / Export section; the API refuses them (US2-3; spec 024 US1-1, US2, US3, D-188)', async ({
 	page,
 }) => {
 	await toggle({ bo_show_import: false, bo_show_export: false });
@@ -152,9 +153,30 @@ test('both false: no Import / Export section; the API still searches and exports
 	await expect(page.getByRole('button', { name: /^Import \/ Export/ })).toHaveCount(0);
 	await expect(page.getByRole('button', { name: 'Auto Refresh', exact: true })).toBeVisible();
 
-	expect(await api.call<unknown[]>('GET', '/items/bo_content?search=Content&limit=1')).toHaveLength(1);
-	// The export is a CSV file, not a JSON body: its raw bytes (bytes() throws on a status other than 2xx).
-	expect((await api.bytes('/items/bo_content?export=csv&limit=1')).toString('utf8')).toContain('id');
+	if (e2eConfig === 'proxy-directus') {
+		// Directus 11.17.4 does not read the toggles (D-188): it still searches and exports.
+		expect(await api.call<unknown[]>('GET', '/items/bo_content?search=Content&limit=1')).toHaveLength(1);
+		// The export is a CSV file, not a JSON body: its raw bytes (bytes() throws on a status other than 2xx).
+		expect((await api.bytes('/items/bo_content?export=csv&limit=1')).toString('utf8')).toContain('id');
+		return;
+	}
+
+	// call() and bytes() throw with the status of a refused request.
+	await toggle({ bo_show_search: false, bo_show_import: false, bo_show_export: false });
+	const count = async () => (await api.call<unknown[]>('GET', '/items/bo_content?fields=id&limit=-1')).length;
+	const before = await count();
+
+	await expect(api.call('GET', '/items/bo_content?search=Content&limit=1')).rejects.toThrow(/: 403 .*FORBIDDEN/);
+	await expect(api.bytes('/items/bo_content?export=csv&limit=1')).rejects.toThrow(/: 403$/);
+	await expect(api.call('POST', '/utils/export/bo_content', { data: { query: {}, format: 'csv' } })).rejects.toThrow(
+		/: 403 .*FORBIDDEN/,
+	);
+	await expect(
+		api.call('POST', '/utils/import/bo_content', {
+			multipart: { file: { name: 'rows.csv', mimeType: 'text/csv', buffer: Buffer.from('title\nimported\n') } },
+		}),
+	).rejects.toThrow(/: 403 .*FORBIDDEN/);
+	expect(await count()).toBe(before);
 });
 
 test('the Data Model form has the three toggles; saving one is read back (FR-002, US4-4)', async ({

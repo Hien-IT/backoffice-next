@@ -242,6 +242,47 @@ reduced dòng 15, full dòng 43):
    dòng 143-157) sẽ đỏ ở `proxy-api`/`cors` khi lượt 1 lên CI trước lượt 2 → đảo bước này ngay trong lượt 1.
 2. Web: R5, unit web, E2E drawer và `list-o2m` (R6), docs còn lại, "sửa bởi 024" ở spec 022.
 
+## Kết quả T001 (2026-10-27, đọc code)
+
+- (a) Khóa `deep` của quan hệ a2o là `field:collection` ở REST (`database/get-ast-from-query/lib/parse-fields.ts:255`,
+  `:261` đọc `options.deep?.[\`${fieldKey}:${relatedCollection}\`]`). GraphQL: `getQuery` ghi `field__collection` rồi
+  `filterReplaceM2ADeep` (`services/graphql/utils/filter-replace-m2a.ts:75-77`) đổi thành `field:collection` trước khi
+  trả `query`, nên `assertCollectionToggles` chỉ cần dạng `field:collection`. Thêm: khóa `deep` có thể là alias
+  (GraphQL ghi `deep` theo alias của field và `_alias` ở mức cha, `parse-query.ts:93-104`; REST có `alias`), nên hàm đi
+  `deep` đổi khóa qua `query.alias` ở gốc và `_alias` ở mức lồng, như `filterReplaceM2ADeep:63`.
+- (b) `when.backofficeCode` so `errors[0].extensions.code` của body Backoffice không phụ thuộc status
+  (`tests/parity/src/parity.ts:336`, `errorCode` `:359-361`), nên entry D-188 khớp cả response GraphQL 200/200 có lỗi.
+- (c) `createCollectionForbiddenError` là bản port nguyên văn (`permissions/modules/process-ast/utils/validate-path/
+  create-error.ts`), cùng câu Directus trả cho user không có quyền; parity T012 so câu này ở cả hai app.
+
+## Kết quả T002 (2026-10-27, env parity Postgres local)
+
+Đo qua `parity/items/collection-toggles.test.ts` (Directus 11.17.4 ở `http://127.0.0.1:8155`): `GET`/`SEARCH /items/<c>`
+có `search` (kể cả `aggregate`, `groupBy`, chỉ khoảng trắng) và `GET /items/<c>/<pk>?search=` khớp item → 200;
+`PATCH /items/<c>` theo `query.search` → 200; `DELETE /items/<c>` theo `query.search` → 204; `?export=` → 200 có file;
+`/users?deep[...][_search]=` và GraphQL (gốc, `_aggregated`, field lồng, `/graphql/system`) → 200 không lỗi. Đúng cột
+Directus của `contracts/api.md`. `POST /utils/import`, `POST /utils/export`, `POST /items?search=` chỉ gửi tới Backoffice
+(ghi dữ liệu thật ở Directus), nên cột Directus của các hàng đó giữ theo code `directus/api/src/controllers/utils.ts`.
+
+Khi implement: entry `http` D-188 chỉ gồm `GET`/`SEARCH`/`PATCH`/`DELETE /items/parity_toggles_*`; GraphQL, `/users`,
+đường ghi, import, export so riêng từng app trong file đó, để entry không che một lỗi FORBIDDEN thật của `POST /graphql`
+hay `GET /users` ở file khác (khác chữ của T013, research R7).
+
+## Kết quả lượt 1 (2026-10-27, local)
+
+- Test DB SQLite của `apps/api` (`test/directus-db.ts`) không có ba cột `bo_show_*`: `getCollectionToggles` bắt lỗi
+  của câu `select` và coi mọi cài đặt là bật, không cache (FR-008 "không có cột = bật"); trên DB thật cột luôn có vì
+  `start` dừng khi thiếu migration 20261026A. Test controller thêm cột bằng `alterTable` trong case của 024.
+- `assertCollectionToggles` thoát sớm khi query không có `search`, `export`, `deep` (không tra cache, không query).
+- Lỗi chặn kèm `extensions.reason` như lỗi quyền collection hiện có (cùng thân lỗi `collectionExists` trả).
+- Parity: `items/collection-toggles.test.ts` 51 case xanh trên Postgres (admin, user JWT, static token, share, public;
+  `/users` deep, `/graphql/system`, mutation, cache do Directus ghi trước, FR-013 không xóa cache tay); `afterAll` xóa
+  dòng của A trước `cleanup()` vì `A.owner` có khóa ngoại tới user test. `flows/operations.test.ts` (item-read có search)
+  và `extensions/endpoints.test.ts` (chạy trên cặp chính, không cần profile `extensions`) xanh. Bộ hiện có
+  `items/{crud,export,json-path}`, `graphql/{read,write,schema}`, `system/import-export` xanh.
+- E2E `content-collection-toggles.spec.ts` 9/9 ở `proxy-api`, `proxy-directus`, `cors` (env mới cần seed bộ fixture
+  `bo_*` bằng `apps/web/fixtures/interfaces/seed.mjs` như CI).
+
 ## R11. Sửa spec khi plan (câu chữ, áp vào spec cùng commit plan)
 
 - FR-012: thêm "Backoffice không đọc response cache cho document GraphQL có từ `search` (chỉ ghi); response giống hệt,
