@@ -3,6 +3,8 @@
 // R3). The items and utils controllers and the GraphQL resolvers check the queries of request bodies themselves.
 import url from 'url';
 import type { RequestHandler } from 'express';
+import getDatabase from '../database/index.js';
+import { assertExport } from '../permissions/modules/backoffice-permissions/assert-backoffice-action.js';
 import asyncHandler from '../utils/async-handler.js';
 import { assertCollectionToggles, hasSearchOff } from '../utils/collection-toggles.js';
 import { getGraphqlQueryAndVariables } from '../utils/get-graphql-query-and-variables.js';
@@ -31,6 +33,15 @@ const collectionTogglesGuard: RequestHandler = asyncHandler(async (req, res, nex
 
 	if (target && target in req.schema.collections) {
 		await assertCollectionToggles(target, req.sanitizedQuery, req.schema);
+
+		// Spec 025 (FR-006, FR-009, D-189.1): after the toggles, check the export permission of the caller's policies
+		// and put its Use custom rules into the query that the route and respond() read.
+		if (exportFormat) {
+			req.sanitizedQuery = await assertExport(
+				{ accountability: req.accountability, collection: target, query: req.sanitizedQuery, format: exportFormat },
+				{ schema: req.schema, knex: getDatabase() },
+			);
+		}
 	}
 
 	return next();

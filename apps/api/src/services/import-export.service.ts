@@ -62,6 +62,9 @@ type CapturedErrorData = {
 	rowNumbers: number[];
 };
 
+/** Backoffice (spec 025, FR-016): throws to refuse the row, and with it the whole file. */
+export type RowGuard = (row: Record<string, unknown>) => void;
+
 export function createErrorTracker() {
 	let genericError: BackofficeError | undefined;
 	// For errors with field / type (joi validation or DB with field)
@@ -220,7 +223,9 @@ export class ImportService {
 		collection: string,
 		mimetype: string,
 		stream: Readable,
-		options?: { background: boolean },
+		// Backoffice (spec 025, FR-016): an optional check of each row before it is written (Use custom of the import
+		// permission); throwing refuses the whole file. Absent for every caller but /utils/import.
+		options?: { background: boolean; rowGuard?: RowGuard | undefined },
 	): Promise<void> {
 		if (this.accountability?.admin !== true && isSystemCollection(collection)) throw new ForbiddenError();
 
@@ -283,9 +288,9 @@ export class ImportService {
 		};
 
 		if (mimetype === 'application/json') {
-			promise = this.importJSON(collection, stream);
+			promise = this.importJSON(collection, stream, options?.rowGuard);
 		} else {
-			promise = this.importCSV(collection, stream);
+			promise = this.importCSV(collection, stream, options?.rowGuard);
 		}
 
 		if (options?.background) {
@@ -338,7 +343,7 @@ export class ImportService {
 		}
 	}
 
-	async importJSON(collection: string, stream: Readable): Promise<void> {
+	async importJSON(collection: string, stream: Readable, rowGuard?: RowGuard): Promise<void> {
 		const extractJSON = StreamArray.withParser();
 		const nestedActionEvents: ActionEventParams[] = [];
 		const errorTracker = createErrorTracker();
@@ -360,6 +365,8 @@ export class ImportService {
 						if (errorTracker.shouldStop()) return;
 
 						try {
+							rowGuard?.(task.data);
+
 							if (isSingleton) {
 								return await service.upsertSingleton(task.data, {
 									bypassEmitAction: (params) => nestedActionEvents.push(params),
@@ -451,7 +458,7 @@ export class ImportService {
 		});
 	}
 
-	async importCSV(collection: string, stream: Readable): Promise<void> {
+	async importCSV(collection: string, stream: Readable, rowGuard?: RowGuard): Promise<void> {
 		const tmpFile = await createTmpFile().catch(() => null);
 		if (!tmpFile) throw new Error('Failed to create temporary file for import');
 
@@ -488,6 +495,8 @@ export class ImportService {
 						if (errorTracker.shouldStop()) return;
 
 						try {
+							rowGuard?.(task.data);
+
 							if (isSingleton) {
 								return await service.upsertSingleton(task.data, {
 									bypassEmitAction: (action) => nestedActionEvents.push(action),

@@ -2,8 +2,13 @@
 import { InvalidPayloadError } from '@backoffice/errors';
 import type { Request, Response } from 'express';
 import { beforeEach, expect, test, vi } from 'vitest';
+import { fetchBackofficeAccess } from '../permissions/modules/backoffice-permissions/fetch-backoffice-access.js';
 import { validateBatch } from './validate-batch.js';
 import '../types/express.d.ts';
+
+// Spec 025 (CHK015): the export permission of a SEARCH body query.
+vi.mock('../permissions/modules/backoffice-permissions/fetch-backoffice-access.js');
+vi.mock('../database/index.js', () => ({ default: () => ({}) }));
 
 let mockRequest: Partial<Request & { token?: string }>;
 let mockResponse: Partial<Response>;
@@ -109,4 +114,36 @@ test(`Calls next when all is well`, async () => {
 
 	expect(nextFunction).toHaveBeenCalledTimes(1);
 	expect(vi.mocked(nextFunction)?.mock?.calls?.[0]?.[0]).toBeUndefined();
+});
+
+// Spec 025 (FR-006, CHK015): SEARCH of items and of every system route checks the export of its body query.
+test('SEARCH with export in the body query: the export permission of the route collection', async () => {
+	vi.mocked(fetchBackofficeAccess).mockResolvedValue({ allowed: false, filter: null, fields: [], formats: [] });
+
+	for (const collection of ['articles', 'directus_users']) {
+		mockRequest = {
+			method: 'SEARCH',
+			body: { query: { export: 'csv' } },
+			collection,
+			accountability: { user: 'u1', admin: false } as any,
+		};
+		const next = vi.fn();
+
+		await validateBatch('read')(mockRequest as Request, mockResponse as Response, next);
+
+		expect(next.mock.calls[0]![0]).toMatchObject({ code: 'FORBIDDEN' });
+	}
+
+	expect(vi.mocked(fetchBackofficeAccess).mock.calls.map(([options]) => options.collection)).toEqual([
+		'articles',
+		'directus_users',
+	]);
+});
+
+test('SEARCH without export, or another method: no permission read', async () => {
+	vi.mocked(fetchBackofficeAccess).mockReset();
+	mockRequest = { method: 'SEARCH', body: { query: { limit: 1 } }, collection: 'articles', accountability: {} as any };
+
+	await validateBatch('read')(mockRequest as Request, mockResponse as Response, nextFunction);
+	expect(fetchBackofficeAccess).not.toHaveBeenCalled();
 });

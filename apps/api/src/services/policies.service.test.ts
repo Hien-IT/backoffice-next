@@ -6,6 +6,7 @@ import type { Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createAuthDb } from '../../test/directus-db.js';
 import { clearSystemCache } from '../cache.js';
+import { up } from '../database/backoffice-migrations/20261028A-create-backoffice-permissions.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
 import { getDatabaseSchema } from '../schema/get-database-schema.js';
 import { clearCache as clearPermissionsCache } from '../permissions/cache.js';
@@ -77,7 +78,8 @@ afterEach(async () => {
 
 const admin: Accountability = { ...createDefaultAccountability(), admin: true, app: true, user: ADMIN_USER };
 const service = () => new PoliciesService({ knex: db, schema, accountability: admin });
-const IP_ERROR = 'Invalid payload. IP Access contains an incorrect value. Valid values are: IP addresses, IP ranges and CIDR blocks.';
+const IP_ERROR =
+	'Invalid payload. IP Access contains an incorrect value. Valid values are: IP addresses, IP ranges and CIDR blocks.';
 
 describe('PoliciesService', () => {
 	test.each([[null], [[]], [['10.0.0.1']], [['10.0.0.0/8']], [['10.0.0.1-10.0.0.9']], [['::1', '192.168.0.0/16']]])(
@@ -90,7 +92,9 @@ describe('PoliciesService', () => {
 	test.each([[['*']], [['10.0.*.*']], [['10.0.0.0/255.0.0.0']], [['not an ip']], [[42]], [undefined]])(
 		'refuses ip_access %j with the message of Directus',
 		async (ipAccess) => {
-			await expect(service().createOne({ name: 'p', admin_access: false, ip_access: ipAccess as any })).rejects.toMatchObject({
+			await expect(
+				service().createOne({ name: 'p', admin_access: false, ip_access: ipAccess as any }),
+			).rejects.toMatchObject({
 				code: 'INVALID_PAYLOAD',
 				message: IP_ERROR,
 			});
@@ -122,6 +126,19 @@ describe('PoliciesService', () => {
 
 		await expect(service().deleteOne(ADMIN_POLICY)).rejects.toMatchObject({ code: 'UNPROCESSABLE_CONTENT' });
 		expect(await db('directus_policies').where({ id: ADMIN_POLICY }).first()).toBeDefined();
+	});
+
+	// Spec 025 (FR-021): no foreign key, so the service removes the import/export rows of the policy.
+	test('deleteMany removes the backoffice_permissions rows of the deleted policies only', async () => {
+		await up(db);
+		await db('backoffice_permissions').insert([
+			{ policy: OTHER_POLICY, collection: 'a', action: 'export' },
+			{ policy: ADMIN_POLICY, collection: 'a', action: 'import' },
+		]);
+
+		await service().deleteOne(OTHER_POLICY);
+
+		expect(await db('backoffice_permissions').select('policy')).toEqual([{ policy: ADMIN_POLICY }]);
 	});
 
 	test('admin_access set to false on the only admin policy is refused with 422', async () => {

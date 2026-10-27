@@ -55,7 +55,7 @@ typecheck, test, build, E2E liên quan xanh, commit, push khi `main` rảnh, CI 
 
 **Purpose**: xác nhận các suy luận của research trước khi viết code; ghi kết quả vào research.md.
 
-- [ ] T001 Kiểm và ghi "Kết quả T001" vào `specs/025-policy-import-export/research.md`: (a) `apps/web` import được
+- [X] T001 Kiểm và ghi "Kết quả T001" vào `specs/025-policy-import-export/research.md`: (a) `apps/web` import được
       `@backoffice/constants` trong Vite và Vitest không (`apps/web/package.json`, `vite.config`); không được thì R2 giữ
       bản sao ở `sp/app-permissions.ts`; (b) sau khi tạo bảng thử trên SQLite và Postgres, `getSchema()` của Backoffice
       cho `backoffice_permissions` các field không có `special`, collection `accountability: 'all'`, giống bản Directus
@@ -67,7 +67,7 @@ typecheck, test, build, E2E liên quan xanh, commit, push khi `main` rảnh, CI 
       `deploy/helm/backoffice/ci/kind-test.sh:161` có kiểm danh sách version migration riêng không (R1); (g) status
       Directus 11.17.4 cho `GET /users?export=csv`, `POST /utils/import/directus_dashboards` với user không phải admin có
       quyền read/create/update (spec US2-8).
-- [ ] T002 [P] Rà test hiện có export hay import bằng người gọi không phải admin (sau 025 người đó nhận 403 ở Backoffice,
+- [X] T002 [P] Rà test hiện có export hay import bằng người gọi không phải admin (sau 025 người đó nhận 403 ở Backoffice,
       không seed); ghi "Kết quả T002" (file, case, người gọi, cách sửa: cấp dòng qua `POST /backoffice/permissions` ở
       bước chuẩn bị khi app là Backoffice, hoặc tách kỳ vọng theo app) vào research.md: `parity/items/export.test.ts`,
       `parity/system/import-export.test.ts`, `parity/items/crud.test.ts`, `parity/items/json-path.test.ts`,
@@ -88,54 +88,54 @@ typecheck, test, build, E2E liên quan xanh, commit, push khi `main` rảnh, CI 
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T003 [P] Tạo `api/database/backoffice-migrations/20261028A-create-backoffice-permissions.test.ts` (SQLite bộ nhớ +
+- [X] T003 [P] Tạo `api/database/backoffice-migrations/20261028A-create-backoffice-permissions.test.ts` (SQLite bộ nhớ +
       `runSeed`, như `20261026A-add-collection-ui-toggles.test.ts`): `version = '20261028A'`, `name = 'Create Backoffice
       Permissions'`; cột và nullability theo data-model.md (`policy` not null, `action` not null, còn lại nullable);
       index `(policy, collection, action)` có, không unique; `inspector.foreignKeys('backoffice_permissions')` rỗng;
       `up` hai lần không lỗi; `createTable` ném nhưng bảng đã có (process khác tạo trước, mock) → không ném. Chạy đỏ.
-- [ ] T004 [P] Thêm case vào test của danh sách migration (`api/database/backoffice-migrations/run.test.ts`): danh sách
+- [X] T004 [P] Thêm case vào test của danh sách migration (`api/database/backoffice-migrations/run.test.ts`): danh sách
       `BACKOFFICE_MIGRATIONS` là `['20261026A', '20261028A']` theo thứ tự; `api/database/validate-migrations.test.ts`:
       thiếu `20261028A` trong `backoffice_migrations` → `start` dừng với thông báo migration thiếu. Chạy đỏ.
-- [ ] T005 [P] Tạo `libs/constants/src/backoffice-permissions.test.ts`: khóa `import`, `export`; `requires`; `formats`
+- [X] T005 [P] Tạo `libs/constants/src/backoffice-permissions.test.ts`: khóa `import`, `export`; `requires`; `formats`
       (`csv`, `json` / `csv`, `csv_utf8`, `json`, `xml`, `yaml`); `PERMISSION_ACTIONS` vẫn 5 action. Chạy đỏ.
-- [ ] T006 [P] Tạo `bop/fetch-backoffice-permissions.test.ts` (knex-mock-client, cache `permissions` local): một `select`
+- [X] T006 [P] Tạo `bop/fetch-backoffice-permissions.test.ts` (knex-mock-client, cache `permissions` local): một `select`
       `backoffice_permissions` `whereIn policy`, lọc `collection`, `action` khi có; `permissions`, `options` chuỗi (SQLite)
       và object (Postgres) → object; `fields` csv → mảng, null giữ null; lần hai cùng tham số không query (`withCache`);
       `clearCache()` (`api/permissions/cache.ts`) → query lại. Chạy đỏ.
-- [ ] T007 [P] Tạo `bop/fetch-backoffice-access.test.ts`: admin → `{ allowed: true, filter: null, fields: ['*'], formats:
+- [X] T007 [P] Tạo `bop/fetch-backoffice-access.test.ts`: admin → `{ allowed: true, filter: null, fields: ['*'], formats:
       <tất cả> }` không query; không dòng → `allowed: false`; một dòng không bộ lọc → `filter: null`, `fields` theo dòng;
       bộ lọc có `$CURRENT_USER` → thay bằng id; hai policy → `_or` bộ lọc, hợp `fields`, `['*']` nếu một dòng `*`, hợp
       `formats`, một dòng không `options.formats` → tất cả; dòng của policy không thuộc người gọi không ảnh hưởng (mock
       `fetchPolicies`). Chạy đỏ.
-- [ ] T008 [P] Tạo `bop/assert-backoffice-action.test.ts`: không `allowed` → lỗi quyền collection (message, code
+- [X] T008 [P] Tạo `bop/assert-backoffice-action.test.ts`: không `allowed` → lỗi quyền collection (message, code
       `FORBIDDEN`, `Queried in root`); `format` ngoài `formats` → cùng lỗi; `format` undefined → chỉ xét `allowed`; có quyền
       → trả access. Chạy đỏ.
-- [ ] T009 [P] Thêm case vào `parity/normalizers.test.ts` (tạo nếu chưa có): introspection và SDL có type
+- [X] T009 [P] Thêm case vào `parity/normalizers.test.ts` (tạo nếu chưa có): introspection và SDL có type
       `backoffice_permissions*` bị bỏ như `backoffice_migrations*`; `/collections`, `/fields` bỏ mọi `backoffice_*`.
       Chạy đỏ.
 
 ### Implementation
 
-- [ ] T010 Tạo `api/database/backoffice-migrations/20261028A-create-backoffice-permissions.ts` (research R1): `hasTable`
+- [X] T010 Tạo `api/database/backoffice-migrations/20261028A-create-backoffice-permissions.ts` (research R1): `hasTable`
       → `createTable` trong `try` (catch: `hasTable` lại, có thì bỏ qua) với các cột của data-model.md (`increments id`,
       `uuid policy` not null, `string(64) collection` nullable, `string(64) action` not null, `json permissions`,
       `validation`, `presets`, `options`, `text fields`), `table.index(['policy', 'collection', 'action'])`; không
       `foreign()`; thêm vào `BACKOFFICE_MIGRATIONS` ở `api/database/backoffice-migrations/index.ts:15`. T003, T004 xanh.
-- [ ] T011 [P] Tạo `libs/constants/src/backoffice-permissions.ts` (research R2: `BACKOFFICE_EXPORT_FORMATS`,
+- [X] T011 [P] Tạo `libs/constants/src/backoffice-permissions.ts` (research R2: `BACKOFFICE_EXPORT_FORMATS`,
       `BACKOFFICE_IMPORT_FORMATS`, `BACKOFFICE_PERMISSION_ACTIONS`, `BackofficePermissionsAction`, ánh xạ mime import →
       định dạng) và export ở `libs/constants/src/index.ts`. T005 xanh.
-- [ ] T012 [P] Sửa `libs/types/src/permissions.ts`: type `BackofficePermission` (dòng bảng mới, `options: { formats?:
+- [X] T012 [P] Sửa `libs/types/src/permissions.ts`: type `BackofficePermission` (dòng bảng mới, `options: { formats?:
       string[] } | null`); `CollectionPermissions` thêm `import?`, `export?` (cùng dạng action + `formats?: string[]`);
       `PermissionsAction` không đổi.
-- [ ] T013 [P] Đăng ký collection hệ thống: `libs/system-data/src/collections/collections.yaml` thêm
+- [X] T013 [P] Đăng ký collection hệ thống: `libs/system-data/src/collections/collections.yaml` thêm
       `backoffice_permissions` (`hidden: true`, không `note`, cạnh `backoffice_migrations:129`, comment spec 025
       D-189.5); `gql/schema/index.ts:50` thêm `'backoffice_permissions'` vào `SYSTEM_DENY_LIST`; build `libs/system-data`
       (dist) như 022; test `libs/system-data` `isSystemCollection('backoffice_permissions') === true`.
-- [ ] T014 Tạo `bop/fetch-backoffice-permissions.ts`, `bop/fetch-backoffice-access.ts`, `bop/assert-backoffice-action.ts`
+- [X] T014 Tạo `bop/fetch-backoffice-permissions.ts`, `bop/fetch-backoffice-access.ts`, `bop/assert-backoffice-action.ts`
       (research R3; `withCache('backoffice-permissions', ...)` của `api/permissions/utils/with-cache.ts`; `fetchPolicies`;
       `processPermissions` + `fetchDynamicVariableData` như `api/permissions/lib/fetch-permissions.ts:24-42`;
       `mergePermissions` theo Kết quả T001 (d); `parseJSON` của `@backoffice/utils`). T006–T008 xanh.
-- [ ] T015 Sửa `parity/normalizers.ts:122` (introspection, SDL) và `parity/parity.ts:206` (`backofficeCollections`) lọc
+- [X] T015 Sửa `parity/normalizers.ts:122` (introspection, SDL) và `parity/parity.ts:206` (`backofficeCollections`) lọc
       theo tiền tố `backoffice_` thay tên `backoffice_migrations`; sửa `parity/deploy/backoffice-migrations.test.ts:30` chờ
       `['20261026A', '20261028A']`; sửa `deploy/helm/backoffice/ci/kind-test.sh` nếu Kết quả T001 (f) thấy danh sách
       version. T009 xanh.
@@ -155,34 +155,34 @@ dòng; xóa policy → dòng mất; Directus `GET /backoffice/permissions` → 4
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T016 [P] [US1] Tạo `api/services/backoffice-permissions.service.test.ts`: ghi `permissions`/`options` object →
+- [X] T016 [P] [US1] Tạo `api/services/backoffice-permissions.service.test.ts`: ghi `permissions`/`options` object →
       DB chuỗi JSON (SQLite) và đọc lại object; `fields` mảng ↔ csv (bản sao schema có `special`, schema dùng chung không
       bị sửa: so object gốc); `action` ngoài registry → `InvalidPayloadError`; người không phải admin không có quyền
       `create` trên `directus_permissions` → `ForbiddenError`, có quyền → ghi được, `directus_activity.user` là người gọi;
       `clearSystemCache` gọi sau mỗi ghi; `CACHE_AUTO_PURGE=true` → `cache.clear()`; registry mock có action giả
       `revert` → ghi được dòng `action = 'revert'` không cần migration (SC-006, analyze G1). Chạy đỏ.
-- [ ] T017 [P] [US1] Tạo `api/controllers/backoffice-permissions.controller.test.ts` (dạng
+- [X] T017 [P] [US1] Tạo `api/controllers/backoffice-permissions.controller.test.ts` (dạng
       `api/controllers/permissions.controller.test.ts`): 7 route của contracts/api.md §4 (một và nhiều, batch `PATCH`,
       `{ keys, data }`, `DELETE` mảng, `GET /:pk`), `useCollection('backoffice_permissions')`; `GET
       /items/backoffice_permissions` → 403 (`isSystemCollection`). Chạy đỏ.
-- [ ] T018 [P] [US1] Thêm vào `api/services/policies.service.test.ts`: `deleteMany([p])` xóa dòng `backoffice_permissions`
+- [X] T018 [P] [US1] Thêm vào `api/services/policies.service.test.ts`: `deleteMany([p])` xóa dòng `backoffice_permissions`
       có `policy = p`, giữ dòng của policy khác; `api/services/collections.service.test.ts`: `deleteOne('A')` xóa dòng có
       `collection = 'A'`. Chạy đỏ.
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Tạo `api/services/backoffice-permissions.service.ts` (research R6): `extends ItemsService`, bản sao
+- [X] T019 [US1] Tạo `api/services/backoffice-permissions.service.ts` (research R6): `extends ItemsService`, bản sao
       schema vá `special` cho `permissions`, `validation`, `presets`, `options` (`cast-json`) và `fields` (`cast-csv`);
       mỗi phương thức ghi/đọc: không admin → `validateAccess({ collection: 'directus_permissions', action })` rồi chạy với
       bản sao accountability `admin: true`; kiểm `action` thuộc `BACKOFFICE_PERMISSION_ACTIONS`; `clearCaches` như
       `api/services/permissions.service.ts:30-36`. Đăng ký provider như các service khác (`serviceProviders`). T016 xanh.
-- [ ] T020 [US1] Tạo `api/controllers/backoffice-permissions.controller.ts` (`@Controller('backoffice/permissions')`,
+- [X] T020 [US1] Tạo `api/controllers/backoffice-permissions.controller.ts` (`@Controller('backoffice/permissions')`,
       route và thân như `api/controllers/permissions.controller.ts`, bỏ `/me`); đăng ký ở `api/app.module.ts` (`controllers`,
       `consumer.apply(useCollection('backoffice_permissions'))`). T017 xanh.
-- [ ] T021 [US1] Sửa `api/services/policies.service.ts` `deleteMany` (dòng 98) và `api/services/collections.service.ts`
+- [X] T021 [US1] Sửa `api/services/policies.service.ts` `deleteMany` (dòng 98) và `api/services/collections.service.ts`
       `deleteOne` (cạnh dòng 711): xóa dòng `backoffice_permissions` theo policy, collection (comment spec 025 FR-021).
       T018 xanh.
-- [ ] T022 [US1] Tạo `parity/permissions/backoffice-permissions.test.ts` (chạy một mình như
+- [X] T022 [US1] Tạo `parity/permissions/backoffice-permissions.test.ts` (chạy một mình như
       `parity/items/collection-toggles.test.ts`; thêm vào `parity/suite.ts`): collection per-run `parity_bo_perm_<run>`,
       policy P, user U qua `parity/permissions/fixtures.ts` (`createPolicy`, `attachPolicy`, `createUser`); phần
       endpoint: CRUD `/backoffice/permissions` ở Backoffice (status, body, activity), Directus 404; `GET
@@ -204,34 +204,34 @@ mọi collection kể cả hệ thống; nhiều policy cộng dồn (FR-006..FR
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T023 [P] [US2] Thêm vào `api/middleware/collection-toggles-guard.test.ts`: `GET /items/A?export=csv` không quyền →
+- [X] T023 [P] [US2] Thêm vào `api/middleware/collection-toggles-guard.test.ts`: `GET /items/A?export=csv` không quyền →
       lỗi trước `next`; có quyền → `next()`; toggle export tắt + có quyền → lỗi toggle (không gọi `fetchBackofficeAccess`);
       `/users?export=json` → xét `directus_users`; không `export` → không gọi `fetchBackofficeAccess`; `POST /items/A?export=csv`
       không quyền → lỗi. Chạy đỏ.
-- [ ] T024 [P] [US2] Thêm vào `api/controllers/utils.controller.test.ts`: `POST /utils/export/A` không quyền → lỗi, không
+- [X] T024 [P] [US2] Thêm vào `api/controllers/utils.controller.test.ts`: `POST /utils/export/A` không quyền → lỗi, không
       gọi `exportToFile`; `POST /utils/import/A` không quyền → lỗi trước busboy (không đọc stream); toggle tắt → lỗi toggle
       trước; `POST /utils/import/directus_dashboards` → không gọi `fetchBackofficeAccess` (để `ImportService` từ chối
       người không phải admin như Directus, analyze I1). Chạy đỏ.
-- [ ] T025 [P] [US2] Thêm vào `api/middleware/validate-batch.test.ts`: `SEARCH` (`req.collection = 'A'` như
+- [X] T025 [P] [US2] Thêm vào `api/middleware/validate-batch.test.ts`: `SEARCH` (`req.collection = 'A'` như
       `/items/A`, và `'directus_users'` như `/users`) body `{"query":{"export":"csv"}}` không quyền → lỗi quyền collection
       trước `next`; có quyền → `next()`; body không `export` → không gọi `fetchBackofficeAccess`; `GET`, `PATCH`,
       `DELETE` không gọi (analyze C1, checklist CHK015). Chạy đỏ.
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Sửa `api/middleware/collection-toggles-guard.ts`: sau `assertCollectionToggles` (dòng 33), khi
+- [X] T026 [US2] Sửa `api/middleware/collection-toggles-guard.ts`: sau `assertCollectionToggles` (dòng 33), khi
       `req.sanitizedQuery.export` và `target` có trong `req.schema.collections`: `assertBackofficeAction({ accountability:
       req.accountability, collection: target, action: 'export' }, { schema: req.schema, knex: getDatabase() })` (comment
       spec 025 D-189.1). T023 xanh.
-- [ ] T027 [US2] Sửa `api/controllers/utils.controller.ts`: `import` (sau `assertToggle`, dòng 127; bỏ qua khi
+- [X] T027 [US2] Sửa `api/controllers/utils.controller.ts`: `import` (sau `assertToggle`, dòng 127; bỏ qua khi
       `isSystemCollection(collection)`, FR-007) và `export` (sau `assertToggle`, dòng 177) gọi `assertBackofficeAction` với
       `action` tương ứng. T024 xanh.
-- [ ] T028 [US2] Sửa `api/middleware/validate-batch.ts` (file port): ngay sau khi gán `req.sanitizedQuery` từ body
+- [X] T028 [US2] Sửa `api/middleware/validate-batch.ts` (file port): ngay sau khi gán `req.sanitizedQuery` từ body
       (dòng 27), khi method là `SEARCH` và `req.sanitizedQuery.export`: `assertBackofficeAction({ accountability:
       req.accountability, collection: req.collection, action: 'export' })` (một chỗ cho `SEARCH` của items và 21
       controller hệ thống; toggle 024 vẫn kiểm trong `items.controller.ts search()`; comment spec 025 D-189.1, analyze C1,
       checklist CHK015). T025 xanh.
-- [ ] T029 [US2] Thêm phần kiểm vào `parity/permissions/backoffice-permissions.test.ts` (sau T022): không quyền → `GET
+- [X] T029 [US2] Thêm phần kiểm vào `parity/permissions/backoffice-permissions.test.ts` (sau T022): không quyền → `GET
       ?export=csv`, `GET /:pk?export=json`, `POST /utils/export`, `POST /utils/import` (csv, json): Directus 200,
       Backoffice 403 lỗi quyền collection, không file, đếm item không đổi (D-189.1); cấp export, import (dòng không Use
       custom) → `assertParity` export csv/json, import (dữ liệu hai app giống); admin không dòng → 200; hai policy chỉ P2
@@ -258,13 +258,13 @@ mọi collection kể cả hệ thống; nhiều policy cộng dồn (FR-006..FR
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T030 [P] [US4] Tạo `bop/apply-export-access.test.ts`: filter AND với filter sẵn có; filter null không đổi query;
+- [X] T030 [P] [US4] Tạo `bop/apply-export-access.test.ts`: filter AND với filter sẵn có; filter null không đổi query;
       `fields` thiếu hoặc `*` → field quyền; `*` khi quyền `['*']` giữ `*`; field rõ ngoài (cả `a.b` xét `a`) → lỗi quyền
       collection. Chạy đỏ.
-- [ ] T031 [P] [US4] Thêm vào `api/services/import-export.service.test.ts`: `rowGuard` gọi mỗi dòng trước `upsertOne`
+- [X] T031 [P] [US4] Thêm vào `api/services/import-export.service.test.ts`: `rowGuard` gọi mỗi dòng trước `upsertOne`
       (JSON, CSV); `rowGuard` ném ở dòng 2 → promise reject, transaction rollback (không item nào), không `upsertOne` cho
       dòng sau; không `rowGuard` → như cũ. Chạy đỏ.
-- [ ] T032 [P] [US4] Thêm vào `api/middleware/collection-toggles-guard.test.ts`, `api/controllers/utils.controller.test.ts`
+- [X] T032 [P] [US4] Thêm vào `api/middleware/collection-toggles-guard.test.ts`, `api/controllers/utils.controller.test.ts`
       và `api/middleware/validate-batch.test.ts` (`SEARCH` body `query.export`):
       định dạng ngoài `formats` → lỗi; có quyền Use custom → `req.sanitizedQuery` (và query của `/utils/export`) có
       filter AND, fields giao; import: mime → định dạng, định dạng ngoài → lỗi, `rowGuard` truyền vào
@@ -272,19 +272,19 @@ mọi collection kể cả hệ thống; nhiều policy cộng dồn (FR-006..FR
 
 ### Implementation for User Story 4
 
-- [ ] T033 [US4] Tạo `bop/apply-export-access.ts` (research R3) và thêm tham số `format` vào `bop/assert-backoffice-action.ts`
+- [X] T033 [US4] Tạo `bop/apply-export-access.ts` (research R3) và thêm tham số `format` vào `bop/assert-backoffice-action.ts`
       (`formats` của access). T030 xanh, T008 vẫn xanh.
-- [ ] T034 [US4] Sửa `api/services/import-export.service.ts` (file port): `import(..., options?: { background: boolean;
+- [X] T034 [US4] Sửa `api/services/import-export.service.ts` (file port): `import(..., options?: { background: boolean;
       rowGuard?: (row: Record<string, unknown>) => void })`; truyền xuống `importJSON`, `importCSV`; gọi `rowGuard(task.data)`
       trong `saveQueue` ngay trước `upsertOne`/`upsertSingleton` (dòng ~356, bản CSV tương ứng), lỗi vào `errorTracker` như
       lỗi ghi (comment spec 025 FR-016). T031 xanh.
-- [ ] T035 [US4] Sửa `api/middleware/collection-toggles-guard.ts`, `api/middleware/validate-batch.ts` (`SEARCH`) và
+- [X] T035 [US4] Sửa `api/middleware/collection-toggles-guard.ts`, `api/middleware/validate-batch.ts` (`SEARCH`) và
       `api/controllers/utils.controller.ts`: export gọi `assertBackofficeAction(..., format)` rồi
       `applyExportAccess(query, access)` (`req.sanitizedQuery` ở guard và `validate-batch.ts`; `sanitizedQuery` trước
       `exportToFile`); import: kiểm `allowed` trước busboy (T027), khi có file: định dạng từ mime
       (registry T011) → `assertBackofficeAction(..., format)`, `rowGuard` (cột ngoài `access.fields` khi không `*` → lỗi;
       `validatePayload(access.filter, row)` của `@backoffice/utils` có lỗi → lỗi quyền collection). T032 xanh.
-- [ ] T036 [US4] Thêm phần Use custom vào `parity/permissions/backoffice-permissions.test.ts` (sau T029; chỉ Backoffice,
+- [X] T036 [US4] Thêm phần Use custom vào `parity/permissions/backoffice-permissions.test.ts` (sau T029; chỉ Backoffice,
       per app): bộ lọc → file không có dòng ngoài; field `*` → chỉ field quyền; field rõ ngoài → 403; định dạng ngoài →
       403 (`?export=` và `POST /utils/export`); import dòng vi phạm, cột ngoài, định dạng ngoài → 403, đếm item không đổi;
       hai policy với bộ lọc, field khác nhau → dòng của policy nào dùng field của policy đó (FR-011).
@@ -302,20 +302,20 @@ mọi collection kể cả hệ thống; nhiều policy cộng dồn (FR-006..FR
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T037 [P] [US3] Thêm vào `api/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.test.ts`:
+- [X] T037 [P] [US3] Thêm vào `api/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.test.ts`:
       admin có `import`, `export` `full`, `['*']`, mọi định dạng; user: mặc định `none`; dòng có bộ lọc → `partial`; hợp
       `fields`, `formats`; collection chỉ có dòng ở bảng mới KHÔNG xuất hiện (như Directus, analyze U1); 5 action cũ không
       đổi. Chạy đỏ.
-- [ ] T038 [P] [US3] Thêm vào test resolver system (`gql/resolvers/system.test.ts` hoặc file test hiện có của
+- [X] T038 [P] [US3] Thêm vào test resolver system (`gql/resolvers/system.test.ts` hoặc file test hiện có của
       `permissions_me`): kết quả có `import`, `export`; introspection type `permissions_me_type` không đổi. Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Sửa `api/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.ts`
+- [X] T039 [US3] Sửa `api/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.ts`
       (file port, research R5): nhánh admin thêm `import`, `export`; nhánh user sau vòng `directus_permissions` đọc dòng
       bảng mới qua `fetchBackofficePermissions({ policies })` và điền như contracts/api.md §3 (comment spec 025 D-189).
       T037, T038 xanh.
-- [ ] T040 [US3] Thêm phần `/permissions/me` vào `parity/permissions/backoffice-permissions.test.ts` (sau T036): U có
+- [X] T040 [US3] Thêm phần `/permissions/me` vào `parity/permissions/backoffice-permissions.test.ts` (sau T036): U có
       dòng → hai app khác chỉ ở `/<c>/import`, `/<c>/export` (D-189 accepted), phần còn lại giống; `permissions_me` của
       `/graphql/system` như trên; admin. Thêm D-189 `http` vào `tests/parity/accepted-differences.ts` (`endpoints: ['GET
       /permissions/me', 'POST /graphql/system']`, `location: { jsonPointer: /^\/data\/(permissions_me\/)?[^/]+\/(import|export)$/
@@ -334,17 +334,17 @@ snapshot của chính nó, `/permissions/me` của U có dòng: không lỗi, b�
 
 ### Tests for User Story 6 (MANDATORY) ⚠️
 
-- [ ] T041 [US6] Thêm phần chạy song song vào `parity/permissions/backoffice-permissions.test.ts` (sau T040): Directus
+- [X] T041 [US6] Thêm phần chạy song song vào `parity/permissions/backoffice-permissions.test.ts` (sau T040): Directus
       `GET /schema/snapshot` không có `backoffice_permissions`; `POST /schema/diff` với snapshot vừa lấy → không thay đổi;
       Directus `GET /permissions/me` cho U có dòng → 200 (US6-2); xóa policy P ở Directus → dòng còn, U gọi export ở
       Backoffice → 403 (không 500), `/permissions/me` Backoffice 200 (US6-3); `GET /server/health` hai app 200.
-- [ ] T042 [US6] Sửa test hiện có theo Kết quả T002: cấp dòng `backoffice_permissions` cho người gọi không phải admin
+- [X] T042 [US6] Sửa test hiện có theo Kết quả T002: cấp dòng `backoffice_permissions` cho người gọi không phải admin
       trong bước chuẩn bị (chỉ khi app là Backoffice, qua `POST /backoffice/permissions` bằng admin), hoặc kỳ vọng theo app
       khi case cố ý so không quyền; không đổi request của Directus.
-- [ ] T043 [US6] Sửa E2E hiện có theo Kết quả T002 (lượt 1, analyze O1) (`e2e/content-export-import.spec.ts`, `e2e/files-users-permissions.spec.ts`,
+- [X] T043 [US6] Sửa E2E hiện có theo Kết quả T002 (lượt 1, analyze O1) (`e2e/content-export-import.spec.ts`, `e2e/files-users-permissions.spec.ts`,
       `e2e/files-library.spec.ts`, `e2e/insights-overview.spec.ts`, `e2e/payload/utils.spec.ts`, `e2e/payload/insights*.spec.ts`):
       người gọi không phải admin cần quyền → cấp trong `beforeAll` khi cấu hình không phải `proxy-directus`.
-- [ ] T044 [P] [US6] Thêm vào `tests/parity/accepted-differences.ts` D-189.2, D-189.3, D-189.4, D-189.7 `doc`
+- [X] T044 [P] [US6] Thêm vào `tests/parity/accepted-differences.ts` D-189.2, D-189.3, D-189.4, D-189.7 `doc`
       (`feature: '025'`, reason theo bảng khác biệt của spec); `parity/accepted-differences.test.ts` xanh (mọi entry có
       trong spec 025).
 

@@ -1342,3 +1342,55 @@ describe('ImportService', () => {
 		});
 	});
 });
+
+// Backoffice (spec 025, FR-016): the optional per-row check of /utils/import.
+describe('rowGuard', () => {
+	const schema = new SchemaBuilder()
+		.collection('test_collection', (c) => {
+			c.field('id').id();
+			c.field('title').string();
+		})
+		.build();
+
+	const guard = vi.fn((row: Record<string, unknown>) => {
+		if (row['title'] === 'refused') throw new ForbiddenError();
+	});
+
+	const make = () => {
+		const db = knex.default({ client: MockClient }) as unknown as Knex;
+		createTracker(db);
+		return new ImportService({ knex: db, schema });
+	};
+
+	beforeEach(() => {
+		guard.mockClear();
+	});
+
+	test.each([
+		['CSV', 'importCSV', 'title\nok\nrefused\nlater'],
+		['JSON', 'importJSON', JSON.stringify([{ title: 'ok' }, { title: 'refused' }, { title: 'later' }])],
+	] as const)(
+		'%s: each row is checked before it is written; a refused row stops the file',
+		async (_name, method, data) => {
+			const upsertOne = vi.fn().mockResolvedValue(1);
+			vi.mocked(getService).mockReturnValue({ upsertOne } as any);
+
+			await expect(make()[method]('test_collection', Readable.from([data]), guard)).rejects.toBeDefined();
+
+			expect(guard.mock.calls[0]![0]).toEqual({ title: 'ok' });
+			expect(upsertOne.mock.calls.map(([row]) => row)).toEqual([{ title: 'ok' }]);
+		},
+	);
+
+	test('import passes the guard of the options to the reader of the file type', async () => {
+		const service = make();
+		const importCSV = vi.spyOn(service, 'importCSV').mockResolvedValue();
+
+		await service.import('test_collection', 'text/csv', Readable.from(['title\nok']), {
+			background: false,
+			rowGuard: guard,
+		});
+
+		expect(importCSV).toHaveBeenCalledWith('test_collection', expect.anything(), guard);
+	});
+});

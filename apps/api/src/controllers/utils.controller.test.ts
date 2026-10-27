@@ -7,6 +7,9 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ADMIN, createDataModelDb, SECRET, startApp, token } from '../../test/data-model-app.js';
 import type { App } from '../app.js';
 import { clearSystemCache } from '../cache.js';
+import { assertExport } from '../permissions/modules/backoffice-permissions/assert-backoffice-action.js';
+import { assertImport } from '../permissions/modules/backoffice-permissions/import-access.js';
+import { createCollectionForbiddenError } from '../permissions/modules/process-ast/utils/validate-path/create-error.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
 
@@ -29,6 +32,17 @@ vi.mock('../services/revisions.service.js', () => mockService('RevisionsService'
 vi.mock('../services/import-export.service.js', () => ({
 	...mockService('ImportService'),
 	...mockService('ExportService'),
+}));
+// Spec 025: the import and export permissions (their logic is tested in permissions/modules/backoffice-permissions).
+vi.mock('../permissions/modules/backoffice-permissions/import-access.js', async (importOriginal) => ({
+	...(await importOriginal<typeof import('../permissions/modules/backoffice-permissions/import-access.js')>()),
+	assertImport: vi.fn(async () => null),
+}));
+vi.mock('../permissions/modules/backoffice-permissions/assert-backoffice-action.js', async (importOriginal) => ({
+	...(await importOriginal<
+		typeof import('../permissions/modules/backoffice-permissions/assert-backoffice-action.js')
+	>()),
+	assertExport: vi.fn(async ({ query }: { query: unknown }) => query),
 }));
 vi.mock('../utils/generate-translations.js', () => ({ generateTranslations: vi.fn(async () => ({ created: true })) }));
 
@@ -317,4 +331,68 @@ test.each([
 ])('OPTIONS %s → %s', async (path, allow) => {
 	const request = await agent();
 	expect((await request.options(path)).headers['allow']).toBe(allow);
+});
+
+// Spec 025 (FR-006, FR-007, FR-016, D-189.1): the import and export permissions of the caller's policies.
+test('POST /utils/import: the import permission after the 415 and before the file; its format and row guard', async () => {
+	vi.mocked(assertImport).mockClear();
+	service.import.mockImplementation(async (_c: string, _m: string, stream: NodeJS.ReadableStream) => {
+		for await (const _chunk of stream);
+	});
+	const request = await agent();
+	const json = { filename: 'a.json', contentType: 'application/json' };
+
+	expect((await request.post('/utils/import/articles').set('Authorization', admin()).send({})).status).toBe(415);
+	expect(assertImport).not.toHaveBeenCalled();
+
+	vi.mocked(assertImport).mockRejectedValueOnce(createCollectionForbiddenError('', 'articles'));
+	const refused = await request
+		.post('/utils/import/articles')
+		.set('Authorization', admin())
+		.attach('file', Buffer.from('[]'), json);
+	expect(refused.status).toBe(403);
+	expect(refused.body.errors[0].message).toBe(forbiddenArticles);
+	expect(service.import).not.toHaveBeenCalled();
+	expect(vi.mocked(assertImport).mock.calls[0]![1]).toBe('articles');
+
+	const limited = { allowed: true, filter: { title: { _eq: 'a' } }, fields: ['*'], formats: ['csv'] };
+	vi.mocked(assertImport).mockResolvedValue(limited);
+
+	const wrongFormat = await request
+		.post('/utils/import/articles')
+		.set('Authorization', admin())
+		.attach('file', Buffer.from('[]'), json);
+	expect(wrongFormat.status).toBe(403);
+	expect(service.import).not.toHaveBeenCalled();
+
+	const csv = await request
+		.post('/utils/import/articles')
+		.set('Authorization', admin())
+		.attach('file', Buffer.from('title\na'), { filename: 'a.csv', contentType: 'text/csv' });
+	expect(csv.status).toBe(200);
+	expect(service.import.mock.calls[0]![3]).toMatchObject({ rowGuard: expect.any(Function) });
+});
+
+test('POST /utils/export: the export permission after the 400s and the toggles, with the body query and format', async () => {
+	vi.mocked(assertExport).mockClear();
+	service.exportToFile.mockReturnValue(new Promise(() => undefined));
+	const request = await agent();
+
+	expect(
+		(await request.post('/utils/export/articles').set('Authorization', admin()).send({ format: 'csv' })).status,
+	).toBe(400);
+	expect(assertExport).not.toHaveBeenCalled();
+
+	vi.mocked(assertExport).mockRejectedValueOnce(createCollectionForbiddenError('', 'articles'));
+	const refused = await request
+		.post('/utils/export/articles')
+		.set('Authorization', admin())
+		.send({ query: {}, format: 'json' });
+	expect(refused.status).toBe(403);
+	expect(service.exportToFile).not.toHaveBeenCalled();
+	expect(vi.mocked(assertExport).mock.calls[0]![0]).toMatchObject({
+		collection: 'articles',
+		format: 'json',
+		query: {},
+	});
 });

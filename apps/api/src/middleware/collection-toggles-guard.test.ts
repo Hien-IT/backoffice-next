@@ -6,9 +6,13 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { getCache } from '../cache.js';
 import { runMiddleware } from '../utils/run-middleware.js';
 import type { CollectionToggles } from '../utils/collection-toggles.js';
+import { fetchBackofficeAccess } from '../permissions/modules/backoffice-permissions/fetch-backoffice-access.js';
 import collectionTogglesGuard from './collection-toggles-guard.js';
 
 vi.mock('../cache.js');
+// Spec 025: the export permission of the caller's policies.
+vi.mock('../permissions/modules/backoffice-permissions/fetch-backoffice-access.js');
+vi.mock('../database/index.js', () => ({ default: () => ({}) }));
 
 const schema = new SchemaBuilder()
 	.collection('a', (c) => {
@@ -31,7 +35,7 @@ beforeEach(() => {
 function run(originalUrl: string, sanitizedQuery: Record<string, unknown> = {}, extra: Partial<Request> = {}) {
 	const req = { method: 'GET', originalUrl, sanitizedQuery, schema, query: {}, body: {}, ...extra } as Request;
 	const res = { locals: {} } as Response;
-	return { res, done: runMiddleware(collectionTogglesGuard, req, res) };
+	return { req, res, done: runMiddleware(collectionTogglesGuard, req, res) };
 }
 
 const forbidden = (path = 'root') => ({
@@ -101,5 +105,56 @@ describe('GraphQL skips the cache read only while a collection has search off (F
 		const { res, done } = post('{ a(search: "x") { id } }');
 		await done;
 		expect(res.locals['skipCacheRead']).toBeUndefined();
+	});
+});
+
+// Spec 025 (FR-006, FR-009, FR-015, D-189.1): after the toggles, the export permission of the caller's policies.
+describe('export permission (spec 025)', () => {
+	const user = { user: 'u1', admin: false, roles: [] } as any;
+
+	beforeEach(() => {
+		toggles = {};
+		vi.mocked(fetchBackofficeAccess).mockReset();
+	});
+
+	test('?export= without the permission → the collection permission error, on items and on a system route', async () => {
+		vi.mocked(fetchBackofficeAccess).mockResolvedValue({ allowed: false, filter: null, fields: [], formats: [] });
+
+		await expect(run('/items/a?export=csv', { export: 'csv' }, { accountability: user }).done).rejects.toMatchObject(
+			forbidden(),
+		);
+		await expect(run('/users?export=csv', { export: 'csv' }, { accountability: user }).done).rejects.toMatchObject({
+			code: 'FORBIDDEN',
+		});
+		expect(vi.mocked(fetchBackofficeAccess).mock.calls[1]![0]).toMatchObject({ collection: 'directus_users' });
+	});
+
+	test('with the permission: the Use custom rules are put into the sanitized query; a format outside → refused', async () => {
+		vi.mocked(fetchBackofficeAccess).mockResolvedValue({
+			allowed: true,
+			filter: { title: { _eq: 'x' } },
+			fields: ['id'],
+			formats: ['csv'],
+		});
+
+		// The sanitized query of a request is frozen: the guard puts a new one in its place.
+		const { req, done } = run('/items/a?export=csv', Object.freeze({ export: 'csv' }), { accountability: user });
+		await done;
+		expect(req.sanitizedQuery).toMatchObject({ export: 'csv', filter: { title: { _eq: 'x' } }, fields: ['id'] });
+
+		await expect(run('/items/a?export=json', { export: 'json' }, { accountability: user }).done).rejects.toMatchObject(
+			forbidden(),
+		);
+	});
+
+	test('a toggle off answers first; no export → no permission read', async () => {
+		toggles = { a: { export: false } };
+		await expect(run('/items/a?export=csv', { export: 'csv' }, { accountability: user }).done).rejects.toMatchObject(
+			forbidden(),
+		);
+
+		toggles = {};
+		await run('/items/a?search=x', { search: 'x' }, { accountability: user }).done;
+		expect(fetchBackofficeAccess).not.toHaveBeenCalled();
 	});
 });

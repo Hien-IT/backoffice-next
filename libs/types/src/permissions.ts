@@ -28,6 +28,23 @@ export type CollectionPermissions = {
 		fields?: string[];
 		presets?: Record<string, any>;
 	};
+} & {
+	// Backoffice (spec 025, D-189): the import and export actions of backoffice_permissions; `formats` absent = all.
+	import?: { access: 'none' | 'partial' | 'full'; fields?: string[]; formats?: string[] };
+	export?: { access: 'none' | 'partial' | 'full'; fields?: string[]; formats?: string[] };
+};
+
+/** Backoffice (spec 025): a row of backoffice_permissions (the columns of directus_permissions plus `options`). */
+export type BackofficePermission = {
+	id?: number;
+	policy: string;
+	collection: string | null;
+	action: string;
+	permissions: Filter | null;
+	validation: Filter | null;
+	presets: Record<string, any> | null;
+	fields: string[] | null;
+	options: { formats?: string[] } | null;
 };
 
 export type CollectionAccess = {

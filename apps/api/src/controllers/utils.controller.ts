@@ -16,6 +16,8 @@ import { getDatabase } from '../database/index.js';
 import { useLogger } from '../logger/index.js';
 import collectionExists from '../middleware/collection-exists.js';
 import { respond } from '../middleware/respond.js';
+import { assertExport } from '../permissions/modules/backoffice-permissions/assert-backoffice-action.js';
+import { assertImport, importRowGuard } from '../permissions/modules/backoffice-permissions/import-access.js';
 import type { ServiceFactory } from '../providers.js';
 import { ExportService, ImportService } from '../services/import-export.service.js';
 import { RevisionsService } from '../services/revisions.service.js';
@@ -130,6 +132,12 @@ export class UtilsController {
 			throw new UnsupportedMediaTypeError({ mediaType: req.headers['content-type']!, where: 'Content-Type header' });
 		}
 
+		// Backoffice (spec 025, FR-007, D-189.1): the import permission of the caller's policies, before the file is read.
+		const importAccess = await assertImport(req.accountability, req.params['collection'] as string, {
+			schema: req.schema,
+			knex: getDatabase(),
+		});
+
 		const service = this.importService({
 			accountability: req.accountability,
 			schema: req.schema,
@@ -152,8 +160,14 @@ export class UtilsController {
 
 			busboy.on('file', async (_fieldname, fileStream, { mimeType }) => {
 				try {
+					// Backoffice (spec 025, FR-016): the format and the Use custom rules of the import permission.
+					const rowGuard = importAccess
+						? importRowGuard(importAccess, req.params['collection'] as string, mimeType)
+						: undefined;
+
 					await service.import(req.params['collection'] as string, mimeType, fileStream, {
 						background: toBoolean(req.query['background']),
+						rowGuard,
 					});
 				} catch (err: any) {
 					return reject(err);
@@ -194,8 +208,19 @@ export class UtilsController {
 		// Backoffice (spec 024, D-188): a search of the body query on a collection with search off (FR-017).
 		await assertCollectionToggles(req.params['collection'] as string, sanitizedQuery, req.schema);
 
+		// Backoffice (spec 025, FR-006, FR-015, D-189.1): the export permission, its format and Use custom rules.
+		const exportQuery = await assertExport(
+			{
+				accountability: req.accountability,
+				collection: req.params['collection'] as string,
+				query: sanitizedQuery,
+				format: req.body.format,
+			},
+			{ schema: req.schema, knex: getDatabase() },
+		);
+
 		// We're not awaiting this, as it's supposed to run async in the background
-		service.exportToFile(req.params['collection'] as string, sanitizedQuery, req.body.format, {
+		service.exportToFile(req.params['collection'] as string, exportQuery, req.body.format, {
 			file: req.body.file,
 		});
 

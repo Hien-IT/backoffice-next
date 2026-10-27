@@ -15,6 +15,8 @@ export const REDUCED_FILES = [
 	'src/items/json-path.test.ts',
 	// Spec 024: the collection toggles at the API (D-188).
 	'src/items/collection-toggles.test.ts',
+	// Spec 025: the import and export permissions of backoffice_permissions (D-189).
+	'src/permissions/backoffice-permissions.test.ts',
 	// Feature 006: the HTTP contract of /collections, /fields, /relations (DDL differs per vendor, research R5).
 	'src/schema-management/crud.test.ts',
 	'src/schema-management/relations.test.ts',

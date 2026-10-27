@@ -10,6 +10,8 @@ import {
 	normalizeSetCookie,
 	normalizeText,
 	tokenKind,
+	withoutBackofficeIntrospection,
+	withoutBackofficeSdl,
 } from './normalizers.js';
 
 const jwt = (payload: Record<string, unknown>) =>
@@ -416,4 +418,45 @@ describe('normalizeMetaIds (feature 006)', () => {
 			],
 		});
 	});
+});
+
+// Spec 025 (D-189.5): backoffice_permissions is left out like backoffice_migrations.
+test('introspection and SDL without the backoffice_permissions types and root fields', () => {
+	const body = {
+		data: {
+			__schema: {
+				types: [
+					{ name: 'backoffice_permissions' },
+					{ name: 'backoffice_permissions_filter' },
+					{ name: 'Query', fields: [{ name: 'backoffice_permissions_by_id' }, { name: 'articles' }] },
+				],
+			},
+		},
+	};
+
+	expect(withoutBackofficeIntrospection(body)).toEqual({
+		data: { __schema: { types: [{ name: 'Query', fields: [{ name: 'articles' }] }] } },
+	});
+
+	const sdl = [
+		'type Query {',
+		'  articles: [articles]',
+		'  backoffice_permissions(filter: backoffice_permissions_filter): [backoffice_permissions!]!',
+		'}',
+		'',
+		'type backoffice_permissions {',
+		'  id: ID!',
+		'}',
+		'',
+	].join('\n');
+
+	expect(withoutBackofficeSdl(sdl)).toBe(['type Query {', '  articles: [articles]', '}', ''].join('\n'));
+});
+
+test('/collections without backoffice_permissions', () => {
+	expect(
+		normalizeBody('/collections', {
+			data: [{ collection: 'articles' }, { collection: 'backoffice_permissions', meta: null }],
+		}),
+	).toEqual({ data: [{ collection: 'articles' }] });
 });

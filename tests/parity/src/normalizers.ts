@@ -105,6 +105,9 @@ function withoutBackofficeSpecs(body: unknown): unknown {
 /** Spec 023 D-186: the GraphQL input type of a json path filter (Backoffice only). */
 export const JSON_PATH_TYPE = 'json_path_filter_operators';
 
+/** Spec 022 D-181, spec 025 D-189.5: the Backoffice system tables Directus sees as plain tables. */
+export const BACKOFFICE_TABLE = /backoffice_(?:migrations|permissions)/;
+
 /**
  * Spec 022 D-181: an introspection result without the backoffice_migrations types and the root fields named after it
  * (Directus has them in /graphql for the admin, Backoffice in neither scope, like directus_migrations).
@@ -118,8 +121,7 @@ export function withoutBackofficeIntrospection(body: unknown): unknown {
 	if (!Array.isArray(schema['types'])) return body;
 
 	const named = (value: unknown) =>
-		isObject(value) &&
-		(String(value['name'] ?? '').includes('backoffice_migrations') || value['name'] === JSON_PATH_TYPE);
+		isObject(value) && (BACKOFFICE_TABLE.test(String(value['name'] ?? '')) || value['name'] === JSON_PATH_TYPE);
 	const jsonPathInput = (value: unknown) => isObject(value) && typeName(value['type']) === JSON_PATH_TYPE;
 	const types = schema['types']
 		.filter((type) => !named(type))
@@ -263,17 +265,17 @@ export function normalizeText(text: string): string {
  * Spec 023 D-186: also without `input json_path_filter_operators` and the `<f>_json: json_path_filter_operators` lines.
  */
 export function withoutBackofficeSdl(sdl: string): string {
-	if (!sdl.includes('backoffice_migrations') && !sdl.includes(JSON_PATH_TYPE)) return sdl;
+	if (!BACKOFFICE_TABLE.test(sdl) && !sdl.includes(JSON_PATH_TYPE)) return sdl;
 
 	const trailing = /\n*$/.exec(sdl)![0];
 
 	return (
 		sdl
 			.replace(
-				/^(?:"""[^\n]*"""\n)?(?:type|input|enum|interface) \w*backoffice_migrations\w* \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm,
+				/^(?:"""[^\n]*"""\n)?(?:type|input|enum|interface) \w*backoffice_(?:migrations|permissions)\w* \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm,
 				'',
 			)
-			.replace(/^ {2}\w*backoffice_migrations\w*[(:][^\n]*\n/gm, '')
+			.replace(/^ {2}\w*backoffice_(?:migrations|permissions)\w*[(:][^\n]*\n/gm, '')
 			.replace(/^input json_path_filter_operators \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm, '')
 			.replace(/^ {2}\w+_json: json_path_filter_operators\n/gm, '')
 			.replace(/\n+$/, '') + trailing

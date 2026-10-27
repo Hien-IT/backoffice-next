@@ -4,6 +4,7 @@
 // directus_* tables and their directus_fields rows; up only, re-runnable, Knex only).
 import type { Knex } from 'knex';
 import * as addCollectionUiToggles from './20261026A-add-collection-ui-toggles.js';
+import * as createBackofficePermissions from './20261028A-create-backoffice-permissions.js';
 
 export interface BackofficeMigration {
 	/** `YYYYMMDD` + a letter, like the DR migrations; the primary key of backoffice_migrations. */
@@ -12,7 +13,7 @@ export interface BackofficeMigration {
 	up(knex: Knex): Promise<void>;
 }
 
-export const BACKOFFICE_MIGRATIONS: readonly BackofficeMigration[] = [addCollectionUiToggles];
+export const BACKOFFICE_MIGRATIONS: readonly BackofficeMigration[] = [addCollectionUiToggles, createBackofficePermissions];
 
 export const TABLE = 'backoffice_migrations';
 

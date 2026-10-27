@@ -363,3 +363,47 @@ FR-034).
 | CHK032 | Migration hỏng giữa chừng sửa tay, ghi ở `deploy/README.md`                                                 | spec Assumptions, tasks                  |
 | CHK034 | FR-035: request khác giống Directus                                                                         | spec                                     |
 | CHK035 | SC-002 tính bước cấp quyền thêm vào setup                                                                  | spec                                     |
+
+## Kết quả T001 (2026-10-28, đọc code)
+
+- (a) `apps/web` không phụ thuộc `@backoffice/*` (`apps/web/src/utils/json-path.ts:2`,
+  `apps/web/src/operations/throw-error/error-codes.ts:2` đều chép thay vì import): web giữ bản sao registry ở
+  `sp/app-permissions.ts` (R2, nhánh dự phòng).
+- (b) `apps/api/src/schema/get-database-schema.ts:127-223`: meta collection lấy từ `directus_collections` và
+  `systemCollectionRows` (yaml, như `backoffice_migrations`), `special` của field chỉ từ `directus_fields` và
+  `systemFieldRows`; bảng mới không có dòng nào nên mọi field có `special: []` như bản Directus dựng (R1 đúng).
+- (c) `processPermissions` (`api/permissions/utils/process-permissions.ts`) chỉ đọc `permissions`, `validation`,
+  `presets` của từng phần tử: dùng được cho dòng bảng mới.
+- (d) `mergePermissions('or', ...)` gộp theo `collection__action`, nhưng `mergePermission` bỏ qua dòng có `permissions`
+  null (giữ bộ lọc của dòng trước), trong khi null nghĩa là mọi dòng. Cộng dồn của bảng mới viết riêng: một dòng null hoặc
+  `{}` → bộ lọc null; khác → `_or`; field hợp (`*` thắng); định dạng hợp (một dòng không `formats` → mọi định dạng).
+  Ghép field theo từng policy (FR-011 "dòng thỏa bộ lọc của policy nào thì dùng field của policy đó") không làm được
+  bằng một query (engine chỉ ghép field theo policy cho quyền read, không có điểm chèn cho export): bản đầu dùng hợp field
+  và `_or` bộ lọc; kết quả vẫn bị giới hạn bởi quyền read của người gọi (engine áp read theo từng policy khi đọc), nên
+  không vượt quyền read (CHK023). Ghi `ponytail:` trong code; spec FR-011 sửa câu chữ (sửa khi implement).
+- (e) `ItemsService` ghi `directus_activity.user` từ `this.accountability.user` (`items.service.ts:338`, `:871`,
+  `:1144`): bản sao `{ ...accountability, admin: true }` giữ người gọi (R6 đúng).
+- (f) `deploy/helm/backoffice/ci/kind-test.sh:161` là ConfigMap migration tùy chỉnh (021), không kiểm version migration
+  riêng. Nơi kiểm danh sách version: `tests/parity/src/deploy/backoffice-migrations.test.ts:30`,
+  `tests/parity/src/bootstrap/cross.test.ts:256`, `:275`, `:292` (chờ `['20261026A Add Collection UI Toggles']`) và
+  `cli.test.ts:196`: sửa ở T015.
+- (g) Directus 11.17.4: `GET /users?export=csv` với người có read trên `directus_users` → 200 (respond xuất file như mọi
+  route); `POST /utils/import/directus_dashboards` người không phải admin → 403 (`ImportService` từ chối collection hệ
+  thống) [Inference: đọc `directus/api/src/services/import-export.ts`, cùng logic với bản port]; parity T029 xác nhận.
+
+## Kết quả T002 (2026-10-28, rà bằng subagent đọc code)
+
+Mọi export, import của test hiện có (parity, blackbox, E2E) dùng admin, trừ:
+
+| Test | Người gọi | Request | Xử lý |
+| ---- | --------- | ------- | ----- |
+| `tests/parity/src/system/import-export.test.ts:137` (`noPermission`) | static token, chỉ có read | `POST /utils/import/<books>` | Directus trả 403 `You don't have permission to perform "create" for collection ...` (`validateAccess`). Backoffice giữ đúng lỗi đó: kiểm create, update như `ImportService` trước, rồi mới kiểm quyền `import`; không sửa test |
+| `import-export.test.ts:131` (`system`) | static token | `POST /utils/import/directus_roles` | collection hệ thống không kiểm quyền `import` (FR-007): không đổi |
+| `tests/parity/src/items/export.test.ts:96` | public | `GET /server/info?export=…` | guard chỉ kiểm route có collection trong schema (`directus_server` không có): không đổi |
+| `tests/parity/src/observability/logs.test.ts:82` | public, token sai | `GET /server/info?export=json` | 401 trước, không đổi |
+
+Thứ tự lỗi của `/utils/import` (test "errors in order") giữ như Directus: collection không có → không multipart → (trong
+`ImportService`) collection hệ thống → quyền create, update; Backoffice thêm quyền `import` sau create, update và trước
+khi đọc file. E2E: không spec nào export, import bằng người không phải admin (`insights-parity-ui.spec.ts:444-450` chỉ
+so trạng thái nút). Nên T042, T043 không cần sửa test; chỉ chạy lại các file trên.
+

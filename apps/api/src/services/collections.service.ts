@@ -709,6 +709,11 @@ export class CollectionsService {
 
 					await trx('directus_activity').delete().where('collection', '=', collectionKey);
 					await trx('directus_permissions').delete().where('collection', '=', collectionKey);
+					// Backoffice (spec 025, FR-021): the import/export permission rows of the collection (the table is there
+					// once start passed; test databases may lack it).
+					if (await trx.schema.hasTable('backoffice_permissions')) {
+						await trx('backoffice_permissions').delete().where('collection', '=', collectionKey);
+					}
 					await trx('directus_relations').delete().where({ many_collection: collectionKey });
 
 					const { collectionRelationTree, fieldToCollectionList } = await buildCollectionAndFieldRelations(

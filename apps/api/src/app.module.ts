@@ -13,6 +13,7 @@ import { FoldersController } from './controllers/folders.controller.js';
 import { GraphqlController } from './controllers/graphql.controller.js';
 import { ItemsController } from './controllers/items.controller.js';
 import { OperationsController } from './controllers/operations.controller.js';
+import { BackofficePermissionsController } from './controllers/backoffice-permissions.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
 import { RelationsController } from './controllers/relations.controller.js';
@@ -62,6 +63,8 @@ export class TusModule implements NestModule {
 		ItemsController,
 		OperationsController,
 		PermissionsController,
+		// Backoffice (spec 025, D-189.6).
+		BackofficePermissionsController,
 		PoliciesController,
 		RelationsController,
 		RevisionsController,
@@ -99,6 +102,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_folders')).forRoutes(FoldersController);
 		consumer.apply(useCollection('directus_operations')).forRoutes(OperationsController);
 		consumer.apply(useCollection('directus_permissions')).forRoutes(PermissionsController);
+		consumer.apply(useCollection('backoffice_permissions')).forRoutes(BackofficePermissionsController);
 		consumer.apply(useCollection('directus_policies')).forRoutes(PoliciesController);
 		consumer.apply(useCollection('directus_relations')).forRoutes(RelationsController);
 		consumer.apply(useCollection('directus_revisions')).forRoutes(RevisionsController);

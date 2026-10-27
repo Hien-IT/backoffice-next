@@ -1,6 +1,8 @@
 // Ported from directus/api/src/middleware/validate-batch.ts
 import { InvalidPayloadError } from '@backoffice/errors';
 import Joi from 'joi';
+import getDatabase from '../database/index.js';
+import { assertExport } from '../permissions/modules/backoffice-permissions/assert-backoffice-action.js';
 import asyncHandler from '../utils/async-handler.js';
 import { sanitizeQuery } from '../utils/sanitize-query.js';
 import { validateQuery } from '../utils/validate-query.js';
@@ -27,6 +29,20 @@ export const validateBatch = (scope: 'read' | 'update' | 'delete') =>
 			req.sanitizedQuery = await sanitizeQuery(req.body.query, req.schema, req.accountability);
 
 			validateQuery(req.sanitizedQuery);
+
+			// Backoffice (spec 025, FR-006, CHK015): the body query replaced the query string the guard checked, so the
+			// export permission of a SEARCH (items and every system route) is checked here.
+			if (req.method.toLowerCase() === 'search' && req.sanitizedQuery.export && req.collection) {
+				req.sanitizedQuery = await assertExport(
+					{
+						accountability: req.accountability,
+						collection: req.collection,
+						query: req.sanitizedQuery,
+						format: req.sanitizedQuery.export,
+					},
+					{ schema: req.schema, knex: getDatabase() },
+				);
+			}
 		}
 
 		// Every cRUD action has either keys or query

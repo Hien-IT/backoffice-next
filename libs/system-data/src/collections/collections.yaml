@@ -128,3 +128,8 @@ data:
   # without a directus_collections row).
   - collection: backoffice_migrations
     hidden: true
+
+  # Backoffice (spec 025, D-189.5): the Backoffice permission actions (import, export), a hidden system collection like
+  # backoffice_migrations (403 on /items, not in GraphQL); written through /backoffice/permissions.
+  - collection: backoffice_permissions
+    hidden: true

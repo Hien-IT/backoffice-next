@@ -257,3 +257,11 @@ describe('migrationsValid', () => {
 		expect(exit).toHaveBeenCalledWith(1);
 	});
 });
+
+// Spec 025 (D-189.5): a database migrated before 025 lacks 20261028A, so start stops until bootstrap runs it.
+test('the real list: a database with only 20261026A misses 20261028A', async () => {
+	const result = await checkMigrations(db(all, ['20261026A']));
+
+	expect(result.boRequired).toEqual(['20261026A', '20261028A']);
+	expect(result.boMissing).toEqual(['20261028A']);
+});

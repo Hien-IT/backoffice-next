@@ -26,6 +26,7 @@ import { PresetsService } from './services/presets.service.js';
 import { PanelsService } from './services/panels.service.js';
 import { DashboardsService } from './services/dashboards.service.js';
 import { OperationsService } from './services/operations.service.js';
+import { BackofficePermissionsService } from './services/backoffice-permissions.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
 import { RelationsService } from './services/relations.service.js';
@@ -194,6 +195,13 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: PermissionsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new PermissionsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	// Backoffice (spec 025, D-189.6): the rows of backoffice_permissions.
+	{
+		provide: BackofficePermissionsService,
+		useFactory: (db: typeof getDatabase) => (options: any) =>
+			new BackofficePermissionsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

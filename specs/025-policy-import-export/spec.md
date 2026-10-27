@@ -254,9 +254,11 @@ schema.
   theo policy. Toggle vẫn chỉ áp cho collection người dùng (FR-010 của 024); quyền `export` theo policy áp cho mọi
   collection, kể cả collection hệ thống; quyền `import` chỉ áp cho collection người dùng (FR-007).
 - **FR-010**: Admin luôn có import, export (vẫn bị toggle chặn).
-- **FR-011**: Người dùng có nhiều policy: có quyền khi ít nhất một policy cho phép, như Directus. Với Use custom, kết hợp
-  như Directus kết hợp quyền read của nhiều policy: dòng thỏa bộ lọc của policy nào thì dùng field của policy đó; định
-  dạng là hợp của các policy cho phép. Public (policy Public) và share (policy của role trong share) theo cùng quy tắc:
+- **FR-011**: Người dùng có nhiều policy: có quyền khi ít nhất một policy cho phép, như Directus. Với Use custom: bộ lọc
+  là `_or` của bộ lọc các policy (một policy không có bộ lọc thì không lọc), field là hợp, định dạng là hợp của các
+  policy cho phép. Kết quả vẫn bị giới hạn bởi quyền read của người gọi (engine áp read theo từng policy khi đọc), nên
+  không vượt quyền read (sửa khi implement 2026-10-28, Kết quả T001 d: engine không có điểm chèn để ghép field theo từng
+  policy cho export). Public (policy Public) và share (policy của role trong share) theo cùng quy tắc:
   có import, export khi policy của họ cho phép (clarify 2026-10-28, câu 4).
 - **FR-012**: Dòng quyền của policy hay collection không còn tồn tại PHẢI bị bỏ qua.
 - **FR-013**: Đổi quyền import, export PHẢI có tác dụng từ request gửi sau khi lưu xong, trên mọi replica Backoffice.

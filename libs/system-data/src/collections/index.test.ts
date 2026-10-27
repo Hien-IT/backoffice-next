@@ -49,6 +49,16 @@ describe('systemCollectionRows', () => {
 		});
 	});
 
+	test('backoffice_permissions is a hidden system collection (spec 025, D-189.5)', () => {
+		expect(systemCollectionRows.find((row) => row.collection === 'backoffice_permissions')).toMatchObject({
+			collection: 'backoffice_permissions',
+			hidden: true,
+			system: true,
+			note: null,
+		});
+		expect(isSystemCollection('backoffice_permissions')).toBe(true);
+	});
+
 	test('should have unique collection names', () => {
 		const collectionNames = systemCollectionRows.map((row) => row.collection);
 		const uniqueNames = new Set(collectionNames);

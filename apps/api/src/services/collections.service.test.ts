@@ -638,6 +638,30 @@ describe('Integration Tests', () => {
 				expect(mockSchemaBuilder.dropTable).toHaveBeenCalledWith('test_collection');
 			});
 
+			// Spec 025 (FR-021): the import/export permission rows of the collection go with it.
+			test('should delete the backoffice_permissions rows of the collection', async () => {
+				const service = new CollectionsService({ knex: db, schema, accountability: null });
+				vi.mocked(mockSchemaBuilder.hasTable).mockImplementation(
+					async (table: string) => table === 'backoffice_permissions',
+				);
+
+				vi.spyOn(service, 'readByQuery').mockResolvedValue([
+					{
+						collection: 'test_collection',
+						schema: { name: 'test_collection' },
+						meta: { collection: 'test_collection' },
+					} as any,
+				]);
+
+				await service.deleteOne('test_collection');
+
+				expect(
+					tracker.history.delete.some(
+						(query) => query.sql.includes('backoffice_permissions') && query.bindings.includes('test_collection'),
+					),
+				).toBe(true);
+			});
+
 			test('should delete collection meta', async () => {
 				const deleteOneSpy = vi.spyOn(ItemsService.prototype, 'deleteOne').mockResolvedValue('test_collection');
 

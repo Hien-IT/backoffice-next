@@ -103,6 +103,12 @@ export class PoliciesService extends ItemsService<Policy> {
 
 		const result = await super.deleteMany(keys, opts);
 
+		// Backoffice (spec 025, FR-021): the import/export permission rows of the policies (no foreign key cascades them;
+		// the table is there once start passed, test databases may lack it).
+		if (await this.knex.schema.hasTable('backoffice_permissions')) {
+			await this.knex('backoffice_permissions').whereIn('policy', keys).delete();
+		}
+
 		// TODO is this necessary? Since the detachment should be handled in the AccessService
 		// Some policies have been deleted, clear the permissions cache
 		await this.clearCaches(opts);

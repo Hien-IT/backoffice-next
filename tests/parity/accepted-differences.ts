@@ -435,4 +435,72 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'While a collection has bo_show_search off, Backoffice does not read the response cache for a GraphQL document containing "search" (MISS, full Cache-Control TTL; the body is the same), so an entry Directus wrote never answers a blocked request.',
 	},
+	{
+		id: 'D-189',
+		feature: '025',
+		kind: 'http',
+		// Only the import and export keys of a collection in /permissions/me and permissions_me (analyze U4, CHK007).
+		endpoints: ['GET /permissions/me', 'POST /graphql/system'],
+		location: { jsonPointer: /^\/data\/(permissions_me\/)?[^/]+\/(import|export)$/ },
+		directus: { absent: true },
+		reason:
+			'/permissions/me and permissions_me of Backoffice also carry the import and export actions of backoffice_permissions per collection (spec 025); Directus has the five actions only.',
+	},
+	{
+		id: 'D-189.1',
+		feature: '025',
+		kind: 'http',
+		// Only the collections of src/permissions/backoffice-permissions.test.ts and /users there, where Backoffice refused.
+		endpoints: [
+			'GET /items/parity_bo_perm_*',
+			'SEARCH /items/parity_bo_perm_*',
+			'GET /users',
+			'SEARCH /users',
+			'POST /utils/export/parity_bo_perm_*',
+			'POST /utils/import/parity_bo_perm_*',
+		],
+		location: { any: true },
+		when: { backofficeCode: 'FORBIDDEN' },
+		reason:
+			'An export (?export=, SEARCH body query, POST /utils/export) or import the policies of a non-admin caller do not allow: Backoffice answers the collection permission error, Directus exports or imports (spec 025).',
+	},
+	{
+		id: 'D-189.2',
+		feature: '025',
+		kind: 'doc',
+		reason:
+			'The response cache of /permissions/me is shared as in Directus: with both apps on one Redis, either may answer with the body the other cached (accepted 2026-10-28).',
+	},
+	{
+		id: 'D-189.3',
+		feature: '025',
+		kind: 'doc',
+		reason:
+			'The policy permission matrix of the web app has create, read, update, delete, import, export and no share column; four columns when the API is Directus.',
+	},
+	{
+		id: 'D-189.4',
+		feature: '025',
+		kind: 'doc',
+		reason: 'The web app has no Shares sidebar on the item page and no /shared/:id page; the /shares API is unchanged.',
+	},
+	{
+		id: 'D-189.5',
+		feature: '025',
+		kind: 'doc',
+		reason:
+			'backoffice_permissions is a hidden system collection in Backoffice (403 on /items, not in GraphQL) and a table with meta null in Directus; compared without backoffice_* like D-181.',
+	},
+	{
+		id: 'D-189.6',
+		feature: '025',
+		kind: 'doc',
+		reason: '/backoffice/permissions exists at Backoffice only (Directus 404).',
+	},
+	{
+		id: 'D-189.7',
+		feature: '025',
+		kind: 'doc',
+		reason: 'The shared-domain lb and the Ingress send /permissions/me and /backoffice/ to Backoffice only.',
+	},
 ];

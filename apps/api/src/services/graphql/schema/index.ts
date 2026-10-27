@@ -48,6 +48,8 @@ export const SYSTEM_DENY_LIST = [
 	'directus_extensions',
 	// Backoffice (spec 022, D-181): like directus_migrations; the system scope names types by cutting `directus_`.
 	'backoffice_migrations',
+	// Backoffice (spec 025, D-189.5): written through /backoffice/permissions only.
+	'backoffice_permissions',
 ];
 
 export const READ_ONLY = ['directus_activity', 'directus_revisions'];
