@@ -235,6 +235,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 021 | Chạy độc lập: khởi tạo DB, migration và CLI giống Directus                                                      | 001–019   | BE     |
 | 022 | Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng của Backoffice                              | 014, 021  | BE, FE |
 | 023 | Filter theo path trong field json (Content, /items, /graphql)                                                   | 005, 011, 014 | BE, FE |
+| 024 | API chặn tìm kiếm, Import, Export theo cài đặt collection (mở rộng 022)                                         | 022       | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -1802,6 +1803,103 @@ thật):
 - Lb: `deploy/compose/lb/shared-domain.conf` có `directus:8055` và `backoffice-api` trong `api_pool`; Helm Service `-api`
   chọn pod theo label pool dùng chung. Chế độ separate-domain chỉ có Backoffice.
 - Hiệu năng [Inference]: `->>` không dùng index thường; expression index (VD `((transaction_data->>'Amount'))`) tạo tay.
+
+### 024: API chặn tìm kiếm, Import, Export theo cài đặt collection
+
+Trạng thái: đã chạy `/speckit.specify`, `/speckit.clarify` và `/speckit.plan` 2026-10-27 (`specs/024-collection-toggles-api/`:
+spec, checklist requirements đạt, 3 câu clarify chốt; plan với research R1–R11, data-model, contracts api/web/tests,
+quickstart; checklist api-compat 29 mục, 10 phát hiện đã sửa; D-188..D-188.4 và câu lỗi FR-006 duyệt 2026-10-27;
+`/speckit.tasks` 2026-10-27: 44 task, hai lượt; `/speckit.analyze` 2026-10-27: 12 phát hiện, đã áp C1 (parity cho
+endpoint hệ thống có quan hệ tới collection tắt tìm kiếm), G1, I1, CQ1, G2, U1, I2; còn 5 mục LOW). Mở rộng 022: tắt `bo_show_search`, `bo_show_import`, `bo_show_export` thì API Backoffice cũng chặn,
+không chỉ ẩn giao diện. Sửa FR-008 ("chỉ là giao diện") và FR-009 (DrawerCollection) của 022. Thư mục:
+`specs/024-collection-toggles-api/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+Không có bước 0: không sửa constitution. Nguyên tắc III cho phép khác biệt API khi đã ghi theo Nguyên tắc X (ghi trong
+spec, nêu lý do, tech lead duyệt), như 023. Không thêm cột, không thêm migration: dùng ba cột của migration 20261026A.
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/024-collection-toggles-api và đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. Feature 024: mở rộng 022, API Backoffice chặn tìm kiếm, import, export theo ba cài đặt của collection. Bối cảnh: 022 thêm bo_show_search, bo_show_import, bo_show_export vào directus_collections (migration 20261026A) nhưng chỉ ẩn giao diện trang Content; FR-008 của 022 giữ API như Directus nên người dùng có quyền vẫn gọi thẳng API được. Mục tiêu: tắt cài đặt nào thì API Backoffice chặn phần đó trên collection đó; spec này sửa FR-008 và FR-009 của 022. Chặn: bo_show_search tắt thì chặn tham số search của GET và SEARCH /items/:collection (kể cả search trong body của SEARCH và khi có aggregate, groupBy) và đối số search của query items, aggregated trên /graphql; bo_show_export tắt thì chặn ?export= (mọi định dạng) trên /items/:collection và /items/:collection/:pk, và POST /utils/export/:collection; bo_show_import tắt thì chặn POST /utils/import/:collection. Lỗi: 403 FORBIDDEN như ForbiddenError hiện có (REST trả {errors}, GraphQL trả lỗi trong errors, schema GraphQL không đổi). Áp dụng cho mọi người dùng, kể cả admin, share và public. null hoặc chưa có cột thì hiểu là bật (FR-007 của 022). Giữ nhãn ba toggle; spec ghi rõ tắt toggle là ẩn giao diện và chặn API. Chỉ chặn ở lớp HTTP (controller REST, resolver GraphQL): flow, extension và service nội bộ (ItemsService, ImportService, ExportService) không bị chặn, file port giữ nguyên văn. Collection hệ thống không đổi. Web: DrawerCollection theo bo_show_search như trang Content (ẩn ô nhập từ khóa, giữ nút bộ lọc, không gửi từ khóa lấy từ preset), sửa FR-009 của 022. Chạy song song: không sửa directus/; Directus 11.17.4 cùng DB không đổi hành vi. Khác biệt với Directus, chủ dự án đã chấp nhận ngày 2026-10-27, ghi từ D-188: 1. Request bị chặn: Directus trả 200, Backoffice trả 403; mọi request khác vẫn phải giống Directus, kể cả GraphQL introspection/SDL. 2. Ở chế độ shared-domain (compose api_pool, Helm Service -api) pool có cả Directus nên request rơi vào Directus không bị chặn: chấp nhận như 023, không thêm định tuyến ở lb; chặn đủ ở standalone và separate-domain. 3. Directus app ở cấu hình proxy tới API mới: tìm kiếm, import, export của collection đã tắt nhận 403. 4. DrawerCollection theo cài đặt tìm kiếm. Response cache dùng chung với Directus không được trả response đã cache cho request bị chặn. Test: unit API cho từng route; parity items, utils, graphql ghi khác biệt D-188, request khi toggle bật vẫn giống Directus; E2E Content và DrawerCollection ba cấu hình với admin và user thường; đảo bước API của apps/web-e2e/src/content-collection-toggles.spec.ts (đang chờ 200 theo FR-008 của 022).
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. Bỏ qua được: 8 câu đã chốt với chủ dự án ngày 2026-10-27 (7 câu trước specify, FR-017 khi specify); search rỗng, GraphQL nhiều field, bookmark trong drawer, câu thông báo 403 đã ghi ở Edge Cases, FR-006. Tập trung vào: thời điểm cài đặt có tác dụng trên mọi replica khi Directus app đổi (FR-013); share và public có quyền đọc collection tắt cài đặt; mutation GraphQL có đối số search.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt các khác biệt D-xxx)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. Phần chung BE: Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Phần chung FE: Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 024 có cả BE và FE, không thêm dependency, không thêm migration. API: một hàm dùng chung đọc ba cài đặt của collection từ cache hệ thống dùng chung, xóa theo schemaChanged (FR-013; SchemaOverview không có ba cột này, directus/api/src/utils/get-schema.ts:129-131, nên không thêm vào SchemaOverview đang chia sẻ với Directus qua Redis mà đọc riêng, ví dụ cache key riêng trong systemCache hoặc đọc directus_collections qua CollectionsService meta); mutation GraphQL có search từ chối trước khi ghi; kiểm tra chạy trước checkCacheMiddleware (apps/api/src/app-pipeline.ts:167, response cache dùng chung với Directus) hoặc research chứng minh cache không trả response cho request bị chặn; điểm chặn: items.controller.ts (SEARCH, GET :collection, GET :collection/:pk với export), middleware/respond.ts (export), utils.controller.ts (import/:collection, export/:collection), resolver GraphQL cho đối số search (services/graphql/schema/read.ts:673, :702, :799) không đổi schema. Không sửa ItemsService, ImportService, ExportService. Web: DrawerCollection.vue (apps/web/src/components/drawers/DrawerCollection.vue:204) truyền show-search cho SearchInput theo meta.bo_show_search !== false và dùng activeSearch như CollectionRoute.vue; kiểm tra DrawerCollection của directus-shim; list-o2m và list-m2m (ListO2M.vue:68, :163; ListM2M.vue; use-relation-multiple.ts:407, :486) ẩn ô search của enableSearchFilter khi collection liên quan tắt bo_show_search. Test: unit controller và resolver; parity tests/parity/src/items, utils, graphql với entry http D-188 như D-184; E2E đảo bước API của content-collection-toggles.spec.ts, thêm bước DrawerCollection. Ghi D-188+ vào spec và migration-guide; ghi chú "sửa bởi 024" ở FR-008, FR-009 của spec 022.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. api-compat: kiểm khác biệt D-188+ có ghi đủ, request khi toggle bật vẫn giống Directus, mọi đường vào search/import/export đều chặn, response cache không lọt, flow và extension không bị chặn
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. Chia hai lượt: lượt 1 API (REST, GraphQL, response cache, unit, parity D-188); lượt 2 Web (DrawerCollection, list-o2m, list-m2m), E2E ba cấu hình, tài liệu (spec 022, migration-guide, CLAUDE.md). Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. Lượt 1: API (REST, GraphQL, response cache) với unit và parity D-188. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=024-collection-toggles-api khi chạy script .specify. Lượt 2: Web (DrawerCollection), E2E ba cấu hình, tài liệu. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Quyết định của owner (2026-10-27):
+
+| Câu hỏi                            | Chốt                                                                                      |
+| ---------------------------------- | ----------------------------------------------------------------------------------------- |
+| Định tuyến lb chế độ shared-domain | Không thêm, như 023; request rơi vào Directus không bị chặn, ghi giới hạn vào spec        |
+| DrawerCollection                   | Theo `bo_show_search` như trang Content (sửa FR-009 của 022)                              |
+| Admin                              | Bị chặn như mọi người (như FR-006 của 022)                                                |
+| Mã lỗi                             | 403 `FORBIDDEN`                                                                           |
+| Lớp chặn                           | Chỉ HTTP (controller REST, resolver GraphQL); flow, extension, service nội bộ không chặn  |
+| GraphQL                            | Chặn đối số `search` trên `/graphql`, schema không đổi                                    |
+| Nhãn ba toggle                     | Giữ nguyên, không thêm migration                                                          |
+| Đường tìm kiếm khác (specify)      | Chặn mọi đường: `GET :id`, `PATCH`/`DELETE` theo query, `deep._search`, GraphQL quan hệ, body query của `/utils/export` (FR-017) |
+| Mutation GraphQL có `search` (clarify) | Từ chối trước khi ghi, không tạo/sửa item (FR-017)                                     |
+| `list-o2m`, `list-m2m` "Search Filter" (clarify) | Ẩn ô nhập từ khóa theo cài đặt của collection liên quan, giữ bộ lọc (FR-014)  |
+| Đọc ba cài đặt ở API (clarify)     | Từ cache hệ thống dùng chung, xóa theo `schemaChanged`; sửa SQL thì xóa cache (FR-013)   |
+
+Ghi chú đưa vào spec và plan 024 (đọc code ngày 2026-10-27, chưa chạy thử):
+
+- FR-008 của 022 có test E2E chờ 200: `apps/web-e2e/src/content-collection-toggles.spec.ts:143-157` (`?search=`,
+  `?export=csv` trên `bo_content`). Lượt 1 làm đỏ bước này nếu E2E chạy với API mới; đảo trong cùng lượt hoặc tách bước
+  API sang lượt 1.
+- Điểm vào: `apps/api/src/controllers/items.controller.ts:77-88` (SEARCH, GET dùng chung `readHandler`),
+  `apps/api/src/middleware/respond.ts:78` (export json, csv, csv_utf8, xml, yaml, chạy cho mọi route gọi `respond`),
+  `apps/api/src/controllers/utils.controller.ts:121` (import) và `:169` (export), đối số `search` của GraphQL ở
+  `apps/api/src/services/graphql/schema/read.ts:673`, `:702`, `:799`.
+- `checkCacheMiddleware` chạy ở `apps/api/src/app-pipeline.ts:167`, trước mọi route, cho GET và `/graphql`. Key cache
+  giống Directus (005), nên [Inference] response `?search=` mà Directus đã cache có thể được trả trước khi tới controller.
+- SchemaOverview chỉ đọc 5 cột của `directus_collections` (`directus/api/src/utils/get-schema.ts:129-131`), nên API chưa
+  có sẵn `bo_show_*` trong `req.schema`.
+- Lb: `deploy/compose/lb/shared-domain.conf:12` có `directus:8055` trong `api_pool`.
+- DrawerCollection: `apps/web/src/components/drawers/DrawerCollection.vue:60` lấy `search` từ `usePreset`, `:204` dùng
+  `SearchInput` chưa có `show-search`.
+- D-188 chưa dùng ở `specs/`, `tests/parity/src/`, `CLAUDE.md` (kiểm 2026-10-27).
 
 ---
 
