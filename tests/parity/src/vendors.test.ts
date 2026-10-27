@@ -117,9 +117,11 @@ test('PARITY_SUITE selects the files', () => {
 	// Feature 005: the blackbox port and the cache pairs have their own jobs.
 	expect(suiteFiles('blackbox')).toEqual(BLACKBOX_FILES);
 	expect(suiteFiles('cache')).toEqual(CACHE_FILES);
-	expect(FULL_FILES).toContain('src/items/{crud,export,json-path}.test.ts');
+	expect(FULL_FILES).toContain('src/items/{crud,export,json-path,collection-toggles}.test.ts');
 	// Spec 023: the json path filter suite runs on every vendor (vendor gate outside Postgres and SQLite).
 	expect(REDUCED_FILES).toContain('src/items/json-path.test.ts');
+	// Spec 024: the collection toggles suite runs on every vendor (0/1 booleans outside Postgres).
+	expect(REDUCED_FILES).toContain('src/items/collection-toggles.test.ts');
 	expect(REDUCED_FILES).toContain('src/items/crud.test.ts');
 	expect(FULL_FILES).toContain('src/schema-management/**/*.test.ts');
 	expect(REDUCED_FILES).toContain('src/schema-management/crud.test.ts');
