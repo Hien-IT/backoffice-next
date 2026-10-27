@@ -53,6 +53,15 @@ it('exports the same fixture set from Directus and from the new API (SC-009)', a
 		snapshot['meta.json'] = meta;
 	}
 
+	// Spec 025 (D-189): /permissions/me of the new API adds import and export to every collection.
+	for (const [file, permissions] of Object.entries(backoffice)) {
+		if (!file.startsWith('permissions.')) continue;
+		for (const actions of Object.values(permissions as Record<string, Record<string, unknown>>)) {
+			delete actions['import'];
+			delete actions['export'];
+		}
+	}
+
 	// An empty export on both sides would also be equal.
 	expect((directus['items.bo_std.json'] as unknown[]).length).toBeGreaterThan(0);
 	expect(Object.keys(backoffice)).toEqual(Object.keys(directus));
