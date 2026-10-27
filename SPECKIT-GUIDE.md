@@ -1903,7 +1903,17 @@ Ghi chú đưa vào spec và plan 024 (đọc code ngày 2026-10-27, chưa chạ
 
 ### 025: Quyền Import, Export theo policy, bỏ Share khỏi giao diện
 
-Trạng thái: chưa chạy. Soạn 2026-10-28 từ các quyết định của owner (bảng cuối mục). Import và export thành hai action
+Trạng thái: đã chạy `/speckit.specify`, `/speckit.clarify` và `/speckit.plan` 2026-10-28 (`specs/025-policy-import-export/`:
+spec FR-001..FR-034, D-189..D-189.7, checklist requirements đạt; 2 câu chốt khi specify: GraphQL `permissions_me` có
+`import`, `export`; web theo luật Directus khi API là Directus; 5 câu chốt khi clarify: import có dòng vi phạm thì từ
+chối cả file; export xin field ngoài giới hạn như read của Directus; `options` bản đầu chỉ có định dạng; public và share
+cùng quy tắc; "Download Page as CSV" theo quyền export, không áp Use custom; plan: research R1–R14, data-model,
+contracts api/web/tests, quickstart; D-189..D-189.7, path `/backoffice/permissions` và R1–R10 duyệt 2026-10-28, chủ dự
+án kiêm tech lead; `/speckit.tasks` 2026-10-28: 79 task, ba lượt: API T001–T045, Web T046–T070, deploy và tài liệu
+T071–T079; `/speckit.analyze` 2026-10-28: 0 CRITICAL, 3 HIGH, 6 MEDIUM đã áp: `SEARCH` có `export` trong body kiểm ở
+controller, import vào collection hệ thống chỉ admin như Directus, sửa E2E hiện có lên lượt 1; còn 4 mục LOW;
+`/speckit.checklist` api-compat 2026-10-28: 37 mục, 12 phát hiện đã sửa: kiểm export của `SEARCH` ở `validate-batch.ts`
+cho mọi route, FR-035 mới (request khác giống Directus), D-189.1 thêm export có Use custom và Directus app ở proxy-api). Soạn 2026-10-28 từ các quyết định của owner (bảng cuối mục). Import và export thành hai action
 cùng cấp create, read, update, delete trong ma trận quyền của policy, lưu ở bảng riêng `backoffice_permissions`;
 Backoffice bỏ share khỏi giao diện (cột share của ma trận, mục Shares ở trang item, trang `/shared/:id`). Thư mục:
 `specs/025-policy-import-export/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
@@ -1921,7 +1931,7 @@ duyệt), như 023, 024 và D-130.
 **2. `/speckit.clarify`**
 
 ```text
-/speckit.clarify Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Bỏ qua được: các câu đã chốt với chủ dự án ngày 2026-10-28 (bảng quyết định của 025 trong SPECKIT-GUIDE.md). Tập trung vào: GraphQL permissions_me có thêm import, export như REST không; một dòng trong file import không thỏa bộ lọc dòng thì từ chối cả file (như lỗi validation hiện có, import chạy trong transaction) hay bỏ dòng đó; export yêu cầu field ngoài giới hạn thì trả 403 như read của Directus hay bỏ field; ngoài định dạng file, bản đầu có cấu hình nào khác (ví dụ số dòng tối đa); share và public có import, export không.
+/speckit.clarify Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Bỏ qua được: các câu đã chốt với chủ dự án ngày 2026-10-28 (bảng quyết định của 025 trong SPECKIT-GUIDE.md, Clarifications của spec, gồm GraphQL permissions_me và luật Directus khi API là Directus). Tập trung vào các Assumptions: một dòng trong file import không thỏa bộ lọc dòng thì từ chối cả file (như lỗi validation hiện có, import chạy trong transaction) hay bỏ dòng đó; export yêu cầu field ngoài giới hạn thì trả 403 như read của Directus hay bỏ field; ngoài định dạng file, bản đầu có cấu hình nào khác (ví dụ số dòng tối đa); share và public có import, export không.
 ```
 
 **3. `/speckit.plan`** (sau bước này, chủ dự án duyệt các khác biệt D-xxx)
@@ -1993,8 +2003,11 @@ Quyết định của owner (2026-10-28):
 | API `/shares`, đăng nhập bằng share  | Giữ như Directus                                                                                       |
 | Lb, Ingress                          | `/permissions/me` và endpoint mới về Backoffice; request import, export rơi vào Directus không bị chặn |
 
-Còn mở, hỏi ở `/speckit.clarify`: GraphQL `permissions_me` có thêm `import`, `export` không; dòng import không thỏa bộ
-lọc; field export ngoài giới hạn; cấu hình khác ngoài định dạng; share và public.
+Chốt khi `/speckit.specify` (2026-10-28): GraphQL `permissions_me` có `import`, `export` như REST; web theo luật Directus
+và ẩn hai cột khi API là Directus. Chốt khi `/speckit.clarify` (2026-10-28): file import có dòng vi phạm bộ lọc hay cột
+ngoài giới hạn thì từ chối cả file (FR-016); export xin rõ field ngoài giới hạn thì 403, `*` chỉ lấy field được phép
+(FR-015); `options` bản đầu chỉ có định dạng file (FR-017); public và share cùng quy tắc với mọi policy (FR-011);
+"Download Page as CSV" hiện theo quyền export, tạo file ở trình duyệt từ dữ liệu đã đọc, không áp Use custom (FR-028).
 
 Ghi chú đưa vào spec và plan 025 (đọc code ngày 2026-10-28, chưa chạy thử):
 
