@@ -18,7 +18,9 @@ export const useRequestsStore = defineStore('requestsStore', {
 
 			// If requests take more than 3.5 seconds, it's assumed they'll either never
 			// happen, or already crashed
-			setTimeout(() => this.endRequest(id), 3500);
+			// Backoffice: the state, not the endRequest action: an action makes its pinia the active one, so in tests (one
+			// pinia per test) the timer of an earlier test switched the stores of the test running 3.5 s later.
+			setTimeout(() => this.queue.delete(id), 3500);
 
 			return id;
 		},

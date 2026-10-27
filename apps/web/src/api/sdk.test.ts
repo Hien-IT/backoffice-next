@@ -1,4 +1,4 @@
-import { createPinia, setActivePinia } from 'pinia';
+import { createPinia, getActivePinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { useRequestsStore } from '../stores/requests.ts';
 import { API, json, mockApi } from '../test-utils/fetch.ts';
@@ -42,6 +42,26 @@ describe('wrapped fetch', () => {
 		await pending;
 
 		expect(fetch.mock.calls[0]![1]).toMatchObject({ credentials: 'include' });
+		expect(requests.queueHasItems).toBe(false);
+	});
+
+	// A request ends in the store it started in without making that pinia the active one again: a test that set its own
+	// pinia meanwhile keeps it (spec 024 follow-up, CI 40553204014 ListM2M flake).
+	test('a request answered after another pinia became active leaves that pinia active', async () => {
+		let answer!: () => void;
+		const answered = new Promise<void>((resolve) => (answer = resolve));
+		mockApi({ 'GET /server/info': async () => (await answered, json({ data: { project: null } })) });
+		const requests = useRequestsStore();
+
+		const pending = sdk.request(requestEndpoint('/server/info', { method: 'GET' }));
+		await vi.waitFor(() => expect(requests.queueHasItems).toBe(true));
+
+		const next = createPinia();
+		setActivePinia(next);
+		answer();
+		await pending;
+
+		expect(getActivePinia()).toBe(next);
 		expect(requests.queueHasItems).toBe(false);
 	});
 
