@@ -407,3 +407,27 @@ Thứ tự lỗi của `/utils/import` (test "errors in order") giữ như Direc
 khi đọc file. E2E: không spec nào export, import bằng người không phải admin (`insights-parity-ui.spec.ts:444-450` chỉ
 so trạng thái nút). Nên T042, T043 không cần sửa test; chỉ chạy lại các file trên.
 
+
+## Kết quả benchmark (T078, CI trên `0413f03c`)
+
+- `benchmark-items` run 40580246665: 14/14 scenario `ok` (p95 Backoffice so với Directus): GET list admin no-store
+  5.819 / 6.555 ms, GET by id user no-store 5.239 / 4.635 ms, POST create admin 12.839 / 9.871 ms, DELETE user
+  17.663 / 14.879 ms; req/s Backoffice cao hơn hoặc ngang ở mọi dòng, CPU/req thấp hơn ở 12/14 dòng. Ba điểm chặn
+  chỉ thêm việc khi request có `export` hay là import, nên các scenario hiện có không tệ hơn quá 10 % theo cột Result
+  (SC-007).
+- `benchmark-web` run 40580286006: mọi dòng `ok` (Content first page p95 web → API 1014 ms so với Directus app
+  1752 ms; Files, Users, mở app có extension); dòng json path của 023 vẫn `reported` (D-184).
+
+## Kết quả CI và E2E (lượt 2, 3)
+
+- CI 40571486675 (lượt 1): `fixtures-seed` (SC-009) so `/permissions/me` nên thấy khóa `import`, `export` (D-189):
+  test bỏ hai khóa trước khi so (`0413f03c`); `settings-parity-ui` thấy `backoffice_permissions` trong Data Model với
+  khóa D-118 trùng `directus_permissions`: web bỏ bảng khỏi Data Model và danh sách thêm collection như
+  `backoffice_migrations` (`624d6ef9`).
+- CI 40580156675: `check-port-headers` còn bản ghi port của `SharedRoute.vue`, `SharesSidebarDetail.vue` (gỡ cùng
+  `ShareItem.vue`, `7bbe1b95`); `files-users-parity-ui`: người không phải admin không có mục Import / Export cho tới
+  khi được cấp (D-189, không seed), test bỏ mục đó khỏi kỳ vọng (`ba4620e2`).
+- CI 40589749926: mọi job web, E2E, quality, deploy xanh; parity postgres 2 đỏ do test `extensions/multi.test.ts`
+  chập chờn (hai PATCH liên tiếp, folder bị xóa giữa lần reload thứ hai), phiên 021 sửa ở `109b39e8`.
+- E2E local khi chạy song song nhiều cấu hình trên cùng env parity thì làm hỏng nhau (`last_page` của admin, collection
+  có tiền tố); `settings-parity-ui` Flows "Logs 3" / "Logs" là đọc trước khi số đếm tải xong, không phải lỗi 025.

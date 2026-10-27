@@ -350,7 +350,7 @@ snapshot của chính nó, `/permissions/me` của U có dòng: không lỗi, b�
 
 ### Đóng lượt 1
 
-- [ ] T045 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api constants types system-data parity-tests`; `api:test`
+- [X] T045 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api constants types system-data parity-tests`; `api:test`
       các file đã sửa, `bop/`, `api/permissions/`, `api/services/import-export*`, `api/database/backoffice-migrations/`
       (coverage BE ≥ 80 %); `api:build`; parity Postgres `src/permissions/backoffice-permissions.test.ts` và các file của
       T042, SQLite reduced; profile parity `bootstrap` (Directus trên DB có bảng mới, migrate chéo; SC-003, analyze G2);
@@ -370,43 +370,43 @@ khi toggle tắt; 4 cột khi API là Directus (FR-022..FR-027, FR-034, D-189.3)
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T046 [P] [US1] Thêm vào `sp/SystemPermissions.test.ts`: 6 cột khi store có khóa `import`, 4 khi không; không cột
+- [X] T046 [P] [US1] Thêm vào `sp/SystemPermissions.test.ts`: 6 cột khi store có khóa `import`, 4 khi không; không cột
       share; `getPermission` đọc hai nguồn (mock `GET /backoffice/permissions`); All access hàng → tạo 4 dòng
       `directus_permissions` + 2 dòng staging; No access → xóa đúng nguồn, dòng `share` có sẵn không bị xóa; `disabledActions`
       giữ; ô import của collection hệ thống (`directus_users`) bị khóa, All access hàng đó không tạo dòng import (analyze
       I1). Chạy đỏ.
-- [ ] T047 [P] [US1] Tạo hoặc sửa test `sp/PermissionsRow.test.ts`, `sp/PermissionsToggle.test.ts`: collection meta
+- [X] T047 [P] [US1] Tạo hoặc sửa test `sp/PermissionsRow.test.ts`, `sp/PermissionsToggle.test.ts`: collection meta
       `bo_show_export: false` → ô export `opacity-50`, `title` = chuỗi `bo_toggle_off_hint`, vẫn bấm và mở menu bằng bàn
       phím. Chạy đỏ.
-- [ ] T048 [P] [US1] Thêm vào `web/modules/settings/routes/policies/policies.test.ts` (hoặc `PolicyItemRoute.test.ts` mới):
+- [X] T048 [P] [US1] Thêm vào `web/modules/settings/routes/policies/policies.test.ts` (hoặc `PolicyItemRoute.test.ts` mới):
       Save → `PATCH /policies/:id` rồi `POST`/`PATCH`/`DELETE /backoffice/permissions` theo staging; lỗi lần hai → dialog
       lỗi, staging giữ, `hasEdits` vẫn true; rời trang có staging → guard hỏi. Chạy đỏ.
-- [ ] T049 [P] [US1] Thêm vào `web/modules/settings/routes/policies/use-duplicate.test.ts`: đọc `GET
+- [X] T049 [P] [US1] Thêm vào `web/modules/settings/routes/policies/use-duplicate.test.ts`: đọc `GET
       /backoffice/permissions?filter[policy][_eq]=<id>&limit=-1` và `POST` với `policy` mới; không dòng → không `POST`. Chạy
       đỏ.
-- [ ] T050 [P] [US1] Thêm vào `web/stores/permissions.test.ts`: `hasBackofficeActions` true khi một collection có khóa
+- [X] T050 [P] [US1] Thêm vào `web/stores/permissions.test.ts`: `hasBackofficeActions` true khi một collection có khóa
       `import`; false với `/permissions/me` của Directus. Chạy đỏ.
 
 ### Implementation for User Story 1
 
-- [ ] T051 [US1] Sửa `sp/app-permissions.ts:12`: `editablePermissionActions = ['create', 'read', 'update', 'delete',
+- [X] T051 [US1] Sửa `sp/app-permissions.ts:12`: `editablePermissionActions = ['create', 'read', 'update', 'delete',
       'import', 'export']`, `backofficeActions` (nhãn, định dạng; import từ `@backoffice/constants` hoặc bản sao theo Kết
       quả T001 (a)), `isBackofficeAction`; sửa `web/stores/permissions.ts`: type `PermissionsAction` thêm `import`,
       `export`, `ActionPermission.formats?`, getter `hasBackofficeActions`. T050 xanh.
-- [ ] T052 [US1] Tạo `sp/use-bo-permissions-staging.ts`: `InjectionKey`, `createBoPermissionsStaging(policyId)` (alterations
+- [X] T052 [US1] Tạo `sp/use-bo-permissions-staging.ts`: `InjectionKey`, `createBoPermissionsStaging(policyId)` (alterations
       `{ create, update, delete }`, `hasEdits`, `flush()` gửi `POST`/`PATCH`/`DELETE /backoffice/permissions` qua `sdk` +
       `requestEndpoint`, `reset()`), `useBoPermissionsStaging()` (`inject`).
-- [ ] T053 [US1] Sửa `sp/SystemPermissions.vue` (research R7): đọc nguồn hai, gộp `displayItems`, rẽ `getPermission`,
+- [X] T053 [US1] Sửa `sp/SystemPermissions.vue` (research R7): đọc nguồn hai, gộp `displayItems`, rẽ `getPermission`,
       `editItem`, `stageEdits`, `setFullAccess`, `setNoAccess`, `setFullAccessAll`, `setNoAccessAll`, `removeCollection`
       theo `isBackofficeAction`; cột theo `hasBackofficeActions` (FR-034); `disabledActions` thêm `import` cho collection
       hệ thống (FR-022). Sửa `sp/PermissionsRow.vue` (`v-for` cột theo
       prop, ô mờ theo meta collection) và `sp/PermissionsToggle.vue` (prop `mutedHint`). Thêm overlay
       `bo_toggle_off_hint` (en-US, vi-VN) ở `web/lang/overlay/`. T046, T047 xanh.
-- [ ] T054 [US1] Sửa `web/modules/settings/routes/policies/PolicyItemRoute.vue`: tạo staging, `provide`; `hasEdits` gộp;
+- [X] T054 [US1] Sửa `web/modules/settings/routes/policies/PolicyItemRoute.vue`: tạo staging, `provide`; `hasEdits` gộp;
       `saveAndStay`, `saveAndAddNew`, `saveAndQuit` gọi `staging.flush()` sau `save()`; `discardAndLeave`/`discardAndStay`
       gọi `staging.reset()`. Sửa `web/modules/settings/routes/policies/use-duplicate.ts:32` chép dòng bảng mới. T048, T049
       xanh.
-- [ ] T055 [US1] Sửa `e2e/settings-roles-policies.spec.ts` (test ma trận dòng 146, nhân bản dòng 188): `proxy-api`,
+- [X] T055 [US1] Sửa `e2e/settings-roles-policies.spec.ts` (test ma trận dòng 146, nhân bản dòng 188): `proxy-api`,
       `cors`: header có Import, Export, không Share; bật export `bo_std`, lưu, tải lại → ô full; nhân bản → bản sao có dòng
       (đọc qua API `/backoffice/permissions`); `proxy-directus`: 4 cột (FR-034). Thêm `GET`, `POST`, `PATCH`, `DELETE`
       `/backoffice/permissions(/<id>)` vào `e2e/helpers/allowed-paths.ts`; rà `e2e/payload/settings.spec.ts`,
@@ -426,24 +426,24 @@ khi toggle tắt; 4 cột khi API là Directus (FR-022..FR-027, FR-034, D-189.3)
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T056 [P] [US3] Thêm vào test `web/composables/use-permissions/collection/use-collection-permissions.test.ts` (tạo nếu
+- [X] T056 [P] [US3] Thêm vào test `web/composables/use-permissions/collection/use-collection-permissions.test.ts` (tạo nếu
       chưa có): `importAllowed`, `exportAllowed`, `exportFormats` khi store có khóa (admin, user `none`, `full`, `formats`)
       và khi không có (theo read; create + update); collection hệ thống: `importAllowed` chỉ admin ở cả hai chế độ
       (analyze I1). Chạy đỏ.
-- [ ] T057 [P] [US3] Thêm vào `web/components/sidebar/ExportSidebarDetail.test.ts` và `BasicImportSidebarDetail.test.ts`:
+- [X] T057 [P] [US3] Thêm vào `web/components/sidebar/ExportSidebarDetail.test.ts` và `BasicImportSidebarDetail.test.ts`:
       phần export (gồm "Download Page as CSV") theo `exportAllowed && showExport`; phần import theo `importAllowed &&
       showImport`; select định dạng chỉ `exportFormats`, mặc định định dạng đầu. Chạy đỏ.
-- [ ] T058 [P] [US3] Thêm vào `web/modules/insights/routes/overview.test.ts`: nút Export dashboard theo `exportAllowed` của
+- [X] T058 [P] [US3] Thêm vào `web/modules/insights/routes/overview.test.ts`: nút Export dashboard theo `exportAllowed` của
       `directus_dashboards`, import chỉ admin (`importAllowed` của collection hệ thống, analyze I1). Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T059 [US3] Sửa `web/composables/use-permissions/collection/use-collection-permissions.ts` (thêm `importAllowed`,
+- [X] T059 [US3] Sửa `web/composables/use-permissions/collection/use-collection-permissions.ts` (thêm `importAllowed`,
       `exportAllowed`, `exportFormats`, research R8). T056 xanh.
-- [ ] T060 [US3] Sửa `web/components/sidebar/ExportSidebarDetail.vue` (dòng 532 `importAllowed`, phần export
+- [X] T060 [US3] Sửa `web/components/sidebar/ExportSidebarDetail.vue` (dòng 532 `importAllowed`, phần export
       `exportAllowed`, select `:627-634` lọc) và `web/components/sidebar/BasicImportSidebarDetail.vue` (dòng 120). T057 xanh.
-- [ ] T061 [US3] Sửa `web/modules/insights/routes/InsightsOverviewRoute.vue` (`:126-128`, `:268-271`, `:294`). T058 xanh.
-- [ ] T062 [US3] Tạo `e2e/settings-permissions-bo.spec.ts`: `bo-editor` (fixture) ở `proxy-api`, `cors`: không quyền →
+- [X] T061 [US3] Sửa `web/modules/insights/routes/InsightsOverviewRoute.vue` (`:126-128`, `:268-271`, `:294`). T058 xanh.
+- [X] T062 [US3] Tạo `e2e/settings-permissions-bo.spec.ts`: `bo-editor` (fixture) ở `proxy-api`, `cors`: không quyền →
       Content `bo_content` không phần export, import; admin cấp export `csv` qua `POST /backoffice/permissions` (afterAll
       xóa) → có phần export, select chỉ CSV; Users, Files, Insights tương tự; `proxy-directus`: phần export theo read
       (FR-034).
@@ -461,18 +461,18 @@ có `options.formats = ['csv']`.
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T063 [P] [US4] Thêm vào `sp/detail/PermissionsDetail.test.ts`: action `export` → ba tab (`permissions`, `fields`,
+- [X] T063 [P] [US4] Thêm vào `sp/detail/PermissionsDetail.test.ts`: action `export` → ba tab (`permissions`, `fields`,
       `formats`), không `validation`, `presets`; đọc `/backoffice/permissions/:id`; dòng staging `+`; tiêu đề `… -> Export`;
       action share không còn tab. Tạo `sp/detail/FormatsTab.test.ts`: checkbox các định dạng của action, rỗng = `options`
       null, chọn → `options.formats`; nhãn liên kết, bàn phím. Chạy đỏ.
 
 ### Implementation for User Story 4
 
-- [ ] T064 [US4] Tạo `sp/detail/FormatsTab.vue` (`<script setup lang="ts">`, checkbox của design-system, `modelValue`/
+- [X] T064 [US4] Tạo `sp/detail/FormatsTab.vue` (`<script setup lang="ts">`, checkbox của design-system, `modelValue`/
       `update:modelValue`, chuỗi overlay `bo_formats`, `bo_formats_hint` en-US, vi-VN). Sửa `sp/detail/PermissionsDetail.vue`
       (`load` theo `isBackofficeAction`, `tabsValue` dòng 64-100, bỏ `'share'` ở dòng 71, `emit` dòng cho staging). T063
       xanh.
-- [ ] T065 [US4] Thêm bước Use custom vào `e2e/settings-roles-policies.spec.ts` (sau T055): ô export → Use custom → tab
+- [X] T065 [US4] Thêm bước Use custom vào `e2e/settings-roles-policies.spec.ts` (sau T055): ô export → Use custom → tab
       Formats chọn CSV → lưu → `GET /backoffice/permissions` có `options.formats = ['csv']`; ô hiện trạng thái partial.
 
 ---
@@ -485,24 +485,24 @@ có `options.formats = ['csv']`.
 
 ### Tests for User Story 5 (MANDATORY) ⚠️
 
-- [ ] T066 [P] [US5] Sửa test `web/modules/content/routes/ItemRoute.test.ts` (sidebar không có Shares) và
+- [X] T066 [P] [US5] Sửa test `web/modules/content/routes/ItemRoute.test.ts` (sidebar không có Shares) và
       `web/router/index.test.ts` hoặc `web/router/guard.test.ts` (không route `shared`; `/shared/<uuid>` rơi vào route bắt
       mọi path). Chạy đỏ.
 
 ### Implementation for User Story 5
 
-- [ ] T067 [US5] Xóa `web/components/sidebar/SharesSidebarDetail.vue` và `.test.ts`; bỏ chỗ dùng ở
+- [X] T067 [US5] Xóa `web/components/sidebar/SharesSidebarDetail.vue` và `.test.ts`; bỏ chỗ dùng ở
       `web/modules/content/routes/ItemRoute.vue:819-824` và import; bỏ `shareAllowed` ở
       `web/composables/use-permissions/item/use-item-permissions.ts` nếu không còn ai dùng. T066 xanh (phần item).
-- [ ] T068 [US5] Xóa route `shared` ở `web/router/index.ts:91-93`, `web/routes/SharedRoute.vue` và `SharedRoute.test.ts`;
+- [X] T068 [US5] Xóa route `shared` ở `web/router/index.ts:91-93`, `web/routes/SharedRoute.vue` và `SharedRoute.test.ts`;
       giữ `web/router/guard.ts` và store user `share`. T066 xanh.
-- [ ] T069 [US5] E2E: xóa `e2e/content-share.spec.ts`; bỏ case share của `e2e/payload/comments-shares.spec.ts` (giữ
+- [X] T069 [US5] E2E: xóa `e2e/content-share.spec.ts`; bỏ case share của `e2e/payload/comments-shares.spec.ts` (giữ
       comment) và của `e2e/content-sidebar.spec.ts` nếu có; `e2e/helpers/allowed-paths.ts` bỏ dòng `/shares/info`,
       `/shares/auth` nếu không còn spec nào dùng; tìm mọi chỗ khác trong `e2e/` gọi `/admin/shared/`.
 
 ### Đóng lượt 2
 
-- [ ] T070 Đóng lượt 2: `web/lang/keys.test.ts` có khóa overlay mới; `pnpm nx run-many -t lint,typecheck -p web web-e2e`;
+- [X] T070 Đóng lượt 2: `web/lang/keys.test.ts` có khóa overlay mới; `pnpm nx run-many -t lint,typecheck -p web web-e2e`;
       `web:test` các file đã sửa và cả `interfaces/_system/system-permissions/`, `components/sidebar/`,
       `modules/settings/routes/policies/` (coverage FE ≥ 60 %); `web:build`; E2E `settings-roles-policies`,
       `settings-permissions-bo`, các spec của T069 local `proxy-api` và `proxy-directus`; `git add` theo đường dẫn;
@@ -520,17 +520,17 @@ log lb không có dòng nào tới IP `directus`.
 
 ### Tests for User Story 6 (MANDATORY) ⚠️
 
-- [ ] T071 [P] [US6] Tạo `parity/deploy/backoffice-permissions.test.ts` (như `parity/deploy/extensions.test.ts:95-106`,
+- [X] T071 [P] [US6] Tạo `parity/deploy/backoffice-permissions.test.ts` (như `parity/deploy/extensions.test.ts:95-106`,
       `describe.skipIf(SEPARATE)`): admin token; 8 lần mỗi đường qua `lbUrl`, `lbLog(since)` không có `${directusIp}:8055`;
       cấp export cho U qua `replicaUrl(1)`, `?export=csv` ở `replicaUrl(2)` → 200 ngay; thu hồi qua `replicaUrl(2)`,
       `replicaUrl(1)` → 403 (FR-013, analyze G4). Chạy đỏ (trên env deploy).
 
 ### Implementation for User Story 6
 
-- [ ] T072 [US6] Sửa `deploy/compose/lb/shared-domain.conf`: trước `location /` thêm `location = /permissions/me` và
+- [X] T072 [US6] Sửa `deploy/compose/lb/shared-domain.conf`: trước `location /` thêm `location = /permissions/me` và
       `location ^~ /backoffice/` tới `bo_pool` với `error_page 502 504 = @retry_bo` (research R10, comment spec 025
       D-189.7). T071 xanh.
-- [ ] T073 [US6] Sửa `deploy/helm/backoffice/templates/ingress.yaml` (cạnh dòng 32): path `/permissions/me` `Exact` và
+- [X] T073 [US6] Sửa `deploy/helm/backoffice/templates/ingress.yaml` (cạnh dòng 32): path `/permissions/me` `Exact` và
       `/backoffice` `Prefix` tới Service `-api-only`; kiểm `helm template` render đúng thứ tự (trước `/`); thêm kiểm vào
       `deploy/helm/backoffice/ci/kind-test.sh` nếu file đã kiểm `/extensions/sources`.
 
@@ -538,22 +538,22 @@ log lb không có dòng nào tới IP `directus`.
 
 ## Phase 13: Polish & Cross-Cutting (lượt 3)
 
-- [ ] T074 [P] Sửa `deploy/README.md` (mục migration riêng, dòng ~383): migration `20261028A`, bảng
+- [X] T074 [P] Sửa `deploy/README.md` (mục migration riêng, dòng ~383): migration `20261028A`, bảng
       `backoffice_permissions`, không seed (admin phân quyền lại sau khi cài), rollback tay và cách sửa tay khi migration
       hỏng giữa chừng (bảng có, index thiếu; CHK032); D-189.1, D-189.2 khi chạy cùng Directus; Directus app ở cấu hình
       proxy tới API mới nhận 403 cho tới khi được cấp (CHK003); Activity của Directus hiện dòng `backoffice_permissions`
       (CHK008); lb/Ingress D-189.7. Sửa `tests/parity/README.md`: file `permissions/backoffice-permissions.test.ts`, D-189,
       D-189.1, deploy test.
-- [ ] T075 [P] Kiểm `design-system/docs/migration-guide.md`: 025 thêm tab `FormatsTab` (checkbox có sẵn), ô mờ
+- [X] T075 [P] Kiểm `design-system/docs/migration-guide.md`: 025 thêm tab `FormatsTab` (checkbox có sẵn), ô mờ
       `opacity-50` + `title`, không màu, token mới; ghi mục Decisions nếu ô mờ cần ghi chú tương phản (WCAG), nếu không
       ghi "Kết quả T075" một dòng vào research.md.
-- [ ] T076 [P] Sửa `CLAUDE.md`: dòng Active Technologies của 025 đổi "planned" thành "implemented 2026-10-xx", thêm mục
+- [X] T076 [P] Sửa `CLAUDE.md`: dòng Active Technologies của 025 đổi "planned" thành "implemented 2026-10-xx", thêm mục
       Recent Changes 025; `SPECKIT-GUIDE.md` mục 025 dòng Trạng thái (lượt, commit, CI).
-- [ ] T077 Chạy `quickstart.md` trên env parity `proxy-api`: các lệnh `curl` cho đúng status ghi trong file; sai thì sửa
+- [X] T077 Chạy `quickstart.md` trên env parity `proxy-api`: các lệnh `curl` cho đúng status ghi trong file; sai thì sửa
       quickstart hoặc code.
-- [ ] T078 Chạy workflow `benchmark-items` và `benchmark-web` trên CI sau push lượt 1 hoặc 2; SC-007: scenario hiện có
+- [X] T078 Chạy workflow `benchmark-items` và `benchmark-web` trên CI sau push lượt 1 hoặc 2; SC-007: scenario hiện có
       không tệ hơn Directus quá 10 %; ghi "Kết quả benchmark" vào research.md.
-- [ ] T079 Đóng lượt 3: `pnpm nx run-many -t lint -p parity-tests`; parity deploy local nếu chạy được (hoặc dựa CI
+- [X] T079 Đóng lượt 3: `pnpm nx run-many -t lint -p parity-tests`; parity deploy local nếu chạy được (hoặc dựa CI
       `deploy`, `deploy-k8s`); `git add` theo đường dẫn; commit `feat(025): route /permissions/me and /backoffice to
       Backoffice (D-189.7)` và `docs(025): close the policy import/export spec`; spec 025 dòng Status → `Implemented
       2026-10-xx` với commit và số run CI; push khi `main` rảnh; CI xanh (`deploy`, `deploy-k8s`, toàn bộ); `graphify

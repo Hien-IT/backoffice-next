@@ -1903,7 +1903,12 @@ Ghi chú đưa vào spec và plan 024 (đọc code ngày 2026-10-27, chưa chạ
 
 ### 025: Quyền Import, Export theo policy, bỏ Share khỏi giao diện
 
-Trạng thái: đã chạy `/speckit.specify`, `/speckit.clarify` và `/speckit.plan` 2026-10-28 (`specs/025-policy-import-export/`:
+Trạng thái: đã xong 2026-10-28. Ba lượt trên `main`: API `e5e60405`, web `b26cf4eb`, lb/Ingress `c3306b34`, sửa theo CI
+`624d6ef9`, `0413f03c`, `7bbe1b95`, `ba4620e2`; 79/79 task; CI 40589749926 (web, E2E ba cấu hình, deploy, deploy-k8s
+xanh; parity multi chập chờn do test, phiên 021 sửa `109b39e8`); benchmark-items 40580246665 và benchmark-web
+40580286006 xanh. Sửa khi implement: FR-011 cộng dồn Use custom của nhiều policy (bộ lọc `_or`, field, định dạng hợp,
+vẫn trong quyền read); `backoffice_permissions` bỏ khỏi Data Model như `backoffice_migrations`; M-1 (độ tương phản ô
+mờ) chờ chủ design. Trước đó: đã chạy `/speckit.specify`, `/speckit.clarify` và `/speckit.plan` 2026-10-28 (`specs/025-policy-import-export/`:
 spec FR-001..FR-034, D-189..D-189.7, checklist requirements đạt; 2 câu chốt khi specify: GraphQL `permissions_me` có
 `import`, `export`; web theo luật Directus khi API là Directus; 5 câu chốt khi clarify: import có dòng vi phạm thì từ
 chối cả file; export xin field ngoài giới hạn như read của Directus; `options` bản đầu chỉ có định dạng; public và share

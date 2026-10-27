@@ -3,7 +3,7 @@
 **Feature Branch**: `025-policy-import-export` (làm trên `main` như 012–024, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=025-policy-import-export`)
 **Created**: 2026-10-28
-**Status**: Draft
+**Status**: Implemented 2026-10-28, ba lượt trên `main` (`e5e60405`, `b26cf4eb`, `c3306b34`, sửa `624d6ef9`, `0413f03c`, `7bbe1b95`, `ba4620e2`), CI 40589749926 (job web, E2E, deploy xanh; parity multi chập chờn sửa ở `109b39e8`), benchmark-items 40580246665 và benchmark-web 40580286006 xanh
 **Input**: User description: "Feature 025: quyền import và export theo policy, hai action mới cùng cấp create, read,
 update, delete; Backoffice bỏ share khỏi giao diện. [...] Lưu trữ: bảng hệ thống mới backoffice_permissions tạo bằng
 migration riêng của Backoffice [...] Khác biệt với Directus, chủ dự án đã chấp nhận ngày 2026-10-28, ghi từ D-189 [...]"
