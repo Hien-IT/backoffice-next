@@ -144,7 +144,9 @@ test('translateCollections renames after the locale changes', () => {
 	const collectionsStore = useCollectionsStore();
 
 	collectionsStore.collections = [
-		raw('posts', { translations: [{ language: 'vi-VN', translation: 'Bài viết', singular: 'Bài', plural: 'Các bài' }] }),
+		raw('posts', {
+			translations: [{ language: 'vi-VN', translation: 'Bài viết', singular: 'Bài', plural: 'Các bài' }],
+		}),
 	].map(collectionsStore.prepareCollectionForApp);
 
 	expect(collectionsStore.collections[0]!.name).toBe('Posts');
@@ -210,7 +212,8 @@ test('system collection names drop the directus_ prefix; user collections keep t
 });
 
 // Spec 022 D-181: backoffice_migrations is a system collection like directus_migrations: listed with the system
-// collections (Data Model), kept out of the user collections and of crudSafeSystemCollections.
+// collections (Data Model), kept out of the user collections and of crudSafeSystemCollections; spec 025 (D-189.5):
+// backoffice_permissions too.
 test('backoffice_migrations is a system collection like directus_migrations', () => {
 	const collectionsStore = useCollectionsStore();
 
@@ -218,6 +221,7 @@ test('backoffice_migrations is a system collection like directus_migrations', ()
 		raw('directus_users'),
 		raw('directus_migrations'),
 		raw('backoffice_migrations', { hidden: true }),
+		raw('backoffice_permissions', { hidden: true }),
 		raw('backoffice_x', null),
 		raw('articles'),
 	].map(collectionsStore.prepareCollectionForApp);
@@ -226,6 +230,7 @@ test('backoffice_migrations is a system collection like directus_migrations', ()
 
 	expect(keys(collectionsStore.systemCollections)).toEqual([
 		'backoffice_migrations',
+		'backoffice_permissions',
 		'backoffice_x',
 		'directus_migrations',
 		'directus_users',

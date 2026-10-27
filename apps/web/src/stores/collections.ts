@@ -30,6 +30,8 @@ const COLLECTIONS_DENY_LIST = [
 	'directus_migrations',
 	// Backoffice (spec 022, D-181): the table of the Backoffice migrations, like directus_migrations.
 	'backoffice_migrations',
+	// Backoffice (spec 025, D-189.5): the import and export rows, written through /backoffice/permissions only.
+	'backoffice_permissions',
 	'directus_relations',
 	'directus_revisions',
 	'directus_sessions',

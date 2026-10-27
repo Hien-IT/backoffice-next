@@ -609,7 +609,15 @@ test('scenario 3: a collection and a policy made in Directus show the same grid,
 		.getByRole('button', { name: /Access$/ })
 		.evaluateAll((buttons) => buttons.map((b) => b.getAttribute('aria-label')));
 
-	expect.soft({ grid, schema, matrix }).toEqual(directus);
+	expect.soft({ grid, schema }).toEqual({ grid: directus.grid, schema: directus.schema });
+	// Backoffice (spec 025, D-189.3): no share column; import and export (none here) from backoffice_permissions.
+	expect
+		.soft(matrix)
+		.toEqual([
+			...directus.matrix.filter((level) => !level.includes(' Share ')),
+			'No Import Access',
+			'No Export Access',
+		]);
 	expect(directus.matrix).toEqual([
 		'Partial Create Access',
 		'Full Read Access',

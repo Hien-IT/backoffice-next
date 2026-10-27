@@ -78,7 +78,14 @@ function allowed(screen: Screen): Screen {
 		.filter((row) => !['AI', 'System Logs'].includes(row))
 		// D-94: no Report Bug / Request Feature rows. D-95: no "Directus <version>" row.
 		.filter((row) => !['Report Bug', 'Request Feature'].includes(row) && !/^Directus \d/.test(row));
-	return { ...screen, nav };
+	// Spec 025 (D-189.3): no Share column, Import and Export instead (none for the fixture policy; Import is locked on a
+	// system collection, admin-only as in Directus).
+	const chips = screen.chips.flatMap((chip) => {
+		const share = /^(\S+) Share:/.exec(chip)?.[1];
+		if (!share) return [chip];
+		return [`${share} ${share.startsWith('directus_') ? '--:' : 'Import:none'}`, `${share} Export:none`];
+	});
+	return { ...screen, nav, chips };
 }
 
 /** Only the fixture collections: other specs create and drop prefixed collections while this one runs. */
