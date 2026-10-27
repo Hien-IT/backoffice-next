@@ -286,6 +286,20 @@ hay `GET /users` ở file khác (khác chữ của T013, research R7).
 - E2E `content-collection-toggles.spec.ts` 9/9 ở `proxy-api`, `proxy-directus`, `cors` (env mới cần seed bộ fixture
   `bo_*` bằng `apps/web/fixtures/interfaces/seed.mjs` như CI).
 
+## Kết quả benchmark (T043, CI trên `10556348`)
+
+- `benchmark-items` run 40534659010: 14/14 scenario `ok` (p95 Backoffice so với Directus): GET list admin no-store 6.283
+  / 7.283 ms, GET by id user no-store 6.243 / 6.103 ms (+2,3 %), PATCH admin 10.807 / 10.647 ms (+1,5 %), các scenario
+  còn lại Backoffice nhanh hơn; req/s Backoffice cao hơn ở mọi dòng. Guard thêm vào mọi request không làm vượt ngưỡng
+  10 % (SC-006).
+- `benchmark-graphql` run 40534690242: 15/15 scenario `ok` (cột Result của benchmark). p95 Backoffice cao hơn Directus ở
+  vài dòng (POST by id admin cached 6.635 / 5.695 ms, POST aggregated user no-store 8.999 / 8.035 ms) nhưng CPU/req
+  Backoffice thấp hơn ở mọi dòng và req/s ngang hoặc cao hơn; không có cache MISS thêm vì không collection nào của seed
+  benchmark tắt tìm kiếm (D-188.4 chỉ áp khi có).
+- `benchmark-web` run 40541712241: mọi dòng `ok` (Content first page p95 web → API 989 ms so với Directus app 1405 ms;
+  sort, filter preset, Files, Users, mở app có extension); dòng json path của 023 vẫn `reported` (D-184). Run
+  40534673937 bị hủy vì nhóm `concurrency: benchmark` chỉ giữ một run chờ, dispatch lại sau.
+
 ## R11. Sửa spec khi plan (câu chữ, áp vào spec cùng commit plan)
 
 - FR-012: thêm "Backoffice không đọc response cache cho document GraphQL có từ `search` (chỉ ghi); response giống hệt,

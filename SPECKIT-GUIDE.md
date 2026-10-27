@@ -236,6 +236,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 022 | Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng của Backoffice                              | 014, 021  | BE, FE |
 | 023 | Filter theo path trong field json (Content, /items, /graphql)                                                   | 005, 011, 014 | BE, FE |
 | 024 | API chặn tìm kiếm, Import, Export theo cài đặt collection (mở rộng 022)                                         | 022       | BE, FE |
+| 025 | Quyền Import, Export theo policy (bảng backoffice_permissions), bỏ Share khỏi giao diện                         | 016, 024  | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -1806,11 +1807,10 @@ thật):
 
 ### 024: API chặn tìm kiếm, Import, Export theo cài đặt collection
 
-Trạng thái: đã chạy `/speckit.specify`, `/speckit.clarify` và `/speckit.plan` 2026-10-27 (`specs/024-collection-toggles-api/`:
-spec, checklist requirements đạt, 3 câu clarify chốt; plan với research R1–R11, data-model, contracts api/web/tests,
-quickstart; checklist api-compat 29 mục, 10 phát hiện đã sửa; D-188..D-188.4 và câu lỗi FR-006 duyệt 2026-10-27;
-`/speckit.tasks` 2026-10-27: 44 task, hai lượt; `/speckit.analyze` 2026-10-27: 12 phát hiện, đã áp C1 (parity cho
-endpoint hệ thống có quan hệ tới collection tắt tìm kiếm), G1, I1, CQ1, G2, U1, I2; còn 5 mục LOW). Mở rộng 022: tắt `bo_show_search`, `bo_show_import`, `bo_show_export` thì API Backoffice cũng chặn,
+Trạng thái: đã xong 2026-10-27. Hai lượt trên `main` (`48b6f82f`..`10556348`), 44/44 task, CI 40534561817 xanh,
+benchmark-items 40534659010, benchmark-graphql 40534690242 và benchmark-web 40541712241 xanh; D-188..D-188.4 đã duyệt.
+Kết quả từng lượt ở `research.md` "Kết quả lượt 1", "Kết quả benchmark".
+Mở rộng 022: tắt `bo_show_search`, `bo_show_import`, `bo_show_export` thì API Backoffice cũng chặn,
 không chỉ ẩn giao diện. Sửa FR-008 ("chỉ là giao diện") và FR-009 (DrawerCollection) của 022. Thư mục:
 `specs/024-collection-toggles-api/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
 
@@ -1900,6 +1900,123 @@ Ghi chú đưa vào spec và plan 024 (đọc code ngày 2026-10-27, chưa chạ
 - DrawerCollection: `apps/web/src/components/drawers/DrawerCollection.vue:60` lấy `search` từ `usePreset`, `:204` dùng
   `SearchInput` chưa có `show-search`.
 - D-188 chưa dùng ở `specs/`, `tests/parity/src/`, `CLAUDE.md` (kiểm 2026-10-27).
+
+### 025: Quyền Import, Export theo policy, bỏ Share khỏi giao diện
+
+Trạng thái: chưa chạy. Soạn 2026-10-28 từ các quyết định của owner (bảng cuối mục). Import và export thành hai action
+cùng cấp create, read, update, delete trong ma trận quyền của policy, lưu ở bảng riêng `backoffice_permissions`;
+Backoffice bỏ share khỏi giao diện (cột share của ma trận, mục Shares ở trang item, trang `/shared/:id`). Thư mục:
+`specs/025-policy-import-export/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+Không có bước 0: không sửa constitution. Nguyên tắc II (3.2.0) cho phép migration riêng tạo bảng `backoffice_*`. Nguyên
+tắc III và VI cho phép khác biệt API và giao diện khi đã ghi theo Nguyên tắc X (ghi trong spec, nêu lý do, tech lead
+duyệt), như 023, 024 và D-130.
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/025-policy-import-export và đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Feature 025: quyền import và export theo policy, hai action mới cùng cấp create, read, update, delete; Backoffice bỏ share khỏi giao diện. Bối cảnh: Directus 11.17.4 có 5 action (create, read, update, delete, share); export chỉ cần read, import cần create và update; 022 và 024 có toggle bo_show_import, bo_show_export theo collection, áp cho mọi người kể cả admin. Mục tiêu: admin cấp hoặc không cấp import, export cho từng policy trên từng collection, như các action khác. Lưu trữ: bảng hệ thống mới backoffice_permissions tạo bằng migration riêng của Backoffice (Nguyên tắc II 3.2.0, runner backoffice_migrations của 022), cùng dạng cột với directus_permissions (policy, collection, action, permissions, validation, presets, fields) và thêm options (json) cho cấu hình riêng của từng action; không có khóa ngoại tới directus_policies; action là chuỗi, để sau này thêm action khác mà không đổi schema; danh sách action và cấu hình của chúng khai báo ở một chỗ trong code. Không ghi action import, export vào directus_permissions: Directus 11.17.4 dựng sẵn 5 action rồi đọc infos[collection][action].access, nên action lạ làm GET /permissions/me trả 500 với người không phải admin (directus/api/src/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.ts:50, đọc code, chưa chạy). Không seed dữ liệu: sau khi cài, người không phải admin không có import, export cho tới khi admin phân quyền lại. Phạm vi: mọi collection, kể cả collection hệ thống (Users, Files, Presets, Translations, export và import dashboard ở Insights); admin luôn có import, export; import cần import + create + update (giữ kiểm tra hiện có của ImportService); nhiều policy thì một policy cho phép là được, như Directus. Use custom cho import và export: bộ lọc dòng (export: dòng được xuất, AND với bộ lọc của read; import: dòng được ghi), giới hạn field (export: giao với field của read; import: cột được có trong file), định dạng file (export: csv, csv_utf8, json, xml, yaml; import: csv, json). Chặn ở ba điểm của 024: ?export= (guard trước response cache), POST /utils/export/:collection, POST /utils/import/:collection; lỗi 403 FORBIDDEN như 024. Thứ tự: toggle 024 tắt thì chặn mọi người; toggle bật thì xét quyền theo policy. GET /permissions/me thêm import và export cho mỗi collection, cùng dạng các action khác; web lấy quyền import, export từ đây và ghép với toggle 024. Ghi quyền qua endpoint riêng của Backoffice; ai sửa được directus_permissions thì sửa được; có activity và revisions; xóa policy hoặc collection qua Backoffice thì xóa dòng liên quan; dòng mồ côi (policy hoặc collection bị xóa qua Directus) bỏ qua khi đọc; nhân bản policy chép cả quyền import, export. Web, ma trận quyền của policy: 6 cột create, read, update, delete, import, export; bỏ cột share (không đổi PERMISSION_ACTIONS của libs/constants, không đụng dòng share đã có, nút All access và No access của hàng không xóa dòng share); vẫn hiện hàng directus_shares; nút All access và No access của hàng gồm cả import, export; ô import, export của collection tắt toggle 024 hiện mờ có ghi chú, vẫn lưu được; drawer Use custom của import, export có bộ lọc dòng, field, định dạng. Bỏ share khỏi giao diện: bỏ mục Shares ở trang item và route /shared/:id, không làm trang thay thế (link cũ rơi vào trang not found); API /shares và đăng nhập bằng share giữ như Directus. Chạy song song: không sửa directus/; Directus 11.17.4 cùng DB không đổi hành vi; Directus thấy backoffice_permissions là bảng chưa quản lý, như backoffice_migrations (D-181). Khác biệt với Directus, chủ dự án đã chấp nhận ngày 2026-10-28, ghi từ D-189: 1. GET /permissions/me có thêm import, export. 2. Import, export bị từ chối theo policy: Directus trả 200, Backoffice trả 403. 3. Response cache dùng chung: /permissions/me vẫn đọc và ghi cache như Directus; khi chạy cùng Directus, chấp nhận Backoffice có thể trả bản Directus đã cache (không có import, export) và ngược lại. 4. Ở shared-domain, request import, export rơi vào Directus không bị chặn, như 023 và 024. 5. Lb và Ingress đưa /permissions/me và endpoint ghi quyền mới về Backoffice, như /extensions/sources/ của 020. 6. Giao diện không còn share. 7. GET /collections khác Directus ở backoffice_permissions. Test: unit API (migration, service, ba điểm chặn, Use custom, /permissions/me); parity ghi khác biệt D-189+, mọi request khác vẫn giống Directus; E2E ba cấu hình cho ma trận quyền, import và export ở Content, Users, Files, Insights, phần share đã bỏ; deploy test cho định tuyến lb.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Bỏ qua được: các câu đã chốt với chủ dự án ngày 2026-10-28 (bảng quyết định của 025 trong SPECKIT-GUIDE.md). Tập trung vào: GraphQL permissions_me có thêm import, export như REST không; một dòng trong file import không thỏa bộ lọc dòng thì từ chối cả file (như lỗi validation hiện có, import chạy trong transaction) hay bỏ dòng đó; export yêu cầu field ngoài giới hạn thì trả 403 như read của Directus hay bỏ field; ngoài định dạng file, bản đầu có cấu hình nào khác (ví dụ số dòng tối đa); share và public có import, export không.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt các khác biệt D-xxx)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Phần chung BE: Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Phần chung FE: Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 025 có BE, FE và deploy, không thêm dependency. Migration: migration riêng thứ hai trong apps/api/src/database/backoffice-migrations (thêm vào BACKOFFICE_MIGRATIONS ở index.ts:15; chạy lại được và an toàn khi nhiều process cùng chạy như 20261026A) tạo backoffice_permissions, kiểu cột chạy được trên 7 vendor (policy cùng kiểu directus_permissions.policy, không khóa ngoại). backoffice_permissions là collection hệ thống của Backoffice như backoffice_migrations (libs/system-data/src/collections/collections.yaml:129, isSystemCollection; apps/api/src/services/graphql/schema/index.ts:50 nếu không đưa vào GraphQL). Service kế thừa ItemsService như PermissionsService (clearSystemCache khi ghi, xóa response cache theo CACHE_AUTO_PURGE như Directus, activity và revisions); endpoint riêng: plan đề xuất path (nên có một tiền tố chung cho endpoint riêng của Backoffice), chủ dự án duyệt theo D-code. Kiểm tra quyền: một hàm trong apps/api/src/permissions/modules/ dùng fetchPolicies, đọc dòng backoffice_permissions của các policy (có cache, xóa theo schemaChanged), gọi ở middleware/collection-toggles-guard.ts (?export=, trước checkCacheMiddleware), controllers/utils.controller.ts:127 (import) và :177 (export), sau assertToggle của 024; áp bộ lọc dòng và field vào query export (AND với read) và vào import (kiểm từng dòng; giữ kiểm tra create, update ở services/import-export.service.ts:228, :240); kiểm định dạng (import-export.service.ts:253 cho mime import, :840-888 cho định dạng export). /permissions/me: thêm import, export trong fetch-accountability-collection-access.ts của Backoffice (admin full), không đổi PERMISSION_ACTIONS ở libs/constants/src/permissions.ts:2, response cache giữ nguyên. Xóa collection (services/collections.service.ts:711 đang xóa directus_permissions) và xóa policy qua Backoffice thì xóa dòng backoffice_permissions. Web: app-permissions.ts:12 (editablePermissionActions) bỏ share, thêm import, export; PermissionsRow.vue:51 và SystemPermissions.vue (getPermission :79, setFullAccess, setNoAccess :147-186) đọc và ghi hai nguồn (o2m permissions của policy và backoffice_permissions), lưu backoffice_permissions sau khi lưu policy; PermissionsDetail.vue:64 thêm tab cho import, export (bộ lọc dòng, field, định dạng); routes/policies/use-duplicate.ts:32 chép thêm; use-collection-permissions.ts thêm importAllowed, exportAllowed từ /permissions/me; ExportSidebarDetail.vue:532 và các chỗ dùng (CollectionRoute.vue:141, UsersCollectionRoute.vue:344, FilesCollectionRoute.vue:610, PresetsCollectionRoute.vue:221, TranslationsCollectionRoute.vue:218, InsightsOverviewRoute.vue:126 và :294) ghép quyền với toggle 024; bỏ SharesSidebarDetail ở ItemRoute.vue:819 và route shared ở router/index.ts:91. Chuỗi en-US, vi-VN dùng khóa import, export sẵn có, thiếu thì thêm vào overlay. Deploy: deploy/compose/lb/shared-domain.conf (api_pool có Directus ở :12) thêm location cho /permissions/me và endpoint mới về bo_pool như /extensions/sources/ ở :52; Helm deploy/helm/backoffice/templates/ingress.yaml thêm path như /extensions/sources ở :32; deploy test tests/parity/src/deploy. Parity: tests/parity/src/normalizers.ts lọc bảng backoffice_* theo tiền tố (sửa chỗ lọc theo tên backoffice_migrations ở :122); /permissions/me ghi D-189 cho khóa import, export; tests/parity/src/permissions (matrix-harness.ts, matrix.ts). E2E: settings-permissions.spec.ts, settings-roles-policies.spec.ts (6 cột, Use custom, nhân bản policy), content-share.spec.ts và payload/comments-shares.spec.ts (bỏ phần giao diện share), import và export theo policy ở Content, Users, Files, Insights. Ghi D-189+ vào spec và migration-guide.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. api-compat: khác biệt D-189+ có ghi đủ, Directus 11.17.4 cùng DB không đổi hành vi, mọi đường vào import, export đều kiểm quyền theo policy, Use custom không cho nhiều hơn read, create, update, migration chạy lại được trên 7 vendor, mọi request khác vẫn giống Directus
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Chia ba lượt: lượt 1 API (migration, service và endpoint ghi quyền, ba điểm chặn, Use custom, /permissions/me, xóa collection và policy, unit, parity D-189+); lượt 2 Web (ma trận 6 cột, drawer Use custom, lưu và nhân bản policy, import và export ở các module, bỏ Shares và /shared/:id), E2E ba cấu hình; lượt 3 deploy (lb, Ingress, deploy test) và tài liệu (migration-guide, CLAUDE.md, SPECKIT-GUIDE.md). Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Lượt 1: API (migration backoffice_permissions, service và endpoint ghi quyền, ba điểm chặn, Use custom, /permissions/me) với unit và parity D-189+. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Lượt 2: Web (ma trận 6 cột, Use custom, import và export ở các module, bỏ Shares và /shared/:id), E2E ba cấu hình. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=025-policy-import-export khi chạy script .specify. Lượt 3: deploy (lb, Ingress, deploy test) và tài liệu. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Quyết định của owner (2026-10-28):
+
+| Câu hỏi                              | Chốt                                                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Nơi lưu quyền import, export         | Bảng riêng `backoffice_permissions`, không ghi vào `directus_permissions`                              |
+| Dạng bảng                            | Như `directus_permissions` và thêm `options`; `action` là chuỗi, thêm action sau không đổi schema      |
+| Khóa ngoại tới `directus_policies`   | Không có; dòng mồ côi bỏ qua khi đọc                                                                   |
+| Dữ liệu có sẵn                       | Không seed; admin phân quyền lại                                                                       |
+| Collection hệ thống                  | Áp dụng (Users, Files, Presets, Translations, Insights)                                                |
+| Admin                                | Luôn có import, export; toggle 024 vẫn chặn                                                            |
+| Quyền cần cho import                 | `import` + `create` + `update`                                                                         |
+| Nhiều policy                         | Một policy cho phép là được                                                                            |
+| Use custom                           | Có: bộ lọc dòng, giới hạn field, định dạng file                                                        |
+| Điểm chặn                            | `?export=`, `/utils/export`, `/utils/import`                                                           |
+| Thứ tự với toggle 024                | Toggle tắt thì chặn mọi người; toggle bật thì xét policy                                               |
+| Web lấy quyền                        | Từ `GET /permissions/me` (thêm khóa `import`, `export`)                                                |
+| Response cache của `/permissions/me` | Giữ đọc và ghi; chấp nhận lệch với Directus khi chạy chung                                             |
+| Ghi quyền                            | Endpoint riêng của Backoffice; quyền sửa như `directus_permissions`; có activity, revisions            |
+| Cột share trong ma trận              | Bỏ; không đụng dòng `share` cũ; All/No access không xóa dòng `share`                                   |
+| Hàng `directus_shares` trong ma trận | Vẫn hiện                                                                                               |
+| Ô import, export khi toggle 024 tắt  | Hiện mờ có ghi chú, vẫn lưu được                                                                       |
+| Shares ở trang item và `/shared/:id` | Bỏ cả hai, không làm trang thay thế                                                                    |
+| API `/shares`, đăng nhập bằng share  | Giữ như Directus                                                                                       |
+| Lb, Ingress                          | `/permissions/me` và endpoint mới về Backoffice; request import, export rơi vào Directus không bị chặn |
+
+Còn mở, hỏi ở `/speckit.clarify`: GraphQL `permissions_me` có thêm `import`, `export` không; dòng import không thỏa bộ
+lọc; field export ngoài giới hạn; cấu hình khác ngoài định dạng; share và public.
+
+Ghi chú đưa vào spec và plan 025 (đọc code ngày 2026-10-28, chưa chạy thử):
+
+- Directus không chịu action lạ trong `directus_permissions`:
+  `directus/api/src/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.ts:40-50`
+  dựng sẵn 5 action rồi đọc `.access` của action đang duyệt. [Inference] Dòng `import` làm `GET /permissions/me` và
+  `permissions_me` của `/graphql/system` trả 500 với người không phải admin.
+- Snapshot của Directus bỏ bảng chưa quản lý (`directus/api/src/utils/get-snapshot.ts:27`, `excludeUntracked`), nên
+  `schema apply` không xóa `backoffice_permissions`. Nếu ai đó "configure" bảng này trong Directus thì bảng vào
+  snapshot.
+- Khóa cache giống Directus (`apps/api/src/utils/get-cache-key.ts`: version, user, path, query). Mặc định
+  `CACHE_AUTO_PURGE=false`, request có Referer từ `PUBLIC_URL/admin` bỏ bước đọc cache nhưng vẫn ghi
+  (`apps/api/src/utils/should-skip-cache.ts`, `apps/api/src/middleware/respond.ts:36-45`).
+- `ItemsService` xóa response cache khi ghi nếu `CACHE_AUTO_PURGE=true` (`apps/api/src/utils/should-clear-cache.ts`).
+- Lb: `deploy/compose/lb/shared-domain.conf:12` có `directus:8055` trong `api_pool`, `:52` đưa `/extensions/sources/` về
+  `bo_pool`; `standalone.conf` không có Directus trong pool.
+- Link chia sẻ có dạng `<origin>/admin/shared/<id>` (`apps/web/src/components/sidebar/SharesSidebarDetail.vue:91`);
+  `/admin/` của shared-domain đi tới Backoffice web (`shared-domain.conf:48`); route bắt mọi path là
+  `apps/web/src/router/index.ts:101`.
+- Định dạng: import nhận `application/json`, `text/csv`, `application/vnd.ms-excel`
+  (`apps/api/src/services/import-export.service.ts:253`); export có json, xml, csv, csv_utf8, yaml (`:840-888`).
+- `specs/025-*` chưa có; D-189 chưa dùng ở `specs/`, `tests/parity/src/`, `CLAUDE.md` (kiểm 2026-10-28).
 
 ---
 

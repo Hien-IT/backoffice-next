@@ -3,8 +3,10 @@
 **Feature Branch**: `024-collection-toggles-api` (làm trên `main` như 012–023, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=024-collection-toggles-api`)
 **Created**: 2026-10-27
-**Status**: Draft (spec và clarify 2026-10-27; plan 2026-10-27: research R1–R11, data-model, contracts, quickstart;
-D-188..D-188.4 và câu lỗi FR-006 duyệt 2026-10-27, chủ dự án kiêm tech lead)
+**Status**: Implemented 2026-10-27, hai lượt trên `main` (`48b6f82f`, `44c44dd4`, `10556348`), CI 40534561817 xanh
+(25/25), benchmark-items 40534659010, benchmark-graphql 40534690242, benchmark-web 40541712241 xanh (spec và clarify
+2026-10-27; plan 2026-10-27: research R1–R11, data-model, contracts, quickstart; D-188..D-188.4 và câu lỗi FR-006 duyệt
+2026-10-27, chủ dự án kiêm tech lead)
 **Input**: User description: "Feature 024: mở rộng 022, API Backoffice chặn tìm kiếm, import, export theo ba cài đặt của
 collection. Bối cảnh: 022 thêm bo_show_search, bo_show_import, bo_show_export vào directus_collections (migration
 20261026A) nhưng chỉ ẩn giao diện trang Content; FR-008 của 022 giữ API như Directus nên người dùng có quyền vẫn gọi thẳng

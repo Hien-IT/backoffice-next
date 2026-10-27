@@ -273,7 +273,7 @@ xanh ở ba cấu hình.
       `extensions`), T027 (`E2E_CONFIG=proxy-api` và `proxy-directus` local); bộ hiện có không đổi kết quả (SC-002):
       `parity/items/{crud,export,json-path,cache-cross}.test.ts`, `parity/graphql/{read,write,schema,cache}.test.ts`,
       `parity/system/import-export.test.ts`, blackbox items (`parity/items/blackbox`) trên Postgres.
-- [ ] T029 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests web-e2e`; `api:test` các file đã sửa và
+- [X] T029 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests web-e2e`; `api:test` các file đã sửa và
       cả `middleware/`, `utils/`, `gql/resolvers/`, `controllers/` (coverage BE ≥ 80 %); parity Postgres
       (`collection-toggles`, bộ của T028), SQLite và MySQL (`collection-toggles`, `crud` reduced), profile `extensions`
       (`endpoints`) local xanh; E2E `content-collection-toggles` local `proxy-api`; `git add` theo đường dẫn (Phase 1–6,
@@ -338,15 +338,15 @@ collection nhận từ khóa tắt `bo_show_search`, giữ bộ lọc, không g�
       `items/collection-toggles.test.ts`, D-188 `http`, case cache, flow, extension.
 - [X] T040 [P] Kiểm `design-system/docs/migration-guide.md`: 024 không thêm màu, token, component (chỉ ẩn ô có sẵn) nên
       không đổi; ghi "Kết quả T040" một dòng vào `specs/024-collection-toggles-api/research.md` R9.
-- [ ] T041 [P] Sửa `CLAUDE.md`: dòng Active Technologies của 024 đổi "planned" thành "implemented 2026-10-xx", thêm mục
+- [X] T041 [P] Sửa `CLAUDE.md`: dòng Active Technologies của 024 đổi "planned" thành "implemented 2026-10-xx", thêm mục
       Recent Changes 024 (D-188..D-188.4, guard trước cache, drawer/o2m/m2m); `SPECKIT-GUIDE.md` mục 024 dòng Trạng thái
       (lượt, commit, CI).
 - [X] T042 Chạy `quickstart.md` trên env parity (`proxy-api`): các lệnh `curl` cho đúng status ghi trong file; sai thì
       sửa quickstart hoặc code.
-- [ ] T043 Chạy workflow `benchmark-items` và `benchmark-web` trên CI sau push lượt 1 (hoặc lượt 2) như 023; SC-006:
+- [X] T043 Chạy workflow `benchmark-items` và `benchmark-web` trên CI sau push lượt 1 (hoặc lượt 2) như 023; SC-006:
       scenario hiện có không tệ hơn Directus quá 10 %; ghi "Kết quả benchmark" vào
       `specs/024-collection-toggles-api/research.md`.
-- [ ] T044 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e`; `web:test` các file đã sửa và cả
+- [X] T044 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e`; `web:test` các file đã sửa và cả
       `components/drawers/`, `interfaces/list-o2m/`, `interfaces/list-m2m/` (coverage FE ≥ 60 %); `web:build`; E2E
       `content-collection-toggles` local `proxy-api` và `proxy-directus`; `git add` theo đường dẫn; commit
       `feat(024): item drawer and list-o2m/list-m2m follow the search toggle (D-188.3)` và `docs(024): close the
