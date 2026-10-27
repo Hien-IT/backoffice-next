@@ -22,7 +22,17 @@ const EDITOR = { email: 'bo-editor@example.com', password: 'bo-editor-test-passw
 const VIEWER = { email: 'bo-viewer@example.com', password: 'bo-viewer-test-password' };
 
 /** Header buttons compared, by icon; the Directus move button is a custom SVG. */
-const ICONS = ['create_new_folder', 'add', 'person_add', 'delete', 'folder_move', 'download', 'tune', 'archive', 'check'];
+const ICONS = [
+	'create_new_folder',
+	'add',
+	'person_add',
+	'delete',
+	'folder_move',
+	'download',
+	'tune',
+	'archive',
+	'check',
+];
 
 type Screen = { nav: string[]; title: string; crumbs: string[]; count: string; buttons: string[]; sections: string[] };
 
@@ -43,7 +53,9 @@ test.beforeAll(async ({ playwright }) => {
 		role: `/users/roles/${await one('/roles?fields=id&filter[name][_eq]=bo-editor')}`,
 		user: `/users/${await one('/users?fields=id&filter[email][_eq]=bo-active@example.com')}`,
 	};
-	childRoles = (await api.call<{ name: string }[]>('GET', '/roles?fields=name&filter[parent][_nnull]=true')).map((r) => r.name);
+	childRoles = (await api.call<{ name: string }[]>('GET', '/roles?fields=name&filter[parent][_nnull]=true')).map(
+		(r) => r.name,
+	);
 });
 
 test.afterAll(async () => {
@@ -61,7 +73,9 @@ async function directusScreen(page: Page, path: string): Promise<Screen> {
 			const buttons: string[] = [];
 
 			for (const wrapper of Array.from(document.querySelectorAll('header .v-button'))) {
-				const icon = wrapper.querySelector('[data-icon]')?.getAttribute('data-icon') ?? (wrapper.querySelector('svg.custom-icon-svg') ? 'folder_move' : '');
+				const icon =
+					wrapper.querySelector('[data-icon]')?.getAttribute('data-icon') ??
+					(wrapper.querySelector('svg.custom-icon-svg') ? 'folder_move' : '');
 				if (!icons.includes(icon)) continue;
 				const control = wrapper.querySelector('button, a');
 				const off = control?.hasAttribute('disabled') && control.getAttribute('disabled') !== 'false';
@@ -77,7 +91,11 @@ async function directusScreen(page: Page, path: string): Promise<Screen> {
 				crumbs: [] as string[],
 				count: new RegExp(count).exec(text(document.querySelector('.item-count')))?.[0] ?? '',
 				buttons: buttons.sort(),
-				sections: Array.from(document.querySelectorAll('#sidebar .accordion-trigger, #sidebar .collapsible-trigger, .sidebar-detail-header .title'))
+				sections: Array.from(
+					document.querySelectorAll(
+						'#sidebar .accordion-trigger, #sidebar .collapsible-trigger, .sidebar-detail-header .title',
+					),
+				)
 					.map(text)
 					.filter((t) => t && t !== 'AI Assistant')
 					// A count badge comes before the name in the Directus DOM ("1Revisions"): "Revisions 1".
@@ -117,7 +135,9 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 				buttons.push(`${icon}:${off ? 'off' : 'on'}`);
 			}
 
-			const status = Array.from(document.querySelectorAll('main [role="status"]')).map(text).find((t) => new RegExp(count).test(t));
+			const status = Array.from(document.querySelectorAll('main [role="status"]'))
+				.map(text)
+				.find((t) => new RegExp(count).test(t));
 
 			return {
 				title: text(h1),
@@ -197,7 +217,14 @@ for (const [name, user] of [
 			// /roles (use-navigation pushes into the array VItemGroup does not watch): the child roles are left out there.
 			const drop = (shown: Screen) =>
 				screen === 'user' ? { ...shown, nav: shown.nav.filter((row) => !childRoles.includes(row)) } : shown;
-			expect.soft(drop(backoffice), `${name} ${screen}`).toEqual(drop(directus[screen]!));
+			// Spec 025 (D-189, FR-028): a non-admin has no import or export permission on the Backoffice API until the
+			// admin grants one (no seed), so no Import / Export section; the Directus app shows export by read.
+			const shown = drop(directus[screen]!);
+			const expected =
+				name === 'admin'
+					? shown
+					: { ...shown, sections: shown.sections.filter((title) => title !== 'Import / Export') };
+			expect.soft(drop(backoffice), `${name} ${screen}`).toEqual(expected);
 		}
 	});
 }
