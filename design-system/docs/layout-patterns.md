@@ -38,9 +38,11 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   2 cycles each, then a 6-frame change into the next sport: the runner hops on the bike, the cyclist dives into the
   water, the swimmer climbs out; 100 ms a frame, a started cycle or change ends first, then the previous favicon is back; none on Safari, phones and
   tablets, two-core machines, without a PNG canvas or with reduced motion: `canAnimateFavicon`).
-- Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0 w-[290px]`, the content
-  `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
-  rail); below `xl` the same column is the drawer of §3.
+- Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0`, 290 px wide by default,
+  the content `margin-inline-start` the same width; owner 2026-10-28: its end edge is a `role="separator"` handle that
+  resizes it with the pointer or the arrow keys (16 px a step), 240 to 480 px, saved in `backoffice-nav-bar-size`, a
+  `brand-500` line on hover and focus; the header toggle (always shown) hides the whole column (saved in
+  `backoffice-nav-bar-collapsed`, no rail); below `xl` the same column is the drawer of §3 (290 px, no handle).
 - Card on the project color (`data-testid="module-rail"`, after the owner's mock-up 2026-10-22:
   `m-3 flex flex-col gap-4 rounded-2xl bg-(--project-color) p-4 shadow-theme-md`, flat: the owner dropped the gradient
   and the corner light the same day; dark mode

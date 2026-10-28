@@ -50,11 +50,48 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 
 	test('from xl: 290 px at the start; the header toggle hides it (saved)', async () => {
 		const { wrapper } = await render();
-		expect(wrapper.get('aside').classes()).toEqual(expect.arrayContaining(['w-[290px]', 'start-0']));
+		expect(wrapper.get('aside').classes()).toContain('start-0');
+		expect(wrapper.get('aside').element.style.width).toBe('290px');
 
 		useNavBarStore().collapse();
 		await nextTick();
 		expect(wrapper.find('aside').exists()).toBe(false);
+	});
+
+	test('owner 2026-10-28: the end edge resizes the column (pointer, arrow keys), 240 to 480 px, saved', async () => {
+		const { wrapper } = await render();
+		const aside = wrapper.get('aside');
+		const handle = aside.get('[role="separator"]');
+		expect(handle.attributes()).toMatchObject({
+			'aria-label': 'Resize navigation',
+			'aria-valuenow': '290',
+			'aria-valuemin': '240',
+			'aria-valuemax': '480',
+		});
+
+		aside.element.getBoundingClientRect = () => ({ left: 0, right: 290 }) as DOMRect;
+		handle.element.setPointerCapture = vi.fn();
+		const pointer = (type: string, clientX: number) =>
+			handle.element.dispatchEvent(new PointerEvent(type, { clientX, button: 0, pointerId: 1 }));
+
+		pointer('pointerdown', 290);
+		pointer('pointermove', 400);
+		await nextTick();
+		expect(aside.element.style.width).toBe('400px');
+		pointer('pointermove', 1000);
+		await nextTick();
+		expect(aside.element.style.width).toBe('480px');
+		handle.element.dispatchEvent(new Event('lostpointercapture'));
+		pointer('pointermove', 300);
+		await nextTick();
+		expect(aside.element.style.width).toBe('480px');
+		expect(localStorage.getItem('backoffice-nav-bar-size')).toBe('480');
+
+		await handle.trigger('keydown', { key: 'ArrowLeft' });
+		expect(aside.element.style.width).toBe('464px');
+		useNavBarStore().size = 0;
+		await nextTick();
+		expect(aside.element.style.width).toBe('240px');
 	});
 
 	test('below xl: a modal drawer opened from the store, Esc closes it', async () => {

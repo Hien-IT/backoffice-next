@@ -14,6 +14,8 @@ export default {
 	play_video: 'Phát video nền',
 	profile: 'Hồ sơ',
 	navigation: 'Điều hướng',
+	// Owner 2026-10-28: the handle that resizes the inline sidebar.
+	resize_navigation: 'Thay đổi độ rộng thanh điều hướng',
 	pick_color: 'Chọn màu',
 	browser_color_picker: 'Bộ chọn của trình duyệt',
 	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.

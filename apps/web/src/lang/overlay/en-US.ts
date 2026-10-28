@@ -12,6 +12,8 @@ export default {
 	play_video: 'Play background video',
 	profile: 'Profile',
 	navigation: 'Navigation',
+	// Owner 2026-10-28: the handle that resizes the inline sidebar.
+	resize_navigation: 'Resize navigation',
 	// D-162: the sidebar tile of the module_bar links and the extension modules.
 	links_and_extensions: 'Links and extensions',
 	more_modules: 'More',

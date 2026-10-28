@@ -87,7 +87,8 @@ defineExpose({ scrollElement });
 
 		<div
 			class="flex min-w-0 flex-1 flex-col"
-			:class="[{ 'xl:ms-[290px]': inlineSidebar }, fill ? 'h-dvh' : 'min-h-screen']"
+			:class="fill ? 'h-dvh' : 'min-h-screen'"
+			:style="inlineSidebar ? { marginInlineStart: `${navBarStore.size}px` } : undefined"
 		>
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
 				<MainContent class="w-full p-4 pb-20 md:p-6 md:pb-6" :class="{ 'flex min-h-0 flex-col': fill }">

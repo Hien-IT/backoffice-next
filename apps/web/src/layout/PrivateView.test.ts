@@ -66,7 +66,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(navAside()!.querySelector('button[aria-label="Ada"]')).not.toBeNull();
 		expect(navAside()!.querySelector('h2')!.textContent!.trim()).toBe('Content');
 		expect(navAside()!.textContent).toContain('Nav items');
-		expect(q('#navigation + div')!.className).toContain('xl:ms-[290px]');
+		expect((q('#navigation + div') as HTMLElement).style.marginInlineStart).toBe('290px');
 		expect(q('main header button[aria-label="Toggle Navigation"]')).not.toBeNull();
 		expect(q('main#main-content h1')!.textContent).toBe('Content');
 		expect(q('main#main-content')!.textContent).toContain('Act');
@@ -88,11 +88,11 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		await render();
 
 		expect(navAside()).toBeNull();
-		expect(q('main')!.parentElement!.parentElement!.className).not.toContain('xl:ms-[290px]');
+		expect(q('main')!.parentElement!.parentElement!.style.marginInlineStart).toBe('');
 		expect(button('Toggle Navigation')!.getAttribute('aria-expanded')).toBe('false');
 
 		button('Toggle Navigation')!.click();
-		await vi.waitFor(() => expect(navAside()!.className).toContain('w-[290px]'));
+		await vi.waitFor(() => expect((navAside() as HTMLElement).style.width).toBe('290px'));
 		expect(localStorage.getItem('backoffice-nav-bar-collapsed')).toBe('false');
 	});
 
