@@ -321,3 +321,48 @@ test('a divider choice is a line, not an option; disabled choices cannot be pick
 	expect(options()[0]!.nextElementSibling?.getAttribute('aria-hidden')).toBe('true');
 	wrapper.unmount();
 });
+
+test('choices with children are labelled groups; the trigger and the search find nested choices (datetime tz option, Directus v-select)', async () => {
+	const choices = [
+		{
+			text: 'Asia',
+			children: [
+				{ text: 'Ho Chi Minh', value: 'Asia/Ho_Chi_Minh' },
+				{ text: 'Tokyo', value: 'Asia/Tokyo' },
+			],
+		},
+		{
+			text: 'Europe',
+			children: Array.from({ length: 9 }, (_, index) => ({ text: `City ${index}`, value: `Europe/${index}` })),
+		},
+	];
+	const wrapper = mount(SelectDropdown, {
+		props: { value: 'Asia/Tokyo', choices, allowNone: true } as never,
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
+
+	expect(wrapper.get('button').text()).toContain('Tokyo');
+
+	await key(wrapper.get('button').element, 'Enter');
+	const groups = [...document.body.querySelectorAll('[role="group"]')];
+	expect(groups).toHaveLength(2);
+	expect(document.getElementById(groups[0]!.getAttribute('aria-labelledby')!)?.textContent?.trim()).toBe('Asia');
+	// Deselect + 2 + 9 options; 13 items with the group rows, so the search row shows.
+	expect(options()).toHaveLength(12);
+
+	const search = document.body.querySelector<HTMLInputElement>('input[type="search"]')!;
+	search.value = 'ho chi';
+	search.dispatchEvent(new Event('input'));
+	await settle();
+	expect(document.body.querySelectorAll('[role="group"]')).toHaveLength(1);
+	expect(
+		options()
+			.slice(1)
+			.map((option) => option.textContent?.trim()),
+	).toEqual(['Ho Chi Minh']);
+
+	wrapper.findComponent({ name: 'SelectRoot' }).vm.$emit('update:modelValue', 'Asia/Ho_Chi_Minh');
+	expect(wrapper.emitted('input')).toEqual([['Asia/Ho_Chi_Minh']]);
+	wrapper.unmount();
+});

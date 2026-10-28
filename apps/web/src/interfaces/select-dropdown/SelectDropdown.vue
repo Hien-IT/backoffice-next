@@ -3,13 +3,16 @@
 // Backoffice: VSelect is the Select recipe on Reka Select (choice icon or color dot, "Deselect" row, the selected
 // choice's icon in the trigger like the VSelect prepend, the VSelect search row above 10 choices). With allowOther it is
 // BoCombobox, where the typed text becomes the value (Combobox recipe) and allowNone is a clear button next to the
-// field, as BoCombobox has no deselect row.
+// field, as BoCombobox has no deselect row. Choices with `children` (the datetime `tz` option) are groups with a label,
+// as BoSelect (recipe "Select groups") instead of the DR collapsible VListGroup.
 import { isEmpty, isEqual } from 'lodash-es';
 import {
 	SelectContent,
+	SelectGroup,
 	SelectItem,
 	SelectItemIndicator,
 	SelectItemText,
+	SelectLabel,
 	SelectPortal,
 	SelectRoot,
 	SelectSeparator,
@@ -34,7 +37,33 @@ type Option = {
 	disabled?: boolean;
 };
 
-const isChoice = (item: Option) => item.divider !== true;
+const isChoice = (item: Option) => item.divider !== true && !item.children;
+
+type Row = { kind: 'item' | 'label' | 'divider'; item: Option; depth: number };
+
+/** A group and its nested groups as rows: the label, then its children indented (BoSelect). */
+function groupRows(item: Option, depth: number): Row[] {
+	return [
+		{ kind: 'label', item, depth },
+		...item.children!.flatMap((child): Row[] =>
+			child.children
+				? groupRows(child, depth + 1)
+				: [{ kind: child.divider ? 'divider' : 'item', item: child, depth: depth + 1 }],
+		),
+	];
+}
+
+// DR v-select getItemForValue: the choice of a value, also inside groups.
+function findChoice(list: Option[], value: unknown): Option | undefined {
+	for (const item of list) {
+		const found = item.children ? findChoice(item.children, value) : isChoice(item) && item.value === value && item;
+		if (found) return found;
+	}
+	return undefined;
+}
+
+// DR v-select internalItemsCount: groups count with their children.
+const countItems = (list: Option[]): number => list.reduce((acc, item) => acc + 1 + countItems(item.children ?? []), 0);
 
 const props = withDefaults(
 	defineProps<{
@@ -121,7 +150,7 @@ watch(
 );
 
 // Backoffice: VSelect displayValue and its prepend slot (global icon, else the choice icon, else its color dot).
-const selectedItem = computed(() => items.value.find((item) => isChoice(item) && item.value === props.value));
+const selectedItem = computed(() => findChoice(items.value, props.value));
 
 // A choice whose value is null (the appearance "Default (Sync with Project)" of directus_users) shows its text when the
 // value is null, as the DR v-select does.
@@ -151,20 +180,31 @@ function clearSearch() {
 	search.value = '';
 	searchInput.value?.focus();
 }
-const showSearch = computed(() => selectItems.value.length > 10 || !!search.value);
+const showSearch = computed(() => countItems(selectItems.value) > 10 || !!search.value);
+
+// DR v-select filterItem: a group stays when its text or one of its children matches, with the matching children.
+function matches(item: Option, searchValue: string): boolean {
+	return (
+		String(item.text ?? '')
+			.toLowerCase()
+			.includes(searchValue) ||
+		String(item.value ?? '')
+			.toLowerCase()
+			.includes(searchValue) ||
+		!!item.children?.some((child) => matches(child, searchValue))
+	);
+}
+
+function filterItems(list: Option[], searchValue: string): Option[] {
+	return list
+		.filter((item) => matches(item, searchValue))
+		.map((item) => (item.children ? { ...item, children: filterItems(item.children, searchValue) } : item));
+}
 
 const visibleItems = computed(() => {
 	const searchValue = search.value.toLowerCase();
 	if (!searchValue) return selectItems.value;
-	return selectItems.value.filter(
-		(item) =>
-			String(item.text ?? '')
-				.toLowerCase()
-				.includes(searchValue) ||
-			String(item.value ?? '')
-				.toLowerCase()
-				.includes(searchValue),
-	);
+	return filterItems(selectItems.value, searchValue);
 });
 
 // DR autofocuses the search input: Reka focuses the selected item once the list is placed, the first focus
@@ -219,6 +259,8 @@ const SEARCH =
 const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 ${FOCUS}`;
 const DOT = 'h-3 w-3 shrink-0 rounded-full';
+// Recipe "Select groups" (component-specs): group label.
+const LABEL = 'px-3 pt-2 pb-1 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400';
 </script>
 
 <template>
@@ -305,8 +347,47 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 						<SelectSeparator class="my-1 h-px bg-gray-200 dark:bg-gray-800" />
 					</template>
 					<p v-if="items.length === 0" :class="NOTE">{{ t('no_options_available') }}</p>
-					<template v-for="(item, index) in visibleItems" :key="item.divider ? `divider-${index}` : String(item.value)">
+					<template
+						v-for="(item, index) in visibleItems"
+						:key="item.divider ? `divider-${index}` : item.children ? `group-${index}` : String(item.value)"
+					>
 						<SelectSeparator v-if="item.divider" class="my-1 h-px bg-gray-200 dark:bg-gray-800" />
+						<SelectGroup v-else-if="item.children">
+							<template v-for="(row, rowIndex) in groupRows(item, 0)" :key="rowIndex">
+								<SelectSeparator v-if="row.kind === 'divider'" class="my-1 h-px bg-gray-200 dark:bg-gray-800" />
+								<SelectLabel
+									v-else-if="row.kind === 'label'"
+									:class="LABEL"
+									:style="{ paddingInlineStart: `${0.75 + row.depth}rem` }"
+								>
+									{{ row.item.text }}
+								</SelectLabel>
+								<SelectItem
+									v-else
+									:value="toSelectValue(row.item.value)"
+									:disabled="row.item.disabled === true"
+									:class="ITEM"
+									:style="{ paddingInlineStart: `${0.75 + row.depth}rem` }"
+								>
+									<span class="flex min-w-0 items-center gap-2">
+										<BoIcon
+											v-if="row.item.icon"
+											:name="row.item.icon"
+											size="sm"
+											:style="row.item.color ? { color: row.item.color } : {}"
+										/>
+										<span
+											v-else-if="row.item.color"
+											:class="DOT"
+											:style="{ backgroundColor: row.item.color }"
+											aria-hidden="true"
+										/>
+										<SelectItemText>{{ row.item.text }}</SelectItemText>
+									</span>
+									<SelectItemIndicator><BoIcon name="check" size="sm" /></SelectItemIndicator>
+								</SelectItem>
+							</template>
+						</SelectGroup>
 						<SelectItem v-else :value="toSelectValue(item.value)" :disabled="item.disabled === true" :class="ITEM">
 							<span class="flex min-w-0 items-center gap-2">
 								<BoIcon v-if="item.icon" :name="item.icon" size="sm" :style="item.color ? { color: item.color } : {}" />
