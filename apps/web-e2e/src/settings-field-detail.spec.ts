@@ -1,6 +1,6 @@
 // Feature 016 US3 (T055) and US2 scenario 9: the field drawer of Settings. Fields made in the simple mode (input,
-// m2o, o2m, m2m, translations, group) and the advanced mode (an integer), checked through the API: the fields, the
-// generated collections and the relations, as the Directus app writes them. A user field `bo_note` in directus_users
+// m2o, o2m, m2m, translations, group, datetime) and the advanced mode (an integer), checked through the API: the
+// fields, the generated collections and the relations, as the Directus app writes them. A user field `bo_note` in directus_users
 // (US2-9). Every collection a test creates carries the configuration prefix and is deleted after the file.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
@@ -168,6 +168,24 @@ test('detail group (alias without schema)', async ({ page }) => {
 		type: 'alias',
 		schema: null,
 		meta: { interface: 'group-detail', special: ['alias', 'no-data', 'group'] },
+	});
+});
+
+test('datetime defaults to Timestamp (D-193); the Timezone option lists the zones by region', async ({ page }) => {
+	await simple(page, 'Datetime', 'expires_at', async (drawer) => {
+		await expect(drawer.getByRole('combobox', { name: 'Type', exact: true })).toContainText('Timestamp');
+		// The zones are choices with children: a group per region, not the "Unexpected Error" notice.
+		const timezone = drawer.getByRole('combobox', { name: /^Timezone/ });
+		await timezone.click();
+		await page.getByRole('searchbox', { name: 'Search', exact: true }).fill('tokyo');
+		await expect(page.getByRole('group', { name: 'Asia' })).toBeVisible();
+		await page.getByRole('option', { name: 'Tokyo', exact: true }).click();
+		await expect(timezone).toContainText('Tokyo');
+	});
+
+	expect(await fieldOf(ARTICLES, 'expires_at')).toMatchObject({
+		type: 'timestamp',
+		meta: { interface: 'datetime', options: { tz: 'Asia/Tokyo' } },
 	});
 });
 

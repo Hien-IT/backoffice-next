@@ -387,7 +387,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   không phải mảng thì không gợi ý; thiếu `url` hiện cảnh báo.
 - **FR-024** `boolean`: `label` (`$t:interfaces.boolean.label_default`, rơi về `enabled`), `iconOn`
   (`check_box`), `iconOff` (`check_box_outline_blank`), `colorOn`, `colorOff`; null hiện trạng thái không xác định.
-- **FR-025** `datetime` (dateTime, date, time, timestamp): `relative`, `format` (`long`|`short`|mẫu tr35), `includeSeconds`,
+- **FR-025** `datetime` (dateTime, date, time, timestamp; từ 2026-10-29 Backoffice khai báo timestamp trước, 016
+  D-193): `relative`, `format` (`long`|`short`|mẫu tr35), `includeSeconds`,
   `use24` (mặc định `true` ở interface; display mặc định `false`, FR-074), `tz` (chỉ timestamp: hiện và nhập theo múi
   giờ), `suffix`, `strict`, `round`; phát chuỗi hoặc null: `date` `YYYY-MM-DD`, `time` `HH:mm:ss`, `dateTime`
   `YYYY-MM-DDTHH:mm:ss`, `timestamp` `Date.toISOString()` (có mili giây và `Z`, ví dụ `2024-03-15T07:30:45.000Z`; có `tz` thì hiện theo
@@ -408,7 +409,9 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 
 - **FR-030** `select-dropdown` (string, integer, float, decimal, bigInteger): `choices` (`{text, value, icon?, color?}`),
   `allowOther`, `allowNone`, `icon`, `placeholder` (mặc định `select_an_item`); lựa chọn có icon thì lựa chọn không icon,
-  không màu nhận `icon` chung; `choices` đổi mà giá trị không còn trong đó thì phát null.
+  không màu nhận `icon` chung; `choices` đổi mà giá trị không còn trong đó thì phát null; lựa chọn có `children` (như
+  option `tz` của `datetime`) là nhóm có nhãn theo recipe "Select groups" (như `BoSelect`; Directus là nhóm thu gọn
+  được), ô chọn và tìm kiếm thấy cả lựa chọn trong nhóm (sửa 2026-10-29: trước đó field hiện "Unexpected Error").
 - **FR-031** `select-multiple-dropdown` (json, csv): `choices`, `allowOther`, `allowNone`, `placeholder`, `icon`,
   `previewThreshold` (3); mảng phát ra sắp theo thứ tự `choices`, giá trị tự nhập đứng cuối.
 - **FR-032** `select-radio` (string, integer, float, bigInteger): `choices`, `iconOn` (`radio_button_checked`), `iconOff`
