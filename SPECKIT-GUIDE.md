@@ -2046,7 +2046,7 @@ chỉ dùng Directus app ở domain Directus, Q2 sửa constitution) và bước
 ghi chú "revised by 026"; `/speckit.clarify` 2026-10-28: 5 câu chốt Q3–Q7 (bảng cuối mục); thêm FR-015 rà soát chỗ lệch luồng Directus vì
 chung domain ở spec 001–025 và code (2026-10-28); `/speckit.plan` 2026-10-28: plan.md, research.md (R1–R10, bảng FR-015 đủ: không
 code nào trong apps/* lệch vì chung domain), data-model.md, contracts/{compose,helm-values,tests}.md, quickstart.md; không
-Complexity Tracking; `/speckit.checklist` deploy 2026-10-28 (32 mục). Còn: `/speckit.tasks`, `/speckit.analyze`,
+Complexity Tracking; `/speckit.checklist` deploy 2026-10-28 (32 mục). `/speckit.tasks` 2026-10-28: tasks.md 29 task, hai lượt (T016, T029 đóng lượt). Còn: `/speckit.analyze`,
 `/speckit.implement`. Bỏ chế độ chung domain của 019 (Directus và replica BE chung pool sau một lb): khi chạy cạnh
 Directus, Backoffice chỉ ở domain riêng (US9 của 019 thành bố cục duy nhất); standalone (021) giữ nguyên. Chỉ đổi đóng
 gói triển khai, không đổi code API và web, không thêm dependency. Thư mục: `specs/026-separate-domain-only/`. Làm trên:
@@ -2089,7 +2089,7 @@ khai báo lại"; 019 chỉ có ngoại lệ T079 cho `PUBLIC_URL` ở chế đ�
 /speckit.checklist Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. deploy: không còn cấu hình nào đưa Directus vào pool hay domain của Backoffice, Directus không đổi Deployment/Service/Ingress, chỉ PUBLIC_URL đặt riêng, kiểm tra cookie domain và env đa instance chạy khi cài và nâng cấp, standalone không đổi, route của 020/025 vẫn do BE trả, bộ test deploy và kind phủ US1–US3, tài liệu chuyển đổi đủ bước
 ```
 
-**5. `/speckit.tasks`**
+**5. `/speckit.tasks`** (đã chạy 2026-10-28; prompt thực tế thêm: đổi tên `lb/shared.conf`, override standalone đặt lại `PUBLIC_URL`, `accepted-differences.ts`, ghi chú ở spec 003, 004, 014)
 
 ```text
 /speckit.tasks Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Chia hai lượt: lượt 1 compose (gộp override domain riêng vào mặc định, xóa shared-domain.conf), bộ test tests/parity/src/deploy, job CI deploy; lượt 2 Helm (values, templates, checks, NOTES), ci/kind-test.sh, ci/test-template.sh, job deploy-k8s, tài liệu (deploy/README.md có mục chuyển đổi, ghi chú "(026: ...)" tại chỗ ở spec 020, 021, 023, 024, 025 theo bảng rà soát FR-015, CLAUDE.md, SPECKIT-GUIDE.md). Mỗi lượt kết thúc bằng task "đóng lượt" (lint, test, deploy test, commit, push, CI xanh, graphify update .).
