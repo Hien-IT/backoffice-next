@@ -2153,18 +2153,19 @@ Ghi chú đưa vào spec và plan 026 (đọc file ngày 2026-10-28, chưa chạ
 
 ### 027: Khóa chính uuid tự sinh dùng UUID v7
 
-Trạng thái: đã chạy `/speckit.specify` 2026-10-29 (`specs/027-uuid-v7-primary-keys/`: spec US1–US4, FR-001..FR-012,
-SC-001..SC-007, D-192; checklist requirements đạt) và `/speckit.clarify` 2026-10-29 (2 câu chốt, bảng cuối mục) và bước
-0 (constitution 3.4.0, 2026-10-29) và `/speckit.plan` 2026-10-29 (research R1–R11, đo thứ tự sắp trên Postgres 16 và
-SQLite, data-model, contracts/{api,tests}.md, quickstart; không Complexity Tracking) và `/speckit.checklist` api-compat
-2026-10-29 (26 mục, 6 phát hiện đã sửa vào spec; CHK019 client ngoài kiểm id bằng mẫu phiên bản 1–5); D-192 và rủi ro
-CHK019 duyệt 2026-10-29; `/speckit.tasks` 2026-10-29 (tasks.md 18 task, một lượt, T015 đóng lượt, T018 nightly do chủ dự
-án quyết); `/speckit.analyze` 2026-10-29 (0 CRITICAL, 4 MEDIUM, 5 LOW, đã sửa hết vào spec, tasks, contracts,
-checklist). `/speckit.implement` 2026-10-29 (một lượt; local xanh trên Postgres, SQLite, MySQL 8; CI và benchmark ghi ở
-spec; T018 bỏ qua theo chủ dự án). Khi tạo item mà field có `special: uuid` không có giá trị, API Backoffice sinh UUID
-v7 (RFC 9562, có mốc thời gian, sắp theo thứ tự tạo) thay cho v4 của Directus, chỉ ở collection do người dùng tạo. Chỉ
-BE, một chỗ sinh id, không thêm dependency (`uuid` 11.1.0 đã có trong `apps/api`), không migration. Thư mục:
-`specs/027-uuid-v7-primary-keys/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+Trạng thái: Done 2026-10-29. Đã chạy `/speckit.specify` 2026-10-29 (`specs/027-uuid-v7-primary-keys/`: spec US1–US4,
+FR-001..FR-012, SC-001..SC-007, D-192; checklist requirements đạt) và `/speckit.clarify` 2026-10-29 (2 câu chốt, bảng
+cuối mục) và bước 0 (constitution 3.4.0, 2026-10-29) và `/speckit.plan` 2026-10-29 (research R1–R11, đo thứ tự sắp trên
+Postgres 16 và SQLite, data-model, contracts/{api,tests}.md, quickstart; không Complexity Tracking) và
+`/speckit.checklist` api-compat 2026-10-29 (26 mục, 6 phát hiện đã sửa vào spec; CHK019 client ngoài kiểm id bằng mẫu
+phiên bản 1–5); D-192 và rủi ro CHK019 duyệt 2026-10-29; `/speckit.tasks` 2026-10-29 (tasks.md 18 task, một lượt, T015
+đóng lượt, T018 nightly do chủ dự án quyết); `/speckit.analyze` 2026-10-29 (0 CRITICAL, 4 MEDIUM, 5 LOW, đã sửa hết vào
+spec, tasks, contracts, checklist). `/speckit.implement` 2026-10-29 (một lượt, `667314ad` + `dc027198`; local xanh trên
+Postgres, SQLite, MySQL 8; CI 40753571299 xanh cho 027, benchmark-items 40762272466 xanh; T018 bỏ qua theo chủ dự án).
+Khi tạo item mà field có `special: uuid` không có giá trị, API Backoffice sinh UUID v7 (RFC 9562, có mốc thời gian, sắp
+theo thứ tự tạo) thay cho v4 của Directus, chỉ ở collection do người dùng tạo. Chỉ BE, một chỗ sinh id, không thêm
+dependency (`uuid` 11.1.0 đã có trong `apps/api`), không migration. Thư mục: `specs/027-uuid-v7-primary-keys/`. Làm
+trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
 
 Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
 

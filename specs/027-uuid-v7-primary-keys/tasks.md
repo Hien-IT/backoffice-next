@@ -199,7 +199,7 @@ FR-012).
 - [X] T014 [P] Cập nhật `CLAUDE.md`: dòng 027 ở Active Technologies từ "planned" thành "implemented" (ngày, commit, run
       CI); thêm dòng 027 đầu mục Recent Changes (giữ nguyên dòng của phiên khác); cập nhật trạng thái 027 trong
       `SPECKIT-GUIDE.md` mục 6.
-- [ ] T015 Đóng lượt: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `pnpm nx run api:test` (coverage BE
+- [X] T015 Đóng lượt: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `pnpm nx run api:test` (coverage BE
       ≥ 80 %); `pnpm nx run api:build`; `pnpm nx run parity-tests:test`; `git add` theo đường dẫn
       (`apps/api/src/services/payload.service.ts`, `apps/api/src/services/payload.service.test.ts`,
       `tests/parity/src/items/uuid-v7.test.ts`, `tests/parity/src/suite.ts`, `tests/parity/src/flows/operations.test.ts`,
@@ -208,10 +208,10 @@ FR-012).
       `feat(027): generate UUID v7 for special uuid fields of user collections (D-192)`; push theo quy tắc chung checkout
       (Điều kiện bắt đầu); CI xanh (`parity` Postgres và các shard, sqlite3 và mysql `reduced`, `guard-differences`);
       `graphify update .`.
-- [ ] T016 SC-007: sau T015, `gh workflow run benchmark.yml -f job=benchmark-items`; ghi run và kết quả vào
+- [X] T016 SC-007: sau T015, `gh workflow run benchmark.yml -f job=benchmark-items`; ghi run và kết quả vào
       "Kết quả benchmark" của `specs/027-uuid-v7-primary-keys/research.md` (scenario `create` dùng khóa số nên chỉ kiểm
       không lùi; research R8).
-- [ ] T017 Commit tài liệu kết quả của T012, T014, T016 (`docs(027): close the UUID v7 spec (CI <run>, benchmark <run>)`),
+- [X] T017 Commit tài liệu kết quả của T012, T014, T016 (`docs(027): close the UUID v7 spec (CI <run>, benchmark <run>)`),
       push theo quy tắc chung checkout.
 - [X] T018 **Bỏ qua** (chủ dự án 2026-10-29: đo ở feature phân trang con trỏ; bảng R5 giữ mức tài liệu và suy luận cho
       MariaDB, MSSQL, Oracle, CockroachDB). (Chủ dự án quyết định) `gh workflow run nightly.yml` (MariaDB, MSSQL, Oracle, CockroachDB, Postgres 10, MySQL,

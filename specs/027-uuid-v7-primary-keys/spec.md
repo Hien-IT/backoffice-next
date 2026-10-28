@@ -3,8 +3,9 @@
 **Feature Branch**: `027-uuid-v7-primary-keys` (làm trên `main` như 012–026, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=027-uuid-v7-primary-keys`)
 **Created**: 2026-10-29
-**Status**: Implemented 2026-10-29, một lượt trên `main` (local xanh trên Postgres, SQLite, MySQL 8: research "Kết quả lượt
-1"; CI và benchmark ghi ở T017) (spec và clarify 2026-10-29; constitution 3.4.0; plan: research R1–R11; checklist
+**Status**: Implemented 2026-10-29, một lượt trên `main` (`667314ad` docs, `dc027198` code), CI 40753571299 xanh cho 027
+(chỉ `quality` đỏ ở browser test web `content/keyboard.browser.test.ts` đã đỏ từ run trước), benchmark-items 40762272466
+xanh (spec và clarify 2026-10-29; constitution 3.4.0; plan: research R1–R11; checklist
 api-compat, D-192 duyệt, tasks và analyze 2026-10-29; T018 bỏ qua theo chủ dự án)
 **Input**: User description: "Feature 027: khóa chính uuid do API Backoffice tự sinh dùng UUID v7 thay cho v4. Bối cảnh:
 khi tạo collection với khóa chính "Generated UUID" [...], DB không tự sinh id; API sinh id lúc tạo item bằng transformer

@@ -245,6 +245,13 @@ Ghi chú: lần chạy đầu `uuid-v7.test.ts` có 2 case đỏ vì `parity()` 
 `00-seed.test.ts` nên mọi request đăng nhập lỗi; chạy lại có seed thì xanh. Khi lọc file bằng `--`, cờ `--vendor` của
 `parity-tests:parity` không tới script: đặt `TEST_DB=<vendor>` (đã sửa tasks.md, quickstart.md).
 
+## Kết quả CI và benchmark (2026-10-29, `dc027198`)
+
+| Run | Kết quả |
+|-----|---------|
+| CI 40753571299 | 23 job xanh, 1 bỏ qua; `parity` Postgres `full` (mọi shard), sqlite3 và mysql `reduced`, `parity-blackbox` (backoffice, directus), `guard-differences`, `e2e-web` ba cấu hình, `deploy`, `deploy-k8s` xanh. `quality` đỏ chỉ ở `web:test` `src/modules/content/keyboard.browser.test.ts` "live preview handle" (đã đỏ ở run 40730793093 trên `ebdc129b`, không do 027); lint, typecheck, test, build của 21 project khác trong `quality` xanh; bốn lệnh kiểm sau đó (`test:tools`, `check-port-headers`, `check-package-names`, `check-dr-comments`) bị bỏ vì bước trước đỏ, chạy local đều đạt |
+| benchmark-items 40762272466 | 14/14 scenario `ok`; `POST create` admin p95 Directus 8,791 / Backoffice 10,695 ms, req/s 194,4 / 205,5; user p95 10,839 / 11,703 ms, req/s 180 / 177,6 (khóa số, không đo việc sinh UUID, R8) |
+
 ## R11. Sửa spec khi plan (câu chữ, áp vào spec cùng commit plan)
 
 - Bảng "Đánh giá hiện trạng" dòng 12: bỏ [Inference], dẫn `tests/parity/src/permissions/flow.ts` (id thay bằng nhãn).
