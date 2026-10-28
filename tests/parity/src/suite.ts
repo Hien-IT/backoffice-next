@@ -17,6 +17,8 @@ export const REDUCED_FILES = [
 	'src/items/collection-toggles.test.ts',
 	// Spec 025: the import and export permissions of backoffice_permissions (D-189).
 	'src/permissions/backoffice-permissions.test.ts',
+	// Spec 027: UUID v7 for the special uuid fields of user collections; sort order per vendor (D-192).
+	'src/items/uuid-v7.test.ts',
 	// Feature 006: the HTTP contract of /collections, /fields, /relations (DDL differs per vendor, research R5).
 	'src/schema-management/crud.test.ts',
 	'src/schema-management/relations.test.ts',
@@ -44,7 +46,7 @@ export const FULL_FILES = [
 	'src/{server,startup,observability,schema,auth,permissions}/**/*.test.ts',
 	'src/{db-unchanged,readonly-account,redis-down}.test.ts',
 	// Feature 005: /items and export on the main pair.
-	'src/items/{crud,export,json-path,collection-toggles}.test.ts',
+	'src/items/{crud,export,json-path,collection-toggles,uuid-v7}.test.ts',
 	// Feature 006: data model routes, DDL compared in sequence on the shared DB, cross use (research R5, R6).
 	'src/schema-management/**/*.test.ts',
 	// Feature 007: files, folders, assets, import, TUS on both storage locations (research R8).

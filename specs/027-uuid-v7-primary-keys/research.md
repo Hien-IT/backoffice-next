@@ -111,7 +111,7 @@ DB; kiểu cột do Knex 3.1.0 quyết định. Image của env parity: `tests/p
 |--------------------------|---------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------------------------------------|---------------------------------|
 | Postgres 16 (và 10)      | `uuid` (`pg-columncompiler.js:128-133`)                 | Theo thứ tự tạo; `id > x` trả đúng các dòng kế tiếp     | Đo 2026-10-29 trên 16.15 (mục "Kết quả đo")                                               | 16 đã đo; 10 ở nightly          |
 | SQLite                   | `char(36)` (`lib/schema/columncompiler.js:280-283`)     | Theo thứ tự tạo                                          | Đo 2026-10-29 (sqlite3 5.1.7)                                                              | Đã đo; PR CI                    |
-| MySQL 8, MySQL 5         | `char(36)` (cột cơ sở, không ghi đè)                    | [Inference] theo thứ tự tạo                              | Chuỗi hex chữ thường cùng độ dài, gạch nối cùng vị trí; collation mặc định xếp `0-9` trước `a-f` | PR CI (MySQL 8); MySQL 5 không chạy ở CI (`nightly.yml:29` không có `mysql5`) |
+| MySQL 8, MySQL 5         | `char(36)` (cột cơ sở, không ghi đè)                    | MySQL 8: theo thứ tự tạo (đo 2026-10-29); MySQL 5: [Inference] như MySQL 8 | `uuid-v7.test.ts` bộ `reduced` trên env parity MySQL 8 (mục "Kết quả lượt 1"); chuỗi hex chữ thường cùng độ dài, gạch nối cùng vị trí | MySQL 8 đã đo, PR CI kiểm tiếp; MySQL 5 không chạy ở CI (`nightly.yml:29` không có `mysql5`) |
 | MariaDB                  | `char(36)` (Knex dùng client mysql)                     | [Inference] như MySQL                                    | Như trên; Directus không tạo kiểu `UUID` riêng của MariaDB                                | Nightly                         |
 | Oracle                   | `char(36)` (`oracledb-columncompiler.js:58-59`)         | [Inference] theo thứ tự tạo với `NLS_SORT=BINARY` mặc định | Như trên                                                                                  | Nightly                         |
 | CockroachDB              | `uuid` (`crdb-columncompiler.js:4-10`, không default vì không truyền `primaryKey`) | [Inference] theo thứ tự tạo (so 16 byte) | Không tìm thấy tài liệu nói rõ cách so UUID                                    | Nightly                         |
@@ -123,6 +123,10 @@ gửi không theo thời gian; giữa nhiều replica chỉ theo mili giây củ
 
 **Alternatives**: (a) kéo image MySQL, MariaDB, MSSQL, Oracle, CockroachDB về máy để đo ngay: cần bạn cho phép tải
 image; nightly đã có sẵn các vendor đó; (b) không kiểm thứ tự trong test: trái FR-011.
+
+**Quyết định 2026-10-29 (chủ dự án, T018)**: không chạy `nightly.yml` trong 027. MariaDB, MSSQL, Oracle, CockroachDB và
+Postgres 10 giữ trạng thái "tài liệu, suy luận" trong bảng trên; feature phân trang con trỏ đo thật khi kết quả ảnh hưởng
+thiết kế. Postgres 16, SQLite đo local; MySQL 8 kiểm bằng `uuid-v7.test.ts` (bộ `reduced`) local và trên CI.
 
 ## R6. Validator UUID trong luồng hai app (FR-010)
 
@@ -219,6 +223,27 @@ cách nhau một vòng event loop), chèn theo thứ tự xáo trộn, đọc `O
 |---------------------------|-------------|----------------------------|----------------------------|-----------------------|
 | SQLite (sqlite3 5.1.7)    | `char(36)`  | 19                         | Đúng                       | (không đo)            |
 | Postgres 16.15 (container tạm từ image `postgres:16-alpine` có sẵn, đã xóa) | `uuid` | 20 | Đúng | 2501, 2502, 2503 |
+
+## Kết quả lượt 1 (2026-10-29, local)
+
+Env parity trên máy local (Apple Silicon, Directus và Backoffice chạy amd64 giả lập), image `hiennd23/backoffice-api:local`
+dựng lại từ mã của lượt này.
+
+| Bước | Kết quả |
+|------|---------|
+| T001, T002: `apps/api/src/services/payload.service.test.ts` | Trước khi sửa: 6 case mới đỏ (v7, `backoffice_items`, 10 000 lần, `processValues`), các case khác xanh. Sau khi sửa: 77/77 cùng `items.service.test.ts` |
+| Unit `apps/api` toàn bộ | 374 file, 4 166 test xanh; coverage dòng 86,5 %, hàm 88,46 %, nhánh 85,83 % |
+| Typecheck, lint, build `apps/api`; typecheck, lint, `parity-tests:test` (61 test) của `tests/parity` | Sạch |
+| Postgres: `items/uuid-v7.test.ts`, `flows/operations.test.ts` | 9/9 và 23/23 xanh (`item-create`: Backoffice `7`, Directus `4`) |
+| Postgres: `items/{crud,export,json-path,collection-toggles}`, `permissions/{users,roles,write-rules,invite-register}`, `graphql/write`, `system/import-export` | 10 file, 201 test xanh, 2 bỏ qua có sẵn |
+| Postgres, profile `blackbox`, app Backoffice: `00-seed`, `tests/db/routes/items`, `tests/db/query` | 13 file, 9 587 test xanh, 10 bỏ qua; bộ blackbox đầy đủ (8 profile) để CI chạy |
+| SQLite (`reduced`): `items/uuid-v7`, `items/crud` | 18/18 xanh; `sort=id` trùng thứ tự tạo |
+| MySQL 8 (`reduced`): `items/uuid-v7`, `items/crud` | 18/18 xanh; `sort=id` trùng thứ tự tạo |
+
+Ghi chú: lần chạy đầu `uuid-v7.test.ts` có 2 case đỏ vì `parity()` gửi request không token (hai app cùng 403 nên
+`assertParity` vẫn qua); test gửi token admin và kiểm status 200 ở mọi lần đọc. Lần chạy blackbox đầu lọc bỏ
+`00-seed.test.ts` nên mọi request đăng nhập lỗi; chạy lại có seed thì xanh. Khi lọc file bằng `--`, cờ `--vendor` của
+`parity-tests:parity` không tới script: đặt `TEST_DB=<vendor>` (đã sửa tasks.md, quickstart.md).
 
 ## R11. Sửa spec khi plan (câu chữ, áp vào spec cùng commit plan)
 

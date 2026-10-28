@@ -251,6 +251,88 @@ describe('Integration Tests', () => {
 			});
 		});
 
+		// Spec 027 (D-192): user collections get a UUID v7, system collections keep the v4 of DR.
+		describe('uuid (spec 027, D-192)', () => {
+			const V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+			const V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+			const V4_VALUE = 'a272d046-d45a-412e-a74b-53219ae0dc40';
+			const V7_VALUE = '01a183b8-b2e6-702d-b7a6-950461f9dfd4';
+
+			const transformerOf = (collection: string) => {
+				const service = new PayloadService(collection, {
+					knex: db,
+					schema: { collections: {}, relations: [] },
+				});
+
+				return (action: PayloadAction, value?: unknown) =>
+					service.transformers['uuid']!({
+						value,
+						action,
+						payload: {},
+						accountability: null,
+						specials: ['uuid'],
+						helpers: getHelpers(db),
+						overwriteDefaults: undefined,
+					});
+			};
+
+			test.each([undefined, null, ''])('a user collection without a value (%j) gets a UUID v7', async (value) => {
+				expect(await transformerOf('test')('create', value)).toMatch(V7);
+			});
+
+			test.each(['directus_roles', 'directus_files', 'backoffice_permissions'])(
+				'the system collection %s keeps a UUID v4',
+				async (collection) => {
+					expect(await transformerOf(collection)('create')).toMatch(V4);
+				},
+			);
+
+			test('a user collection named backoffice_<x> is not a system collection', async () => {
+				expect(await transformerOf('backoffice_items')('create')).toMatch(V7);
+			});
+
+			test.each([V4_VALUE, V7_VALUE])('a value sent by the client (%s) is kept', async (value) => {
+				expect(await transformerOf('test')('create', value)).toBe(value);
+				expect(await transformerOf('directus_roles')('create', value)).toBe(value);
+			});
+
+			test.each(['update', 'read'] as const)('%s never generates a value', async (action) => {
+				expect(await transformerOf('test')(action, V7_VALUE)).toBe(V7_VALUE);
+				expect(await transformerOf('test')(action, null)).toBe(null);
+				expect(await transformerOf('test')(action)).toBe(undefined);
+			});
+
+			test('10 000 values made in a row increase (SC-002)', async () => {
+				const generate = transformerOf('test');
+				const values: string[] = [];
+
+				for (let i = 0; i < 10_000; i++) values.push(await generate('create'));
+
+				expect(new Set(values).size).toBe(10_000);
+				expect(values.every((value, i) => i === 0 || value > values[i - 1]!)).toBe(true);
+			});
+
+			test('processValues gives the uuid fields of a batch a UUID v7 in array order', async () => {
+				const schema = new SchemaBuilder()
+					.collection('test', (c) => {
+						c.field('id').uuid().primary();
+						c.field('code').uuid();
+					})
+					.build();
+
+				const service = new PayloadService('test', { knex: db, schema });
+				const result = await service.processValues('create', [{}, {}, {}]);
+				const ids = result.map((item) => item['id'] as string);
+
+				for (const item of result) {
+					expect(item['id']).toMatch(V7);
+					expect(item['code']).toMatch(V7);
+				}
+
+				expect([...ids].sort()).toEqual(ids);
+			});
+		});
+
 		describe('processDates', () => {
 			let service: PayloadService;
 

@@ -43,7 +43,9 @@ không có run CI đang chạy (push hủy run cũ). Không sửa file dưới `
 - Regex kiểm (data-model.md): v7 `^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`, v4 cùng mẫu với
   `4` ở ký tự thứ 15.
 - Lệnh: `pnpm nx run api:test -- <file>`; `pnpm nx run parity-tests:test -- <file>` (test của bộ so sánh, không Docker);
-  `pnpm nx run parity-tests:env-up --vendor=<v>` rồi `pnpm nx run parity-tests:parity --vendor=<v> -- <file>`.
+  `pnpm nx run parity-tests:env-up --vendor=<v>` rồi `TEST_DB=<v> pnpm nx run parity-tests:parity -- <file>` (khi có
+  `--` để lọc file, cờ `--vendor` không tới `scripts/parity.mjs`: test đọc DB host theo `TEST_DB`, mặc định Postgres;
+  sửa khi implement 2026-10-29).
 - Image API của env parity là `hiennd23/backoffice-api:local`; dựng lại sau khi sửa code bằng
   `docker build --platform linux/amd64 -f apps/api/Dockerfile -t hiennd23/backoffice-api:local .` từ gốc repo. Không
   dùng `pnpm nx run api:container` ở máy này: `push: true` cục bộ của chủ dự án trong `apps/api/project.json` sẽ đẩy
@@ -64,7 +66,7 @@ Oracle, CockroachDB) chốt bằng chính test đối chiếu ở T007 và T018.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T001 Thêm `describe('uuid (spec 027, D-192)')` vào `api/services/payload.service.test.ts` theo contracts/tests.md
+- [X] T001 Thêm `describe('uuid (spec 027, D-192)')` vào `api/services/payload.service.test.ts` theo contracts/tests.md
       §Unit: `new PayloadService(<collection>, { knex: db, schema: { collections: {}, relations: [] } })` rồi gọi
       `service.transformers['uuid']!({ action, value, payload: {}, accountability: null, specials: ['uuid'], helpers,
       overwriteDefaults: undefined })`: (a) collection `test`, `action: 'create'`, `value` là `undefined`, `null`, `''` →
@@ -79,7 +81,7 @@ Oracle, CockroachDB) chốt bằng chính test đối chiếu ở T007 và T018.
 
 ### Implementation
 
-- [ ] T002 Sửa transformer `uuid` trong `api/services/payload.service.ts:86-91` theo research R1: đổi `async uuid(...)`
+- [X] T002 Sửa transformer `uuid` trong `api/services/payload.service.ts:86-91` theo research R1: đổi `async uuid(...)`
       thành `uuid: async ({ action, value }) => { if (action === 'create' && !value) return isSystemCollection(this.collection)
       ? randomUUID() : uuidv7(); return value; }`, thêm `import { v7 as uuidv7 } from 'uuid';` và
       `import { isSystemCollection } from '@backoffice/system-data';`, comment
@@ -102,7 +104,7 @@ id trùng thứ tự tạo.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T003 [US1] Tạo `parity/items/uuid-v7.test.ts` (header: `// Spec 027 (D-192): ...`). Fixture per-run tạo qua Directus
+- [X] T003 [US1] Tạo `parity/items/uuid-v7.test.ts` (header: `// Spec 027 (D-192): ...`). Fixture per-run tạo qua Directus
       (`createUserCollection` của `parity/permissions/fixtures.ts:221` với `{ primaryKey: 'uuid' }`, `appRequest('directus',
       ...)` của `parity/directus-api.ts:39` cho field và quan hệ): collection chính `parity_uuid7_<run>` (`title` string,
       `code` uuid có `meta.special: ['uuid']`, m2o `folder` → `directus_folders`), collection con khóa uuid có m2o `parent`
@@ -117,19 +119,19 @@ id trùng thứ tự tạo.
       vào collection `_order`, `GET ?sort=id&fields=title&limit=-1` với `Cache-Control: no-store` trùng thứ tự tạo khi
       vendor (`getDbsToTest()` của `parity/get-dbs-to-test.ts`) khác `mssql`, khác thứ tự tạo khi là `mssql` (research
       R5). `afterAll`: `cleanup()` của fixtures, xóa file.
-- [ ] T004 [P] [US1] Thêm `'src/items/uuid-v7.test.ts'` vào `REDUCED_FILES` và vào mẫu
+- [X] T004 [P] [US1] Thêm `'src/items/uuid-v7.test.ts'` vào `REDUCED_FILES` và vào mẫu
       `'src/items/{crud,export,json-path,collection-toggles,uuid-v7}.test.ts'` của `FULL_FILES` trong `parity/suite.ts`;
       chạy `pnpm nx run parity-tests:test -- src/vendors.test.ts` (sửa kỳ vọng danh sách file nếu test đó liệt kê).
-- [ ] T005 [P] [US1] Trong case `item-create` của `parity/flows/operations.test.ts:188` (collection khóa uuid ở `:36-42`):
+- [X] T005 [P] [US1] Trong case `item-create` của `parity/flows/operations.test.ts:188` (collection khóa uuid ở `:36-42`):
       kiểm key do flow tạo khớp v7 ở Backoffice và v4 ở Directus (đọc từ response của từng app trước khi so transcript).
-- [ ] T006 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts`: `{ id: 'D-192', feature: '027', kind: 'doc', reason:
+- [X] T006 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts`: `{ id: 'D-192', feature: '027', kind: 'doc', reason:
       'Generated special uuid values of user collections are UUID v7 at Backoffice, v4 at Directus; system collections keep
       v4; batch create responses follow the id order (spec 027).' }`; chạy
       `pnpm nx run parity-tests:test -- src/accepted-differences.test.ts`.
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Chạy và làm xanh (sửa code, không sửa test): `pnpm nx run parity-tests:env-up --vendor=postgres` rồi
+- [X] T007 [US1] Chạy và làm xanh (sửa code, không sửa test): `pnpm nx run parity-tests:env-up --vendor=postgres` rồi
       `pnpm nx run parity-tests:parity --vendor=postgres -- src/items/uuid-v7.test.ts src/flows/operations.test.ts`; lặp
       lại với `--vendor=sqlite3` và `--vendor=mysql` (bộ `reduced`). Ghi thứ tự sắp đo được trên MySQL, SQLite, Postgres
       vào "Kết quả lượt 1" của `specs/027-uuid-v7-primary-keys/research.md`; nếu MySQL không theo thứ tự tạo thì dừng, sửa
@@ -145,7 +147,7 @@ id trùng thứ tự tạo.
 
 **Independent Test**: case US2 của `parity/items/uuid-v7.test.ts` giống Directus.
 
-- [ ] T008 [US2] Thêm vào `parity/items/uuid-v7.test.ts` (contracts/tests.md case 5): `POST` có `id` là UUID v4 và UUID
+- [X] T008 [US2] Thêm vào `parity/items/uuid-v7.test.ts` (contracts/tests.md case 5): `POST` có `id` là UUID v4 và UUID
       v7 do test sinh (mỗi app một id riêng vì DB dùng chung) → lưu đúng id ở cả hai app; `POST` có `id: 'not-a-uuid'` →
       `assertParity(await parity(...))` (không ghi gì); import CSV có cột id mang giá trị → giữ id đó; `PATCH` item (id v4
       và v7) không có `code` → `id`, `code` không đổi; `PATCH` với `code: null` → `code` là `null` ở cả hai app (không
@@ -159,7 +161,7 @@ id trùng thứ tự tạo.
 
 **Independent Test**: case US3 của `parity/items/uuid-v7.test.ts`: id v4 ở Backoffice, mời người dùng được ở hai app.
 
-- [ ] T009 [US3] Thêm vào `parity/items/uuid-v7.test.ts` (contracts/tests.md case 6, case 3 phần m2o): Backoffice
+- [X] T009 [US3] Thêm vào `parity/items/uuid-v7.test.ts` (contracts/tests.md case 6, case 3 phần m2o): Backoffice
       `POST /roles`, `/policies`, `/folders` → id khớp v4; `POST /items/<chính>` với `folder: { name }` lồng → item v7,
       folder v4; `POST /users/invite` với `role` là role vừa tạo ở Backoffice, gửi tới Backoffice và tới Directus → không
       lỗi validate role (cách mời ở Directus như `parity/observability/logs.test.ts:222`). `afterAll` xóa user được mời,
@@ -174,11 +176,12 @@ FR-012).
 
 **Independent Test**: case US4 của `parity/items/uuid-v7.test.ts` và bộ hiện có không đổi kết quả.
 
-- [ ] T010 [US4] Thêm vào `parity/items/uuid-v7.test.ts` (contracts/tests.md case 7): item v7 do Backoffice tạo và item
+- [X] T010 [US4] Thêm vào `parity/items/uuid-v7.test.ts` (contracts/tests.md case 7): item v7 do Backoffice tạo và item
       v4 do Directus tạo; `parity()` với `Cache-Control: no-store` cho `GET /items/<c>/<id>`, `GET ?filter[id][_eq]=`,
       `GET ?filter[id][_in]=`, `GET ?sort=-id`, quan hệ o2m của item đó → `assertParity`; `PATCH`, `DELETE` item của app kia
       ở mỗi app → thành công, dữ liệu sau đó giống nhau. Chạy như T007 trên Postgres, SQLite, MySQL.
-- [ ] T011 [US4] SC-005: chạy bộ hiện có trên Postgres và xác nhận không đổi kết quả: `parity/items/{crud,export,json-path,
+- [X] T011 [US4] SC-005 (local: Postgres 10 file xanh, blackbox items và query trên Backoffice xanh, `crud` trên SQLite và
+      MySQL xanh; bộ blackbox đầy đủ và bộ `reduced` đầy đủ do CI chạy): chạy bộ hiện có trên Postgres và xác nhận không đổi kết quả: `parity/items/{crud,export,json-path,
       collection-toggles}.test.ts`, `parity/flows/operations.test.ts`, `parity/permissions/{users,roles,write-rules,
       invite-register}.test.ts`, `parity/graphql/write.test.ts`, `parity/system/import-export.test.ts`, blackbox items
       (`PARITY_SUITE=blackbox`, cần `env-up --profiles=blackbox`); bộ `reduced` trên SQLite và MySQL.
@@ -187,13 +190,13 @@ FR-012).
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T012 [P] Cập nhật `specs/027-uuid-v7-primary-keys/spec.md`: dòng Status (Implemented, commit, run CI), kết quả thứ tự
+- [X] T012 [P] Cập nhật `specs/027-uuid-v7-primary-keys/spec.md`: dòng Status (Implemented, commit, run CI), kết quả thứ tự
       theo vendor vào FR-011 nếu khác research R5; `specs/027-uuid-v7-primary-keys/research.md` "Kết quả lượt 1" (local,
       CI) và "Kết quả benchmark" (T016). Nếu T018 chưa chạy, ghi trong bảng R5 rằng MariaDB, MSSQL, Oracle, CockroachDB
       vẫn ở mức tài liệu và suy luận (sửa khi analyze 2026-10-29).
-- [ ] T013 [P] Thêm vào mục "Test items" của `tests/parity/README.md` một dòng cho `src/items/uuid-v7.test.ts` (spec 027,
+- [X] T013 [P] Thêm vào mục "Test items" của `tests/parity/README.md` một dòng cho `src/items/uuid-v7.test.ts` (spec 027,
       bộ `full` và `reduced`; D-192 `doc`, so từng app riêng; thứ tự sắp kiểm theo vendor, MSSQL khác thứ tự tạo).
-- [ ] T014 [P] Cập nhật `CLAUDE.md`: dòng 027 ở Active Technologies từ "planned" thành "implemented" (ngày, commit, run
+- [X] T014 [P] Cập nhật `CLAUDE.md`: dòng 027 ở Active Technologies từ "planned" thành "implemented" (ngày, commit, run
       CI); thêm dòng 027 đầu mục Recent Changes (giữ nguyên dòng của phiên khác); cập nhật trạng thái 027 trong
       `SPECKIT-GUIDE.md` mục 6.
 - [ ] T015 Đóng lượt: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `pnpm nx run api:test` (coverage BE
@@ -210,7 +213,8 @@ FR-012).
       không lùi; research R8).
 - [ ] T017 Commit tài liệu kết quả của T012, T014, T016 (`docs(027): close the UUID v7 spec (CI <run>, benchmark <run>)`),
       push theo quy tắc chung checkout.
-- [ ] T018 (Chủ dự án quyết định) `gh workflow run nightly.yml` (MariaDB, MSSQL, Oracle, CockroachDB, Postgres 10, MySQL,
+- [X] T018 **Bỏ qua** (chủ dự án 2026-10-29: đo ở feature phân trang con trỏ; bảng R5 giữ mức tài liệu và suy luận cho
+      MariaDB, MSSQL, Oracle, CockroachDB). (Chủ dự án quyết định) `gh workflow run nightly.yml` (MariaDB, MSSQL, Oracle, CockroachDB, Postgres 10, MySQL,
       SQLite); ghi thứ tự sắp đo được của từng vendor vào bảng R5 của `specs/027-uuid-v7-primary-keys/research.md`; vendor
       nào khác dự đoán thì sửa FR-011 và báo chủ dự án.
 

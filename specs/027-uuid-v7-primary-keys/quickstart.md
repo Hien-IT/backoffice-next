@@ -36,6 +36,13 @@ pnpm nx test api -- payload.service
 pnpm nx run parity-tests:parity -- src/items/uuid-v7.test.ts src/flows/operations.test.ts
 ```
 
+Vendor khác: bật env bằng `pnpm nx run parity-tests:env-up --vendor=<vendor>` rồi đặt `TEST_DB`, vì cờ `--vendor` không
+tới script khi có `--` để lọc file:
+
+```bash
+TEST_DB=sqlite3 PARITY_SUITE=reduced pnpm nx run parity-tests:parity -- src/items/uuid-v7.test.ts
+```
+
 ## Rollback
 
 Trả transformer `uuid` về `randomUUID()`; id v7 đã ghi vẫn hợp lệ ở cả hai app, không cần đổi dữ liệu.

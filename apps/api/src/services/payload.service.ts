@@ -1,6 +1,7 @@
 // Ported from directus/api/src/services/payload.ts
 import { randomUUID } from 'node:crypto';
 import { ForbiddenError, InvalidPayloadError } from '@backoffice/errors';
+import { isSystemCollection } from '@backoffice/system-data';
 import type {
 	AbstractServiceOptions,
 	Accountability,
@@ -23,6 +24,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import Joi from 'joi';
 import type { Knex } from 'knex';
 import { clone, cloneDeep, isNil, isObject, isPlainObject } from 'lodash-es';
+import { v7 as uuidv7 } from 'uuid';
 import { parse as wktToGeoJSON } from 'wellknown';
 import type { Helpers } from '../database/helpers/index.js';
 import { getFunctions, getHelpers } from '../database/helpers/index.js';
@@ -83,9 +85,11 @@ export class PayloadService {
 
 			return value;
 		},
-		async uuid({ action, value }) {
+		// Backoffice (spec 027, D-192): DR always generates randomUUID() (v4); user collections get a UUID v7, system
+		// collections keep v4 (POST /users/invite accepts a v4 role only). An arrow function reads this.collection.
+		uuid: async ({ action, value }) => {
 			if (action === 'create' && !value) {
-				return randomUUID();
+				return isSystemCollection(this.collection) ? randomUUID() : uuidv7();
 			}
 
 			return value;

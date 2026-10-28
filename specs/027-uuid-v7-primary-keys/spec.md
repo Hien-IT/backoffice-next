@@ -3,9 +3,9 @@
 **Feature Branch**: `027-uuid-v7-primary-keys` (làm trên `main` như 012–026, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=027-uuid-v7-primary-keys`)
 **Created**: 2026-10-29
-**Status**: Draft (spec và clarify 2026-10-29; constitution 3.4.0 2026-10-29; plan 2026-10-29: research R1–R11, đo thứ
-tự sắp trên Postgres 16 và SQLite, data-model, contracts, quickstart; checklist api-compat, D-192 duyệt, tasks và analyze
-2026-10-29)
+**Status**: Implemented 2026-10-29, một lượt trên `main` (local xanh trên Postgres, SQLite, MySQL 8: research "Kết quả lượt
+1"; CI và benchmark ghi ở T017) (spec và clarify 2026-10-29; constitution 3.4.0; plan: research R1–R11; checklist
+api-compat, D-192 duyệt, tasks và analyze 2026-10-29; T018 bỏ qua theo chủ dự án)
 **Input**: User description: "Feature 027: khóa chính uuid do API Backoffice tự sinh dùng UUID v7 thay cho v4. Bối cảnh:
 khi tạo collection với khóa chính "Generated UUID" [...], DB không tự sinh id; API sinh id lúc tạo item bằng transformer
 uuid của PayloadService [...], hiện là randomUUID() của node:crypto = v4; id client gửi sẵn được giữ nguyên. Lý do (chủ
@@ -191,9 +191,9 @@ v4 và v7 giữa hai app.
 - **FR-011**: Spec và research PHẢI ghi giới hạn cho feature phân trang con trỏ sau: id v4 đã có, id do Directus sinh và
   id client gửi không theo thời gian; giữa nhiều replica chỉ theo thứ tự mili giây của đồng hồ từng máy; thứ tự sắp của
   cột uuid trên từng vendor (Postgres, MySQL, MariaDB, SQLite, MSSQL, Oracle, CockroachDB) do plan kiểm và ghi kết quả.
-  Kết quả ở research R5 (sửa khi plan 2026-10-29): Postgres 16 và SQLite đã đo đúng thứ tự tạo; MSSQL
-  (`uniqueidentifier`) không theo thứ tự tạo theo tài liệu Microsoft; MySQL, MariaDB, Oracle, CockroachDB kiểm bằng test
-  đối chiếu trên CI.
+  Kết quả ở research R5 (sửa khi plan 2026-10-29, cập nhật khi implement): Postgres 16, SQLite và MySQL 8 đã đo đúng
+  thứ tự tạo; MSSQL (`uniqueidentifier`) không theo thứ tự tạo theo tài liệu Microsoft; MariaDB, Oracle, CockroachDB và
+  Postgres 10 ở mức tài liệu và suy luận (chủ dự án bỏ qua nightly trong 027, T018).
 - **FR-012**: Spec 001–026 và code giữ nguyên ngoài chỗ sinh giá trị cho field special `uuid`; Directus không đổi file,
   biến môi trường hay cấu hình.
 

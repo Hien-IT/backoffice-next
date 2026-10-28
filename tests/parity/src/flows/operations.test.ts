@@ -208,6 +208,8 @@ describe('items', () => {
 			{ key: 'delete', type: 'item-delete', options: { collection, key: '{{ create[0] }}', permissions: '$full' } },
 		]);
 
+		const versions: Record<string, string> = {};
+
 		const transcripts = await scenario(urls(), async (ctx) => {
 			const captured = await call(ctx, {
 				method: 'POST',
@@ -215,6 +217,7 @@ describe('items', () => {
 				body: { title: 'created' },
 			});
 			const created = (captured.json as any).create[0] as string;
+			versions[ctx.app] = created[14]!;
 			const left = await appRequest('directus', 'GET', `/items/${collection}?filter[id][_eq]=${created}`);
 
 			return {
@@ -225,6 +228,8 @@ describe('items', () => {
 
 		assertSameTranscripts(transcripts, 'item operations');
 		expect(transcripts.directus.left).toBe(0);
+		// Spec 027 (D-192): the key the flow made is a UUID v7 at Backoffice, a v4 at Directus.
+		expect(versions).toEqual({ directus: '4', backoffice: '7' });
 	});
 });
 

@@ -497,4 +497,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		reason: '/backoffice/permissions exists at Backoffice only (Directus 404).',
 	},
+	{
+		id: 'D-192',
+		feature: '027',
+		kind: 'doc',
+		reason:
+			'Generated special uuid values of user collections are UUID v7 at Backoffice, v4 at Directus; system collections keep v4; batch create responses follow the id order (spec 027).',
+	},
 ];

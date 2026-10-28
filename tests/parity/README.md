@@ -152,6 +152,13 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   Directus không xóa cache tay (bus). File thêm alias o2m trên `directus_users` (chỉ dòng `directus_fields`), chạy một
   mình (`fileParallelism: false`). `flows/operations.test.ts` và `extensions/endpoints.test.ts` có case cài đặt tắt mà
   flow, endpoint extension vẫn chạy như Directus.
+- `src/items/uuid-v7.test.ts` (spec 027, bộ `full` và `reduced` trên mọi vendor): field special `uuid` không có giá trị
+  của collection người dùng nhận UUID v7 ở Backoffice, v4 ở Directus (D-192 `doc`: so từng app riêng vì id tự sinh vốn
+  khác nhau): `POST` một item và theo lô (mảng trả về theo thứ tự gửi ở Backoffice), GraphQL, import, item lồng (o2m,
+  junction m2m tới `directus_files`, junction m2a, folder qua m2o giữ v4), singleton; id client gửi giữ nguyên; collection
+  hệ thống giữ v4 và mời người dùng với role do Backoffice tạo được ở hai app; đọc ghi chéo item v4 và v7 bằng `parity()`;
+  `sort=id` trùng thứ tự tạo trên mọi vendor trừ MSSQL (`uniqueidentifier`, research R5 của spec 027). Case `item-create`
+  của `flows/operations.test.ts` kiểm phiên bản id theo app.
 - Cặp chính đặt `CACHE_SKIP_ALLOWED=true`, `CACHE_STATUS_HEADER=x-cache-status`; `capture()` gửi
   `Cache-Control: no-store` cho `GET`, `HEAD` khi request chưa đặt, nên bộ so sánh luôn đọc mới ở cả hai app và so
   header `x-cache-status`.

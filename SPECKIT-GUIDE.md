@@ -2160,9 +2160,10 @@ SQLite, data-model, contracts/{api,tests}.md, quickstart; không Complexity Trac
 2026-10-29 (26 mục, 6 phát hiện đã sửa vào spec; CHK019 client ngoài kiểm id bằng mẫu phiên bản 1–5); D-192 và rủi ro
 CHK019 duyệt 2026-10-29; `/speckit.tasks` 2026-10-29 (tasks.md 18 task, một lượt, T015 đóng lượt, T018 nightly do chủ dự
 án quyết); `/speckit.analyze` 2026-10-29 (0 CRITICAL, 4 MEDIUM, 5 LOW, đã sửa hết vào spec, tasks, contracts,
-checklist). Còn: `/speckit.implement`. Khi tạo item mà field có `special: uuid` không có giá trị, API Backoffice sinh
-UUID v7 (RFC 9562, có mốc thời gian, sắp theo thứ tự tạo) thay cho v4 của Directus, chỉ ở collection do người dùng tạo.
-Chỉ BE, một chỗ sinh id, không thêm dependency (`uuid` 11.1.0 đã có trong `apps/api`), không migration. Thư mục:
+checklist). `/speckit.implement` 2026-10-29 (một lượt; local xanh trên Postgres, SQLite, MySQL 8; CI và benchmark ghi ở
+spec; T018 bỏ qua theo chủ dự án). Khi tạo item mà field có `special: uuid` không có giá trị, API Backoffice sinh UUID
+v7 (RFC 9562, có mốc thời gian, sắp theo thứ tự tạo) thay cho v4 của Directus, chỉ ở collection do người dùng tạo. Chỉ
+BE, một chỗ sinh id, không thêm dependency (`uuid` 11.1.0 đã có trong `apps/api`), không migration. Thư mục:
 `specs/027-uuid-v7-primary-keys/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
 
 Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
@@ -2215,7 +2216,7 @@ chạy `update-agent-context.sh` vì script bỏ các dòng "Recent Changes" t�
 /speckit.analyze Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify.
 ```
 
-**7. `/speckit.implement`**
+**7. `/speckit.implement`** (đã chạy 2026-10-29)
 
 ```text
 /speckit.implement Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. Một lượt. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
