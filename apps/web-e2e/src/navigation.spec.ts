@@ -254,3 +254,40 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 	// No horizontal scroll at the smallest supported width (FR-028, SC-008).
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test('from xl the sidebar is resized by its end edge (pointer, arrow keys) and keeps its width after reload; below xl the drawer has no handle (D-190)', async ({
+	page,
+}) => {
+	await signIn(page);
+	const handle = page.getByRole('separator', { name: 'Resize navigation' });
+
+	if (page.viewportSize()!.width < 1280) {
+		await moduleBar(page);
+		await expect(handle).toHaveCount(0);
+		return;
+	}
+
+	const width = () => page.locator('aside#navigation').evaluate((el) => el.getBoundingClientRect().width);
+	const contentStart = () => page.locator('#navigation + div').evaluate((el) => el.getBoundingClientRect().left);
+	expect(await width()).toBe(290);
+	await expect(handle).toHaveAttribute('aria-valuenow', '290');
+
+	const box = (await handle.boundingBox())!;
+	const y = box.y + box.height / 2;
+	await page.mouse.move(box.x + box.width / 2, y);
+	await page.mouse.down();
+	await page.mouse.move(400, y, { steps: 5 });
+	await page.mouse.up();
+	await expect.poll(width).toBe(400);
+	expect(await contentStart()).toBe(400);
+
+	await handle.focus();
+	await page.keyboard.press('ArrowLeft');
+	await expect.poll(width).toBe(384);
+
+	await page.reload();
+	await expect(page.getByRole('separator', { name: 'Resize navigation' })).toHaveAttribute('aria-valuenow', '384');
+	expect(await width()).toBe(384);
+
+	await page.evaluate(() => localStorage.clear());
+});

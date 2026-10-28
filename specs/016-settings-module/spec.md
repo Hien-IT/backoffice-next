@@ -459,7 +459,8 @@ logo, theme; đổi chủ dự án qua `system-owner` và so body `POST /setting
    withoutEnlargement, format auto|jpeg|png|webp|tiff|avif allowNone, transforms json), vạch `reporting` +
    `report_feature_url`, `report_bug_url`, `report_error_url` (`system-display-template` biến error.*, navigator.*,
    route.*, user.*, role.*), vạch `collaborative_editing` + `collaborative_editing_enabled` (chỉ đọc vì `info.websocket`
-   false, như Directus), vạch `mapping` + `mapbox_key` (monospace), `basemaps` (list `{name, type raster|tile|style,
+   false, như Directus; owner 2026-10-28: hai vạch này và field của chúng không hiện, D-191), vạch `mapping` +
+   `mapbox_key` (monospace), `basemaps` (list `{name, type raster|tile|style,
    url, tileSize ẩn khi raster, attribution}`), vạch `image_editor` + `custom_aspect_ratios` (list `{text, value}`);
    `project_usage`, `org_name`, `product_updates`, `project_status`, `project_id`, `id` ẩn. `mapbox_key` hiện rõ như
    Directus. Giá trị của `custom_aspect_ratios`, `basemaps`, `storage_asset_presets` không kiểm ở client (API lưu JSON),
@@ -910,8 +911,9 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
 **Cài đặt dự án và giao diện**
 
 - **FR-070**: `/settings/project` PHẢI như kịch bản US5-1 và US5-2: `BoForm` `directus_settings` với mọi field của
-  `settings.yaml` trừ ba nhóm, giá trị đầu từ store settings, `collaborative_editing_enabled` chỉ đọc khi
-  `info.websocket` false hoặc `collaborativeEditing` false, lưu `PATCH /settings` chỉ khóa đổi qua store settings
+  `settings.yaml` trừ ba nhóm và trừ vạch `reporting`, `collaborative_editing` cùng field của chúng (D-191, owner
+  2026-10-28; trước đó `collaborative_editing_enabled` chỉ đọc khi `info.websocket` false hoặc `collaborativeEditing`
+  false), giá trị đầu từ store settings, lưu `PATCH /settings` chỉ khóa đổi qua store settings
   (`updateSettings` của 012 thêm notice `settings_update_success` và hoàn tác), rồi store server nạp lại; branding 012
   cập nhật ngay.
 - **FR-071**: `/settings/appearance` PHẢI như kịch bản US5-5: chỉ `theming_group`; `default_theme_light|dark` dùng
@@ -1116,7 +1118,7 @@ chú chưa dịch dạng `directus_collection.x` không hiện (D-118 của 018)
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-92 | Mục "Flows" của sub-menu Settings và `/settings/flows(/*)` | Trình chỉnh sửa flows | Mục hiện, trỏ khung 012 (D-40) | 017 làm trình chỉnh sửa; `directus_flows` của D-72 trỏ cùng chỗ; owner chọn A (Clarifications 2026-10-16) | ngoài phạm vi (tạm thời) | 017: **đã gỡ ở 017** (trình chỉnh sửa flows thật, cùng route) |
 | D-93 | `/settings/ai`, `/settings/marketplace/*`, `/settings/extensions`, `/settings/system-logs`; mục sub-menu tương ứng; nhóm `ai_group`, `mcp_group` của settings | Có (AI/MCP và logs khi bật; marketplace, extensions luôn) | Không đăng ký (→ không tìm thấy), không hiện mục, không hiện nhóm field; dữ liệu DB giữ nguyên | Nguyên tắc XI, D-41; Directus cũng ẩn AI và logs khi tắt | ngoài phạm vi; Marketplace và Extensions gỡ ở 020 (2026-10-21) | — |
-| D-94 | Mục "Report Bug", "Request Feature" của sub-menu | Luôn hiện; mặc định trỏ GitHub Directus (`DEFAULT_REPORT_*_URL`) | Không hiện, kể cả khi `report_bug_url` / `report_feature_url` có giá trị; hai field vẫn sửa được ở màn Project và ghi như Directus | Nguyên tắc IX (như D-49); owner yêu cầu bỏ hẳn (2026-10-17) | đổi thương hiệu | — |
+| D-94 | Mục "Report Bug", "Request Feature" của sub-menu | Luôn hiện; mặc định trỏ GitHub Directus (`DEFAULT_REPORT_*_URL`) | Không hiện, kể cả khi `report_bug_url` / `report_feature_url` có giá trị; hai field vẫn ghi như Directus; từ 2026-10-28 không hiện ở màn Project (D-191) | Nguyên tắc IX (như D-49); owner yêu cầu bỏ hẳn (2026-10-17) | đổi thương hiệu | — |
 | D-95 | Dòng phiên bản cuối sub-menu | "Directus <version>" với icon Directus, link GitHub releases | Không hiện dòng nào | Nguyên tắc IX; `info.version` là phiên bản tương thích 11.17.4 nên hiện số sẽ gây hiểu nhầm; owner chọn B (2026-10-16), rồi bỏ hẳn dòng "Backoffice" (2026-10-17) | đổi thương hiệu | — |
 | D-96 | Đường bàn phím cho kéo thả ở cây collection, lưới field (gồm vào/ra nhóm), danh sách `system-modules`, `system-fields`, `list` options | Chỉ chuột | Thêm menu dòng Lên/Xuống/Vào nhóm/Ra nhóm; kéo chuột giữ như Directus | WCAG 2.1.1, Nguyên tắc XII; mở rộng D-69 (014); owner chọn A (Clarifications 2026-10-16), ; duyệt | khác | — |
 | D-97 | Mở drawer field cho field không tồn tại (gõ URL) hoặc `?type=` không thuộc 10 localType | Lỗi JavaScript không bắt: `startEditing` gán `field` null rồi vẽ `field.field`; `alterations[type]` không có | Hộp lỗi (`showUnexpectedError`) rồi về màn collection | Không chép lỗi làm hỏng màn; E2E coi `pageerror` là lỗi (đã kiểm T002, 2026-10-16) | khác | — |
@@ -1128,6 +1130,7 @@ chú chưa dịch dạng `directus_collection.x` không hiện (D-118 của 018)
 | D-101 | Breadcrumb ở đầu trang (`headline` của header bar) | `v-breadcrumb` trên tiêu đề ở mọi trang có trang cha | Không hiện ở mọi trang; dòng tiêu đề giữ nút quay lại, icon, tiêu đề; trang vẫn truyền `breadcrumb` cho `PageHeader` để bật lại ở một chỗ. Hai bộ parity UI có so breadcrumb (files/users, settings) ghi nó là khác biệt được phép | Owner yêu cầu (2026-10-17) | khác | — |
 | D-103 | Tham số `page` khi nạp quyền của policy (`system-permissions`, `GET /permissions?filter[policy]…&limit=-1`) | Gửi `page=0` | Không gửi `page`: `@directus/sdk` 21.3.0 (`query-to-params.ts`) chỉ gửi `page` ≥ 1 | API Directus bỏ qua `page=0` (`sanitize-query.ts` giữ 0, `apply-query` chỉ tính offset khi `page` khác 0 và `limit` khác -1), nên kết quả như nhau; SDK là client duy nhất (012); owner duyệt (2026-10-17) | khác | — |
 | D-150 | Khung form của các trang Settings (Project, Appearance, Role, Public role, Policy, Preset, Translation, trang collection của Data Model) | Form nằm thẳng trên nền trang, không khung | Form trong Card TailAdmin, mỗi divider một card có header (D-150 của 014), trong khung `max-w-5xl` sẵn có (form rộng 974px, giữ lưới 3 cột `fill`); form trong drawer, dialog, nhóm lồng và ExtensionOptions không đổi | Design-system TailAdmin (Form Layout), owner 2026-10-22 | khác | — |
+| D-191 | Vạch `reporting` (`report_feature_url`, `report_bug_url`, `report_error_url`) và `collaborative_editing` (`collaborative_editing_enabled`) ở `/settings/project` | Hiện; `collaborative_editing_enabled` chỉ đọc khi server không có websocket hoặc tắt collaborative editing | Không hiện (6 field, gồm hai vạch); giá trị trong DB giữ nguyên, app Directus vẫn đọc và sửa | Owner 2026-10-28: Backoffice không dùng hai mục này (D-94 đã bỏ Report Bug/Request Feature; không có collaborative editing) | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -1159,6 +1162,7 @@ chú chưa dịch dạng `directus_collection.x` không hiện (D-118 của 018)
 | D-150 | `BoForm card` ở `routes/project/ProjectRoute.vue`, `appearance/AppearanceRoute.vue`, `roles/RoleItemRoute.vue`, `roles/RolePublicRoute.vue`, `policies/PolicyItemRoute.vue`, `presets/PresetItemRoute.vue`, `translations/TranslationItemRoute.vue`, `data-model/FieldsRoute.vue`; `design-system/docs/layout-patterns.md` §8 (Form card) | Owner duyệt (2026-10-22) |
 | D-166 | `interfaces/_system/system-display-template/SystemDisplayTemplate.vue`: trình soạn có chip như Directus (`VFieldTemplate` của shim 020: mỗi field một chip, menu field theo cây `useFieldTree`, field `$version` khi bật versioning), nhãn form gắn bằng `aria-labelledby`; thay ô nhập chữ kèm nút chọn field có từ 016 (gỡ khác biệt) | Owner yêu cầu (2026-10-23) |
 | D-168 | `routes/appearance/AppearanceRoute.vue` bỏ `default_theme_light`, `theme_light_overrides`, `default_theme_dark`, `theme_dark_overrides`; `modules/users/routes/UserItemRoute.vue` bỏ `theme_light`, `theme_light_overrides`, `theme_dark`, `theme_dark_overrides` (danh sách `fieldsDenyList`). Lý do: chọn theme Directus và override theme không đổi giao diện Backoffice (D-43, D-88); giá trị vẫn trong DB cho app Directus, override đã lưu (5 khóa có ánh xạ ở `theme/override-map.ts`) vẫn áp dụng; `default_appearance`/`appearance` và `custom_css` giữ. `ProjectRoute.test.ts`, E2E `profile.spec.ts` sửa theo | Owner yêu cầu (2026-10-23) |
+| D-191 | `routes/project/ProjectRoute.vue` (`HIDDEN_FIELDS`); bỏ nhánh chỉ đọc của `collaborative_editing_enabled`; `ProjectRoute.test.ts`, E2E `settings-project.spec.ts` | Owner yêu cầu (2026-10-28) |
 | R-40 | `field-detail/store/index.ts` port nguyên `save()` (nuốt lỗi từng bước như Directus) | Duyệt (owner, 2026-10-17) |
 | R-41 | `presets/PresetItemRoute.vue` gọi `router.push` về danh sách trong `finally` như Directus; khi lưu lỗi các sửa còn giữ nên guard sửa dở chặn và hiện hộp `unsaved_changes` (cả hai app), không mất form | Duyệt (owner, 2026-10-17) |
 | R-42 | `CollectionsRoute.vue`: `PATCH /collections` khi kéo thả không chờ, không báo lỗi | Owner chọn B (Clarifications); duyệt |

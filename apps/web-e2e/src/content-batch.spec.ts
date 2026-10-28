@@ -3,7 +3,7 @@
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, DATA_PREFIX } from './helpers/config.js';
-import { openCollection, waitForTable } from './helpers/content.js';
+import { openCollection, openSidebar, waitForTable } from './helpers/content.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -42,14 +42,14 @@ test.afterEach(async ({ page }) => {
 		`/items/bo_content?fields=id&limit=-1&filter[title][_starts_with]=${encodeURIComponent(DATA_PREFIX)}`,
 	);
 	if (rows.length) await api.call('DELETE', '/items/bo_content', { data: rows.map((r) => r.id) });
-	// The search typed in selectBoth is saved in the admin preset (FR-011): put back the seeded values (search and
-	// filter null, snapshot presets.json), whatever an earlier run left there.
+	// The search typed in selectBoth and the refresh interval are saved in the admin preset (FR-011, FR-099): put back
+	// the seeded values (search, filter and refresh_interval null, snapshot presets.json), whatever an earlier run left.
 	const presets = await api.call<{ id: number }[]>(
 		'GET',
 		`/presets?fields=id&filter[collection][_eq]=bo_content&filter[user][_eq]=${me}&filter[bookmark][_null]=true`,
 	);
 	for (const preset of presets)
-		await api.call('PATCH', `/presets/${preset.id}`, { data: { search: null, filter: null } });
+		await api.call('PATCH', `/presets/${preset.id}`, { data: { search: null, filter: null, refresh_interval: null } });
 	await api.call('POST', '/utils/cache/clear');
 });
 
@@ -119,4 +119,23 @@ test('batch delete with confirmation (US6-6, FR-095)', async ({ page }) => {
 	await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
 	expect([...(await deleted).postDataJSON()].sort()).toEqual([...ids].sort());
 	await expect(page.getByRole('main').getByRole('table').locator('tbody tr')).toHaveCount(0);
+});
+
+test('auto refresh asks the items again with the detail popover closed (US6-6, FR-099)', async ({ page }) => {
+	await signIn(page);
+	await openCollection(page, 'bo_content');
+	await waitForTable(page);
+	await openSidebar(page);
+	await page.getByRole('button', { name: 'Auto Refresh', exact: true }).click();
+	await page.getByRole('combobox', { name: 'Refresh Interval' }).click();
+	await page.getByRole('option', { name: 'Every 10 Seconds' }).click();
+	// The timer belongs to the page (2026-10-28): it keeps running once the popover is closed.
+	await page.keyboard.press('Escape');
+	await expect(page.getByRole('combobox', { name: 'Refresh Interval' })).toHaveCount(0);
+
+	const again = await page.waitForRequest(
+		(request) => request.method() === 'GET' && /\/items\/bo_content$/.test(new URL(request.url()).pathname),
+		{ timeout: 15_000 },
+	);
+	expect(again).toBeTruthy();
 });

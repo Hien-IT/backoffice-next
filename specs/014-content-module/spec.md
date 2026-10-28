@@ -813,7 +813,9 @@ editing, D-67)
 - **FR-098**: Nút tạo item (`+`) khóa khi `createAllowed === false` với tooltip `not_allowed`.
 - **FR-099** Refresh: mục ở panel màn collection với chọn chu kỳ (`không`, 10 s, 30 s, 1 phút, 5 phút), ghi
   `refresh_interval` của preset; chạy `refresh` của layout mỗi chu kỳ; ngừng khi tab idle (`idle.ts` của 012), làm mới
-  ngay và chạy lại khi tab hoạt động; nút làm mới tay.
+  ngay và chạy lại khi tab hoạt động; nút làm mới tay. Bộ đếm thuộc trang (`composables/use-auto-refresh.ts`), chạy cả
+  khi popover panel chi tiết (D-128 của 012) đóng; trước 2026-10-28 nó nằm trong mục Refresh nên chỉ chạy khi popover mở
+  (lỗi, đã sửa; cùng cho Insights, Presets, Translations).
 
 **Quyền**
 

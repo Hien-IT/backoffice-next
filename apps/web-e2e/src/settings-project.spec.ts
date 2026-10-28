@@ -1,7 +1,8 @@
 // Feature 016 US5 (T092; US5-1 to US5-5, FR-002): the Project and Appearance pages. Edit the project name and save
 // (`PATCH /settings`, the 012 shell updates), switch Insights off and add a link in the module bar (the sidebar follows),
 // set the project color on Appearance, change the owner through system-owner (`POST /settings/owner`);
-// `/content/directus_settings` opens the Project page. The settings are restored after the file.
+// `/content/directus_settings` opens the Project page; no Reporting nor Collaborative Editing section (D-191). The
+// settings are restored after the file.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
@@ -57,6 +58,17 @@ test('project name: PATCH /settings with the edited key; the shell shows it (US5
 	// The button is disabled while saving as well: wait for the stored value.
 	await expect.poll(async () => (await settings())['project_name']).toBe(NAME);
 	await expect(page).toHaveTitle(new RegExp(NAME));
+});
+
+test('no Reporting nor Collaborative Editing section (D-191, owner 2026-10-28)', async ({ page }) => {
+	await signIn(page, '/settings/project');
+	await expect(field(page, 'project_name')).toBeVisible();
+	await expect(field(page, 'mapbox_key')).toBeVisible();
+
+	for (const name of ['report_feature_url', 'report_bug_url', 'report_error_url', 'collaborative_editing_enabled'])
+		await expect(field(page, name)).toHaveCount(0);
+	for (const title of ['Reporting', 'Collaborative Editing'])
+		await expect(page.getByRole('main').getByText(title, { exact: true })).toHaveCount(0);
 });
 
 test('module bar: Insights off and a new link; the sidebar follows (US5-4)', async ({ page }) => {
