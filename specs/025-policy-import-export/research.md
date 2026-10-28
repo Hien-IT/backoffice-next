@@ -154,8 +154,10 @@ khóa `/<c>/import`, `/<c>/export` (analyze U1). `libs/types/src/permissions.ts`
 GraphQL `permissions_me` (`services/graphql/resolvers/system.ts:338`) gọi cùng hàm → cùng JSON; scalar
 `permissions_me_type` không đổi nên introspection, SDL không đổi (clarify specify Q1).
 
-Response cache: không đổi (D-189.2, owner 2026-10-28). Ghi quyền qua service của R6 kế thừa `ItemsService` nên khi
-`CACHE_AUTO_PURGE=true` cache dữ liệu bị xóa như ghi `directus_permissions` (`utils/should-clear-cache.ts`).
+Response cache: không đổi (D-189.2, owner 2026-10-28). Ghi quyền qua service của R6 xóa response cache như ghi
+`directus_permissions`: `clearCaches` giống `PermissionsService` của Directus (`directus/api/src/services/permissions.ts:26`),
+không xét `CACHE_AUTO_PURGE`, chỉ bỏ qua khi `autoPurgeCache: false` (sửa câu 2026-10-28; bản trước ghi "khi
+`CACHE_AUTO_PURGE=true`" theo `utils/should-clear-cache.ts` của `ItemsService`).
 
 **Rationale**: web đã đọc `/permissions/me` (`stores/permissions.ts:39`); thêm khóa không đổi dạng các action có sẵn;
 IP access và `$CURRENT_USER` đi cùng đường `fetchPolicies`.

@@ -70,7 +70,8 @@ Cùng dạng `/permissions` (`permissions.controller.ts`), collection `backoffic
 Quyền: admin; người không phải admin cần quyền tương ứng trên `directus_permissions` (`validateAccess`), nếu không 403.
 `permissions`, `validation`, `presets`, `options` là JSON; `fields` là mảng (csv trong DB). Mỗi ghi: activity (`create`,
 `update`, `delete`, collection `backoffice_permissions`), revisions; xóa cache hệ thống và cache quyền (cả hai app qua
-bus), cache dữ liệu khi `CACHE_AUTO_PURGE`.
+bus), response cache mỗi lần ghi như `PermissionsService` của Directus (không xét `CACHE_AUTO_PURGE`, bỏ qua khi
+`autoPurgeCache: false`).
 
 Không `?export=` ở route này; không có trong GraphQL; `/items/backoffice_permissions` → 403 (collection hệ thống).
 

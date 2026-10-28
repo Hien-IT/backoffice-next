@@ -203,9 +203,11 @@ schema.
   `/items/backoffice_permissions` của Directus; "configure" bảng thì bảng vào snapshot (giới hạn như `backoffice_migrations`,
   D-181).
 - Response cache dùng chung (`CACHE_ENABLED=true`): khi chạy cùng Directus, Backoffice có thể trả `/permissions/me` mà
-  Directus đã cache (không có `import`, `export`) và ngược lại (D-189.2, chấp nhận). Đổi quyền import, export xóa
-  response cache theo `CACHE_AUTO_PURGE` như đổi `directus_permissions`; không bật auto purge thì bản cũ còn tới hết TTL,
-  như Directus.
+  Directus đã cache (không có `import`, `export`) và ngược lại (D-189.2, chấp nhận). Mỗi lần ghi quyền import, export
+  qua `/backoffice/permissions` xóa response cache như ghi `directus_permissions`: `clearCaches` giống
+  `PermissionsService` của Directus, không xét `CACHE_AUTO_PURGE`, chỉ bỏ qua khi lời gọi truyền `autoPurgeCache: false`;
+  nên bản `/permissions/me` cũ của cả hai app bị xóa ngay sau khi lưu (sửa câu 2026-10-28, đối chiếu
+  `directus/api/src/services/permissions.ts:26`).
 - Web nhận `/permissions/me` không có `import`, `export` (API là Directus: cấu hình E2E proxy tới Directus, request rơi
   vào Directus, hoặc cache của Directus): web theo luật Directus và ẩn hai cột import, export của ma trận (FR-034).
 - Link share cũ do Directus app tạo (`/admin/shared/<id>`): ở shared-domain `/admin/` đi tới Backoffice web nên link
