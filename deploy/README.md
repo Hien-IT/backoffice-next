@@ -298,7 +298,10 @@ body; request dài cần timeout đọc đủ lâu (FR-051):
 
 **SAML.** Backoffice không có SAML (D-24 của 003). User SAML chỉ dùng Directus app ở domain Directus; cookie của domain
 đó không gửi tới domain Backoffice nên họ không dùng được Backoffice app (spec 026, Q1). `ingress.extraPaths` chỉ dành
-cho Service khác trong namespace, không trỏ Directus từ domain Backoffice.
+cho Service khác trong namespace, không trỏ Directus từ domain Backoffice. Giới hạn đang mở (2026-10-28): response cache
+chung lưu `GET /auth` với khóa không có host, Backoffice lọc `saml`, nên trong tối đa `CACHE_TTL` trang đăng nhập
+Directus có thể thiếu nút SAML (và trang Backoffice có thể hiện nút SAML 404); tạm thời `POST /utils/cache/clear` hoặc
+`CACHE_TTL` ngắn; cách sửa đang chờ chủ dự án (spec 026, edge case "User SAML").
 
 ## Chuyển từ chung domain sang domain riêng
 

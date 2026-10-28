@@ -167,12 +167,20 @@ Backoffice dừng, `generation` của Deployment không đổi. Kịch bản 2, 
 - **User SAML**: Backoffice không có SAML (D-24 của 003). Ở chung domain, user SAML đăng nhập qua Directus rồi dùng
   Backoffice app nhờ cookie cùng domain. Ở domain riêng, cookie của domain D không gửi tới domain B, nên user SAML
   không dùng được Backoffice app. User SAML chỉ dùng Directus app ở domain D (Clarifications Q1); tài liệu ghi rõ.
+  Phát hiện 2026-10-28 (sau khi đóng feature, chưa sửa, cần chủ dự án quyết): `GET /auth` được lưu trong response cache
+  chung với khóa không có host và không có `sessionOnly`; Backoffice lọc provider `saml` (003 D-24), nên khi có SAML,
+  trong tối đa `CACHE_TTL` sau khi app kia ghi cache, trang đăng nhập Directus có thể thiếu nút SAML và trang Backoffice
+  có thể hiện nút SAML dẫn tới 404. Lỗi có từ 003 (Redis chung), không do 026. Cách sửa gọn: Backoffice không đọc,
+  không ghi cache cho `GET /auth` (mẫu `skipCacheRead` của 024), đổi header `Cache-Control` của route đó → khác biệt
+  mới cần duyệt (Nguyên tắc X).
 - **Biến cookie có domain trong env chung**: trước đây bản chung domain cài được; nay mọi bản cạnh Directus dừng ở FR-076
   cho tới khi chủ dự án sửa env Directus (bỏ biến, hoặc domain cha phủ cả D và B).
 - **SSO**: IdP và `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST` (và `AUTH_ALLOWED_PUBLIC_URLS`) phải có URL của domain B (edge case
   của 019 nay áp cho mọi bản cạnh Directus).
-- **Response cache dùng chung**: response có URL theo host (`/server/specs/oas`) cache ở domain này có thể trả ở domain
-  kia; giữ như 019 (Nguyên tắc III).
+- **Response cache dùng chung**: khóa cache không có host, nên response khác nhau giữa hai app bị trả chéo trong `CACHE_TTL`:
+  `/server/specs/oas` (`servers` theo `PUBLIC_URL` của app ghi, path `backoffice_*`), `/permissions/me` (D-189.2),
+  introspection GraphQL (D-186, D-189), `GET /auth` khi có SAML (edge case trên); giữ như 019 (Nguyên tắc III), trừ
+  `GET /auth` đang chờ quyết định.
 - **WebSocket**: Directus bật `WEBSOCKETS_ENABLED` được ở domain D mà không ảnh hưởng domain B; `/websocket` ở domain B
   vẫn do BE trả như 019.
 - **Thay image một service Directus** (US1 của 019): image vẫn thay được (env, volume, probe, uid như 019); service đã

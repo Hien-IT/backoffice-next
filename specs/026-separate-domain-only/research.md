@@ -295,3 +295,20 @@ lại nội dung cũ, không xóa câu cũ. Một dòng của bảng gồm nhi�
   rảnh; run CI `40658073965`, Semgrep `40658074009`; số run đã gửi phiên 021. `graphify update` chạy qua hook sau commit.
 - CI `40658073965` xanh toàn bộ (`deploy-k8s` với chart mới và kind US2/US3-1, `deploy` 2 lượt, `quality` với
   accepted-differences, `guard-differences`); lượt 2 đóng, feature 026 implemented.
+
+## Soi kỹ response cache chung giữa hai domain (2026-10-28, sau khi đóng feature)
+
+- Khóa (`get-cache-key.ts`, hai app như nhau): `hash({ version, user, path, query[, rawQuery][, ip] })`, không host, không
+  `PUBLIC_URL`, không role → mọi `GET` lưu cache dùng chung giữa hai app và hai domain. `CACHE_AUTO_PURGE=true` (compose)
+  xóa cache chung khi có mutation (trừ `directus_activity`, `directus_presets`); TTL mặc định 5 phút.
+- Không qua response cache: `/extensions/sources/*` (stream `pipe`), `/assets`, `/server/health` (`cache=false`), GraphQL
+  mutation/lỗi, mọi request ghi. Trình duyệt cache theo origin; lb không có proxy cache.
+- Trả chéo vì nội dung khác nhau: `/server/specs/oas` (`servers` theo `PUBLIC_URL` của app ghi; path `backoffice_*`),
+  `/permissions/me` (D-189.2), introspection GraphQL (D-186, D-189), và **`GET /auth` khi có provider `saml`** (Backoffice
+  lọc `saml`, 003 D-24; `sessionOnly` không trong `sanitizedQuery` nên khóa trùng; luật Referer chỉ bỏ cache cho ignore
+  list khi `CACHE_AUTO_PURGE=true`): trang đăng nhập Directus có thể thiếu nút SAML, trang Backoffice có thể hiện SAML
+  404, trong tối đa `CACHE_TTL`. Chưa ghi ở 003/012; thêm vào edge case SAML của spec 026 và README. Cách sửa gọn:
+  Backoffice bỏ đọc/ghi cache cho `GET /auth` (`skipCacheRead` + `res.locals.cache=false`), header `Cache-Control` của
+  route đó đổi → khác biệt mới (D-24.1) cần chủ dự án duyệt; không sửa trong 026.
+- Luật bỏ cache theo Referer (`PUBLIC_URL/admin`) vẫn khớp theo từng app (FE B/admin ↔ BE `PUBLIC_URL=B`). 026 không đổi
+  gì ở tầng cache.
