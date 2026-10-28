@@ -46,11 +46,16 @@ Thêm action = thêm một khóa ở đây (và bản sao ở web, research R2),
 `fetchBackofficeAccess({ accountability, collection, action })` (research R3):
 
 ```ts
-type BackofficeAccess = {
+type BackofficeRule = {
+	filter: Filter | null;    // bộ lọc của một dòng quyền; null = mọi dòng
+	fields: string[];         // ['*'] = mọi field
+	formats: string[];        // options.formats; mọi định dạng nếu dòng không có
+};
+
+type BackofficeAccess = BackofficeRule & {
 	allowed: boolean;         // admin: true; khác: có ít nhất một dòng của policy của người gọi
-	filter: Filter | null;    // _or các bộ lọc (null nếu một dòng null); AND với read khi export; kiểm từng dòng khi import
-	fields: string[];         // hợp; ['*'] nếu một dòng *
-	formats: string[];        // hợp options.formats; mọi định dạng nếu một dòng không có
+	rules: BackofficeRule[];  // một luật mỗi dòng; kiểm import và export theo từng luật (FR-011, sửa 2026-10-28)
+	// filter, fields, formats ở trên là các luật cộng dồn: _or, hợp, hợp (GET /permissions/me hiện mức tối đa)
 };
 ```
 

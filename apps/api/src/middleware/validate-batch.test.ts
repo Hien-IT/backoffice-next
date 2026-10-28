@@ -7,7 +7,10 @@ import { validateBatch } from './validate-batch.js';
 import '../types/express.d.ts';
 
 // Spec 025 (CHK015): the export permission of a SEARCH body query.
-vi.mock('../permissions/modules/backoffice-permissions/fetch-backoffice-access.js');
+vi.mock('../permissions/modules/backoffice-permissions/fetch-backoffice-access.js', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	fetchBackofficeAccess: vi.fn(),
+}));
 vi.mock('../database/index.js', () => ({ default: () => ({}) }));
 
 let mockRequest: Partial<Request & { token?: string }>;
@@ -118,7 +121,13 @@ test(`Calls next when all is well`, async () => {
 
 // Spec 025 (FR-006, CHK015): SEARCH of items and of every system route checks the export of its body query.
 test('SEARCH with export in the body query: the export permission of the route collection', async () => {
-	vi.mocked(fetchBackofficeAccess).mockResolvedValue({ allowed: false, filter: null, fields: [], formats: [] });
+	vi.mocked(fetchBackofficeAccess).mockResolvedValue({
+		allowed: false,
+		filter: null,
+		fields: [],
+		formats: [],
+		rules: [],
+	});
 
 	for (const collection of ['articles', 'directus_users']) {
 		mockRequest = {

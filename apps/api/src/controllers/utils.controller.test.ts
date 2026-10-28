@@ -355,8 +355,8 @@ test('POST /utils/import: the import permission after the 415 and before the fil
 	expect(service.import).not.toHaveBeenCalled();
 	expect(vi.mocked(assertImport).mock.calls[0]![1]).toBe('articles');
 
-	const limited = { allowed: true, filter: { title: { _eq: 'a' } }, fields: ['*'], formats: ['csv'] };
-	vi.mocked(assertImport).mockResolvedValue(limited);
+	const rule = { filter: { title: { _eq: 'a' } }, fields: ['*'], formats: ['csv'] };
+	vi.mocked(assertImport).mockResolvedValue({ allowed: true, ...rule, rules: [rule] });
 
 	const wrongFormat = await request
 		.post('/utils/import/articles')

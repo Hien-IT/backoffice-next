@@ -561,6 +561,20 @@ log lb không có dòng nào tới IP `directus`.
 
 ---
 
+## Sửa FR-011 sau lượt 3 (2026-10-28, chủ dự án chọn B + C + D)
+
+- [X] T080 [US4] B: `BackofficeAccess.rules` (một luật mỗi dòng), `forFormat`, `isUnrestricted` trong
+      `bop/fetch-backoffice-access.ts`; `assertBackofficeAction` chỉ giữ luật của định dạng đang xin; test.
+- [X] T081 [US4] C: `importRowGuard` nhận dòng khi khớp trọn bộ lọc và cột của một luật cùng định dạng; test.
+- [X] T082 [US4] D: `bop/export-rules.ts` (luật theo query bằng khóa Symbol, `pairWithExportRules`);
+      `applyExportAccess` gắn luật, không AND bộ lọc, `*` giao field read, kiểm `group`/`aggregate`;
+      `items.service.ts` → `processAst({ exportRules })` → `injectCases(..., rootPermissions)`; test unit.
+- [X] T083 [US4] Parity `permissions/backoffice-permissions.test.ts`: hai policy, csv ẩn `body` ở dòng của policy không
+      cho, json chỉ dòng của policy cho json; import dòng lấy cột của policy này và bộ lọc của policy kia → 403.
+- [X] T084 Sửa spec FR-011, FR-015, research T001 d và CHK023, data-model, contracts/tests.md, CLAUDE.md.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase

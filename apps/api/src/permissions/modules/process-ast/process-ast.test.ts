@@ -163,3 +163,57 @@ test('Injects permission cases for the provided AST', async () => {
 		],
 	});
 });
+
+// Backoffice (spec 025, FR-011): an export pairs the root read permissions with the export rules of the policies.
+test('Pairs the root read permissions with the export rules', async () => {
+	const ast = {
+		type: 'root',
+		name: 'test-collection',
+		children: [
+			{ type: 'field', fieldKey: 'test-field-a', name: 'test-field-a' },
+			{ type: 'field', fieldKey: 'test-field-b', name: 'test-field-b' },
+		],
+	} as unknown as AST;
+
+	const schema = new SchemaBuilder()
+		.collection('test-collection', (c) => {
+			c.field('test-field-a').id();
+			c.field('test-field-b').string();
+		})
+		.build();
+
+	const accountability = { user: 'u1', roles: [] } as unknown as Accountability;
+	const published = { status: { _eq: 'published' } };
+	const own = { owner: { _eq: 'u1' } };
+
+	vi.mocked(fetchPolicies).mockResolvedValue(['test-policy-1']);
+
+	vi.mocked(fetchPermissions).mockResolvedValue([
+		{
+			policy: 'test-policy-1',
+			collection: 'test-collection',
+			action: 'read',
+			fields: ['*'],
+			permissions: published,
+			validation: null,
+			presets: null,
+		},
+	]);
+
+	await processAst(
+		{
+			ast,
+			action: 'read',
+			accountability,
+			exportRules: [
+				{ filter: own, fields: ['*'], formats: ['csv'] },
+				{ filter: null, fields: ['test-field-a'], formats: ['csv'] },
+			],
+		},
+		{ schema } as Context,
+	);
+
+	// Field a shows on published rows (second pair) or own published rows (first); field b only on the first.
+	expect(ast.cases).toEqual([{ _and: [published, own] }, published]);
+	expect(ast.children.map((child) => (child as { whenCase?: number[] }).whenCase)).toEqual([[0, 1], [0]]);
+});

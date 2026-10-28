@@ -254,11 +254,15 @@ schema.
   theo policy. Toggle vẫn chỉ áp cho collection người dùng (FR-010 của 024); quyền `export` theo policy áp cho mọi
   collection, kể cả collection hệ thống; quyền `import` chỉ áp cho collection người dùng (FR-007).
 - **FR-010**: Admin luôn có import, export (vẫn bị toggle chặn).
-- **FR-011**: Người dùng có nhiều policy: có quyền khi ít nhất một policy cho phép, như Directus. Với Use custom: bộ lọc
-  là `_or` của bộ lọc các policy (một policy không có bộ lọc thì không lọc), field là hợp, định dạng là hợp của các
-  policy cho phép. Kết quả vẫn bị giới hạn bởi quyền read của người gọi (engine áp read theo từng policy khi đọc), nên
-  không vượt quyền read (sửa khi implement 2026-10-28, Kết quả T001 d: engine không có điểm chèn để ghép field theo từng
-  policy cho export). Public (policy Public) và share (policy của role trong share) theo cùng quy tắc:
+- **FR-011**: Người dùng có nhiều policy: có quyền khi ít nhất một policy cho phép, như Directus. Với Use custom, bộ
+  lọc, field và định dạng của mỗi policy đi cùng nhau, không gộp chéo (chủ dự án chọn B + C + D ngày 2026-10-28, thay bản
+  "_or bộ lọc, hợp field, hợp định dạng" của lượt 1–3):
+  (B) chỉ các dòng quyền cho phép định dạng đang xin được tính, nên định dạng của một policy không mở dòng của policy
+  khác; (C) import: mỗi dòng của file phải khớp trọn bộ lọc và cột của ít nhất một dòng quyền, không thì từ chối cả file;
+  (D) export: mỗi cặp (quyền read của collection × dòng quyền export) là một nhánh như khi Directus ghép quyền read của
+  nhiều policy: dòng được xuất khi khớp ít nhất một cặp; field hiện trên dòng đó khi có trong một cặp khớp, không thì để
+  trống; `*` là hợp field export mà người gọi đọc được. Vì vậy export không vượt quyền read và không vượt quyền export
+  của từng policy. Public (policy Public) và share (policy của role trong share) theo cùng quy tắc:
   có import, export khi policy của họ cho phép (clarify 2026-10-28, câu 4).
 - **FR-012**: Dòng quyền của policy hay collection không còn tồn tại PHẢI bị bỏ qua.
 - **FR-013**: Đổi quyền import, export PHẢI có tác dụng từ request gửi sau khi lưu xong, trên mọi replica Backoffice.
@@ -272,8 +276,8 @@ schema.
   read), định dạng được phép (tập con của `csv`, `csv_utf8`, `json`, `xml`, `yaml`). Field xin trong request xử lý như
   read của Directus với field không được phép: xin rõ field ngoài giới hạn thì 403 `FORBIDDEN`; `*` hoặc không chỉ định
   thì file chỉ có field được phép (clarify 2026-10-28, câu 2). Field quan hệ `a.b` xét theo field gốc `a` (CHK024).
-  "AND với read" là AND với quyền read đã cộng dồn của người gọi (cách engine áp quyền read khi đọc), không ghép theo
-  từng policy; nhờ vậy export không bao giờ cho nhiều hơn quyền read của người gọi (CHK023).
+  "AND với read" là ghép từng cặp quyền read × dòng quyền export (FR-011 D, sửa 2026-10-28); nhờ vậy export không bao
+  giờ cho nhiều hơn quyền read của người gọi (CHK023). Field xin trong `group` hoặc `aggregate` ngoài giới hạn cũng 403.
 - **FR-016**: Import Use custom PHẢI hỗ trợ: bộ lọc dòng (mỗi dòng trong file phải thỏa), giới hạn field (cột được có
   trong file), định dạng được phép (tập con của `csv`, `json`). Một dòng vi phạm bộ lọc, hoặc file có cột ngoài giới
   hạn, thì cả file bị từ chối với 403 `FORBIDDEN`, không ghi item nào (import chạy trong một transaction như hiện nay;

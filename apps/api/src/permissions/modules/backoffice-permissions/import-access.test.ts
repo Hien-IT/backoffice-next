@@ -1,10 +1,10 @@
-// Backoffice (spec 025, FR-007, FR-016, research T002): the import permission of /utils/import.
+// Backoffice (spec 025, FR-007, FR-011, FR-016, research T002): the import permission of /utils/import.
 import type { Accountability } from '@backoffice/types';
 import { beforeEach, expect, test, vi } from 'vitest';
 import type { Context } from '../../types.js';
 import { validateAccess } from '../validate-access/validate-access.js';
 import { assertBackofficeAction } from './assert-backoffice-action.js';
-import type { BackofficeAccess } from './fetch-backoffice-access.js';
+import type { BackofficeAccess, BackofficeRule } from './fetch-backoffice-access.js';
 import { assertImport, importRowGuard } from './import-access.js';
 
 vi.mock('../validate-access/validate-access.js');
@@ -14,13 +14,10 @@ const context = {} as Context;
 const user = { user: 'u1', admin: false } as Accountability;
 const forbidden = 'You don\'t have permission to access collection "articles" or it does not exist. Queried in root.';
 
-const access = (over: Partial<BackofficeAccess>): BackofficeAccess => ({
-	allowed: true,
-	filter: null,
-	fields: ['*'],
-	formats: ['csv', 'json'],
-	...over,
-});
+const access = (over: Partial<BackofficeRule>): BackofficeAccess => {
+	const rule = { filter: null, fields: ['*'], formats: ['csv', 'json'], ...over };
+	return { allowed: true, ...rule, rules: [rule] };
+};
 
 beforeEach(() => {
 	vi.clearAllMocks();
@@ -68,4 +65,35 @@ test('the row guard: a column outside the allowed fields or a row outside the fi
 	expect(() => guard({ title: 'a', status: 'draft' })).not.toThrow();
 	expect(() => guard({ title: 'a', status: 'published' })).toThrow(forbidden);
 	expect(() => guard({ title: 'a', status: 'draft', body: 'x' })).toThrow(forbidden);
+});
+
+test('several policies: each row fits one rule whole; a format of one policy never opens the rows of another', () => {
+	const drafts: BackofficeRule = {
+		filter: { status: { _eq: 'draft' } },
+		fields: ['title', 'status'],
+		formats: ['csv'],
+	};
+	const notes: BackofficeRule = { filter: null, fields: ['title', 'note'], formats: ['csv', 'json'] };
+	const both: BackofficeAccess = { ...access({}), rules: [drafts, notes] };
+
+	const csv = importRowGuard(both, 'articles', 'text/csv')!;
+	expect(() => csv({ title: 'a', status: 'draft' })).not.toThrow();
+	expect(() => csv({ title: 'a', note: 'n' })).not.toThrow();
+	// The columns of one policy and the filter of the other: neither allows the row.
+	expect(() => csv({ title: 'a', status: 'draft', note: 'n' })).toThrow(forbidden);
+	expect(() => csv({ title: 'a', status: 'published' })).toThrow(forbidden);
+
+	// json: the drafts rule does not take part.
+	const json = importRowGuard(both, 'articles', 'application/json')!;
+	expect(() => json({ title: 'a', status: 'draft' })).toThrow(forbidden);
+	expect(() => json({ title: 'a', note: 'n' })).not.toThrow();
+
+	// A rule without filter and with every field allows any row of its format.
+	expect(
+		importRowGuard(
+			{ ...both, rules: [drafts, { filter: null, fields: ['*'], formats: ['csv'] }] },
+			'articles',
+			'text/csv',
+		),
+	).toBeUndefined();
 });

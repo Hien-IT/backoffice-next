@@ -28,6 +28,7 @@ import { getHelpers } from '../database/helpers/index.js';
 import getDatabase, { getDatabaseClient } from '../database/index.js';
 import { runAst } from '../database/run-ast/run-ast.js';
 import emitter from '../emitter.js';
+import { exportRulesOf } from '../permissions/modules/backoffice-permissions/export-rules.js';
 import { processAst } from '../permissions/modules/process-ast/process-ast.js';
 import { processPayload } from '../permissions/modules/process-payload/process-payload.js';
 import { validateAccess } from '../permissions/modules/validate-access/validate-access.js';
@@ -529,7 +530,8 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 		);
 
 		ast = await processAst(
-			{ ast, action: 'read', accountability: this.accountability },
+			// Backoffice (spec 025, FR-011): the export rules the export check put on the query.
+			{ ast, action: 'read', accountability: this.accountability, exportRules: exportRulesOf(query) },
 			{ knex: this.knex, schema: this.schema },
 		);
 

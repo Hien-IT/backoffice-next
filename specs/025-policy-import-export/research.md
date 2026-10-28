@@ -356,7 +356,7 @@ FR-034).
 | CHK007 | `jsonPointer` của D-189 chỉ khớp khóa của `/permissions/me` và `permissions_me`                            | R11, contracts/tests.md, tasks           |
 | CHK008 | Edge Case: dòng activity, revisions của `backoffice_permissions` trong Directus                            | spec                                     |
 | CHK015 | Kiểm export của `SEARCH` ở `validate-batch.ts` cho mọi route, không chỉ `/items`                            | R3, spec FR-006, contracts, tasks        |
-| CHK023 | AND với quyền read đã cộng dồn, không ghép theo từng policy                                                | R3, spec FR-015                          |
+| CHK023 | Ghép từng cặp quyền read × dòng quyền export (sửa 2026-10-28, FR-011 D)                                   | R3, T001 d, spec FR-011, FR-015          |
 | CHK024 | Field quan hệ `a.b` xét theo `a`                                                                           | R3, spec FR-015                          |
 | CHK030 | Cách kiểm 7 vendor                                                                                         | spec FR-033, contracts/tests.md, tasks   |
 | CHK031 | Kiểu cột do Knex chọn, độ dài tên index                                                                    | spec Assumptions                         |
@@ -381,6 +381,16 @@ FR-034).
   bằng một query (engine chỉ ghép field theo policy cho quyền read, không có điểm chèn cho export): bản đầu dùng hợp field
   và `_or` bộ lọc; kết quả vẫn bị giới hạn bởi quyền read của người gọi (engine áp read theo từng policy khi đọc), nên
   không vượt quyền read (CHK023). Ghi `ponytail:` trong code; spec FR-011 sửa câu chữ (sửa khi implement).
+  **Sửa 2026-10-28 sau lượt 3 (chủ dự án chọn B + C + D, FR-011):** thêm điểm chèn thay vì gộp.
+  `BackofficeAccess.rules` giữ một luật mỗi dòng (bộ lọc, field, định dạng); `forFormat` chỉ giữ luật của định dạng
+  đang xin (B); `importRowGuard` nhận dòng khi khớp trọn một luật (C); export (D): `applyExportAccess` gắn các luật vào
+  query bằng một khóa Symbol (spread giữ, object-hash, Joi, JSON không thấy, nên khóa cache và body không đổi; respond
+  không ghi cache cho `export`), không AND bộ lọc nữa; `*` thành hợp field export giao field read (`fetchAllowedFields`);
+  `ItemsService.readByQuery` đọc luật và đưa vào `processAst` (`exportRules`); `processAst` vẫn kiểm field bằng quyền
+  read như Directus, rồi gọi `injectCases(ast, permissions, pairWithExportRules(...))`: tham số mới `rootPermissions`
+  của `inject-cases.ts` chỉ dùng cho tầng gốc, collection lồng giữ quyền read. Mỗi cặp read × luật export: bộ lọc `_and`,
+  field giao; cặp không còn field bị bỏ. `run-ast` dùng `ast.cases` để lọc dòng (`joinFilterWithCases`) và `CASE WHEN`
+  cho field như read của Directus.
 - (e) `ItemsService` ghi `directus_activity.user` từ `this.accountability.user` (`items.service.ts:338`, `:871`,
   `:1144`): bản sao `{ ...accountability, admin: true }` giữ người gọi (R6 đúng).
 - (f) `deploy/helm/backoffice/ci/kind-test.sh:161` là ConfigMap migration tùy chỉnh (021), không kiểm version migration

@@ -2,6 +2,8 @@
 import type { Accountability, PermissionsAction } from '@backoffice/types';
 import type { AST } from '../../../types/ast.js';
 import { fetchPermissions } from '../../lib/fetch-permissions.js';
+import { pairWithExportRules } from '../backoffice-permissions/export-rules.js';
+import type { BackofficeRule } from '../backoffice-permissions/fetch-backoffice-access.js';
 import { fetchPolicies } from '../../lib/fetch-policies.js';
 import type { Context } from '../../types.js';
 import { fieldMapFromAst } from './lib/field-map-from-ast.js';
@@ -15,6 +17,8 @@ export interface ProcessAstOptions {
 	ast: AST;
 	action: PermissionsAction;
 	accountability: Accountability | null;
+	/** Backoffice (spec 025, FR-011): the export rules of the caller's policies on the root collection. */
+	exportRules?: BackofficeRule[] | undefined;
 }
 
 export async function processAst(options: ProcessAstOptions, context: Context) {
@@ -62,7 +66,13 @@ export async function processAst(options: ProcessAstOptions, context: Context) {
 		validatePathPermissions(path, readPermissions, collection, fields);
 	}
 
-	injectCases(options.ast, permissions);
+	// Backoffice (spec 025, FR-011): an export pairs the root read permissions with the export rules; validation above
+	// stays on the read permissions, so a field the caller may not read is still refused as in DR.
+	injectCases(
+		options.ast,
+		permissions,
+		options.exportRules ? pairWithExportRules(permissions, options.ast.name, options.exportRules) : permissions,
+	);
 
 	return options.ast;
 }

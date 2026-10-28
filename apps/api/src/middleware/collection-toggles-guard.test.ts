@@ -6,13 +6,19 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { getCache } from '../cache.js';
 import { runMiddleware } from '../utils/run-middleware.js';
 import type { CollectionToggles } from '../utils/collection-toggles.js';
+import { exportRulesOf } from '../permissions/modules/backoffice-permissions/export-rules.js';
 import { fetchBackofficeAccess } from '../permissions/modules/backoffice-permissions/fetch-backoffice-access.js';
+import { fetchAllowedFields } from '../permissions/modules/fetch-allowed-fields/fetch-allowed-fields.js';
 import collectionTogglesGuard from './collection-toggles-guard.js';
 
 vi.mock('../cache.js');
 // Spec 025: the export permission of the caller's policies.
-vi.mock('../permissions/modules/backoffice-permissions/fetch-backoffice-access.js');
+vi.mock('../permissions/modules/backoffice-permissions/fetch-backoffice-access.js', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	fetchBackofficeAccess: vi.fn(),
+}));
 vi.mock('../database/index.js', () => ({ default: () => ({}) }));
+vi.mock('../permissions/modules/fetch-allowed-fields/fetch-allowed-fields.js');
 
 const schema = new SchemaBuilder()
 	.collection('a', (c) => {
@@ -118,7 +124,13 @@ describe('export permission (spec 025)', () => {
 	});
 
 	test('?export= without the permission → the collection permission error, on items and on a system route', async () => {
-		vi.mocked(fetchBackofficeAccess).mockResolvedValue({ allowed: false, filter: null, fields: [], formats: [] });
+		vi.mocked(fetchBackofficeAccess).mockResolvedValue({
+			allowed: false,
+			filter: null,
+			fields: [],
+			formats: [],
+			rules: [],
+		});
 
 		await expect(run('/items/a?export=csv', { export: 'csv' }, { accountability: user }).done).rejects.toMatchObject(
 			forbidden(),
@@ -130,17 +142,15 @@ describe('export permission (spec 025)', () => {
 	});
 
 	test('with the permission: the Use custom rules are put into the sanitized query; a format outside → refused', async () => {
-		vi.mocked(fetchBackofficeAccess).mockResolvedValue({
-			allowed: true,
-			filter: { title: { _eq: 'x' } },
-			fields: ['id'],
-			formats: ['csv'],
-		});
+		const rule = { filter: { title: { _eq: 'x' } }, fields: ['id'], formats: ['csv'] };
+		vi.mocked(fetchBackofficeAccess).mockResolvedValue({ allowed: true, ...rule, rules: [rule] });
+		vi.mocked(fetchAllowedFields).mockResolvedValue(['*']);
 
 		// The sanitized query of a request is frozen: the guard puts a new one in its place.
 		const { req, done } = run('/items/a?export=csv', Object.freeze({ export: 'csv' }), { accountability: user });
 		await done;
-		expect(req.sanitizedQuery).toMatchObject({ export: 'csv', filter: { title: { _eq: 'x' } }, fields: ['id'] });
+		expect(JSON.stringify(req.sanitizedQuery)).toBe('{"export":"csv","fields":["id"]}');
+		expect(exportRulesOf(req.sanitizedQuery)).toEqual([rule]);
 
 		await expect(run('/items/a?export=json', { export: 'json' }, { accountability: user }).done).rejects.toMatchObject(
 			forbidden(),

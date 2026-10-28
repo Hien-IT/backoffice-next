@@ -1,6 +1,6 @@
 // Backoffice (spec 025, FR-010, FR-011, FR-017): what the policies of a caller allow for one Backoffice action on one
-// collection: admin everything; otherwise at least one row; the row filters (with $CURRENT_USER... resolved as for
-// directus_permissions), fields and formats of every row added up.
+// collection: admin everything; otherwise one rule per row (filter with $CURRENT_USER... resolved as for
+// directus_permissions, fields, formats), kept apart so the checks pair each filter with its own fields and formats.
 import { BACKOFFICE_PERMISSION_ACTIONS, type BackofficePermissionsAction } from '@backoffice/constants';
 import type { Accountability, BackofficePermission, Filter, Permission } from '@backoffice/types';
 import { isEmpty, uniq } from 'lodash-es';
@@ -11,13 +11,18 @@ import { fetchDynamicVariableData } from '../../utils/fetch-dynamic-variable-dat
 import { processPermissions } from '../../utils/process-permissions.js';
 import { fetchBackofficePermissions } from './fetch-backoffice-permissions.js';
 
-export interface BackofficeAccess {
-	allowed: boolean;
+export interface BackofficeRule {
 	/** Rows the action may touch; null = every row. */
 	filter: Filter | null;
 	/** Fields the action may touch; ['*'] = every field. */
 	fields: string[];
 	formats: string[];
+}
+
+export interface BackofficeAccess extends BackofficeRule {
+	allowed: boolean;
+	/** One rule per row; filter, fields and formats above add them up (what the caller may do at most). */
+	rules: BackofficeRule[];
 }
 
 export interface FetchBackofficeAccessOptions {
@@ -32,42 +37,62 @@ export async function fetchBackofficeAccess(
 ): Promise<BackofficeAccess> {
 	const allFormats = [...BACKOFFICE_PERMISSION_ACTIONS[action].formats];
 
-	if (accountability.admin) return { allowed: true, filter: null, fields: ['*'], formats: allFormats };
+	if (accountability.admin) return accessOf([{ filter: null, fields: ['*'], formats: allFormats }]);
 
 	const policies = await fetchPolicies(accountability, context);
 	const rows = await fetchBackofficePermissions({ policies, collection, action }, context);
 
-	if (rows.length === 0) return { allowed: false, filter: null, fields: [], formats: [] };
+	if (rows.length === 0) return accessOf([]);
 
 	const resolved = await resolveDynamicVariables(rows, accountability, policies, context);
 
-	return { allowed: true, ...combine(resolved, allFormats) };
+	return accessOf(resolved.map((row) => toRule(row, allFormats)));
 }
 
-/**
- * ponytail: rows of several policies are added up (filters `_or`, fields and formats united) instead of pairing each
- * policy's fields with its own filter as DR does for read: the engine has no hook for that on export. The result
- * still goes through the caller's read permissions, so it never exceeds them (spec FR-011, research T001 d).
- */
+/** Only the rules that allow this format take part: a format of one policy never opens the rows of another (FR-011). */
+export function forFormat(access: BackofficeAccess, format: string): BackofficeAccess {
+	return accessOf(access.rules.filter((rule) => rule.formats.includes(format)));
+}
+
+/** A rule with no filter and every field: nothing to restrict. */
+export function isUnrestricted(access: BackofficeAccess): boolean {
+	return access.rules.some((rule) => !rule.filter && rule.fields.includes('*'));
+}
+
+/** What GET /permissions/me shows for the rows of one action: the rules added up, formats in registry order. */
 export function combine(
 	rows: Pick<BackofficePermission, 'permissions' | 'fields' | 'options'>[],
 	allFormats: string[],
-) {
-	const filter = rows.some((row) => !row.permissions || isEmpty(row.permissions))
+): BackofficeRule {
+	const { filter, fields, formats } = accessOf(rows.map((row) => toRule(row, allFormats)));
+	return { filter, fields, formats: allFormats.filter((format) => formats.includes(format)) };
+}
+
+function toRule(
+	row: Pick<BackofficePermission, 'permissions' | 'fields' | 'options'>,
+	allFormats: string[],
+): BackofficeRule {
+	const formats = row.options?.formats;
+
+	return {
+		filter: !row.permissions || isEmpty(row.permissions) ? null : row.permissions,
+		fields: !row.fields || row.fields.includes('*') ? ['*'] : row.fields,
+		formats: formats?.length ? allFormats.filter((format) => formats.includes(format)) : allFormats,
+	};
+}
+
+function accessOf(rules: BackofficeRule[]): BackofficeAccess {
+	if (rules.length === 0) return { allowed: false, filter: null, fields: [], formats: [], rules };
+
+	const filter = rules.some((rule) => !rule.filter)
 		? null
-		: rows.length === 1
-			? rows[0]!.permissions
-			: ({ _or: rows.map((row) => row.permissions) } as Filter);
+		: rules.length === 1
+			? rules[0]!.filter
+			: ({ _or: rules.map((rule) => rule.filter) } as Filter);
 
-	const fields = rows.some((row) => !row.fields || row.fields.includes('*'))
-		? ['*']
-		: uniq(rows.flatMap((row) => row.fields ?? []));
+	const fields = rules.some((rule) => rule.fields.includes('*')) ? ['*'] : uniq(rules.flatMap((rule) => rule.fields));
 
-	const formats = rows.some((row) => !row.options?.formats?.length)
-		? allFormats
-		: allFormats.filter((format) => rows.some((row) => row.options!.formats!.includes(format)));
-
-	return { filter, fields, formats };
+	return { allowed: true, filter, fields, formats: uniq(rules.flatMap((rule) => rule.formats)), rules };
 }
 
 async function resolveDynamicVariables(

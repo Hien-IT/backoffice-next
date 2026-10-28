@@ -10,19 +10,22 @@ import { getCases } from './get-cases.js';
  *
  * @param ast - Read query AST
  * @param permissions - Expected to be filtered down for the policies and action already
+ * @param rootPermissions - Backoffice (spec 025, FR-011): the permissions of the root level only (an export pairs them
+ * with its rules); nested collections keep `permissions`
  */
-export function injectCases(ast: AST, permissions: Permission[]) {
-	ast.cases = processChildren(ast.name, ast.children, permissions);
+export function injectCases(ast: AST, permissions: Permission[], rootPermissions: Permission[] = permissions) {
+	ast.cases = processChildren(ast.name, ast.children, permissions, rootPermissions);
 }
 
 function processChildren(
 	collection: string,
 	children: (NestedCollectionNode | FieldNode | FunctionFieldNode)[],
 	permissions: Permission[],
+	levelPermissions: Permission[] = permissions,
 ) {
 	// Use uniq here, since there might be multiple duplications due to aliases or functions
 	const requestedKeys = uniq(children.map(getUnaliasedFieldKey));
-	const { cases, caseMap, allowedFields } = getCases(collection, permissions, requestedKeys);
+	const { cases, caseMap, allowedFields } = getCases(collection, levelPermissions, requestedKeys);
 
 	// TODO this can be optimized if there is only one rule to skip the whole case/where system,
 	//  since fields that are not allowed at all are already filtered out

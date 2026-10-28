@@ -10,7 +10,7 @@ import type { Context } from '../../types.js';
 import { createCollectionForbiddenError } from '../process-ast/utils/validate-path/create-error.js';
 import { validateAccess } from '../validate-access/validate-access.js';
 import { assertBackofficeAction } from './assert-backoffice-action.js';
-import type { BackofficeAccess } from './fetch-backoffice-access.js';
+import { type BackofficeAccess, type BackofficeRule, forFormat, isUnrestricted } from './fetch-backoffice-access.js';
 
 /** The import access of the caller on a user collection, or null when nothing is checked (admin, system, internal). */
 export async function assertImport(
@@ -28,23 +28,24 @@ export async function assertImport(
 }
 
 /**
- * The format of the uploaded file must be allowed; the row filter and the allowed columns become a check of each row,
- * and one row outside them refuses the whole file (clarify 2026-10-28, question 1).
+ * Only the rules of the uploaded file's format take part; each row must fit one of them whole (its filter and its
+ * columns), as a policy allows (FR-011), and one row that fits none refuses the whole file (clarify 2026-10-28,
+ * question 1).
  */
 export function importRowGuard(access: BackofficeAccess, collection: string, mimetype: string): RowGuard | undefined {
 	const format = importFormatOfMimeType(mimetype);
-
 	// An unsupported type is left to ImportService, which answers it as DR does.
-	if (format && !access.formats.includes(format)) throw createCollectionForbiddenError('', collection);
+	const scoped = format ? forFormat(access, format) : access;
 
-	const allFields = access.fields.includes('*');
-	if (!access.filter && allFields) return undefined;
+	if (!scoped.allowed) throw createCollectionForbiddenError('', collection);
+	if (isUnrestricted(scoped)) return undefined;
 
 	return (row) => {
-		const outside = !allFields && Object.keys(row).some((field) => !access.fields.includes(field));
-
-		if (outside || (access.filter && validatePayload(access.filter, row).length > 0)) {
-			throw createCollectionForbiddenError('', collection);
-		}
+		if (!scoped.rules.some((rule) => fits(rule, row))) throw createCollectionForbiddenError('', collection);
 	};
+}
+
+function fits(rule: BackofficeRule, row: Record<string, unknown>): boolean {
+	const columns = rule.fields.includes('*') || Object.keys(row).every((field) => rule.fields.includes(field));
+	return columns && (!rule.filter || validatePayload(rule.filter, row).length === 0);
 }

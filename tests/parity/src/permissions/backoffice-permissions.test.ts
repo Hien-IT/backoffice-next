@@ -381,6 +381,64 @@ describe('Use custom at Backoffice (FR-015, FR-016, FR-017)', () => {
 	});
 });
 
+// FR-011 (revised 2026-10-28): each policy's filter goes with its own fields and formats, as the read rules of DR do.
+describe('Use custom on two policies at Backoffice (FR-011)', () => {
+	beforeAll(async () => {
+		await revokeAll();
+		await grant(readerPolicy, 'export', {
+			permissions: { status: { _eq: 'published' } },
+			fields: ['id', 'title'],
+			options: { formats: ['csv'] },
+		});
+		await grant(secondPolicy, 'export', {
+			permissions: { status: { _eq: 'draft' } },
+			fields: ['id', 'title', 'body'],
+			options: { formats: ['csv', 'json'] },
+		});
+		await grant(readerPolicy, 'import', { permissions: { status: { _eq: 'draft' } }, fields: ['title', 'status'] });
+		await grant(secondPolicy, 'import', { fields: ['title', 'body'] });
+	});
+
+	afterAll(() => revokeAll());
+
+	it('export: a field shows only on the rows of the policy that allows it; a format only opens its own rows', async () => {
+		const csv = await at('backoffice', { path: `/items/${A}?export=csv&sort=id`, headers: auth(readerJwt) });
+		expect(csv.status, csv.text).toBe(200);
+		const lines = csv.text.split('\n');
+		expect(lines[0]).toBe('"id","title","body"');
+		// alpha is published: the first policy exports it without body; beta is a draft: the second, with body.
+		expect(lines.find((line) => line.includes('"alpha"'))).not.toContain('"a"');
+		expect(lines.find((line) => line.includes('"beta"'))).toContain('"b"');
+
+		const json = await at('backoffice', { path: `/items/${A}?export=json&sort=id`, headers: auth(readerJwt) });
+		expect(json.status, json.text).toBe(200);
+		const rows = json.json as { title: string; body: string | null }[];
+		expect(rows.map((row) => row.title)).not.toContain('alpha');
+		expect(rows.find((row) => row.title === 'beta')).toMatchObject({ body: 'b' });
+	});
+
+	it('import: each row fits one policy whole; the columns of one with the filter of the other refuse the file', async () => {
+		const before = await titles();
+		const send = (text: string) => {
+			const { body, headers } = csvFile(text);
+			return at('backoffice', {
+				method: 'POST',
+				path: `/utils/import/${A}`,
+				headers: { ...headers, ...auth(readerJwt) },
+				body,
+			});
+		};
+
+		const mixed = await send('title,status,body\nmixed,draft,x\n');
+		expect(mixed.status, mixed.text).toBe(403);
+		expect(await titles()).toEqual(before);
+
+		const second = await send('title,body\nsecond,x\n');
+		expect(second.status, second.text).toBe(200);
+		expect(await titles()).toContain('second');
+	});
+});
+
 describe('/permissions/me and permissions_me (D-189)', () => {
 	beforeAll(async () => {
 		await revokeAll();

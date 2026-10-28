@@ -348,3 +348,31 @@ test('Processes a2o children recursively', () => {
 		},
 	]);
 });
+
+// Backoffice (spec 025, FR-011): the export pairs replace the read permissions of the root level only.
+test('Uses the root permissions for the root level and the permissions for nested collections', () => {
+	const ast: DeepPartial<AST> = {
+		name: 'articles',
+		cases: [],
+		children: [
+			{
+				type: 'm2o',
+				fieldKey: 'parent',
+				relation: { related_collection: 'articles' },
+				children: [{ fieldKey: 'title' }],
+				cases: [],
+			},
+		],
+	};
+
+	const permissions: DeepPartial<Permission>[] = [{ collection: 'articles', permissions: null, fields: ['*'] }];
+	const root: DeepPartial<Permission>[] = [
+		{ collection: 'articles', permissions: { owner: { _eq: 'u1' } }, fields: ['*'] },
+	];
+
+	injectCases(ast as AST, permissions as Permission[], root as Permission[]);
+
+	expect(ast.cases).toEqual([{ owner: { _eq: 'u1' } }]);
+	expect(ast.children![0]!.whenCase).toEqual([0]);
+	expect((ast.children![0] as DeepPartial<{ cases: unknown }>).cases).toEqual([{}]);
+});
