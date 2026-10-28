@@ -31,7 +31,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Check each principle in `.specify/memory/constitution.md` (v3.2.0). Mark PASS, or VIOLATION with
+Check each principle in `.specify/memory/constitution.md` (v3.3.0). Mark PASS, or VIOLATION with
 a row in Complexity Tracking.
 
 - [ ] I. No file under `directus/` changed; ported files name their source path in a header comment
@@ -50,8 +50,10 @@ a row in Complexity Tracking.
   `directus_extensions` rows, 2.2.0, and `bootstrap`, 3.0.0: in standalone mode with several replicas run once by a Helm
   Job or compose one-shot service; in shared mode each replica starts like a Directus container; Backoffice migrations
   under a shared Redis lock, 3.2.0), graceful SIGTERM; in-process caches only if rebuilt from DB/Redis and cleared via
-  the Redis bus on every instance
-- [ ] VIII. Only Directus env vars (same names/defaults); new ones prefixed `BACKOFFICE_` with safe default
+  the Redis bus on every instance; next to Directus, Backoffice on its own domain and its API pool holds only BE
+  replicas, Directus never in it (3.3.0)
+- [ ] VIII. Only Directus env vars (same names/defaults); new ones prefixed `BACKOFFICE_` with safe default; next to
+  Directus only `PUBLIC_URL` is set apart for Backoffice (3.3.0)
 - [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept
 - [ ] X. Coverage, perf (≤10% vs Directus), logging/metrics, no email sending, deviations in spec
 - [ ] XI. Nothing out of scope (SAML, non-S3 storage, websockets, theme extensions, AI/MCP...)

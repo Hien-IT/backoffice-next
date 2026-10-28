@@ -147,20 +147,21 @@ VI. Kiến trúc
 
 VII. Triển khai đa instance
 - FE build ra file tĩnh, chạy trong một container nginx. URL API và cấu hình được đọc lúc chạy (runtime config), không ghi cứng lúc build, để một image dùng cho mọi môi trường.
-- BE chạy được nhiều container cùng lúc sau load balancer, cùng với các instance Directus, tất cả ngang hàng trên cùng DB và Redis. Không cần sticky session.
+- BE chạy được nhiều container cùng lúc sau load balancer, ngang hàng với các instance Directus trên cùng DB và Redis. Không cần sticky session.
 - Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và lock upload TUS. Không dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache trong process chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi instance, như Directus.
 - File và ảnh đã transform lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng chung). Không dùng storage local riêng từng container.
 - Khi chạy nhiều instance, extension nạp từ storage dùng chung (EXTENSIONS_LOCATION) hoặc đóng sẵn vào mọi image; cài, gỡ, bật tắt reload mọi instance (cả Directus) qua bus Redis như Directus.
 - Khởi động nhiều replica cùng lúc phải an toàn: chỉ đọc và kiểm tra migration, không ghi gì vào bảng hệ thống khi khởi động (ngoại lệ: dòng `directus_extensions` cho extension mới thấy lần đầu, như Directus, có khóa Redis, constitution 2.2.0; lệnh bootstrap, constitution 3.0.0: image chạy bootstrap rồi start như Directus; chế độ chung thì mỗi replica như một container Directus; chế độ độc lập nhiều replica thì bootstrap chạy một lần trong Helm Job pre-install/pre-upgrade hoặc service chạy một lần của compose; không có lock như Directus).
 - Có /server/health cho readiness và liveness probe. Khi nhận SIGTERM, ngừng nhận request mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
-- FE và BE nên đặt chung một domain: /admin/* vào FE, các path API còn lại vào BE, giống bố cục của Directus.
+- Khi chạy cạnh Directus, Backoffice ở domain riêng: Directus giữ domain, /admin, Ingress, Deployment của nó và không vào pool API của Backoffice; pool API của Backoffice chỉ gồm replica BE (constitution 3.3.0, feature 026).
+- FE và BE của Backoffice nên đặt chung domain của Backoffice: /admin/* vào FE, các path API còn lại vào BE, giống bố cục của Directus.
 
 VIII. Kế thừa toàn bộ biến môi trường của Directus
 - BE đọc toàn bộ biến môi trường Directus 11.17.4 hỗ trợ (danh sách và giá trị mặc định trong directus/packages/env/src/constants/defaults.ts và directus-variables.ts), kể cả biến động như DB_*, STORAGE_<LOCATION>_*, AUTH_<PROVIDER>_*, EMAIL_*, CACHE_*, REDIS_*.
 - Giữ nguyên tên biến, giá trị mặc định và cách đọc: tiền tố ép kiểu (string:, number:, regex:, array:, json:, boolean:), hậu tố _FILE để đọc secret từ file, CONFIG_PATH với file .env, .json, .yaml, .js.
 - Không đổi tên biến khi đổi thương hiệu, không tạo biến mới thay thế biến đã có. Biến chỉ app mới cần thì dùng tiền tố BACKOFFICE_ và phải có giá trị mặc định an toàn.
 - Biến Directus mà app mới chưa hỗ trợ: ghi cảnh báo khi khởi động, không dừng app.
-- Khi deploy, cùng một file .env, ConfigMap, Secret đang dùng cho Directus phải chạy được ngay cho BE mới mà không cần khai báo lại. FE nhận cấu hình lúc chạy từ chính các biến này (ví dụ PUBLIC_URL).
+- Khi deploy, cùng một file .env, ConfigMap, Secret đang dùng cho Directus phải chạy được ngay cho BE mới mà không cần khai báo lại. FE nhận cấu hình lúc chạy từ chính các biến này (ví dụ PUBLIC_URL). Ngoại lệ duy nhất khi chạy cạnh Directus: bản Backoffice đặt riêng PUBLIC_URL theo domain của nó (constitution 3.3.0).
 
 IX. Đổi thương hiệu Directus thành Backoffice
 - Trong app mới, chữ "Directus" mà người dùng hoặc lập trình viên nhìn thấy được đổi thành "Backoffice", miễn là không ảnh hưởng luồng hoạt động hay khả năng chạy song song.
@@ -201,7 +202,7 @@ Quy trình sửa constitution: mọi thay đổi phải ghi lý do, tăng phiên
 
 ### Sửa constitution theo feature
 
-Feature 021 (2.2.0 → 3.0.0) và 022 (3.1.0 → 3.2.0) đã sửa constitution. Prompt sửa nằm ở bước 0 của feature đó trong
+Feature 021 (2.2.0 → 3.0.0), 022 (3.1.0 → 3.2.0) và 026 (3.2.0 → 3.3.0) đã sửa constitution. Prompt sửa nằm ở bước 0 của feature đó trong
 mục 6.
 
 ---
@@ -237,6 +238,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 023 | Filter theo path trong field json (Content, /items, /graphql)                                                   | 005, 011, 014 | BE, FE |
 | 024 | API chặn tìm kiếm, Import, Export theo cài đặt collection (mở rộng 022)                                         | 022       | BE, FE |
 | 025 | Quyền Import, Export theo policy (bảng backoffice_permissions), bỏ Share khỏi giao diện                         | 016, 024  | BE, FE |
+| 026 | Backoffice chạy cạnh Directus chỉ ở domain riêng (bỏ chế độ chung domain của 019)                               | 019, 020, 025 | Deploy |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -248,7 +250,7 @@ URL sang NestJS. Hai mảng chạy song song được.
 Mỗi feature có đủ lệnh theo thứ tự ở mục 2. Dán từng khối vào Claude Code theo số bước, mỗi bước chạy xong mới sang bước
 sau. Model và effort của từng bước xem mục 8 (cột ghi ở dòng "Trạng thái" của feature).
 
-- **Bước 0** chỉ có ở feature phải sửa constitution (021, 022).
+- **Bước 0** chỉ có ở feature phải sửa constitution (021, 022, 026).
 - **`/speckit.plan`** đã gồm phần chung ở mục 7 và phần riêng của feature. Sửa phần chung thì sửa ở mục 7 rồi chép lại
   vào các khối plan.
 - **Feature 001–011** làm trên branch do Spec Kit tạo, xong thì merge vào `main`. **Từ 012** làm trên `main`, không tạo
@@ -2035,6 +2037,107 @@ Ghi chú đưa vào spec và plan 025 (đọc code ngày 2026-10-28, chưa chạ
 - Định dạng: import nhận `application/json`, `text/csv`, `application/vnd.ms-excel`
   (`apps/api/src/services/import-export.service.ts:253`); export có json, xml, csv, csv_utf8, yaml (`:840-888`).
 - `specs/025-*` chưa có; D-189 chưa dùng ở `specs/`, `tests/parity/src/`, `CLAUDE.md` (kiểm 2026-10-28).
+
+### 026: Backoffice chạy cạnh Directus chỉ ở domain riêng
+
+Trạng thái: đang soạn. Đã chạy `/speckit.specify` 2026-10-28 (`specs/026-separate-domain-only/`: spec FR-001..FR-014,
+SC-001..SC-006, US1 compose, US2 Helm, US3 chuyển từ chung domain; checklist requirements đạt; 2 câu chốt: Q1 user SAML
+chỉ dùng Directus app ở domain Directus, Q2 sửa constitution) và bước 0 (constitution 3.3.0, 2026-10-28); spec 019 có
+ghi chú "revised by 026". Còn: `/speckit.clarify` (tùy chọn), `/speckit.plan`, `/speckit.tasks`, `/speckit.analyze`,
+`/speckit.implement`. Bỏ chế độ chung domain của 019 (Directus và replica BE chung pool sau một lb): khi chạy cạnh
+Directus, Backoffice chỉ ở domain riêng (US9 của 019 thành bố cục duy nhất); standalone (021) giữ nguyên. Chỉ đổi đóng
+gói triển khai, không đổi code API và web, không thêm dependency. Thư mục: `specs/026-separate-domain-only/`. Làm trên:
+`main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác). Bước 0 chạy trước
+`/speckit.plan`.
+
+**0. `/speckit.constitution`**
+
+Feature 026 trái với Nguyên tắc VII ("BE ... sau load balancer, cùng với các instance Directus") và VIII ("không cần
+khai báo lại"; 019 chỉ có ngoại lệ T079 cho `PUBLIC_URL` ở chế độ domain riêng). Đã chạy ngày 2026-10-28 sau
+`/speckit.specify` (Clarifications Q2: A): constitution 3.3.0, theo yêu cầu của chủ dự án (kiêm tech lead).
+
+```text
+/speckit.constitution MINOR 3.2.0 → 3.3.0 (spec 026, chủ dự án duyệt 2026-10-28, Q2: A). Nguyên tắc VII: khi Backoffice chạy cạnh Directus (chung DB, Redis, storage), Backoffice PHẢI ở domain riêng: Directus giữ domain, /admin, Ingress, Deployment của nó và không vào pool API của Backoffice; pool API của Backoffice chỉ gồm replica BE; FE và BE của Backoffice chung domain của Backoffice (/admin/* vào FE, path khác vào BE); bỏ ý "BE sau load balancer cùng với các instance Directus" theo nghĩa chung pool, giữ ý ngang hàng trên cùng DB và Redis. Nguyên tắc VIII: PUBLIC_URL là biến duy nhất bản Backoffice đặt riêng khi chạy cạnh Directus (ngoại lệ T079 của 019 thành quy tắc); mọi biến khác dùng nguyên .env/ConfigMap/Secret của Directus. Nguyên tắc IV: lý do "request có thể đi vào bất kỳ instance nào" sửa cho đúng: hai app dùng chung trạng thái trên DB/Redis, token dùng được ở app kia, cookie theo domain.
+```
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/026-separate-domain-only và đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Bỏ hẳn chế độ "chung domain" của spec 019 (FR-050: một domain, /admin → FE Backoffice, các path khác → pool gồm Directus + replica BE). Khi Backoffice chạy song song với Directus (chung DB, Redis, storage), hai bản PHẢI ở hai domain riêng: Directus giữ domain, /admin, Ingress, Deployment của nó và không vào pool API; Backoffice (FE + BE nhiều replica) ở domain riêng, pool API chỉ gồm replica BE, chỉ đặt riêng PUBLIC_URL (FR-071), kiểm tra cookie domain khi cài (FR-076). Chế độ domain riêng (US9, FR-070..FR-076) trở thành chế độ duy nhất khi có Directus; chế độ standalone (021, không Directus) giữ nguyên. Thay đổi compose mặc định, lb conf, Helm (mode shared, Ingress, label apiPool, checks, kind test), bộ test tests/parity/src/deploy, CI deploy/deploy-k8s, benchmark, deploy/README; các route bo_pool của 020 (D-137 /extensions/sources) và 025 (D-189.7 /permissions/me, /backoffice/) không còn cần khi Directus không ở trong pool. Ghi rõ FR nào của 019 bị thay (FR-045 Ingress chung một domain, FR-050, Q1, câu cuối FR-070, SC liên quan) và thêm dòng "revised by 026" vào 019.
+```
+
+**2. `/speckit.clarify`** (tùy chọn)
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Bỏ qua được: các câu đã chốt với chủ dự án ngày 2026-10-28 (bảng quyết định của 026 trong SPECKIT-GUIDE.md, Clarifications Q1, Q2 của spec). Tập trung vào các Assumptions: cổng compose dev (Directus 8090 có /admin của Directus, Backoffice 8091 như chế độ domain riêng đã test, hay Backoffice 8090 như standalone); giữ tên value Helm mode: shared (nghĩa "chạy cạnh Directus") hay đổi tên; values-separate-domain.yaml gộp vào values.yaml hay giữ làm ví dụ; helm upgrade release chung domain cũ: chỉ dừng và báo, hay có bước tự gỡ nhãn pool; US1 của 019 (thay image một service Directus) còn nằm trong phạm vi hỗ trợ không.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt các khác biệt D-xxx, nếu có)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Node 22, pnpm 10, Nx monorepo. Feature 026 không đổi code API, web, image; không thêm dependency. Compose: deploy/compose/docker-compose.yml (lb cổng 8090 với lb/shared-domain.conf: api_pool có directus:8055 và backoffice-api, bo_pool cho /extensions/sources/, /permissions/me, /backoffice/) gộp docker-compose.separate-domain.yml (PUBLIC_URL của backoffice-api và backoffice-web, lb 8091:8081, lb/separate-domain.conf: 8080 → directus, 8081 → /admin FE, còn lại pool chỉ backoffice-api) vào mặc định; xóa docker-compose.separate-domain.yml và lb/shared-domain.conf; kiểm .env.example, .env.deploy-test, docker-compose.standalone.yml, docker-compose.shared-extensions.yml, init-env.sh. Helm deploy/helm/backoffice: values.yaml (mode: shared giữ tên, apiPool bỏ, domain.publicUrl và ingress.host bắt buộc ở mode shared, extraPaths bỏ ví dụ SAML), templates api-service.yaml (selector theo nhãn của release thay backoffice.io/api-pool), api-deployment.yaml (bỏ nhãn pool), api-only-service.yaml (xóa), ingress.yaml (bỏ ba path tới -api-only, một host Backoffice), _checks.tpl (thiếu domain thì dừng; FR-076 cookie domain mọi lần ở mode shared; FR-053 giữ), _helpers.tpl (backoffice.pool), NOTES.txt, values-separate-domain.yaml (gộp hoặc xóa); ci/deps.yaml, ci/kind-test.sh (bỏ patch nhãn pool cho Directus ở :50, apiPool.name ở :129, :142; kiểm Directus không đổi, pod Directus mang nhãn cũ không nhận request), ci/test-template.sh (bỏ kiểm nhãn pool, api-only Service, lượt separate). Test tests/parity/src/deploy: instances.ts (SEPARATE, lbUrl, boLbUrl, composeArgs), separate-domain.test.ts, compose.test.ts, smoke, sessions, schema, flows-schedule, shutdown và tus (tải qua lb domain Backoffice), extensions, backoffice-permissions, backoffice-migrations, image-swap. CI .github/workflows/ci.yml job deploy (bỏ lượt DEPLOY_MODE: separate-domain, còn mặc định và standalone), deploy-k8s; benchmark.yml không dùng deploy/compose (không đổi). Tài liệu: deploy/README.md (mục Máy dev, Domain riêng thành bố cục mặc định, Kubernetes, SAML, thêm mục chuyển từ chung domain sang domain riêng); ghi chú trỏ về 026 ở specs/020-extensions (D-137, FR-047) và specs/025-policy-import-export (D-189.7); CLAUDE.md (dòng 019, 020, 025 nhắc separate-domain override, route lb/Ingress).
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. deploy: không còn cấu hình nào đưa Directus vào pool hay domain của Backoffice, Directus không đổi Deployment/Service/Ingress, chỉ PUBLIC_URL đặt riêng, kiểm tra cookie domain và env đa instance chạy khi cài và nâng cấp, standalone không đổi, route của 020/025 vẫn do BE trả, bộ test deploy và kind phủ US1–US3, tài liệu chuyển đổi đủ bước
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Chia hai lượt: lượt 1 compose (gộp override domain riêng vào mặc định, xóa shared-domain.conf), bộ test tests/parity/src/deploy, job CI deploy; lượt 2 Helm (values, templates, checks, NOTES), ci/kind-test.sh, ci/test-template.sh, job deploy-k8s, tài liệu (deploy/README.md có mục chuyển đổi, ghi chú ở spec 020, 025, CLAUDE.md, SPECKIT-GUIDE.md). Mỗi lượt kết thúc bằng task "đóng lượt" (lint, test, deploy test, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Lượt 1: compose mặc định domain riêng, bộ test deploy, job CI deploy. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=026-separate-domain-only khi chạy script .specify. Lượt 2: Helm chart, kind test, job deploy-k8s, tài liệu. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa, xem CI.
+```
+
+Quyết định của owner (2026-10-28):
+
+| Câu hỏi                          | Chốt                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| Chế độ chung domain của 019      | Bỏ hẳn, không giữ làm tùy chọn                                                    |
+| Sửa 019 hay viết spec mới        | Spec mới 026; 019 có ghi chú "revised by 026"                                     |
+| Bố cục khi chạy cạnh Directus    | Hai domain; pool API của Backoffice chỉ gồm replica BE; Directus không vào pool   |
+| Biến đặt riêng cho Backoffice    | Chỉ `PUBLIC_URL`; kiểm tra cookie domain (FR-076) khi cài, nâng cấp               |
+| User SAML (Q1)                   | Chỉ dùng Directus app ở domain Directus                                           |
+| Constitution (Q2)                | Sửa lên 3.3.0: VII, VIII, lý do của IV                                            |
+| Standalone (021)                 | Giữ nguyên                                                                        |
+| Route riêng của 020 và 025       | Bỏ khỏi lb và Ingress (D-189.7 gỡ, ghi chú D-137 bỏ); BE vẫn trả các path đó     |
+
+Ghi chú đưa vào spec và plan 026 (đọc file ngày 2026-10-28, chưa chạy thử):
+
+- `deploy/compose/lb/shared-domain.conf:10-14`: `api_pool` có `directus:8055` và `backoffice-api`; `bo_pool` cho
+  `/extensions/sources/`, `/permissions/me`, `/backoffice/`.
+- `deploy/compose/lb/separate-domain.conf`: cổng 8080 → `directus:8055`; cổng 8081 → `/admin` tới FE, còn lại pool chỉ
+  `backoffice-api`. Override map 8091:8081, `PUBLIC_URL` `http://localhost:8091` cho `backoffice-api`, `backoffice-web`.
+- Helm: `api-service.yaml:12` và `api-deployment.yaml:25` dùng nhãn `backoffice.io/api-pool`; `ingress.yaml:35,41,45`
+  đưa ba path tới Service `-api-only`; `values-separate-domain.yaml:9-10` đặt `apiPool.name: backoffice-separate` để
+  không pod Directus nào khớp; `values.yaml:81` có ví dụ SAML trong `extraPaths`.
+- `ci/kind-test.sh:50` gắn nhãn pool cho Deployment Directus; `:129`, `:142` đặt `apiPool.name`.
+- CI `.github/workflows/ci.yml` job `deploy`: ba lượt `parity-tests:deploy` (mặc định, `separate-domain`, `standalone`).
+- `.github/workflows/benchmark.yml` không dùng `deploy/compose` (chữ "shared" trong file là "shared runner").
+- Backoffice không có SAML (D-24 của 003: route `404`, không có trong `GET /auth`).
 
 ---
 

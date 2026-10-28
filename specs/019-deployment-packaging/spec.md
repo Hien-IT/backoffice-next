@@ -9,6 +9,11 @@ feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify
 > này, mọi đường dẫn `/directus/...` của image hay container Backoffice (`cli.js`, `uploads`, `database`, `extensions`,
 > `migrations`) đọc là `/backoffice/...`. Mount dùng chung theo đường dẫn tuyệt đối của môi trường parity
 > (`/directus/database/bootstrap`, `/directus/database/sqlite`) và container Directus giữ nguyên `/directus`.
+
+> **2026-10-28 (revised by 026):** chế độ chung domain bị bỏ. Khi chạy cạnh Directus, Backoffice chỉ ở domain riêng
+> (US9 là bố cục duy nhất): thay FR-050 (phần pool), Q1, câu cuối FR-070, "Ingress chung một domain" của FR-045, phần
+> "chế độ domain riêng" của FR-046, FR-052, SC-009 và edge case "Directus trong pool khi tắt máy". Xem
+> `specs/026-separate-domain-only/spec.md` mục "Phần của các spec trước bị thay".
 **Input**: User description: "Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load
 balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi
 trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không

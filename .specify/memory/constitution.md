@@ -1,4 +1,24 @@
 <!--
+Sync Impact Report (3.3.0, 2026-10-28)
+- Version change: 3.2.0 → 3.3.0
+- Modified principles: VII. Triển khai đa instance: BE ngang hàng với Directus trên cùng DB và Redis (bỏ nghĩa chung
+  pool sau load balancer); khi chạy cạnh Directus, Backoffice PHẢI ở domain riêng, Directus giữ domain, `/admin`,
+  Ingress, Deployment và không vào pool API của Backoffice, pool API của Backoffice chỉ gồm replica BE; FE và BE của
+  Backoffice nên chung domain của Backoffice (giữ "nên" cho cấu hình cross-site của 012).
+  VIII. Kế thừa toàn bộ biến môi trường của Directus: `PUBLIC_URL` là biến duy nhất bản Backoffice đặt riêng khi chạy
+  cạnh Directus (ngoại lệ T079 của 019 thành quy tắc).
+  IV. Chạy song song an toàn: sửa lý do (replica bất kỳ của Backoffice; hai app dùng chung trạng thái, token dùng được
+  ở app kia, cookie theo domain).
+- MINOR theo yêu cầu của chủ dự án: các quy định đa instance giữ nguyên, thêm ràng buộc domain riêng. Bố cục chung
+  domain của 019 (Directus trong pool của Backoffice) hợp lệ theo 3.2.0, không còn hợp lệ từ 3.3.0; spec 026 bỏ nó.
+- Lý do: chủ dự án (kiêm tech lead) chọn ngày 2026-10-28 khi viết spec 026 (Clarifications Q2: A): Backoffice và
+  Directus chạy song song thì không chung một domain.
+- Templates: ✅ .specify/templates/plan-template.md (phiên bản, dòng VII, VIII); ✅ SPECKIT-GUIDE.md (Nguyên tắc VII,
+  VIII trong prompt constitution, mục "Sửa constitution theo feature", bước 0 của 026); spec, tasks, checklist template
+  không nhắc các mục này.
+- Follow-up: feature 026 (`specs/026-separate-domain-only/spec.md`). Plan các feature 001–025 giữ Constitution Check theo
+  phiên bản lúc viết.
+
 Sync Impact Report (3.2.0, 2026-10-26)
 - Version change: 3.1.0 → 3.2.0
 - Modified principles: II. Dùng chung database với Directus: thêm migration riêng của Backoffice (bảng hệ thống
@@ -276,7 +296,9 @@ theo Nguyên tắc X.
 - PHẢI đọc cùng tên biến môi trường như Directus (`DB_*`, `SECRET`, `REDIS*`, `CACHE_*`,
   `STORAGE_*`, `PUBLIC_URL`...).
 
-Lý do: người dùng và request có thể đi vào bất kỳ instance nào, Directus hoặc app mới.
+Lý do: request của một user có thể đi vào bất kỳ replica nào của Backoffice, và hai app dùng chung
+trạng thái trên DB, Redis: token do app này cấp dùng được ở app kia (cookie theo domain của từng app),
+thay đổi ở app nào cũng hiện ngay ở app kia.
 
 ### V. Kiểm thử đối chiếu là bắt buộc (NON-NEGOTIABLE)
 
@@ -309,8 +331,8 @@ Lý do: bám cấu trúc service và Knex của Directus giúp port code trực 
 
 - FE build ra file tĩnh, chạy trong một container nginx. URL API và cấu hình PHẢI đọc lúc chạy
   (runtime config), KHÔNG ghi cứng lúc build. Một image dùng cho mọi môi trường.
-- BE PHẢI chạy được nhiều container cùng lúc sau load balancer, cùng với các instance Directus,
-  tất cả ngang hàng trên cùng DB và Redis. Không cần sticky session.
+- BE PHẢI chạy được nhiều container cùng lúc sau load balancer, ngang hàng với các instance
+  Directus trên cùng DB và Redis. Không cần sticky session.
 - Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và
   lock upload TUS. KHÔNG dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache
   trong process chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi
@@ -331,8 +353,11 @@ Lý do: bám cấu trúc service và Knex của Directus giúp port code trực 
     (Redis khi có cấu hình Redis), mỗi lúc một process.
 - PHẢI có `/server/health` cho readiness và liveness probe. Khi nhận SIGTERM: ngừng nhận request
   mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
-- FE và BE nên đặt chung một domain: `/admin/*` vào FE, các path API còn lại vào BE, giống bố cục
-  của Directus.
+- Khi chạy cạnh Directus (chung DB, Redis, storage), Backoffice PHẢI ở domain riêng: Directus giữ
+  domain, `/admin`, Ingress, Deployment của nó và KHÔNG vào pool API của Backoffice; pool API của
+  Backoffice chỉ gồm replica BE (từ 3.3.0, spec 026).
+- FE và BE của Backoffice nên đặt chung domain của Backoffice: `/admin/*` vào FE, các path API còn
+  lại vào BE, giống bố cục của Directus.
 
 Lý do: hệ thống chạy trên nhiều container ngang hàng, có thể bị tắt hoặc thêm bất kỳ lúc nào.
 
@@ -349,7 +374,8 @@ Lý do: hệ thống chạy trên nhiều container ngang hàng, có thể bị 
 - Biến Directus mà app mới chưa hỗ trợ: ghi cảnh báo khi khởi động, KHÔNG dừng app.
 - Khi deploy, cùng một file `.env`, ConfigMap, Secret đang dùng cho Directus PHẢI chạy được ngay
   cho BE mới mà không cần khai báo lại. FE nhận cấu hình lúc chạy từ chính các biến này (ví dụ
-  `PUBLIC_URL`).
+  `PUBLIC_URL`). Ngoại lệ duy nhất khi chạy cạnh Directus: bản Backoffice đặt riêng `PUBLIC_URL`
+  theo domain của nó (Nguyên tắc VII, từ 3.3.0).
 
 Lý do: đội vận hành chỉ duy trì một bộ cấu hình cho cả hai app.
 
@@ -479,4 +505,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 3.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-26
+**Version**: 3.3.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-28
