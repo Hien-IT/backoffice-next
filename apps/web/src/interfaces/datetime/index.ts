@@ -12,7 +12,8 @@ export default defineInterface({
 	description: '$t:interfaces.datetime.description',
 	icon: 'today',
 	component: InterfaceDateTime,
-	types: ['dateTime', 'date', 'time', 'timestamp'],
+	// Backoffice (owner 2026-10-29): timestamp first, so a new datetime field defaults to Timestamp (DR: dateTime).
+	types: ['timestamp', 'dateTime', 'date', 'time'],
 	group: 'selection',
 	options: ({ field }) => {
 		const options = field.meta?.options || {};

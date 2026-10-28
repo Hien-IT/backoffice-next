@@ -234,7 +234,14 @@ describe('registry parity with the Directus registry', () => {
 	});
 
 	test('registered interfaces match Directus', () => {
-		for (const config of getInterfaces()) checkConfig(config, expected.interfaces[config.id]!, INTERFACE_FIELDS);
+		// Owner 2026-10-29: datetime lists timestamp first (the default type of a new field), the same types as DR.
+		const datetimeTypes = ['timestamp', 'dateTime', 'date', 'time'];
+		expect([...datetimeTypes].sort()).toEqual([...(expected.interfaces['datetime']!['types'] as string[])].sort());
+
+		for (const config of getInterfaces()) {
+			const entry = expected.interfaces[config.id]!;
+			checkConfig(config, config.id === 'datetime' ? { ...entry, types: datetimeTypes } : entry, INTERFACE_FIELDS);
+		}
 	});
 
 	test('registered displays match Directus', () => {

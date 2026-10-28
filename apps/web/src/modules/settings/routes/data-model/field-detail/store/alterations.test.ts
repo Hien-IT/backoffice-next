@@ -175,6 +175,15 @@ describe('alterations (SC-006)', () => {
 		expect(await edit(localType as LocalType, iface, key, ...(more as unknown as StateUpdates[]))).toMatchSnapshot();
 	});
 
+	test('a new datetime field defaults to Timestamp (owner 2026-10-29), a compatible type is kept', async () => {
+		expect((await edit('standard', 'datetime', 'revoked_at')).fieldUpdates.type).toBe('timestamp');
+
+		const store = useFieldDetailStore();
+		store.update({ field: { type: 'date' } });
+		store.update({ field: { meta: { interface: 'datetime' } } });
+		expect(store.fieldUpdates.type).toBe('date');
+	});
+
 	test('an existing field gets another interface', async () => {
 		const store = useFieldDetailStore();
 		await store.startEditing('articles', 'title');
