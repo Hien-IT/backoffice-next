@@ -1,5 +1,6 @@
 // Feature 019 (contracts/tests.md): the instances of deploy/compose (project bo-deploy) that the acceptance suite
-// calls directly, and the docker compose command the suite and its global setup share.
+// calls directly, and the docker compose command the suite and its global setup share. Spec 026: one load balancer with
+// two domains (directusLbUrl, boLbUrl); next to Directus only PUBLIC_URL is set apart for the Backoffice services.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -13,32 +14,27 @@ export const DIRECTUS_IMAGE = 'directus/directus:11.17.4';
 export const COMPOSE_DIR = fileURLToPath(new URL('../../../../deploy/compose/', import.meta.url));
 export const ENV_FILE = process.env['DEPLOY_ENV_FILE'] ?? `${COMPOSE_DIR}.env.deploy-test`;
 export const REPLICAS = Number(process.env['BACKOFFICE_REPLICAS'] ?? 3);
-export const SEPARATE = process.env['DEPLOY_MODE'] === 'separate-domain';
 /** Spec 021 (US5): docker-compose.standalone.yml, no Directus. */
 export const STANDALONE = process.env['DEPLOY_MODE'] === 'standalone';
 
-export const lbUrl = 'http://127.0.0.1:8090';
+/** Spec 026 (FR-005): the Directus domain through the load balancer (8090); not served in the standalone mode. */
+export const directusLbUrl = 'http://127.0.0.1:8090';
 /**
  * The instance the cases set up and check data through: Directus; in the standalone mode (no Directus, spec 021 FR-103)
  * the load balancer, whose pool holds the BE replicas only.
  */
-export const directusUrl = STANDALONE ? lbUrl : 'http://127.0.0.1:8095';
-/** Backoffice domain of the separate-domain mode. */
-export const boLbUrl = 'http://127.0.0.1:8091';
+export const directusUrl = STANDALONE ? 'http://127.0.0.1:8090' : 'http://127.0.0.1:8095';
+/**
+ * Spec 026 (FR-002): the Backoffice domain through the load balancer, /admin -> FE, every other path -> the BE replicas
+ * only (8091; 8090 in the standalone mode, where Backoffice runs alone).
+ */
+export const boLbUrl = STANDALONE ? 'http://127.0.0.1:8090' : 'http://127.0.0.1:8091';
+/** PUBLIC_URL of the Backoffice services (config.json, TUS Location): the one variable set apart from the Directus env (FR-003). */
+export const BO_PUBLIC_URL = STANDALONE ? 'http://localhost:8090' : 'http://localhost:8091';
 
 /** Arguments of `docker compose` for this project, mode and env file. */
-export function composeArgs(
-	args: string[],
-	separate = SEPARATE,
-	envFile = ENV_FILE,
-	standalone = STANDALONE,
-): string[] {
-	const files = [
-		'-f',
-		'docker-compose.yml',
-		...(separate ? ['-f', 'docker-compose.separate-domain.yml'] : []),
-		...(standalone ? ['-f', 'docker-compose.standalone.yml'] : []),
-	];
+export function composeArgs(args: string[], envFile = ENV_FILE, standalone = STANDALONE): string[] {
+	const files = ['-f', 'docker-compose.yml', ...(standalone ? ['-f', 'docker-compose.standalone.yml'] : [])];
 	return ['compose', '-p', PROJECT, '--env-file', envFile, ...files, ...args];
 }
 
@@ -61,7 +57,7 @@ export function replicaUrl(index: number): string {
 	return `http://127.0.0.1:${port}`;
 }
 
-/** The BE replicas, then Directus (not in the standalone mode): the instances of the load balancer pool. */
+/** The BE replicas, then Directus (not in the standalone mode): the instances the cases call directly. */
 export function instanceUrls(replicas = REPLICAS, standalone = STANDALONE): string[] {
 	const replicaUrls = Array.from({ length: replicas }, (_, i) => replicaUrl(i + 1));
 	return standalone ? replicaUrls : [...replicaUrls, directusUrl];

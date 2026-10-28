@@ -2,7 +2,7 @@
 // session: tokens, refresh, session cookie, logout and the failed-login counter are shared through the DB and Redis.
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, onTestFinished } from 'vitest';
-import { adminToken, api, directusUrl, instanceUrls, SEPARATE, sharedEnv } from './instances.js';
+import { adminToken, api, directusUrl, instanceUrls, sharedEnv } from './instances.js';
 
 const created: string[] = [];
 let urls: string[];
@@ -31,7 +31,7 @@ async function user(): Promise<{ id: string; email: string; password: string }> 
 	return { id: res.body.data.id, email, password };
 }
 
-describe.skipIf(SEPARATE)('one login, every instance', () => {
+describe('one login, every instance', () => {
 	it('accepts the access token of one instance at all of them', async () => {
 		const env = sharedEnv();
 		const res = await login(urls[0]!, { email: env['ADMIN_EMAIL'], password: env['ADMIN_PASSWORD'] });

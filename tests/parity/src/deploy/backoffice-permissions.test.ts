@@ -1,8 +1,9 @@
-// Spec 025 (US6, FR-013, FR-031, D-189.7): deploy/compose with BACKOFFICE_REPLICAS BE replicas and Directus. An export
-// permission written at one replica applies to the next request at another, and its removal too (FR-013); the lb sends
-// /permissions/me and /backoffice/* to the BE replicas only (shared domain), like /extensions/sources/ of spec 020.
+// Spec 025 (US6, FR-013, FR-031): deploy/compose with BACKOFFICE_REPLICAS BE replicas and Directus. An export
+// permission written at one replica applies to the next request at another, and its removal too (FR-013); at the
+// Backoffice domain /permissions/me and /backoffice/* are answered by a BE replica (spec 026 FR-009: every path of that
+// domain reaches the BE; the lb route of D-189.7 is gone).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { adminToken, api, compose, directusUrl, lbLog, lbUrl, replicaUrl, SEPARATE, STANDALONE } from './instances.js';
+import { adminToken, api, boLbUrl, directusUrl, replicaUrl, STANDALONE } from './instances.js';
 
 const COLLECTION = 'bo_deploy_permissions';
 const EMAIL = 'bo-deploy-permissions@example.com';
@@ -63,23 +64,16 @@ describe('backoffice_permissions on several replicas (spec 025)', () => {
 		expect(await exportAt(1)).toBe(403);
 	});
 
-	// Directus would answer /permissions/me without import and export, and has no /backoffice/permissions (D-189.7).
-	it.skipIf(SEPARATE || STANDALONE)(
-		'/permissions/me and /backoffice/* go to the BE replicas only (FR-031)',
-		async () => {
-			const since = new Date().toISOString();
-			const paths = ['/permissions/me', '/backoffice/permissions?limit=1'];
-
-			for (let i = 0; i < 8; i++) {
-				for (const path of paths) expect((await api(lbUrl, 'GET', path, { token: admin })).status, path).toBe(200);
+	// Directus has no /backoffice/permissions (D-189.6): a 200 at the Backoffice domain proves a BE replica answered.
+	it('answers /permissions/me and /backoffice/* at the Backoffice domain (FR-031, spec 026 FR-009)', async () => {
+		for (let i = 0; i < 8; i++) {
+			for (const path of ['/permissions/me', '/backoffice/permissions?limit=1']) {
+				expect((await api(boLbUrl, 'GET', path, { token: admin })).status, path).toBe(200);
 			}
+		}
+	});
 
-			const directusIp = compose('exec', '-T', 'directus', 'hostname', '-i').trim().split(/\s+/)[0];
-			const lines = lbLog(since).filter((line) => paths.some((path) => line.includes(`"GET ${path}`)));
-			expect(lines.length).toBeGreaterThanOrEqual(16);
-			expect(lines.filter((line) => line.includes(`${directusIp}:8055`))).toEqual([]);
-			// Directus itself still answers its own /permissions/me (unchanged, D-189).
-			expect((await api(directusUrl, 'GET', '/permissions/me', { token: admin })).status).toBe(200);
-		},
-	);
+	it.skipIf(STANDALONE)('Directus itself still answers its own /permissions/me (D-189)', async () => {
+		expect((await api(directusUrl, 'GET', '/permissions/me', { token: admin })).status).toBe(200);
+	});
 });

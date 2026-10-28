@@ -11,7 +11,6 @@ import {
 	directusUrl,
 	docker,
 	runContainer,
-	SEPARATE,
 	STANDALONE,
 	waitFor,
 } from './instances.js';
@@ -34,8 +33,9 @@ function swap(extraEnv: string[] = []) {
 	return c;
 }
 
-// Spec 021: no Directus service to swap in the standalone mode.
-describe.skipIf(SEPARATE || STANDALONE)('BE image in place of the Directus image', () => {
+// Spec 021: no Directus service to swap in the standalone mode. Spec 026 (Q7): a swapped service would serve the
+// Backoffice domain with its own PUBLIC_URL; this test calls the container directly, outside any load balancer.
+describe.skipIf(STANDALONE)('BE image in place of the Directus image', () => {
 	let swapped: { id: string; url: string };
 
 	beforeAll(async () => {

@@ -1,5 +1,6 @@
-# Feature 019: Directus 11.17.4 and Backoffice (BE replicas, FE) behind one nginx load balancer, on shared Postgres,
-# Redis and MinIO (S3). Directus and the BE read the same env file; only the image differs (spec FR-041).
+# Feature 019, spec 026: Directus 11.17.4 and Backoffice (BE replicas, FE) on two domains of one nginx load balancer, on
+# shared Postgres, Redis and MinIO (S3). Directus and the BE read the same env file; only the image differs (019 FR-041)
+# and the Backoffice services set PUBLIC_URL to their own domain (026 FR-003, Principle VIII).
 #
 #   cd deploy/compose
 #   ./init-env.sh                                   # once: .env with random secrets
@@ -7,9 +8,10 @@
 #   BACKOFFICE_REPLICAS=3 docker compose up -d --wait
 #   docker compose down [-v]
 #
-# Ports: http://localhost:8090 (lb: /admin -> FE, the rest -> Directus + BE replicas), http://localhost:8095 (Directus
-# directly), one random port per BE replica (`docker compose port --index <i> backoffice-api 8055`).
-# Admin: ADMIN_EMAIL / ADMIN_PASSWORD in .env.
+# Ports: http://localhost:8090 (the Directus domain: everything, its own /admin, to Directus), http://localhost:8091 (the
+# Backoffice domain: /admin -> FE, the rest -> the BE replicas only), http://localhost:8095 (Directus directly), one
+# random port per BE replica (`docker compose port --index <i> backoffice-api 8055`). Admin: ADMIN_EMAIL /
+# ADMIN_PASSWORD in .env.
 
 name: bo-deploy
 
@@ -88,6 +90,9 @@ services:
     platform: linux/amd64
     deploy:
       replicas: ${BACKOFFICE_REPLICAS:-2}
+    # Spec 026 (FR-003): the one variable set apart from the Directus env, the URL of the Backoffice domain.
+    environment:
+      PUBLIC_URL: http://localhost:8091
     depends_on:
       directus: { condition: service_healthy }
     ports:
@@ -103,6 +108,8 @@ services:
     <<: *app-env
     image: hiennd23/backoffice-web:${BACKOFFICE_TAG:-latest}
     platform: linux/amd64
+    environment:
+      PUBLIC_URL: http://localhost:8091
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO /dev/null http://127.0.0.1:8080/admin/config.json || exit 1']
       interval: 2s
@@ -115,9 +122,10 @@ services:
       backoffice-api: { condition: service_healthy }
       backoffice-web: { condition: service_healthy }
     ports:
-      - '8090:8080'
+      - '8090:8080' # the Directus domain
+      - '8091:8081' # the Backoffice domain
     volumes:
-      - ./lb/shared-domain.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./lb/shared.conf:/etc/nginx/conf.d/default.conf:ro
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO /dev/null http://127.0.0.1:8080/admin/config.json || exit 1']
       interval: 2s

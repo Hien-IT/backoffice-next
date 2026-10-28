@@ -28,6 +28,9 @@ services:
 
   backoffice-api:
     command: ['node', 'cli.js', 'start']
+    # Spec 026 (FR-011): docker-compose.yml sets the PUBLIC_URL of the Backoffice domain (8091); alone, Backoffice stays
+    # at 8090 with the PUBLIC_URL of the env file (Principle VIII).
+    environment: !reset []
     volumes:
       - migrations:/backoffice/migrations
     depends_on: !override
@@ -35,7 +38,12 @@ services:
       redis: { condition: service_healthy }
       minio-init: { condition: service_completed_successfully }
 
+  backoffice-web:
+    environment: !reset []
+
   lb:
+    ports: !override
+      - '8090:8080' # no Backoffice domain port 8091: Backoffice is alone at 8090
     volumes: !override
       - ./lb/standalone.conf:/etc/nginx/conf.d/default.conf:ro
 

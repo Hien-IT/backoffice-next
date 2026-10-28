@@ -9,7 +9,7 @@ import {
 	compose,
 	containerName,
 	docker,
-	lbUrl,
+	boLbUrl,
 	psql,
 	REPLICAS,
 	replicaUrl,
@@ -62,6 +62,6 @@ describe.skipIf(!STANDALONE)('standalone compose: migrations through the bootstr
 		expect(docker('inspect', '-f', '{{.State.ExitCode}}', containerName('bootstrap'))).not.toBe('0');
 		expect(custom()).not.toContain('20990106A');
 		expect(replicaStarts()).toEqual(replicas);
-		expect((await fetch(`${lbUrl}/server/health`)).status).toBe(200);
+		expect((await fetch(`${boLbUrl}/server/health`)).status).toBe(200);
 	});
 });

@@ -210,3 +210,36 @@ lại nội dung cũ, không xóa câu cũ. Một dòng của bảng gồm nhi�
   `ingress.host` trước, chỉ fallback khi Ingress tắt; test-template có case fallback.
 - Rolling update của `-api` khi nâng cấp từ 019 (bỏ nhãn pod): không mất request nhờ `maxUnavailable: 0`, chưa đo.
 - Thời gian job `deploy-k8s` tăng ít (một `helm upgrade` thất bại thêm) [Inference].
+
+## Kết quả T001 (2026-10-28)
+
+- Docker 29.8.2 (arm64), Compose v5.5.0 (`!override`, `!reset` dùng được); Helm v4.2.0 (CI ghim 4.3.0); không có `kind`,
+  `kubeconform` local → kind và kubeconform chỉ chạy ở CI `deploy-k8s` (T023, T029).
+- Image `hiennd23/backoffice-{api,web}:local` build 11:00 cùng ngày, sau commit `f3991fd5` (025 FR-011, 10:54): đủ mới
+  cho bộ deploy (026 không đổi code).
+- Không có project `bo-deploy` nào đang chạy; cổng 8090, 8091, 8095 rảnh. `deploy/compose/.env.deploy-test` có sẵn
+  (38 dòng, global setup dùng lại).
+- `docker compose config` sau T004, T005: mặc định `lb` 8090:8080 + 8091:8081, `lb/shared.conf`, hai service Backoffice
+  khác env Directus đúng `PUBLIC_URL=http://localhost:8091`; standalone không `directus`, `lb` chỉ 8090:8080,
+  `backoffice-api.environment` = `bootstrap.environment`, `PUBLIC_URL` của `.env` (8090); shared-extensions hợp lệ.
+- `pnpm nx run-many -t lint,typecheck -p parity-tests` xanh; prettier sửa `domains.test.ts` (file đổi tên).
+
+## Kết quả T015 (2026-10-28, local, image `:local`)
+
+- Lượt mặc định (`pnpm nx run parity-tests:deploy`, 13:47–13:51): 55/66 test đạt, 7 skip (standalone), 4 đỏ:
+  - `image-swap` và `web-image` "carries the version labels": image build local không có
+    `org.opencontainers.image.revision` (`unknown`); CI build qua `nx-container` có nhãn. Không liên quan 026, chỉ local.
+  - `compose` "runs no main process as root": `bo-deploy-registry-1` (fixture registry giả của profile `extensions-test`,
+    `node:22-alpine` chạy root). Compose 5.5.0 local liệt kê cả container của profile trong `ps` (CI ubuntu-latest
+    không, test vẫn xanh ở CI). Sửa test: bỏ `-registry-1` khỏi danh sách (fixture, không phải service triển khai).
+  - `extensions` "installed from the registry through Directus": `POST /extensions/registry/install` ở Directus trả 500
+    một lần; chạy lại riêng (`extensions.test.ts`, `compose.test.ts`, 13:52–13:54) đạt (204). Lỗi tạm thời của Directus
+    emulated amd64 trên arm64 [Inference]; theo dõi ở CI.
+  - `domains.test.ts` (định tuyến hai domain, TUS 8091, FR-073, cookie, env chỉ `PUBLIC_URL`), `smoke`, `shutdown` (tải qua
+    8091), `backoffice-permissions` (`/permissions/me`, `/backoffice/permissions` ở 8091), `sessions`, `schema`,
+    `flows-schedule`, `tus`, `backoffice-migrations`: đạt.
+- SC-005: global setup `up -d --wait` với image sẵn có ≈ 25–60 s (lượt chạy lại 13:52:51 → test bắt đầu trước 13:53:20);
+  cả suite ≈ 4,5 phút.
+- Lượt standalone (`DEPLOY_MODE=standalone`, 13:54–13:58, sau `down -v`): 38/66 đạt, 27 skip (Directus, `domains`,
+  `image-swap`, `extensions`), 1 đỏ (`web-image` nhãn revision, local như trên). Override standalone với `!reset`,
+  `!override`: `lb` chỉ 8090, `config.json` `apiUrl` 8090, env replica = env `bootstrap`.

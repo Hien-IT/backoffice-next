@@ -4,7 +4,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { metadata, tus } from '../tus-request.js';
-import { adminToken, api, compose, containerName, directusUrl, docker, instanceUrls, SEPARATE } from './instances.js';
+import { adminToken, api, compose, containerName, directusUrl, docker, instanceUrls } from './instances.js';
 
 // TUS_CHUNK_SIZE default (8mb), as the TUS parity file of 007: an S3 multipart part under 5 MB does not move the offset.
 const CHUNK = 8 * 1024 * 1024;
@@ -71,7 +71,7 @@ async function upload(
 	}
 }
 
-describe.skipIf(SEPARATE)('TUS over several instances', () => {
+describe('TUS over several instances', () => {
 	it('takes each chunk at another instance (Directus included)', async () => {
 		const data = randomBytes(4 * CHUNK + CHUNK / 2);
 		await upload(data, `deploy-tus-${randomUUID().slice(0, 8)}.bin`, (chunk) => urls[chunk % urls.length]!);

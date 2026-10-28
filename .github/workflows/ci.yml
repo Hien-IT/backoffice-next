@@ -407,8 +407,8 @@ jobs:
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=postgres
 
-  # Feature 019 (T111, contracts/tests.md): the acceptance suite on deploy/compose with 3 BE replicas + 1 Directus, then
-  # the separate-domain mode, with the images of the `docker` job.
+  # Feature 019 (T111, contracts/tests.md), spec 026: the acceptance suite on deploy/compose with 3 BE replicas + 1
+  # Directus on two domains, then the standalone mode, with the images of the `docker` job.
   deploy:
     needs: docker
     runs-on: ubuntu-latest
@@ -428,9 +428,6 @@ jobs:
           name: images
       - run: gunzip -c images.tar.gz | docker load
       - run: pnpm nx run parity-tests:deploy --output-style=static
-      - run: pnpm nx run parity-tests:deploy --output-style=static
-        env:
-          DEPLOY_MODE: separate-domain
       # Spec 021 (US5): the standalone override on an empty database, without Directus.
       - name: fresh environment for the standalone mode
         working-directory: deploy/compose

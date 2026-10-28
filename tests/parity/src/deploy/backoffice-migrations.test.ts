@@ -2,7 +2,7 @@
 // Backoffice migrations run once under the shared Redis lock. Shared mode: every replica runs bootstrap (image CMD);
 // standalone mode (spec 021): the one-shot bootstrap service runs them and the replicas only start.
 import { describe, expect, it } from 'vitest';
-import { compose, REPLICAS, SEPARATE, STANDALONE } from './instances.js';
+import { compose, REPLICAS, STANDALONE } from './instances.js';
 
 const APPLYING = 'Applying Add Collection UI Toggles...';
 const UP_TO_DATE = 'Backoffice migrations are up to date';
@@ -25,7 +25,7 @@ function psql(sql: string): string[] {
 		.filter(Boolean);
 }
 
-describe.skipIf(SEPARATE)('Backoffice migrations on several replicas (spec 022)', () => {
+describe('Backoffice migrations on several replicas (spec 022)', () => {
 	it('backoffice_migrations holds one row per migration and directus_collections the three columns', () => {
 		expect(psql('select version from backoffice_migrations order by version')).toEqual(['20261026A', '20261028A']);
 		// Spec 025 (D-189.5): the table of migration 20261028A.

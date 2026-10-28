@@ -47,7 +47,7 @@ kết thúc bằng task "đóng lượt" (lint, test, deploy test, commit, push 
 
 **Purpose**: công cụ và image để chạy bộ test deploy local.
 
-- [ ] T001 Kiểm công cụ local và ghi "Kết quả T001" vào `specs/026-separate-domain-only/research.md`: `docker compose
+- [X] T001 Kiểm công cụ local và ghi "Kết quả T001" vào `specs/026-separate-domain-only/research.md`: `docker compose
       version` ≥ 2.24.4 (`!override`, `!reset`), `helm version` 4.3.x, `kubeconform`, `kind` (có thì chạy kind local,
       không thì chỉ CI); build image `hiennd23/backoffice-{api,web}:local` (`pnpm nx run-many -t container -p api web`
       hoặc tag sẵn có qua `BACKOFFICE_TAG`); xác nhận không có project `bo-deploy` của phiên khác đang chạy
@@ -59,13 +59,13 @@ kết thúc bằng task "đóng lượt" (lint, test, deploy test, commit, push 
 
 **Purpose**: helper chung của mọi test deploy; chặn mọi task test phía sau.
 
-- [ ] T002 Sửa `tests/parity/src/deploy/instances.ts` theo `contracts/tests.md`: bỏ `SEPARATE`; `composeArgs(args,
+- [X] T002 Sửa `tests/parity/src/deploy/instances.ts` theo `contracts/tests.md`: bỏ `SEPARATE`; `composeArgs(args,
       envFile = ENV_FILE, standalone = STANDALONE)` không còn file override domain riêng; `lbUrl` → `directusLbUrl =
       'http://127.0.0.1:8090'` (domain D qua lb, không dùng ở standalone); thêm `boLbUrl = STANDALONE ? 'http://127.0.0.1:8090'
       : 'http://127.0.0.1:8091'` và `BO_PUBLIC_URL = STANDALONE ? 'http://localhost:8090' : 'http://localhost:8091'`; comment
       đầu file nêu spec 026 FR-005; `directusUrl`, `instanceUrls`, `replicaUrl`, `lbLog`, `containerIp`, `psql`,
       `runContainer`, `runDirectus` giữ nguyên.
-- [ ] T003 Sửa `tests/parity/src/deploy/instances.test.ts`: `composeArgs(['up'], '/tmp/e')` không chứa file override;
+- [X] T003 Sửa `tests/parity/src/deploy/instances.test.ts`: `composeArgs(['up'], '/tmp/e')` không chứa file override;
       `composeArgs(['up'], '/tmp/e', true)` chứa `docker-compose.standalone.yml`; `boLbUrl`/`BO_PUBLIC_URL` theo
       `DEPLOY_MODE`; file chạy trong bộ đủ ở T015 (config deploy có `globalSetup` dựng compose; không chạy riêng).
 
@@ -85,7 +85,7 @@ lb: cổng 8081 chỉ IP replica, cổng 8080 chỉ IP Directus (`quickstart.md`
 
 ### Compose
 
-- [ ] T004 [US1] `compose/docker-compose.yml` theo `contracts/compose.md`: `lb.ports` = `'8090:8080'`, `'8091:8081'`;
+- [X] T004 [US1] `compose/docker-compose.yml` theo `contracts/compose.md`: `lb.ports` = `'8090:8080'`, `'8091:8081'`;
       `lb.volumes` = `./lb/shared.conf:/etc/nginx/conf.d/default.conf:ro`; `backoffice-api.environment.PUBLIC_URL` và
       `backoffice-web.environment.PUBLIC_URL` = `http://localhost:8091`; chú thích đầu file (dòng 1–12) viết lại: hai
       domain, cổng 8090 (Directus, `/admin` của Directus), 8091 (Backoffice: `/admin` → FE, còn lại → replica BE), 8095,
@@ -93,7 +93,7 @@ lb: cổng 8081 chỉ IP replica, cổng 8080 chỉ IP Directus (`quickstart.md`
       compose/lb/separate-domain.conf compose/lb/shared.conf` và sửa chú thích đầu file (`shared` = next to Directus,
       spec 026 FR-001, FR-002; bỏ các "see shared-domain.conf" :9, :14, :44 → chép câu giải thích ngắn tại chỗ);
       `git rm compose/lb/shared-domain.conf compose/docker-compose.separate-domain.yml`.
-- [ ] T005 [P] [US1] `compose/docker-compose.standalone.yml`: thêm `lb.ports: !override ['8090:8080']`,
+- [X] T005 [P] [US1] `compose/docker-compose.standalone.yml`: thêm `lb.ports: !override ['8090:8080']`,
       `backoffice-api.environment: !reset`, `backoffice-web.environment: !reset` với comment "Spec 026 (FR-011): the
       default file sets PUBLIC_URL of the Backoffice domain; standalone has no Directus, Backoffice stays at 8090 with the
       PUBLIC_URL of .env"; `compose/lb/standalone.conf` dòng 1–2 trỏ `shared.conf` thay `shared-domain.conf`. Kiểm:
@@ -103,9 +103,9 @@ lb: cổng 8081 chỉ IP replica, cổng 8080 chỉ IP Directus (`quickstart.md`
 
 ### Bộ test deploy (mỗi file một task, song song sau T002)
 
-- [ ] T006 [P] [US1] `dtest/smoke.test.ts`: bỏ `skipIf(SEPARATE)`; health qua `boLbUrl`; `config.json` = `{ apiUrl:
+- [X] T006 [P] [US1] `dtest/smoke.test.ts`: bỏ `skipIf(SEPARATE)`; health qua `boLbUrl`; `config.json` = `{ apiUrl:
       BO_PUBLIC_URL }`; comment đầu file "the default environment (spec 026)".
-- [ ] T007 [P] [US1] `dtest/compose.test.ts` theo `contracts/tests.md`: bỏ `skipIf(SEPARATE)`; case FR-041 thành "gives
+- [X] T007 [P] [US1] `dtest/compose.test.ts` theo `contracts/tests.md`: bỏ `skipIf(SEPARATE)`; case FR-041 thành "gives
       the BE the Directus env with only PUBLIC_URL changed": khóa khác nhau giữa `backoffice-api.environment` và
       `directus.environment` đúng `['PUBLIC_URL']`, giá trị `http://localhost:8091` (cả `backoffice-web`); case FR-050 →
       "spreads API requests over the BE replicas only" (100 request `boLbUrl/server/info`: mọi upstream là IP replica, ≥ 2
@@ -113,36 +113,39 @@ lb: cổng 8081 chỉ IP replica, cổng 8080 chỉ IP Directus (`quickstart.md`
       Directus; `skipIf(STANDALONE)`); case `/admin` và `/` → `boLbUrl`; case X-Forwarded-For: một login qua `boLbUrl`
       (ip của dòng activity mới nhất = `203.0.113.9`, upstream là replica) và một qua `directusLbUrl` (`skipIf(STANDALONE)`),
       bỏ vòng lặp chờ "rơi vào Directus"; describe standalone không đổi.
-- [ ] T008 [P] [US1] `git mv tests/parity/src/deploy/separate-domain.test.ts tests/parity/src/deploy/domains.test.ts`: `describe.skipIf(STANDALONE)('one
+      Thực tế (2026-10-28): case FR-041 và case FR-050 bỏ khỏi `compose.test.ts` vì `domains.test.ts` đã kiểm cùng điều
+      (env chỉ khác `PUBLIC_URL`; định tuyến theo cổng); format log của `shared.conf` có cột `$server_port` nên
+      `.at(-2)` cũ không còn là upstream.
+- [X] T008 [P] [US1] `git mv tests/parity/src/deploy/separate-domain.test.ts tests/parity/src/deploy/domains.test.ts`: `describe.skipIf(STANDALONE)('one
       domain per app')`; `lbUrl` → `directusLbUrl`; bỏ `SEPARATE`; comment đầu file: spec 026 US1 (FR-001..FR-003), 019 US9;
       các case giữ (Directus app ở 8090, `config.json` 8091, định tuyến theo cổng, `Location` TUS, FR-073, cookie không
       `Domain`, env chỉ `PUBLIC_URL`).
-- [ ] T009 [P] [US1] `dtest/shutdown.test.ts`: bỏ `skipIf(SEPARATE)`; `autocannon` `url: boLbUrl`; comment "load through the
+- [X] T009 [P] [US1] `dtest/shutdown.test.ts`: bỏ `skipIf(SEPARATE)`; `autocannon` `url: boLbUrl`; comment "load through the
       Backoffice domain (spec 026 SC-003)".
-- [ ] T010 [P] [US1] `dtest/sessions.test.ts`, `dtest/schema.test.ts`, `dtest/flows-schedule.test.ts`, `dtest/tus.test.ts`,
+- [X] T010 [P] [US1] `dtest/sessions.test.ts`, `dtest/schema.test.ts`, `dtest/flows-schedule.test.ts`, `dtest/tus.test.ts`,
       `dtest/backoffice-migrations.test.ts`, `dtest/web-image.test.ts`: bỏ import và `skipIf(SEPARATE)` (describe không
       skip ở mặc định); `dtest/image-swap.test.ts`: `describe.skipIf(STANDALONE)`, comment "Q7 of spec 026: the swapped
       service serves the Backoffice domain; this test calls the container directly".
-- [ ] T011 [P] [US1] `dtest/extensions.test.ts`: case "the app chunks go to the BE replicas only (D-137)" → "the app chunks
+- [X] T011 [P] [US1] `dtest/extensions.test.ts`: case "the app chunks go to the BE replicas only (D-137)" → "the app chunks
       at the Backoffice domain keep bare specifiers (D-137)": `api(boLbUrl, 'GET', '/extensions/sources/index.js')` 200 và
       nội dung như case cũ; bỏ phần đếm upstream và `skipIf(SEPARATE)`; `lbUrl` → `boLbUrl` ở các chỗ còn lại.
-- [ ] T012 [P] [US1] `dtest/backoffice-permissions.test.ts`: case D-189.7 → `it('answers /permissions/me with import and
+- [X] T012 [P] [US1] `dtest/backoffice-permissions.test.ts`: case D-189.7 → `it('answers /permissions/me with import and
       export and /backoffice/permissions at the Backoffice domain (spec 026 FR-009)')`: qua `boLbUrl` 200 cho
       `/permissions/me` (body có `import`, `export`) và `/backoffice/permissions`; bỏ `skipIf(SEPARATE || STANDALONE)`;
       Directus vẫn trả `/permissions/me` của nó (`directusUrl`, `skipIf(STANDALONE)`); comment đầu file bỏ "D-189.7".
-- [ ] T013 [P] [US1] `tests/parity/accepted-differences.ts` dòng D-189.7: `reason: 'Removed by spec 026: next to Directus,
+- [X] T013 [P] [US1] `tests/parity/accepted-differences.ts` dòng D-189.7: `reason: 'Removed by spec 026: next to Directus,
       Backoffice is on its own domain and every path of that domain reaches the BE (no lb or Ingress route).'` (giữ `id`,
       `kind: 'doc'`); lint/typecheck ở T016.
 
 ### CI
 
-- [ ] T014 [US1] `.github/workflows/ci.yml` job `deploy`: xóa bước `parity-tests:deploy` với `DEPLOY_MODE: separate-domain`
+- [X] T014 [US1] `.github/workflows/ci.yml` job `deploy`: xóa bước `parity-tests:deploy` với `DEPLOY_MODE: separate-domain`
       (:431-433); comment đầu job (:410-411) → "the acceptance suite on deploy/compose with 3 BE replicas + 1 Directus on
       two domains (spec 026), then the standalone mode"; các bước còn lại giữ.
 
 ### Chạy local
 
-- [ ] T015 [US1] Chạy `BACKOFFICE_TAG=local pnpm nx run parity-tests:deploy` (dựng mới; nếu env `bo-deploy` cũ còn thì
+- [X] T015 [US1] Chạy `BACKOFFICE_TAG=local pnpm nx run parity-tests:deploy` (dựng mới; nếu env `bo-deploy` cũ còn thì
       `docker compose -p bo-deploy --env-file .env.deploy-test --profile extensions-test down -v --remove-orphans` trước)
       và `DEPLOY_MODE=standalone BACKOFFICE_TAG=local pnpm nx run parity-tests:deploy` (sau bước `down -v`); sửa cho xanh;
       ghi "Kết quả T015" (số test, thời gian, lỗi đã sửa, thời gian `up -d --wait` của global setup với image sẵn có cho

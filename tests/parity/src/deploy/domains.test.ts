@@ -1,29 +1,30 @@
-// Feature 019, US9 (FR-070..FR-075): Backoffice on its own domain (8091) next to Directus on its domain (8090), on the
-// same DB, Redis and storage; only PUBLIC_URL differs for the Backoffice services. Runs with DEPLOY_MODE=separate-domain.
+// Spec 026, US1 (FR-001..FR-003; feature 019 US9, FR-070..FR-075): Backoffice on its own domain (8091) next to Directus
+// on its domain (8090), on the same DB, Redis and storage; only PUBLIC_URL differs for the Backoffice services. The
+// default layout since spec 026; not in the standalone mode (no Directus).
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { metadata, tus } from '../tus-request.js';
 import {
 	adminToken,
 	api,
+	BO_PUBLIC_URL,
 	boLbUrl,
 	compose,
 	containerIp,
 	containerName,
+	directusLbUrl,
 	lbLog,
-	lbUrl,
 	REPLICAS,
-	SEPARATE,
 	sharedEnv,
+	STANDALONE,
 } from './instances.js';
 
-const BO_PUBLIC_URL = 'http://localhost:8091';
 const cleanup: (() => Promise<unknown>)[] = [];
 let directusAdmin: string;
 let boAdmin: string;
 
 beforeAll(async () => {
-	directusAdmin = await adminToken(lbUrl);
+	directusAdmin = await adminToken(directusLbUrl);
 	boAdmin = await adminToken(boLbUrl);
 });
 
@@ -44,16 +45,16 @@ function upstreams(since: string, port: string, path: string): Set<string> {
 	);
 }
 
-describe.skipIf(!SEPARATE)('Backoffice on its own domain', () => {
+describe.skipIf(STANDALONE)('one domain per app', () => {
 	it('serves each app on its domain; the Backoffice app calls its own domain (FR-072)', async () => {
-		expect((await (await fetch(`${lbUrl}/admin/`)).text()).toLowerCase()).toContain('directus');
+		expect((await (await fetch(`${directusLbUrl}/admin/`)).text()).toLowerCase()).toContain('directus');
 		expect(await (await fetch(`${boLbUrl}/admin/config.json`)).json()).toEqual({ apiUrl: BO_PUBLIC_URL });
 	});
 
 	it('routes the Backoffice domain to the BE replicas only, the Directus domain to Directus only', async () => {
 		const since = new Date().toISOString();
 		for (let i = 0; i < 50; i++) await fetch(`${boLbUrl}/server/info`);
-		for (let i = 0; i < 20; i++) await fetch(`${lbUrl}/server/info`);
+		for (let i = 0; i < 20; i++) await fetch(`${directusLbUrl}/server/info`);
 		const replicas = Array.from({ length: REPLICAS }, (_, i) => containerIp(containerName('backoffice-api', i + 1)));
 		const directus = containerIp(containerName('directus'));
 		const bo = upstreams(since, '8081', '/server/info');
@@ -75,7 +76,7 @@ describe.skipIf(!SEPARATE)('Backoffice on its own domain', () => {
 
 	it('shows a change made on one domain at the other at once, both ways (FR-073)', async () => {
 		const collection = `bo_separate_${randomUUID().slice(0, 8)}`;
-		const created = await api(lbUrl, 'POST', '/collections', {
+		const created = await api(directusLbUrl, 'POST', '/collections', {
 			token: directusAdmin,
 			body: {
 				collection,
@@ -85,17 +86,17 @@ describe.skipIf(!SEPARATE)('Backoffice on its own domain', () => {
 			},
 		});
 		expect(created.status).toBe(200);
-		cleanup.push(() => api(lbUrl, 'DELETE', `/collections/${collection}`, { token: directusAdmin }));
+		cleanup.push(() => api(directusLbUrl, 'DELETE', `/collections/${collection}`, { token: directusAdmin }));
 		expect((await api(boLbUrl, 'GET', `/collections/${collection}`, { token: boAdmin })).status).toBe(200);
 
-		const before = (await api(lbUrl, 'GET', '/settings?fields=project_descriptor', { token: directusAdmin })).body.data
-			.project_descriptor;
+		const before = (await api(directusLbUrl, 'GET', '/settings?fields=project_descriptor', { token: directusAdmin }))
+			.body.data.project_descriptor;
 		cleanup.push(() =>
-			api(lbUrl, 'PATCH', '/settings', { token: directusAdmin, body: { project_descriptor: before } }),
+			api(directusLbUrl, 'PATCH', '/settings', { token: directusAdmin, body: { project_descriptor: before } }),
 		);
 		const value = `separate ${randomUUID().slice(0, 8)}`;
 		await api(boLbUrl, 'PATCH', '/settings', { token: boAdmin, body: { project_descriptor: value } });
-		const read = await api(lbUrl, 'GET', '/settings?fields=project_descriptor', { token: directusAdmin });
+		const read = await api(directusLbUrl, 'GET', '/settings?fields=project_descriptor', { token: directusAdmin });
 		expect(read.body.data.project_descriptor).toBe(value);
 	});
 
@@ -110,7 +111,7 @@ describe.skipIf(!SEPARATE)('Backoffice on its own domain', () => {
 		expect(cookie.toLowerCase()).not.toContain('domain=');
 	});
 
-	it('gives the Backoffice services the Directus env with only PUBLIC_URL changed (FR-071)', () => {
+	it('gives the Backoffice services the Directus env with only PUBLIC_URL changed (FR-041, FR-071 of 019; FR-003)', () => {
 		const services = JSON.parse(compose('config', '--format', 'json')).services;
 		const directus: Record<string, string> = services.directus.environment;
 		for (const name of ['backoffice-api', 'backoffice-web']) {

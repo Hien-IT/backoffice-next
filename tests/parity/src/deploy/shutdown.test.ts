@@ -1,4 +1,5 @@
-// Feature 019, US6 (FR-033..FR-035, FR-064, SC-002, SC-008): continuous reads and writes through the load balancer
+// Feature 019, US6 (FR-033..FR-035, FR-064, SC-002, SC-008): continuous reads and writes through the load balancer of
+// the Backoffice domain (spec 026 SC-003)
 // while a BE replica gets SIGTERM and comes back: no request fails, the replica ends with 143 within the grace period
 // and its DB and Redis connections close.
 import autocannon from 'autocannon';
@@ -10,11 +11,10 @@ import {
 	compose,
 	containerIp,
 	containerName,
+	boLbUrl,
 	directusUrl,
 	docker,
-	lbUrl,
 	psql,
-	SEPARATE,
 	sleep,
 	waitFor,
 } from './instances.js';
@@ -51,7 +51,7 @@ afterAll(async () => {
 	await api(directusUrl, 'DELETE', `/collections/${collection}`, { token: admin });
 });
 
-describe.skipIf(SEPARATE)('a BE replica stops and comes back under load', () => {
+describe('a BE replica stops and comes back under load', () => {
 	it('fails no request', async () => {
 		const victim = containerName('backoffice-api', 2);
 		const ip = containerIp(victim);
@@ -60,7 +60,7 @@ describe.skipIf(SEPARATE)('a BE replica stops and comes back under load', () => 
 		expect(before.redis).toBeGreaterThan(0);
 
 		const load = autocannon({
-			url: lbUrl,
+			url: boLbUrl,
 			connections: 20,
 			duration: 60,
 			headers: { authorization: `Bearer ${admin}`, 'content-type': 'application/json' },

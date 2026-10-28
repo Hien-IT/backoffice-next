@@ -2,7 +2,7 @@
 // Directus 11.17.4 (cache headers, SPA fallback) with the same Content-Security-Policy for the same env.
 import { createHash } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { docker, runContainer, runDirectus, SEPARATE, waitFor, WEB_IMAGE } from './instances.js';
+import { docker, runContainer, runDirectus, waitFor, WEB_IMAGE } from './instances.js';
 
 const q = "'";
 // The env sets of the comparison (research R2, T022): defaults, a longer list, no helmet defaults, a new directive.
@@ -34,7 +34,7 @@ const head = async (url: string) => {
 	return { status: res.status, headers: res.headers, body: await res.text() };
 };
 
-describe.skipIf(SEPARATE)('FE image', () => {
+describe('FE image', () => {
 	beforeAll(async () => {
 		fe['a'] = start(() => runContainer(WEB_IMAGE, ['PUBLIC_URL=http://a.test'], 8080));
 		fe['b'] = start(() => runContainer(WEB_IMAGE, ['PUBLIC_URL=http://b.test'], 8080));

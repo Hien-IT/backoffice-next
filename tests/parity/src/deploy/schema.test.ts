@@ -2,7 +2,7 @@
 // first request after the response of the change, with no wait for a cache TTL.
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { adminToken, api, directusUrl, instanceUrls, SEPARATE } from './instances.js';
+import { adminToken, api, directusUrl, instanceUrls } from './instances.js';
 
 const run = randomUUID().slice(0, 8);
 const collection = `bo_deploy_${run}`;
@@ -19,7 +19,7 @@ afterAll(async () => {
 	for (const step of cleanup.reverse()) await step();
 });
 
-describe.skipIf(SEPARATE)('changes at one instance, seen at the others', () => {
+describe('changes at one instance, seen at the others', () => {
 	it('a new collection and a new field', async () => {
 		const created = await api(urls[0]!, 'POST', '/collections', {
 			token: admin,

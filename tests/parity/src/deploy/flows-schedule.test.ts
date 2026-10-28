@@ -11,7 +11,6 @@ import {
 	directusUrl,
 	docker,
 	REPLICAS,
-	SEPARATE,
 	sleep,
 	STANDALONE,
 } from './instances.js';
@@ -96,7 +95,7 @@ afterAll(async () => {
 	if (flowId) await api(directusUrl, 'DELETE', `/flows/${flowId}`, { token: admin });
 });
 
-describe.skipIf(SEPARATE)('schedule flow over the pool', () => {
+describe('schedule flow over the pool', () => {
 	it(`runs once per tick over ${TICKS} ticks`, async () => {
 		const result = await window();
 		expect(result.runs).toBe(TICKS);

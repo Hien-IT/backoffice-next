@@ -501,6 +501,7 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-189.7',
 		feature: '025',
 		kind: 'doc',
-		reason: 'The shared-domain lb and the Ingress send /permissions/me and /backoffice/ to Backoffice only.',
+		reason:
+			'Removed by spec 026: next to Directus, Backoffice is on its own domain and every path of that domain reaches the BE (no lb or Ingress route).',
 	},
 ];

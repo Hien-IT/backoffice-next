@@ -1,7 +1,7 @@
 // Spec 020 US2 (FR-040 to FR-052, SC-003, T062): deploy/compose with BACKOFFICE_REPLICAS BE replicas and Directus, all
 // with EXTENSIONS_LOCATION=s3 (.env.example). The parity-endpoint-demo fixture is copied to the bucket and the API
-// services recreated; then a change at one node reaches every node within 10 s, the app chunks go to the BE pool only,
-// and replicas added by a scale-up serve the extension as soon as they are healthy (FR-048: healthy within 60 s).
+// services recreated; then a change at one node reaches every node within 10 s, the app chunks at the Backoffice domain
+// are the ones of the BE (D-137; spec 026: every path of that domain reaches the BE), and replicas added by a scale-up serve the extension as soon as they are healthy (FR-048: healthy within 60 s).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -10,12 +10,10 @@ import {
 	api,
 	compose,
 	directusUrl,
+	boLbUrl,
 	instanceUrls,
-	lbLog,
-	lbUrl,
 	REPLICAS,
 	replicaUrl,
-	SEPARATE,
 	STANDALONE,
 	sharedEnv,
 	sleep,
@@ -92,18 +90,10 @@ describe.skipIf(STANDALONE)('extensions on every node', () => {
 		await everywhere(instanceUrls(), '/parity-endpoint-demo', 200);
 	});
 
-	it.skipIf(SEPARATE)('the app chunks go to the BE replicas only (D-137)', async () => {
-		const since = new Date().toISOString();
-
-		for (let i = 0; i < 8; i++) {
-			const res = await api(lbUrl, 'GET', '/extensions/sources/index.js');
-			expect(res.status).toBe(200);
-		}
-
-		const directusIp = compose('exec', '-T', 'directus', 'hostname', '-i').trim().split(/\s+/)[0];
-		const lines = lbLog(since).filter((line) => line.includes('/extensions/sources/index.js'));
-		expect(lines.length).toBeGreaterThanOrEqual(8);
-		expect(lines.filter((line) => line.includes(`${directusIp}:8055`))).toEqual([]);
+	it('the app chunks at the Backoffice domain are the ones of the BE (D-137, spec 026 FR-009)', async () => {
+		const atDomain = await api(boLbUrl, 'GET', '/extensions/sources/index.js');
+		expect(atDomain.status).toBe(200);
+		expect(String(atDomain.body)).toBe(String((await api(replicaUrl(1), 'GET', '/extensions/sources/index.js')).body));
 	});
 
 	it('the app bundle: the same index.js at every replica, each chunk it imports served by another (T148, FR-047)', async () => {
