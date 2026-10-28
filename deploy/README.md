@@ -112,12 +112,13 @@ hình thiếu (cảnh báo một instance của 001 chưa có `SYNCHRONIZATION_S
 
 **Bắt buộc theo tình huống**:
 
-| Biến                                                              | Khi nào                                        | Giá trị cần                                                                                |
-| ----------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `PUBLIC_URL`                                                      | dùng SSO, share, link mời; chế độ domain riêng | URL thật của domain (mặc định `/`); chế độ domain riêng: bản Backoffice đặt riêng (FR-071) |
-| `TUS_ENABLED`                                                     | muốn upload TUS (mặc định `false`)             | `true`; cần thêm `REDIS` và storage dùng chung                                             |
-| `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN`            | chế độ domain riêng                            | không đặt, hoặc domain cha phủ cả hai domain (FR-076)                                      |
-| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS` | SSO và chế độ domain riêng                     | thêm URL của domain Backoffice                                                             |
+| Biến                                                                   | Khi nào                                                                                                               | Giá trị cần                                                                                                                               |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `PUBLIC_URL`                                                           | dùng SSO, share, link mời; chế độ domain riêng                                                                        | URL thật của domain (mặc định `/`); chế độ domain riêng: bản Backoffice đặt riêng (FR-071)                                                |
+| `TUS_ENABLED`                                                          | muốn upload TUS (mặc định `false`)                                                                                    | `true`; cần thêm `REDIS` và storage dùng chung                                                                                            |
+| `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN`                 | chế độ domain riêng                                                                                                   | không đặt, hoặc domain cha phủ cả hai domain (FR-076)                                                                                     |
+| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS`      | SSO và chế độ domain riêng                                                                                            | thêm URL của domain Backoffice                                                                                                            |
+| `AWS_REQUEST_CHECKSUM_CALCULATION`, `AWS_RESPONSE_CHECKSUM_VALIDATION` | storage S3 không phải AWS/MinIO (vd Ceph RGW) từ chối checksum trailer: chunk TUS trả 500 `XAmzContentSHA256Mismatch` | `WHEN_REQUIRED` (mặc định `WHEN_SUPPORTED` của `@aws-sdk/client-s3` 3.928.0 gửi `UploadPart` stream dạng `aws-chunked` + `x-amz-trailer`) |
 
 **Khuyến nghị**:
 
