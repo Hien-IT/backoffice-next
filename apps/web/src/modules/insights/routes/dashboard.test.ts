@@ -19,8 +19,6 @@ import { useUserStore } from '../../../stores/user.ts';
 import { calls, json, mockFixtureApi } from '../../../test-utils/fetch.ts';
 import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
-import { useSidebarStore } from '../../../layout/stores/sidebar.ts';
-import RefreshSidebarDetail from '../../../components/sidebar/RefreshSidebarDetail.vue';
 import PanelTile from '../components/PanelTile.vue';
 import DashboardRoute from './DashboardRoute.vue';
 
@@ -270,10 +268,10 @@ test(
 			expect(tileNow()).toBeLessThan(Date.parse('2026-10-18T08:01:00Z'));
 
 			vi.setSystemTime(new Date('2026-10-18T08:05:00Z'));
-			// Below xl the detail panel is a drawer: open it so the refresh section is rendered.
-			useSidebarStore().expand();
+			// The auto refresh runs with the detail popover closed (its detail is not mounted then).
+			insights().refreshIntervals = { [DASHBOARD]: 10 };
 			await flushPromises();
-			wrapper.findComponent(RefreshSidebarDetail).vm.$emit('refresh');
+			vi.advanceTimersByTime(10_000);
 			await flushPromises();
 
 			expect(tileNow()).toBeGreaterThanOrEqual(Date.parse('2026-10-18T08:05:00Z'));

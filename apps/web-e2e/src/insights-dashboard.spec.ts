@@ -146,6 +146,9 @@ test('auto refresh every 10 s asks the panel data again (US2-5)', async ({ page 
 	await page.getByRole('button', { name: 'Auto Refresh', exact: true }).click();
 	await page.getByRole('combobox', { name: 'Refresh Interval' }).click();
 	await page.getByRole('option', { name: 'Every 10 Seconds' }).click();
+	// The timer belongs to the page: it keeps running once the detail popover is closed.
+	await page.keyboard.press('Escape');
+	await expect(page.getByRole('combobox', { name: 'Refresh Interval' })).toHaveCount(0);
 
 	const again = await page.waitForRequest(
 		(request) => request.method() === 'POST' && /\/graphql$/.test(new URL(request.url()).pathname),

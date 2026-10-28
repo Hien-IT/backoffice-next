@@ -14,6 +14,7 @@ import DrawerBatch from '../../../../components/drawers/DrawerBatch.vue';
 import ExportSidebarDetail from '../../../../components/sidebar/ExportSidebarDetail.vue';
 import LayoutSidebarDetail from '../../../../components/sidebar/LayoutSidebarDetail.vue';
 import RefreshSidebarDetail from '../../../../components/sidebar/RefreshSidebarDetail.vue';
+import { useAutoRefresh } from '../../../../composables/use-auto-refresh.ts';
 import { useCollection } from '../../../../composables/use-collection.ts';
 import { useCollectionPermissions } from '../../../../composables/use-permissions/index.ts';
 import { usePreset } from '../../../../composables/use-preset.ts';
@@ -53,6 +54,8 @@ const presetsStore = usePresetsStore();
 async function refresh() {
 	await layoutRef.value?.state?.refresh?.();
 }
+
+useAutoRefresh(refreshInterval, refresh);
 
 async function drawerBatchRefresh() {
 	selection.value = [];
@@ -217,7 +220,7 @@ function clearFilters() {
 					<component :is="currentLayout?.slots.options" v-if="currentLayout?.slots.options" v-bind="layoutState" />
 				</LayoutSidebarDetail>
 				<component :is="currentLayout?.slots.sidebar" v-if="currentLayout?.slots.sidebar" v-bind="layoutState" />
-				<RefreshSidebarDetail v-model="refreshInterval" @refresh="refresh" />
+				<RefreshSidebarDetail v-model="refreshInterval" />
 				<ExportSidebarDetail
 					:collection="collection"
 					:filter="filter ?? undefined"

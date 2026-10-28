@@ -24,6 +24,7 @@ import RefreshSidebarDetail from '../../../components/sidebar/RefreshSidebarDeta
 import LayoutSidebarDetail from '../../../components/sidebar/LayoutSidebarDetail.vue';
 import FlowDialogs from '../../../interfaces/presentation-header/FlowDialogs.vue';
 import { useFlows } from '../../../composables/use-run-manual-flow.ts';
+import { useAutoRefresh } from '../../../composables/use-auto-refresh.ts';
 import { useCollection } from '../../../composables/use-collection.ts';
 import { useCollectionPermissions } from '../../../composables/use-permissions/index.ts';
 import { showUnexpectedError } from '../../../composables/use-notices.ts';
@@ -132,6 +133,8 @@ provideRunManualFlow();
 async function refresh() {
 	await layoutRef.value?.state?.refresh?.();
 }
+
+useAutoRefresh(refreshInterval, refresh);
 
 const downloadHandler = computed(() => layoutRef.value?.state?.download);
 
@@ -563,7 +566,7 @@ function clearFilters() {
 				</LayoutSidebarDetail>
 				<component :is="currentLayout?.slots.sidebar" v-if="currentLayout?.slots.sidebar" v-bind="layoutState" />
 				<ArchiveSidebarDetail v-if="hasArchive" :collection="collection" :archive="archive" />
-				<RefreshSidebarDetail v-model="refreshInterval" @refresh="refresh" />
+				<RefreshSidebarDetail v-model="refreshInterval" />
 				<ExportSidebarDetail
 					v-if="showImport || showExport"
 					:collection="collection"

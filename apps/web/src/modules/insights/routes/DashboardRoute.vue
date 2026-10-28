@@ -15,6 +15,7 @@ import CommentsSidebarDetail from '../../../components/sidebar/CommentsSidebarDe
 import RefreshSidebarDetail from '../../../components/sidebar/RefreshSidebarDetail.vue';
 import type { AppTile } from '../../../components/workspace/BoWorkspaceTile.vue';
 import BoWorkspace from '../../../components/workspace/BoWorkspace.vue';
+import { useAutoRefresh } from '../../../composables/use-auto-refresh.ts';
 import { useEditsGuard } from '../../../composables/use-edits-guard.ts';
 import { useItemPermissions } from '../../../composables/use-permissions/index.ts';
 import { useShortcut } from '../../../composables/use-shortcut.ts';
@@ -201,6 +202,8 @@ const refreshInterval = computed({
 	},
 });
 
+useAutoRefresh(refreshInterval, refreshDashboard);
+
 /* Backoffice: focus after an action (FR-029). */
 const header = useTemplateRef<HTMLElement>('header');
 
@@ -297,7 +300,7 @@ const PRESSED = 'bg-brand-50! text-brand-600! dark:bg-brand-500/15! dark:text-br
 		<template #sidebar>
 			<CommentsSidebarDetail :key="primaryKey" collection="directus_dashboards" :primary-key="primaryKey" />
 
-			<RefreshSidebarDetail v-model="refreshInterval" @refresh="refreshDashboard" />
+			<RefreshSidebarDetail v-model="refreshInterval" />
 		</template>
 
 		<template #navigation>
