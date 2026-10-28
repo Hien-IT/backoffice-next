@@ -51,3 +51,23 @@ test('in a dialog card the editor keeps to the card: the card does not scroll (D
 	expect(document.querySelector('.CodeMirror')!.getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight);
 	body.remove();
 });
+
+test('an empty editor keeps the DR min height (9.4375rem) and fills its frame once resized (owner 2026-10-29)', async () => {
+	mount(InputCode, {
+		props: { value: null, type: 'json', language: 'JSON' },
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
+	await vi.waitFor(() => expect(document.querySelector('.CodeMirror-code')).not.toBeNull());
+	const frame = document.querySelector<HTMLElement>('.input-code')!;
+	const editor = document.querySelector<HTMLElement>('.CodeMirror')!;
+
+	expect(getComputedStyle(frame).resize).toBe('vertical');
+	expect(editor.getBoundingClientRect().height).toBe(9.4375 * 16);
+
+	// What the resize grip does: a height on the frame (1px border on each side).
+	frame.style.height = '400px';
+	await vi.waitFor(() => expect(editor.getBoundingClientRect().height).toBe(398));
+	frame.style.height = '50px';
+	expect(frame.getBoundingClientRect().height).toBe(9.4375 * 16 + 2);
+});

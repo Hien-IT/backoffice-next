@@ -2,10 +2,11 @@
 <script setup lang="ts">
 // Backoffice: EditorFrame recipe (FIELD border on the frame, CodeMirror colors from codemirror-theme.css on the theme
 // tokens, light and dark) instead of the global DR `_codemirror.scss`; the template button is an ICON_BTN with a
-// Tooltip; the form ids reach the CodeMirror textarea like system-raw-editor (FORM_FIELD_A11Y, FR-094).
-import { useWindowSize } from '@vueuse/core';
+// Tooltip; the form ids reach the CodeMirror textarea like system-raw-editor (FORM_FIELD_A11Y, FR-094). Owner
+// 2026-10-29: the frame is resizable (resize-y, pointer only like a textarea grip; DR has none).
+import { useResizeObserver, useWindowSize } from '@vueuse/core';
 import CodeMirror, { type ModeSpec } from 'codemirror';
-import { computed, inject, onMounted, type Ref, ref, watch } from 'vue';
+import { computed, inject, onMounted, type Ref, ref, useTemplateRef, watch } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
 import BoTooltip from '../../components/BoTooltip.vue';
 import { getStringifiedValue } from '../../components/form/utils/get-stringified-value.ts';
@@ -64,6 +65,12 @@ const a11y = inject(FORM_FIELD_A11Y, null);
 const codemirrorEl: Ref<HTMLTextAreaElement | null> = ref(null);
 let codemirror: CodeMirror.Editor | null;
 let previousContent: string | null = null;
+
+// A dragged frame has a height the editor fills: CodeMirror measures its viewport again.
+const frameEl = useTemplateRef<HTMLElement>('frameEl');
+useResizeObserver(frameEl, () => {
+	if (frameEl.value?.style.height) codemirror?.refresh();
+});
 
 onMounted(async () => {
 	if (codemirrorEl.value) {
@@ -333,7 +340,8 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 <template>
 	<div
-		class="input-code bo-codemirror relative w-full overflow-hidden rounded-lg border shadow-theme-xs [&_.CodeMirror-scroll]:min-h-[9.4375rem]"
+		ref="frameEl"
+		class="input-code bo-codemirror relative w-full resize-y overflow-hidden rounded-lg border shadow-theme-xs"
 		:class="[
 			{ disabled, 'non-editable': nonEditable },
 			disabled
@@ -344,8 +352,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		]"
 		dir="ltr"
 	>
-		<!-- An empty editor keeps the DR min height (--input-height-md, _codemirror.scss:360). -->
-		<div ref="codemirrorEl"></div>
+		<div ref="codemirrorEl" class="h-full"></div>
 
 		<template v-if="!nonEditable && template">
 			<button
@@ -372,3 +379,22 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		</template>
 	</div>
 </template>
+
+<style>
+/*
+ * An empty editor keeps the DR min height (--input-height-md, _codemirror.scss:360). Unlayered like the 2.625rem rule of
+ * codemirror-theme.css, which outranks a Tailwind utility in @layer utilities.
+ */
+.input-code.bo-codemirror .CodeMirror-scroll {
+	min-height: 9.4375rem;
+}
+
+/* resize-y: the frame never gets lower than the editor, and once dragged (a height) the editor fills it. */
+.input-code.bo-codemirror {
+	min-height: calc(9.4375rem + 2px);
+}
+
+.input-code.bo-codemirror .CodeMirror {
+	height: 100%;
+}
+</style>

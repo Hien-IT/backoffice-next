@@ -102,6 +102,33 @@ test('the key must be unique in the flow; an unknown type shows its notice (US3-
 	await expect(page.getByRole('dialog').getByRole('button', { name: 'Reset Interface' })).toBeVisible();
 });
 
+test('the Query code editor of Delete Data is 9.4375rem high and resizable (013 D-195)', async ({ page }) => {
+	const id = await createTempFlow(api, tempFlowName('operations', 'code'));
+	await signIn(page);
+	await page.goto(`/admin/settings/flows/${id}`);
+	await panel(page, '$trigger').hover();
+	await panel(page, '$trigger').locator('[data-hint="resolve"]').click();
+	const drawer = page.getByRole('dialog');
+	await drawer.getByRole('textbox', { name: 'Name' }).fill('Delete step');
+	await drawer.getByRole('button', { name: /^Delete Data/ }).click();
+
+	const frame = drawer.locator('[data-field="query"] .input-code');
+	const editor = frame.locator('.CodeMirror');
+	await expect(editor).toBeVisible();
+	// 9.4375rem and a 1px border on each side (an empty editor was one line, 44px, before D-195).
+	expect((await frame.boundingBox())!.height).toBe(153);
+
+	// The resize grip at the bottom end corner: the frame gets taller and the editor fills it.
+	const box = (await frame.boundingBox())!;
+	await page.mouse.move(box.x + box.width - 3, box.y + box.height - 3);
+	await page.mouse.down();
+	await page.mouse.move(box.x + box.width - 3, box.y + box.height + 200, { steps: 10 });
+	await page.mouse.up();
+	await expect.poll(async () => (await frame.boundingBox())!.height).toBeGreaterThan(300);
+	const height = (await frame.boundingBox())!.height;
+	await expect.poll(async () => (await editor.boundingBox())!.height).toBe(height - 2);
+});
+
 test('"+" twice before Save: the second operation nests under the first (US2-12)', async ({ page }) => {
 	const id = await createTempFlow(api, tempFlowName('operations', 1));
 	await signIn(page);
