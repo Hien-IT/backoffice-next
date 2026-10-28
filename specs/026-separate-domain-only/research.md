@@ -187,6 +187,24 @@ chỉ `extract-token.ts:46` (comment port nguyên văn) và `endpoint-app.test.t
 test). FE lấy `apiUrl` từ `PUBLIC_URL` (mặc định `/`, cùng origin) theo từng app; API đọc cookie domain từ env chung
 và `PUBLIC_URL` cho redirect/callback SSO theo từng app (port nguyên văn). Kết luận 1 giữ nguyên.
 
+Hai lớp kiểm sâu hơn (2026-10-28, sau khi đóng feature, theo yêu cầu chủ dự án):
+
+- Lịch sử git: không commit nào chạm `apps/`, `libs/` vì lý do chung domain/pool (`git log --grep` các từ domain/pool
+  trên `apps libs`: chỉ `de8ab0c9` của 023, phần `apps/` là GraphQL json path; `git log -S` với `api_pool`, `bo_pool`,
+  `api-pool`, `shared-domain`, `separate-domain`, "shared domain": 0; "same domain": `fb39adef` là comment port nguyên văn
+  trong `extract-token.ts`).
+- Đối chiếu ngữ nghĩa với nguồn Directus (subagent đọc-chỉ, `diff -w` từng cặp file về host/origin/cookie/`PUBLIC_URL`/
+  redirect/CORS/CSP: middleware cors, extract-token, authenticate, cache, rate-limiter, respond; auth drivers openid/
+  oauth2/ldap/local và utils callback/redirect; controllers auth/server/users/shares/utils/permissions; TUS server;
+  comments/notifications/shares/users service; `constants.ts` cookie; `app-pipeline.ts`; endpoint-app của extension;
+  web sdk/axios, runtime-config, safe-redirect, router, guard, login/SSO, extensions loader, CSP `40-config.sh`,
+  `nginx.conf`, `index.html`): 21 khác biệt hành vi, 0 khác biệt phụ thuộc chung domain hay pool. Lý do của 21 khác
+  biệt: web là image riêng (`/admin`, bundle extension luôn dựng, `apiUrl` từ config.json, router base `/admin/`),
+  Nguyên tắc X/XI (không mail: link mời/share/notification không gửi; không SAML; không WebSocket), Redis/DB dùng chung
+  (024 guard trước response cache, D-188.4, D-189.2), đổi thương hiệu (khóa localStorage), hai nhánh "API là Directus"
+  của web chỉ xét khóa `import` trong `/permissions/me` (E2E proxy-directus, cache Directus ghi). [Inference: đọc và
+  diff nguồn, không chạy; không so `assets`, `graphql`, `items`, `use-bo-permissions.ts`, `use-duplicate.ts`.]
+
 ### Quy ước ghi chú (FR-014)
 
 Dạng `(026: <một câu>)` đặt ngay sau câu hoặc trong ô bảng; dòng của bảng D-xx thêm vào ô "Lý do"/cuối ô. Không viết
