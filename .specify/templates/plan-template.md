@@ -31,7 +31,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Check each principle in `.specify/memory/constitution.md` (v3.3.0). Mark PASS, or VIOLATION with
+Check each principle in `.specify/memory/constitution.md` (v3.4.0). Mark PASS, or VIOLATION with
 a row in Complexity Tracking.
 
 - [ ] I. No file under `directus/` changed; ported files name their source path in a header comment
@@ -40,8 +40,9 @@ a row in Complexity Tracking.
   columns and `is_indexed` on system columns allowed, as Directus does) except Backoffice migrations (3.2.0): tracked in
   system table `backoffice_migrations`, never in `directus_migrations`; only `backoffice_*` tables, `bo_*` columns on
   `directus_*` and their `directus_fields` rows; `up` only, Knex, 7 vendors, re-runnable; run by `bootstrap` on every
-  vendor after the Directus migrations; checked at start; written data matches Directus format; the DB stays usable by
-  Directus 11.17.4 with no new file or config
+  vendor after the Directus migrations; checked at start; written data matches Directus format (except UUID v7 for
+  `uuid` specials of user collections, system collections keep v4, 3.4.0); the DB stays usable by Directus 11.17.4 with
+  no new file or config
 - [ ] III. REST/GraphQL path, query, response, error, status, header, cookie identical to Directus
 - [ ] IV. Shared SECRET/JWT/Redis keys; no critical in-process state; scheduled flows use Redis lock
 - [ ] V. Parity tests (Directus vs new app) planned for every endpoint added or changed

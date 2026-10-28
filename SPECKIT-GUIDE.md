@@ -116,7 +116,7 @@ II. Dùng chung database với Directus
 - Được khởi tạo DB và chạy migration giống Directus 11.17.4: CLI bootstrap, database install, database migrate:latest|up|down. Seed và 101 migration hệ thống là bản port nguyên văn từ directus/api/src/database/{seeds,migrations}, ghim ở 11.17.4, cùng custom migration trong MIGRATIONS_PATH. Chỉ Postgres và SQLite; vendor khác thì DB do Directus khởi tạo và migrate.
 - Không thêm bảng, cột hay migration hệ thống riêng của Backoffice. Ngoài seed và migration port từ Directus, không tạo, sửa, xóa bảng hệ thống directus_* hay cột gốc của chúng. DB do Backoffice tạo phải dùng được với Directus 11.17.4 và ngược lại. Được, như Directus: thêm, sửa, xóa cột người dùng trong collection hệ thống qua API fields; tạo, xóa index trên cột hệ thống qua schema.is_indexed.
 - Khi khởi động (sau bootstrap), app mới đối chiếu bảng directus_migrations với danh sách migration của 11.17.4. Lệch thì dừng và báo lỗi rõ ràng.
-- Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid, ngày giờ, JSON) phải có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được.
+- Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid, ngày giờ, JSON) phải có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được. Ngoại lệ: field có special uuid của collection người dùng, khi API Backoffice tự sinh giá trị, là UUID v7; collection hệ thống giữ UUID v4, kể cả field người dùng thêm vào đó; giá trị client gửi giữ nguyên (constitution 3.4.0, feature 027).
 - Được tạo và sửa bảng dữ liệu người dùng qua API collections/fields/relations, giống Directus.
 
 III. API giống hệt Directus
@@ -202,7 +202,7 @@ Quy trình sửa constitution: mọi thay đổi phải ghi lý do, tăng phiên
 
 ### Sửa constitution theo feature
 
-Feature 021 (2.2.0 → 3.0.0), 022 (3.1.0 → 3.2.0) và 026 (3.2.0 → 3.3.0) đã sửa constitution. Prompt sửa nằm ở bước 0 của feature đó trong
+Feature 021 (2.2.0 → 3.0.0), 022 (3.1.0 → 3.2.0), 026 (3.2.0 → 3.3.0) và 027 (3.3.0 → 3.4.0) đã sửa constitution. Prompt sửa nằm ở bước 0 của feature đó trong
 mục 6.
 
 ---
@@ -239,6 +239,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 024 | API chặn tìm kiếm, Import, Export theo cài đặt collection (mở rộng 022)                                         | 022       | BE, FE |
 | 025 | Quyền Import, Export theo policy (bảng backoffice_permissions), bỏ Share khỏi giao diện                         | 016, 024  | BE, FE |
 | 026 | Backoffice chạy cạnh Directus chỉ ở domain riêng (bỏ chế độ chung domain của 019)                               | 019, 020, 025 | Deploy |
+| 027 | Khóa chính uuid tự sinh dùng UUID v7 thay cho v4                                                                | 005, 021  | BE     |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -250,7 +251,7 @@ URL sang NestJS. Hai mảng chạy song song được.
 Mỗi feature có đủ lệnh theo thứ tự ở mục 2. Dán từng khối vào Claude Code theo số bước, mỗi bước chạy xong mới sang bước
 sau. Model và effort của từng bước xem mục 8 (cột ghi ở dòng "Trạng thái" của feature).
 
-- **Bước 0** chỉ có ở feature phải sửa constitution (021, 022, 026).
+- **Bước 0** chỉ có ở feature phải sửa constitution (021, 022, 026, 027).
 - **`/speckit.plan`** đã gồm phần chung ở mục 7 và phần riêng của feature. Sửa phần chung thì sửa ở mục 7 rồi chép lại
   vào các khối plan.
 - **Feature 001–011** làm trên branch do Spec Kit tạo, xong thì merge vào `main`. **Từ 012** làm trên `main`, không tạo
@@ -2149,6 +2150,104 @@ Ghi chú đưa vào spec và plan 026 (đọc file ngày 2026-10-28, chưa chạ
 - CI `.github/workflows/ci.yml` job `deploy`: ba lượt `parity-tests:deploy` (mặc định, `separate-domain`, `standalone`).
 - `.github/workflows/benchmark.yml` không dùng `deploy/compose` (chữ "shared" trong file là "shared runner").
 - Backoffice không có SAML (D-24 của 003: route `404`, không có trong `GET /auth`).
+
+### 027: Khóa chính uuid tự sinh dùng UUID v7
+
+Trạng thái: đã chạy `/speckit.specify` 2026-10-29 (`specs/027-uuid-v7-primary-keys/`: spec US1–US4, FR-001..FR-012,
+SC-001..SC-007, D-192; checklist requirements đạt) và `/speckit.clarify` 2026-10-29 (2 câu chốt, bảng cuối mục) và bước
+0 (constitution 3.4.0, 2026-10-29) và `/speckit.plan` 2026-10-29 (research R1–R11, đo thứ tự sắp trên Postgres 16 và
+SQLite, data-model, contracts/{api,tests}.md, quickstart; không Complexity Tracking) và `/speckit.checklist` api-compat
+2026-10-29 (26 mục, 6 phát hiện đã sửa vào spec; CHK019 client ngoài kiểm id bằng mẫu phiên bản 1–5); D-192 và rủi ro
+CHK019 duyệt 2026-10-29; `/speckit.tasks` 2026-10-29 (tasks.md 18 task, một lượt, T015 đóng lượt, T018 nightly do chủ dự
+án quyết); `/speckit.analyze` 2026-10-29 (0 CRITICAL, 4 MEDIUM, 5 LOW, đã sửa hết vào spec, tasks, contracts,
+checklist). Còn: `/speckit.implement`. Khi tạo item mà field có `special: uuid` không có giá trị, API Backoffice sinh
+UUID v7 (RFC 9562, có mốc thời gian, sắp theo thứ tự tạo) thay cho v4 của Directus, chỉ ở collection do người dùng tạo.
+Chỉ BE, một chỗ sinh id, không thêm dependency (`uuid` 11.1.0 đã có trong `apps/api`), không migration. Thư mục:
+`specs/027-uuid-v7-primary-keys/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**0. `/speckit.constitution`** (chạy sau `/speckit.clarify`, trước `/speckit.plan`; đã chạy 2026-10-29: 3.4.0)
+
+Nguyên tắc II ghi "Dữ liệu app mới ghi ra (... uuid ...) PHẢI có định dạng giống hệt Directus". UUID v7 cùng dạng chuỗi
+36 ký tự nhưng khác ký tự version, nên chủ dự án chọn sửa câu này (2026-10-29) thay vì chỉ ghi khác biệt D-192 theo
+Nguyên tắc X. Khối dưới viết theo phạm vi đã chốt: chỉ collection do người dùng tạo.
+
+```text
+/speckit.constitution MINOR 3.3.0 → 3.4.0 (spec 027, chủ dự án duyệt 2026-10-29). Nguyên tắc II, ý "Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid, ngày giờ, JSON) PHẢI có định dạng giống hệt Directus": thêm ngoại lệ: field có special uuid của collection người dùng, khi API Backoffice tự sinh giá trị, là UUID v7 (RFC 9562), cùng dạng chuỗi 36 ký tự 8-4-4-4-12 nên Directus 11.17.4 đọc ghi được; collection hệ thống (directus_*, backoffice_*) giữ UUID v4 như Directus, kể cả field người dùng thêm vào đó; id do client gửi giữ nguyên.
+```
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/027-uuid-v7-primary-keys và đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. Feature 027: khóa chính uuid do API Backoffice tự sinh dùng UUID v7 thay cho v4. Bối cảnh: khi tạo collection với khóa chính "Generated UUID" (NewCollection.vue gửi type uuid, meta.special ["uuid"]; cột DB không có default), DB không tự sinh id; API sinh id lúc tạo item bằng transformer uuid của PayloadService (port của directus/api/src/services/payload.ts), hiện là randomUUID() của node:crypto = v4; id client gửi sẵn được giữ nguyên. Lý do (chủ dự án 2026-10-29): chuẩn bị cho phân trang dạng con trỏ (cursor, keyset) ở feature sau: UUID v7 tăng theo thời gian tạo, nên sắp theo id ra thứ tự tạo và id cuối trang dùng làm con trỏ được (WHERE id > <id cuối trang> ORDER BY id). 027 chỉ đổi cách sinh id, không làm phân trang con trỏ. Giới hạn spec phải ghi cho feature phân trang sau: id v4 đã có và id do Directus sinh không theo thời gian; trong một process id tăng dần (gói uuid giữ bộ đếm trong cùng mili giây), nhưng giữa nhiều replica chỉ theo thứ tự mili giây của đồng hồ từng máy; thứ tự sắp của cột uuid khác nhau theo vendor (plan kiểm). Mục tiêu: mọi item tạo qua API Backoffice (REST, GraphQL, import, flow, extension, vì tất cả đi qua ItemsService và PayloadService) mà field special uuid không có giá trị nhận UUID v7. Không đổi: id đã có, id client gửi, item tạo qua Directus 11.17.4 cùng DB (vẫn v4, nên một bảng có lẫn v4 và v7), default ở DB (gen_random_uuid()), dạng chuỗi trong request/response. Không thêm migration, không thêm dependency. Phạm vi đã chốt (chủ dự án 2026-10-29): chỉ field có special uuid không có giá trị của collection do người dùng tạo, gồm cả field không phải khóa chính; collection hệ thống (directus_*, backoffice_*) giữ v4 như Directus, kể cả field special uuid người dùng thêm vào collection hệ thống. Vì collection hệ thống giữ v4 nên POST /users/invite không bị ảnh hưởng: Joi của nó chỉ nhận role uuidv4 (directus/api/src/controllers/users.ts:287, apps/api/src/controllers/users.controller.ts:29; đã thử: id v7 trả lỗi "must be a valid GUID"). Luôn bật, không thêm biến môi trường (chủ dự án 2026-10-29). Khác biệt với Directus ghi từ D-192, chủ dự án duyệt theo Nguyên tắc X; Nguyên tắc II sửa ở bước 0 (constitution 3.4.0, chủ dự án chốt 2026-10-29), chạy trước plan. Test: unit transformer (v7 cho collection người dùng, v4 cho collection hệ thống, giữ id client gửi), test đối chiếu tạo item vẫn giống Directus trừ ký tự version của id, rà mọi validator UUID có ghim version.
+```
+
+**2. `/speckit.clarify`** (đã chạy 2026-10-29)
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. Bỏ qua được: phạm vi đã chốt 2026-10-29 (chỉ field special uuid không có giá trị của collection do người dùng tạo, gồm field không phải khóa chính; collection hệ thống directus_*, backoffice_* giữ v4, kể cả field người dùng thêm vào đó; luôn bật, không thêm biến môi trường). Constitution sửa ở bước 0 sau clarify, không hỏi lại; phân trang con trỏ ngoài phạm vi 027. Tập trung vào: mục "Cần xác nhận" của spec (id v7 chứa thời điểm tạo tới mili giây, collection không có field ngày tạo nay lộ thời điểm tạo: chấp nhận hay không); item tạo lồng nhau (o2m, m2m, a2o) trong một request: collection người dùng nhận v7, item lồng thuộc collection hệ thống (directus_files qua field file) nhận v4; junction của m2m tới collection hệ thống là collection người dùng nên nhận v7.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-192; đã chạy 2026-10-29: D-192 ghi ở spec, `CLAUDE.md`,
+`accepted-differences.ts`, không ghi vào `migration-guide.md` vì file đó chỉ có quyết định giao diện, research R9; không
+chạy `update-agent-context.sh` vì script bỏ các dòng "Recent Changes" từ dòng thứ 3 của `CLAUDE.md`)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 027 chỉ có BE, không thêm dependency (dùng v7() của uuid 11.1.0 đã có trong apps/api/package.json, catalog pnpm-workspace.yaml), không migration. Sửa transformer uuid ở apps/api/src/services/payload.service.ts:86; context của transformer (type Transformers, :36) chưa có collection, nên chọn cách đưa collection vào (thêm vào context ở processField :350, hoặc chọn generator trong processField), ghi comment khác biệt với DR ngay chỗ sửa (Nguyên tắc IX). Nhận biết collection hệ thống như code hiện có (tìm helper đang dùng cho directus_* và backoffice_*, không tự viết danh sách mới); collection người dùng = không phải collection hệ thống. Rà: các chỗ khác gọi randomUUID (migration port nguyên văn, metrics: giữ nguyên); Joi ghim version (users.controller.ts:29: giữ như Directus, role là collection hệ thống nên vẫn v4); test ghim v4 (cli security.test.ts:21, init/index.test.ts:34, tests/parity/src/bootstrap/cli.test.ts:170: là key, secret của CLI, không đổi); test đối chiếu tests/parity/src/items: id được che hay so nguyên văn, có cần entry khác biệt D-192 không. Kiểm thứ tự sắp ORDER BY id của cột uuid trên từng vendor (Postgres uuid, MySQL và SQLite char(36), MSSQL uniqueidentifier, Oracle, CockroachDB) với id v7 và ghi kết quả vào research.md làm giới hạn cho feature phân trang con trỏ. Benchmark: create items của benchmark-items với v7() so với randomUUID(). Ghi D-192 vào spec, design-system/docs/migration-guide.md, CLAUDE.md.
+```
+
+**4. `/speckit.checklist`** (tùy chọn; đã chạy 2026-10-29: `checklists/api-compat.md`)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. api-compat: khác biệt D-192 ghi đủ, request và response ngoài ký tự version vẫn giống Directus, DB do hai app cùng ghi vẫn đọc được ở cả hai bên, không validator nào trong luồng của Backoffice hay Directus từ chối id v7 được sinh ra, id client gửi giữ nguyên
+```
+
+**5. `/speckit.tasks`** (đã chạy 2026-10-29)
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. Một lượt: transformer uuid, unit test, test đối chiếu, chạy benchmark-items hiện có (research R8), tài liệu (spec, CLAUDE.md, tests/parity/README.md, SPECKIT-GUIDE.md; không migration-guide, research R9), task riêng chạy nightly.yml cho vendor khác do chủ dự án quyết định. Kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`** (đã chạy 2026-10-29)
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify.
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=027-uuid-v7-primary-keys khi chạy script .specify. Một lượt. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Quyết định của chủ dự án (2026-10-29):
+
+| Câu hỏi                                       | Chốt                                                                                 |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Phạm vi collection                            | Chỉ collection do người dùng tạo; `directus_*`, `backoffice_*` giữ v4                |
+| Field special uuid không phải PK              | Theo cùng quy tắc: mọi field special uuid không có giá trị của collection người dùng |
+| Field người dùng thêm vào collection hệ thống | Giữ v4                                                                               |
+| Bật thế nào                                   | Luôn bật, không thêm biến môi trường                                                 |
+| Constitution                                  | Sửa Nguyên tắc II ở bước 0 (MINOR 3.3.0 → 3.4.0)                                     |
+| Lý do                                         | Chuẩn bị phân trang dạng con trỏ ở feature sau; 027 không làm phân trang             |
+| Id v7 lộ thời điểm tạo (clarify)              | Chấp nhận, không thêm cảnh báo riêng ngoài spec                                      |
+| Item tạo lồng (clarify)                       | Theo collection của chính item: junction nhận v7, file và user tạo lồng nhận v4      |
+| D-192 (sau checklist)                         | Duyệt, kèm rủi ro client ngoài kiểm id bằng mẫu phiên bản 1–5 (CHK019)               |
+
+Ghi chú đưa vào spec và plan 027 (đọc code ngày 2026-10-29):
+
+- Chỗ sinh id duy nhất cho item: `apps/api/src/services/payload.service.ts:86-91` (`randomUUID()` khi action `create` và
+  chưa có giá trị). Web không sinh khóa chính: các id tạm như `_${nanoid()}` của Insights bị thay bằng id của API.
+- Validator không kiểm version: `apps/api/src/utils/is-valid-uuid.ts` (và bản Directus), `validate-keys.ts:22`,
+  `UUID_REGEX` của `constants.ts:140` dùng trong `router-options.ts`.
+- Validator có ghim v4: `apps/api/src/controllers/users.controller.ts:29` (bản port của
+  `directus/api/src/controllers/users.ts:287`), `role` của invite. Đã thử với Joi của `apps/api`: id v4 qua, id v7 lỗi.
+- Collection hệ thống có `special: uuid` trong `directus/packages/system-data/src/fields/*.yaml`: access, comments,
+  dashboards, extensions, files, flows, folders, operations, policies, deployment\*, và các bảng khác.
+- `ALLOWED_DB_DEFAULT_FUNCTIONS` (`constants.ts:106`) chỉ có `gen_random_uuid()`; Postgres 18 có `uuidv7()` nhưng ngoài
+  phạm vi.
+- D-192 chưa dùng ở `specs/`, `CLAUDE.md`, `design-system/docs/` (kiểm 2026-10-29).
 
 ---
 

@@ -1,4 +1,23 @@
 <!--
+Sync Impact Report (3.4.0, 2026-10-29)
+- Version change: 3.3.0 → 3.4.0
+- Modified principles: II. Dùng chung database với Directus: ý "Dữ liệu app mới ghi ra (... uuid ...) PHẢI có định
+  dạng giống hệt Directus" thêm ngoại lệ: field có special `uuid` của collection người dùng, khi API Backoffice tự sinh
+  giá trị, là UUID v7 (RFC 9562), cùng dạng chuỗi 36 ký tự 8-4-4-4-12; collection hệ thống (`directus_*`,
+  `backoffice_*`) giữ UUID v4 như Directus, kể cả field người dùng thêm vào đó; giá trị client gửi giữ nguyên. Thêm
+  một câu vào lý do của II.
+- Added sections: không. Removed sections: không.
+- MINOR theo yêu cầu của chủ dự án: thêm một ngoại lệ có phạm vi rõ cho quy tắc định dạng dữ liệu; mọi quy định khác
+  của II giữ nguyên. Dữ liệu do Backoffice 3.3.0 ghi vẫn hợp lệ theo 3.4.0.
+- Lý do: chủ dự án (kiêm tech lead) chốt ngày 2026-10-29 khi viết spec 027: id tăng theo thời gian tạo để chuẩn bị
+  phân trang dạng con trỏ ở feature sau. Collection hệ thống giữ v4 vì `POST /users/invite` của cả hai app chỉ nhận
+  role là UUID v4.
+- Templates: ✅ .specify/templates/plan-template.md (phiên bản, dòng II); ✅ SPECKIT-GUIDE.md (Nguyên tắc II trong
+  prompt constitution, mục "Sửa constitution theo feature", bước 0 của 027); spec, tasks, checklist template không nhắc
+  mục này.
+- Follow-up: feature 027 (`specs/027-uuid-v7-primary-keys/spec.md`, D-192). Plan các feature 001–026 giữ Constitution
+  Check theo phiên bản lúc viết.
+
 Sync Impact Report (3.3.0, 2026-10-28)
 - Version change: 3.2.0 → 3.3.0
 - Modified principles: VII. Triển khai đa instance: BE ngang hàng với Directus trên cùng DB và Redis (bỏ nghĩa chung
@@ -268,10 +287,16 @@ Lý do: `directus/` là mốc so sánh cho mọi test đối chiếu. Sửa nó 
   dừng và báo lỗi rõ ràng (migration thiếu hoặc thừa).
 - Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid,
   ngày giờ, JSON) PHẢI có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được.
+  - Ngoại lệ (từ 3.4.0, spec 027): field có special `uuid` của collection người dùng, khi API
+    Backoffice tự sinh giá trị, là UUID v7 (RFC 9562), cùng dạng chuỗi 36 ký tự 8-4-4-4-12 nên
+    Directus 11.17.4 đọc ghi được. Collection hệ thống (`directus_*`, `backoffice_*`) PHẢI giữ UUID
+    v4 như Directus, kể cả field người dùng thêm vào đó. Giá trị client gửi PHẢI giữ nguyên.
 - ĐƯỢC tạo và sửa bảng dữ liệu người dùng qua API collections/fields/relations, giống Directus.
 
 Lý do: hai app có thể chạy trên cùng một DB. Một bên đổi schema hệ thống hoặc định dạng dữ liệu thì
 bên kia hỏng. Seed và migration port nguyên văn giữ cho DB do Backoffice tạo giống DB do Directus tạo.
+UUID v7 chỉ khác v4 ở ký tự version và cách sinh, nên hai app vẫn đọc ghi lẫn nhau; collection hệ
+thống giữ v4 vì Directus có chỗ chỉ nhận v4 (role của `POST /users/invite`).
 
 ### III. API giống hệt Directus
 
@@ -505,4 +530,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 3.3.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-28
+**Version**: 3.4.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-29
