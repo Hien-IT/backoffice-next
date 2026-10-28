@@ -58,7 +58,7 @@ vi (FR-011); làm trên `main`, không stage `apps/api/project.json`, `apps/web/
 với các phiên khác.
 
 **Scale/Scope**: compose 2 file sửa, 1 đổi tên, 2 xóa; chart 8 file sửa (values, 5 template, NOTES, `_checks`), 2 xóa
-(`api-only-service.yaml`, `values-separate-domain.yaml`); ci 3 file sửa; test deploy ~11 file sửa, 1 đổi tên; CI 1 file;
+(`api-only-service.yaml`, `values-separate-domain.yaml`); ci 3 file sửa; test deploy 14 file sửa, 1 đổi tên; CI 1 file;
 README 1; spec ghi chú ở 8 spec cũ + `accepted-differences.ts` 1 dòng; `CLAUDE.md`, `SPECKIT-GUIDE.md`.
 
 ## Constitution Check

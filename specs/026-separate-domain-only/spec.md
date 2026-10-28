@@ -199,8 +199,8 @@ Backoffice dừng, `generation` của Deployment không đổi. Kịch bản 2, 
 **Bố cục khi chạy cạnh Directus**
 
 - **FR-001**: Khi Backoffice chạy cạnh Directus (compose mặc định, chart `mode: shared`), Backoffice PHẢI ở domain riêng.
-  Repo KHÔNG còn cấu hình nào (compose, lb, values, template, ví dụ trong tài liệu) đặt hai app chung một domain hoặc đưa
-  Directus vào pool API của Backoffice. Thay FR-050 (phần pool), Q1, câu cuối FR-070 của 019.
+  Repo KHÔNG còn cấu hình nào (danh sách và ngoại lệ ở SC-001) đặt hai app chung một domain hoặc đưa Directus vào pool
+  API của Backoffice. Thay FR-050 (phần pool), Q1, câu cuối FR-070 của 019.
 - **FR-002**: Ở domain Backoffice: `/admin` và `/admin/*` vào FE; mọi path khác (cả `/`) vào pool chỉ gồm replica BE.
   Giữ FR-051 của 019 (body, timeout, header chuyển tiếp) và FR-035 (lỗi kết nối chuyển replica khác).
 - **FR-003**: Bản Backoffice PHẢI dùng nguyên env chung và chỉ đặt riêng `PUBLIC_URL` (FR-071 của 019 thành quy tắc chung);
@@ -224,7 +224,7 @@ Backoffice dừng, `generation` của Deployment không đổi. Kịch bản 2, 
   báo tên value và mục tài liệu. Domain Backoffice khai báo trong `values.yaml` (bắt buộc, có comment), ví dụ ở README;
   `values-separate-domain.yaml` bị xóa (Q5). Service API PHẢI chỉ chọn pod BE của release; value và nhãn đưa Directus vào
   pool bị bỏ (pod Directus còn nhãn cũ không nhận request). Chart KHÔNG sửa Deployment Directus, kể cả gỡ nhãn cũ (Q6).
-  Kiểm thiếu domain chạy trước mọi kiểm tra khác và cả khi `helm template`, `--dry-run=client` (không cần đọc cụm).
+  Kiểm thiếu domain chạy trước mọi kiểm tra khác, cả khi không đọc được cụm (FR-008).
 - **FR-007**: Ingress của chart PHẢI chỉ phục vụ domain Backoffice. Thay "Ingress chung một domain" của FR-045 (019).
 - **FR-008**: Kiểm tra cookie domain (FR-076 của 019) PHẢI chạy ở mọi lần cài/nâng cấp `mode: shared`; host so sánh là
   `ingress.host`, hoặc host của `domain.publicUrl` khi Ingress tắt. Kiểm tra env đa instance (FR-053) giữ nguyên. Như
@@ -256,7 +256,8 @@ Backoffice dừng, `generation` của Deployment không đổi. Kịch bản 2, 
   Directus bằng Backoffice" ghi service đã đổi image phục vụ domain Backoffice và đặt riêng `PUBLIC_URL` (Q7); thêm mục
   chuyển từ chung domain sang domain riêng, theo thứ tự: DNS cho domain B; cookie FR-076 và SSO allow list trong env
   Directus; `helm upgrade` với `ingress.host`, `domain.publicUrl` (Ingress của chart rời host D; replica BE khởi động lại
-  cuốn chiếu vì bỏ nhãn pod, không mất request, 019 FR-033); ngay sau đó thêm host D vào Ingress của Directus (domain D
+  cuốn chiếu vì bỏ nhãn pod; theo `maxUnavailable: 0` của 019 FR-033 không mất request, chưa đo khi nâng cấp từ 019:
+  tài liệu ghi rõ là suy luận); ngay sau đó thêm host D vào Ingress của Directus (domain D
   không có Ingress trong khoảng giữa hai bước; không để hai Ingress cùng host); kiểm hai domain; user đăng nhập lại ở
   domain B, user SAML không còn dùng Backoffice (FR-010); lùi lại khi cần: `helm rollback` rồi trả host D về Ingress
   cũ; gỡ tay nhãn pool trên Directus (Q6) sau cùng, khi đã chắc không lùi. Mục "Chạy cạnh Directus" ghi `PUBLIC_URL`
