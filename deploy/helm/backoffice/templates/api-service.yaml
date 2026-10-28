@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/component: api
 spec:
   type: ClusterIP
-  # The pool: BE pods of this release and any Directus pod that carries the same label (spec FR-050).
+  # The BE pods of this release only (spec 026 FR-006): Directus never joins the pool.
   selector:
-    backoffice.io/api-pool: {{ include "backoffice.pool" . }}
+    {{- include "backoffice.selector" (dict "Release" .Release "component" "api") | nindent 4 }}
   ports:
     - { name: http, port: 8055, targetPort: 8055 }

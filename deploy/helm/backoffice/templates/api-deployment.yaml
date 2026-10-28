@@ -22,7 +22,6 @@ spec:
     metadata:
       labels:
         {{- include "backoffice.selector" (dict "Release" .Release "component" "api") | nindent 8 }}
-        backoffice.io/api-pool: {{ include "backoffice.pool" . }}
     spec:
       terminationGracePeriodSeconds: {{ .Values.api.terminationGracePeriodSeconds }}
       securityContext:

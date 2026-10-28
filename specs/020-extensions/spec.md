@@ -54,7 +54,7 @@ khớp Directus; với BE 3 replica cộng 1 Directus (compose và kind): cài �
 - Đóng gói (019): image API và web riêng; `deploy/compose/lb/shared-domain.conf` đưa `/admin/*` vào FE Backoffice và mọi
   path còn lại vào `api_pool` gồm Directus và Backoffice; Helm chart `deploy/helm/backoffice` với `envFrom` ConfigMap/Secret
   của Directus và các kiểm tra lúc install (FR-053, FR-076 của 019); suite `tests/parity/src/deploy` (3 replica BE + 1
-  Directus) và job CI `deploy`, `deploy-k8s` (kind).
+  Directus) và job CI `deploy`, `deploy-k8s` (kind). (026: `shared-domain.conf` và `api_pool` có Directus đã bỏ; Backoffice ở domain riêng, pool chỉ replica BE.)
 
 **Số đo khoảng cách của phần web** (2026-10-21, đếm bằng regex nên chỉ là xấp xỉ; plan đo lại chính xác):
 
@@ -81,7 +81,7 @@ response, operation chạy trong flow cho cùng kết quả.
 
 **Why this priority**: Load balancer đưa request vào cả Directus lẫn Backoffice (`api_pool`). Nếu API mới không nạp
 extension API thì cùng một request lúc chạy hook, lúc không; endpoint lúc trả 200, lúc 404. Đây là điều kiện để chạy hai
-app cạnh nhau khi đã có extension (Nguyên tắc IV).
+app cạnh nhau khi đã có extension (Nguyên tắc IV). (026: lb không còn đưa request vào Directus; yêu cầu giữ vì hai app chung `directus_extensions`, storage và bus.)
 
 **Independent Test**: Đặt bộ extension mẫu (FR-090) vào `EXTENSIONS_PATH` của cả hai app; gửi cùng chuỗi request tới
 Directus và tới API mới; so sánh response, dữ liệu ghi ra DB, activity và log của hook.
@@ -108,7 +108,7 @@ Directus và tới API mới; so sánh response, dữ liệu ghi ra DB, activity
 
 Hệ thống chạy N replica Backoffice cùng Directus sau một load balancer (compose), hoặc nhiều pod trên Kubernetes với HPA.
 Admin cài, bật tắt hoặc gỡ một extension qua bất kỳ node nào. Mọi node, cả Directus lẫn Backoffice, nạp lại cùng một bộ
-extension. Pod mới khi scale lên đã có đủ extension trước khi nhận request.
+extension. Pod mới khi scale lên đã có đủ extension trước khi nhận request. (026: Directus ở domain riêng, không sau lb của Backoffice.)
 
 **Why this priority**: Nguyên tắc VII. Không có đồng bộ thì mỗi node có bộ extension riêng, và kết quả request phụ thuộc
 node nhận nó.
@@ -481,7 +481,7 @@ nhiều instance.
   dùng chung), hoặc bộ extension đóng sẵn vào mọi image và không cài qua marketplace. "Đóng sẵn" = image dẫn xuất chép
   extension vào `/directus/extensions` (`EXTENSIONS_PATH`; container Backoffice: `/backoffice/extensions` từ D-174 của 019) hoặc khai báo nguồn `module`; không có công tắc tắt marketplace
   (Directus cũng không), cài khi đó chỉ vào một pod. Directus và Backoffice PHẢI dùng cùng `EXTENSIONS_PATH`,
-  `EXTENSIONS_LOCATION` (cùng ConfigMap ở Helm, cùng env file ở compose).
+  `EXTENSIONS_LOCATION` (cùng ConfigMap ở Helm, cùng env file ở compose). (026: "pool" đọc là mọi node chung DB, storage, bus; Directus không ở pool API của Backoffice.)
 - **FR-041**: Sync từ `EXTENSIONS_LOCATION` về `EXTENSIONS_PATH` lúc khởi động và khi nhận `partialSync`, như
   `lib/sync/sync.ts` (so metadata, xóa file thừa, trạng thái sync trên đĩa, khóa theo máy).
 - **FR-042**: Kênh bus `extensions.reload`, payload `{ partialSync?, forceSync?, origin }` giống hệt Directus (`skipSync` không bao giờ đi qua bus),
@@ -501,7 +501,7 @@ nhiều instance.
   `/extensions` khác vẫn đi vào pool chung. Directus app mở ở cổng riêng của Directus gọi chính API Directus cùng origin nên
   vẫn nhận bundle của Directus; lb chỉ ảnh hưởng domain chung, nơi `/admin` là app mới. Acceptance kiểm qua log upstream
   của lb rằng không request `/extensions/sources/*` nào vào node Directus; kind kiểm Service `-api-only` không chọn pod
-  Directus.
+  Directus. (026: gỡ; ở domain Backoffice mọi path tới BE, không cần route riêng.)
 - **FR-048**: `/server/health` chỉ trả `ok` sau khi sync và nạp extension xong lần đầu; readiness probe của Helm và
   compose dùng nó (019). Với bộ extension mẫu (FR-090), từ khi container khởi động tới `/server/health` ok ≤ 60 s trên
   runner CI (019 SC-008 30 s là khi không có extension).
@@ -539,7 +539,7 @@ nhiều instance.
   ghim 2.3.1 như Directus (plan R1). Chỉ API Backoffice trả bundle (FR-047). Import map là script inline nên CSP của image
   web PHẢI cho phép nó bằng hash: lúc container khởi động `40-config.sh` đọc import map trong `index.html`, tính
   `sha256` và `csp.awk` thêm `'sha256-…'` vào `script-src` (không thêm `'unsafe-inline'`); thêm origin của `PUBLIC_URL`
-  vào `script-src` khi là URL tuyệt đối (cross-site).
+  vào `script-src` khi là URL tuyệt đối (cross-site). (026: đúng vì ở domain Backoffice; FR-047 đã gỡ.)
 - **FR-063**: `@directus/extensions-sdk` ở runtime PHẢI cấp đúng các export của bản 17.1.4 dùng trong trình duyệt
   (`directus/packages/extensions-sdk/src/index.ts` + `@directus/composables` 11.4.1); danh sách chuẩn ở
   `contracts/web.md` §3 (gồm `define*` cả `defineOperationApi`, `defineHook`, `defineEndpoint`, `defineTheme`;
@@ -680,7 +680,7 @@ của 012 spec dòng 345 ("app không nạp `/extensions/sources/index.js`"), 01
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-135 | Extension loại `theme` | Nạp, đăng ký vào danh sách theme của app, chọn được ở Appearance và trang user | API vẫn liệt kê (`GET /extensions` có `schema`), app web không nạp; `useExtensions().themes` rỗng; chọn theme vẫn theo 015 (`system-theme`, dữ liệu theme tĩnh) | Owner 2026-10-21: theme ngoài phạm vi 020; theme Directus sinh `--theme--*` lúc chạy, trùng vai trò với design-system (Nguyên tắc XII) | ngoài phạm vi | — |
 | D-136 | Giao diện của component toàn cục `v-*` | Giao diện Directus app | Cùng hợp đồng (props, slot, emit), giao diện theo design-system TailAdmin; extension dùng `v-*` trông như phần còn lại của app mới | Owner 2026-10-21 (shim theo TailAdmin); Nguyên tắc XII | khác | — |
-| D-137 | Nội dung và điều kiện của `/extensions/sources/*` | Chunk import shared dep bằng URL `/admin/assets/<dep>.<hash>.entry.js` của Directus app; chỉ dựng và trả khi `SERVE_APP` | Chunk giữ bare specifier (`vue`, `pinia`...) resolve qua import map của app web mới; luôn dựng và trả, không theo `SERVE_APP` (app web là image riêng); cùng extension, cùng hành vi, khác mã sinh | FR-060, FR-062; ở chế độ chung domain chỉ replica Backoffice trả các chunk này (FR-047). Lượt 1 (trước T142) app mới vẫn trả bundle rỗng của 010 khi `SERVE_APP`, Directus trả bundle bộ mẫu: entry D-137 tạm cho body `/extensions/sources/index.js`, chunk khác 404 ở app mới | khác | — |
+| D-137 | Nội dung và điều kiện của `/extensions/sources/*` | Chunk import shared dep bằng URL `/admin/assets/<dep>.<hash>.entry.js` của Directus app; chỉ dựng và trả khi `SERVE_APP` | Chunk giữ bare specifier (`vue`, `pinia`...) resolve qua import map của app web mới; luôn dựng và trả, không theo `SERVE_APP` (app web là image riêng); cùng extension, cùng hành vi, khác mã sinh | FR-060, FR-062; ở chế độ chung domain chỉ replica Backoffice trả các chunk này (FR-047). Lượt 1 (trước T142) app mới vẫn trả bundle rỗng của 010 khi `SERVE_APP`, Directus trả bundle bộ mẫu: entry D-137 tạm cho body `/extensions/sources/index.js`, chunk khác 404 ở app mới | khác | — (026: ghi chú "chế độ chung domain" bỏ; nội dung khác biệt giữ) |
 | D-140 | (bỏ ở plan 2026-10-21) API nhúng manifest tên chunk của web, hai image cùng commit | — | Thay bằng import map (FR-062): không còn khác biệt với Directus ngoài D-137; số D-140 không dùng lại | Owner chọn D khi research cho thấy manifest hỏng ở domain riêng và cross-site | — | bỏ |
 | D-141 | Phần Directus ngoài phạm vi mà extension có thể dùng | 41 export của `services/index.ts`, `MailService` gửi email; gói `directus` (export `./version`) trong `node_modules` của API; CLI `directus` với event `cli.before`/`cli.after` | Không có gói `directus` (extension import nó lỗi lúc nạp); phần CLI gỡ ở 021 (xem spec 021: CLI phát `cli.before`/`cli.after` với `{ program }`, FR-043); `services` không có `WebSocketService`, `DeploymentService`, `DeploymentProjectsService`, `DeploymentRunsService` (gọi tới → `TypeError`); `MailService.send` phát filter `email.send` rồi ghi log thay vì gửi (D-33/D-34); phía web `serverStore.info.ai_enabled`/`mcp_enabled` luôn `false`, `settingsStore.availableAiProviders` rỗng, `v-form` bỏ qua `collabContext` | Nguyên tắc XI (realtime, deployment, AI ngoài phạm vi), D-17 | ngoài phạm vi | — |
 | D-139 | Express cấp cho endpoint và hook `init` | Express 4.21.2 | Endpoint (thường và sandbox) chạy trên một app Express 4.21.2 (`express4`, alias npm) gắn trong app Express 5 của Nest (`apps/api/src/extensions/lib/endpoint-app.ts`, cùng `trust proxy`, `query parser`, `req.body` `{}` như Directus): cú pháp path Express 4, `req.param()`, `res.send(status)`, gán `req.query`, `req.host` không port, body, handler async bị reject (treo như Directus) đều như Directus (đo 2026-10-21 trên hai fixture và extension registry `dirserve`); `res.redirect(url, 301)`, body multipart tới handler chưa đọc, lỗi Directus ném đồng bộ (cùng status và JSON) cũng như Directus (đo 2026-10-22, `tests/parity/src/extensions/endpoints.test.ts`). Còn khác: hook `init` nhận `{ app }` là app Express 5 của Nest, nên route extension tự đăng ký trên `app` vẫn theo Express 5 (cú pháp path path-to-regexp 8, API đã bỏ, `req.query` chỉ đọc, `req.host` giữ port). `path-to-regexp` của Express 4 override lên 0.1.13 (GHSA-37ch-88jc-xwx2) | Nguyên tắc VI (NestJS 12 trên Express 5, 001). Owner chọn cách 2 ngày 2026-10-21 (Express 4 riêng cho endpoint) sau khi extension registry `dirserve` (route `/*`) không nạp trên Express 5; thay lựa chọn B trước đó | khác | — |
@@ -743,10 +743,10 @@ cho các mục dưới.
 - Q: Extension API sandboxed? → A: Có, isolated-vm như Directus.
 - Q: Giao diện của shim? → A: Theo design-system TailAdmin, không chép CSS của Directus (D-136).
 - Q: Extension API có phải chạy trên API mới không? → A: Có, và trên mọi node của pool, vì `api_pool` có cả Directus lẫn
-  Backoffice.
+  Backoffice. (026: "pool" = mọi node chung DB; Directus không ở pool API của Backoffice.)
 - Q: Hook `embed` trên app web mới? → A: Không hỗ trợ; API vẫn nhận đăng ký (FR-014, D-138).
 - Q: `/extensions/sources/*` ở chế độ chung domain? → A: Load balancer và Ingress chỉ đưa path này vào replica Backoffice
-  (FR-047).
+  (FR-047). (026: gỡ, FR-009.)
 - Q: `useApi()` dùng gì? → A: axios 1.15.0 như Directus app; owner duyệt lệch quyết định "SDK là client duy nhất" của 012,
   axios chỉ dùng cho `useApi()` của extension (FR-081).
 - Q: Endpoint và hook `init` viết cho Express 4 chạy trên Express 5 thế nào? → A: Express 5 cấu hình giống Express 4 ở

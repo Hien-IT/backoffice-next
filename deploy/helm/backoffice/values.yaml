@@ -1,10 +1,12 @@
 # Feature 019 (specs/019-deployment-packaging/contracts/helm-values.md). The chart declares no Directus variable: the
 # pods read the ConfigMap and Secret the Directus deployment already uses (envFrom).
 
-# Spec 021 (FR-080): `shared` (019): the pods run the image CMD (bootstrap, then start) next to Directus, whose
-# Deployment bootstraps the database first. `standalone`: no Directus; a pre-install/pre-upgrade Job runs
-# `node cli.js bootstrap` once, then the pods only run `start`. directus.configMap / directus.secret then name the
-# Backoffice env (same variables as Directus), created before `helm install`.
+# Spec 021 (FR-080): `shared` (019): next to Directus on the shared DB, Redis and storage; the pods run the image CMD
+# (bootstrap, then start), Directus bootstraps the database first. Spec 026: Backoffice is then on its own domain
+# (ingress.host, domain.publicUrl); Directus keeps its domain, /admin, Deployment, Service and Ingress and never joins
+# the API pool. `standalone`: no Directus; a pre-install/pre-upgrade Job runs `node cli.js bootstrap` once, then the
+# pods only run `start`. directus.configMap / directus.secret then name the Backoffice env (same variables as
+# Directus), created before `helm install`.
 mode: shared
 
 # Spec 021 (FR-081): the bootstrap Job of the standalone mode.
@@ -46,11 +48,6 @@ api:
   # Must exceed shutdownDelaySeconds + SERVER_SHUTDOWN_TIMEOUT + closing connections.
   terminationGracePeriodSeconds: 30
 
-# The Service of the API selects every pod with the label backoffice.io/api-pool: <name>. Add the same label to the
-# pod template of a Directus Deployment to put it in the pool (shared domain); leave it out for a separate domain.
-apiPool:
-  name: '' # defaults to the release name
-
 # PVC already used by Directus for STORAGE_LOCATIONS=local (ReadWriteMany), mounted at /backoffice/uploads (D-174).
 uploads:
   existingClaim: ''
@@ -73,14 +70,16 @@ web:
 ingress:
   enabled: true
   className: ''
-  # Required: the domain of the app (shared domain: the Directus domain; separate domain: the Backoffice domain).
+  # Required: the Backoffice domain (spec 026 FR-007). Next to Directus it is NOT the Directus domain.
   host: ''
   tls: []
   # Controller annotations (body size, buffering, timeouts): see deploy/README.md.
   annotations: {}
-  # Paths routed before `/`, e.g. the SAML login of Directus: [{ path: /auth/login/saml, pathType: Prefix, service: directus, port: 8055 }]
+  # Paths routed before /admin and /, to another Service of the namespace, e.g.
+  # [{ path: /hook, pathType: Prefix, service: other, port: 80 }]. Never a Directus Service (spec 026 FR-001).
   extraPaths: []
 
-# Separate domain only (FR-071): the PUBLIC_URL of the Backoffice domain. No other variable can be set here.
+# Required in mode shared (spec 026 FR-003, FR-006; 019 FR-071): the PUBLIC_URL of the Backoffice domain, the only
+# variable set apart from the Directus env. Ignored in mode standalone (021 FR-083). No other variable can be set here.
 domain:
   publicUrl: ''

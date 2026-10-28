@@ -994,9 +994,9 @@ R-37; tech lead duyệt trước khi đóng.
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
 - Khóa localStorage `directus-last-accessed-collection`, `live-preview-*` đổi tiền tố `backoffice-` (D-39): hai app
-  không chia sẻ localStorage (khác origin `/admin` chỉ khi cùng domain; cùng domain thì khóa khác nhau không xung đột).
+  không chia sẻ localStorage (khác origin `/admin` chỉ khi cùng domain; cùng domain thì khóa khác nhau không xung đột). (026: hai app luôn khác domain khi chạy cạnh nhau; D-39 giữ vì Nguyên tắc IX.)
 - Link share `<origin>/admin/shared/<id>`: giữ path `/admin/shared` như Directus để link tạo ở app này mở được ở app kia
-  (cùng reverse proxy).
+  (cùng reverse proxy). (026: không còn chung proxy; share đã bỏ khỏi Backoffice web, 025 D-189.4.)
 - D-69 và D-73: đã duyệt (Q5), không còn chờ.
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)

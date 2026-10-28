@@ -611,7 +611,7 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   bootstrap và healthy trước) giữ nguyên nên `bootstrap` của replica gặp DB đã cài và chỉ `migrate latest`. Custom
   migration mới trong `MIGRATIONS_PATH` có thể được N replica (và các container Directus) áp song song, như N container
   Directus; rủi ro ghi trong tài liệu (chủ dự án 2026-10-22, Q1). Điều kiện trước của 019 FR-024 giữ: DB phải được
-  Directus bootstrap trước khi chạy chế độ chung (Edge Cases).
+  Directus bootstrap trước khi chạy chế độ chung (Edge Cases). (026: override `separate-domain` không còn, bố cục hai domain là mặc định.)
 - **FR-073**: `init-env.sh` và tài liệu ghi `ADMIN_EMAIL`/`ADMIN_PASSWORD` là admin được tạo lúc bootstrap (như 019).
 
 **Helm** (`deploy/helm/backoffice`):
@@ -620,7 +620,7 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   `directus.configMap`, `directus.secret` cho ConfigMap/Secret env; giữ tên có chủ ý để values của 019 dùng lại được và
   vì env vẫn ở định dạng Directus (VIII); tài liệu ghi ở chế độ độc lập đó là env của Backoffice do đội vận hành tạo
   trước. Key mới: `mode`, `bootstrap.backoffLimit`, `bootstrap.activeDeadlineSeconds`, `bootstrap.resources`,
-  `migrations.configMap` (contracts/deploy.md).
+  `migrations.configMap` (contracts/deploy.md). (026: `shared` = cạnh Directus ở domain riêng.)
 - **FR-081**: Chế độ độc lập: Job `bootstrap` (hook `pre-install`, `pre-upgrade`, `hook-weight` sau mọi resource hook
   khác, `hook-delete-policy: before-hook-creation` để log còn lại khi lỗi; `parallelism: 1`, `completions: 1` nên các
   lần thử lại theo `backoffLimit` chạy tuần tự, không bao giờ hai pod `bootstrap` cùng lúc; `backoffLimit` và
@@ -637,7 +637,7 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   này.
 - **FR-083**: Chế độ độc lập: kiểm tra install (019 FR-053, 020 FR-045) vẫn chạy trên ConfigMap/Secret; kiểm tra cookie
   domain (019 FR-076) không chạy; ConfigMap hoặc Secret không tồn tại → `fail` với thông báo rõ.
-  `apiPool`, `extraPaths` cho Directus là tùy chọn không dùng.
+  `apiPool`, `extraPaths` cho Directus là tùy chọn không dùng. (026: `apiPool` đã bỏ; `extraPaths` không trỏ Directus.)
 - **FR-084**: `helm template`, kubeconform và kịch bản kind (`ci/kind-test.sh`) PHẢI phủ cả hai chế độ: install độc lập
   từ namespace trống (có ConfigMap/Secret), đăng nhập, upgrade có custom migration qua ConfigMap (FR-085), rolling update
   dưới tải 0 lỗi.

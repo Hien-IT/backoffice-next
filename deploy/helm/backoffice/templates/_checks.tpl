@@ -1,14 +1,19 @@
 {{- /*
-Feature 019 FR-053, FR-076 (spec 021 FR-083, FR-085 for the standalone mode and the migrations ConfigMap): read the
-Directus ConfigMap and Secret at install/upgrade (lookup; `helm template` and
-client dry runs get nothing back and skip the checks) and stop when the shared config is only safe for one instance, or
-when, on a separate domain, a cookie domain variable does not cover the Backoffice host. The fix belongs in the Directus
-env: the chart never overrides these variables. Rules follow how Directus 11.17.4 reads its env
+Feature 019 FR-053, FR-076 (spec 021 FR-083, FR-085 for the standalone mode and the migrations ConfigMap; spec 026
+FR-006, FR-008): next to Directus (mode shared) the Backoffice domain is required (checked first, also by `helm template`
+and client dry runs); then read the Directus ConfigMap and Secret at install/upgrade (lookup; `helm template` and
+client dry runs get nothing back and skip these checks) and stop when the shared config is only safe for one instance, or
+when a cookie domain variable does not cover the Backoffice host. The fix belongs in the Directus env: the chart never
+overrides these variables. Rules follow how Directus 11.17.4 reads its env
 (redis/utils/redis-config-available.ts, packages/env/src/constants/defaults.ts, synchronization.ts).
 */ -}}
 {{- define "backoffice.checks" -}}
 {{- if not (has .Values.mode (list "shared" "standalone")) -}}
 {{- fail (printf "mode is %q: use \"shared\" (next to Directus) or \"standalone\"" .Values.mode) -}}
+{{- end -}}
+{{- /* Spec 026 (FR-006): next to Directus, Backoffice runs on its own domain; its PUBLIC_URL is required. */ -}}
+{{- if and (eq .Values.mode "shared") (not .Values.domain.publicUrl) -}}
+{{- fail "domain.publicUrl is empty: next to Directus (mode: shared) Backoffice runs on its own domain. Set domain.publicUrl (https://backoffice.example.com) and ingress.host (backoffice.example.com); upgrading a shared-domain release of 019: see \"Chuyển từ chung domain sang domain riêng\" in deploy/README.md." -}}
 {{- end -}}
 {{- $cm := lookup "v1" "ConfigMap" .Release.Namespace .Values.directus.configMap -}}
 {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.directus.secret -}}
@@ -39,9 +44,10 @@ env: the chart never overrides these variables. Rules follow how Directus 11.17.
 {{- end -}}
 {{- end -}}
 
-{{- /* No Directus domain in the standalone mode (spec 021 FR-083). */ -}}
-{{- if and .Values.domain.publicUrl (ne .Values.mode "standalone") -}}
-{{- $host := .Values.ingress.host -}}
+{{- /* Spec 026 (FR-008): on every install/upgrade next to Directus; the host of domain.publicUrl when the Ingress is off.
+No Directus domain in the standalone mode (spec 021 FR-083). */ -}}
+{{- if ne .Values.mode "standalone" -}}
+{{- $host := .Values.ingress.host | default (urlParse .Values.domain.publicUrl).host -}}
 {{- range $var := list "REFRESH_TOKEN_COOKIE_DOMAIN" "SESSION_COOKIE_DOMAIN" -}}
 {{- $value := get $env $var -}}
 {{- if $value -}}

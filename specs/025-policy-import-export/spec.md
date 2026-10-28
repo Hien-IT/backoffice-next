@@ -209,9 +209,9 @@ schema.
   nên bản `/permissions/me` cũ của cả hai app bị xóa ngay sau khi lưu (sửa câu 2026-10-28, đối chiếu
   `directus/api/src/services/permissions.ts:26`).
 - Web nhận `/permissions/me` không có `import`, `export` (API là Directus: cấu hình E2E proxy tới Directus, request rơi
-  vào Directus, hoặc cache của Directus): web theo luật Directus và ẩn hai cột import, export của ma trận (FR-034).
+  vào Directus, hoặc cache của Directus): web theo luật Directus và ẩn hai cột import, export của ma trận (FR-034). (026: không còn trường hợp "rơi vào Directus"; hai lý do còn lại giữ.)
 - Link share cũ do Directus app tạo (`/admin/shared/<id>`): ở shared-domain `/admin/` đi tới Backoffice web nên link
-  không mở được (US5 kịch bản 2).
+  không mở được (US5 kịch bản 2). (026: link mở được ở domain Directus bằng Directus app; trong Backoffice web vẫn not found, D-189.4.)
 - Định dạng export, import mà hệ thống không hỗ trợ: lỗi như hiện nay, không đổi.
 - "Download Page as CSV": không gọi API export, nên API không kiểm; Use custom không áp (FR-028). Không phải lộ dữ liệu
   mới: các dòng đó đã hiển thị bằng quyền read.
@@ -349,7 +349,7 @@ schema.
 - **FR-035**: Request không thuộc D-189..D-189.7 PHẢI giống Directus 11.17.4 (status, body, header). Export, import có
   quyền đầy đủ (không Use custom) cho cùng file, cùng dữ liệu như Directus (sửa khi checklist 2026-10-28, CHK034).
 - **FR-031**: Lb (compose shared-domain) và Ingress (Helm) PHẢI đưa `/permissions/me` và endpoint của FR-020 tới
-  Backoffice, như `/extensions/sources/` của 020. Request import, export rơi vào Directus không bị chặn (D-189.1).
+  Backoffice, như `/extensions/sources/` của 020. Request import, export rơi vào Directus không bị chặn (D-189.1). (026: gỡ, FR-009; ở domain Backoffice mọi path tới BE.)
 - **FR-032**: Tài liệu (quickstart của 025, `deploy/README.md`) PHẢI ghi: không seed, admin phân quyền lại sau khi cài;
   giới hạn khi chạy cùng Directus (D-189.1, D-189.2); share không còn trong giao diện. `design-system/docs/migration-guide.md`
   chỉ kiểm phần giao diện (sửa khi analyze 2026-10-28, T1).
@@ -365,7 +365,7 @@ schema.
   Content, Users, Files, Insights, phần share đã bỏ, và luật Directus khi API là Directus (FR-034). Deploy test cho định
   tuyến lb và cho quyền đổi ở replica này có tác dụng ở replica khác (FR-013) (sửa khi analyze 2026-10-28, G1, G2, G4).
   Migration trên 7 vendor: SQLite (unit), Postgres (parity đủ, deploy), MySQL (parity rút gọn của PR, migration chạy
-  trong `bootstrap` của env), MSSQL, Oracle, CockroachDB (nightly), theo Nguyên tắc V (CHK030).
+  trong `bootstrap` của env), MSSQL, Oracle, CockroachDB (nightly), theo Nguyên tắc V (CHK030). (026: test định tuyến lb thành "trả ở domain Backoffice".)
 
 ### Key Entities
 
@@ -400,7 +400,7 @@ schema.
 | 14 | Nhân bản policy | Chỉ chép `/permissions` | `apps/web/src/modules/settings/routes/policies/use-duplicate.ts:32` |
 | 15 | Import, export ở web | Phần import theo `createAllowed` và toggle 022; dùng ở Content, Users, Files, Presets, Translations; Insights export `?export=json` và import `directus_dashboards`; "Download Page as CSV" là `saveAsCSV` của layout từ các dòng đã nạp (`apps/web/src/layouts/tabular/index.ts:17`), không gọi API | `apps/web/src/components/sidebar/ExportSidebarDetail.vue:532`, `apps/web/src/modules/content/routes/CollectionRoute.vue:141-142`, `UsersCollectionRoute.vue:344`, `FilesCollectionRoute.vue:610`, `PresetsCollectionRoute.vue:221`, `TranslationsCollectionRoute.vue:218`, `InsightsOverviewRoute.vue:126-128`, `:294` |
 | 16 | Share ở web | Mục Shares ở trang item; route `/shared/:id`; route bắt mọi path là trang not found | `apps/web/src/modules/content/routes/ItemRoute.vue:819-824`, `apps/web/src/router/index.ts:91`, `:101` |
-| 17 | Lb, Ingress | `api_pool` shared-domain có Directus; `/admin/` tới Backoffice web; `/extensions/sources/` tới `bo_pool`; Ingress có path riêng cho `/extensions/sources` | `deploy/compose/lb/shared-domain.conf:12`, `:48`, `:52`; `deploy/helm/backoffice/templates/ingress.yaml:32` |
+| 17 | Lb, Ingress | `api_pool` shared-domain có Directus; `/admin/` tới Backoffice web; `/extensions/sources/` tới `bo_pool`; Ingress có path riêng cho `/extensions/sources` | `deploy/compose/lb/shared-domain.conf:12`, `:48`, `:52`; `deploy/helm/backoffice/templates/ingress.yaml:32` (026: bỏ) |
 | 18 | Parity | Normalizer `/collections`, `/fields`, OAS lọc theo tiền tố `backoffice_`; introspection lọc theo tên `backoffice_migrations`; dump chỉ lấy bảng `directus_*` | `tests/parity/src/normalizers.ts:42`, `:60`, `:71`, `:122`; `tests/parity/src/bootstrap/dump.ts:39` |
 | 19 | E2E liên quan | Ma trận, policy, share | `apps/web-e2e/src/settings-permissions.spec.ts`, `settings-roles-policies.spec.ts`, `content-share.spec.ts`, `payload/comments-shares.spec.ts` |
 | 20 | Dùng chung registry action giữa API và web | `apps/web/package.json` có một tham chiếu `@backoffice/*`; kiểm khi làm, nếu không dùng được trong Vite thì web giữ bản sao như `editablePermissionActions` (plan 2026-10-28, research R2) | `apps/web/package.json`, `apps/web/src/interfaces/_system/system-permissions/app-permissions.ts:12` |
@@ -408,7 +408,7 @@ schema.
 | 22 | Cộng dồn quyền nhiều policy | `mergePermissions('or', ...)` có sẵn | `apps/api/src/permissions/utils/merge-permissions.ts` |
 
 **Kết luận** [Inference]: Directus không phải làm gì; `directus_*`, file, cấu hình của Directus không đổi. Directus vẫn
-trả 200 cho import, export mà Backoffice từ chối, nên ở shared-domain việc chặn không đủ.
+trả 200 cho import, export mà Backoffice từ chối, nên ở shared-domain việc chặn không đủ. (026: lb không còn gửi tới Directus.)
 
 ## Khác biệt so với Directus *(mandatory)*
 
@@ -417,13 +417,13 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
 | D-189 | `GET /permissions/me` và `permissions_me` của `/graphql/system` | 5 action mỗi collection | Thêm `import`, `export` (kèm định dạng được phép) ở cả REST và GraphQL; schema GraphQL không đổi (kết quả là JSON) | Web cần quyền import, export; yêu cầu chủ dự án 2026-10-28 | khác (duyệt 2026-10-28) | — |
-| D-189.1 | Import, export khi policy không cho (kể cả định dạng, field, bộ lọc của Use custom; export kể cả collection hệ thống và `SEARCH` có `export` trong body; import vào collection hệ thống giữ luật Directus: chỉ admin) | 200 khi có read (export) hoặc create, update (import) | 403 `FORBIDDEN`, không trả, không tạo file, không ghi item. Ở shared-domain request rơi vào Directus vẫn 200. Export được phép nhưng có Use custom: 200, file chỉ có dòng thỏa bộ lọc và field được phép, Directus trả mọi dòng của quyền read (CHK002). Directus app ở cấu hình proxy tới API mới: người không phải admin nhận 403 cho tới khi được cấp qua Backoffice (CHK003) | Yêu cầu chủ dự án 2026-10-28 | khác (duyệt 2026-10-28) | — |
+| D-189.1 | Import, export khi policy không cho (kể cả định dạng, field, bộ lọc của Use custom; export kể cả collection hệ thống và `SEARCH` có `export` trong body; import vào collection hệ thống giữ luật Directus: chỉ admin) | 200 khi có read (export) hoặc create, update (import) | 403 `FORBIDDEN`, không trả, không tạo file, không ghi item. Ở shared-domain request rơi vào Directus vẫn 200. Export được phép nhưng có Use custom: 200, file chỉ có dòng thỏa bộ lọc và field được phép, Directus trả mọi dòng của quyền read (CHK002). Directus app ở cấu hình proxy tới API mới: người không phải admin nhận 403 cho tới khi được cấp qua Backoffice (CHK003) | Yêu cầu chủ dự án 2026-10-28 | khác (duyệt 2026-10-28) | — (026: câu "Ở shared-domain" không còn áp dụng) |
 | D-189.2 | Response cache của `/permissions/me` khi chạy cùng Directus | Ghi, đọc theo khóa chung | Giữ như Directus; Backoffice có thể trả bản Directus đã cache (không có `import`, `export`) và ngược lại | Chủ dự án chọn không đổi cache, chấp nhận lệch 2026-10-28 | khác (duyệt 2026-10-28) | — |
 | D-189.3 | Ma trận quyền của policy | 5 cột có share | 6 cột create, read, update, delete, import, export; không có share; Use custom cho import, export; khi API là Directus: 4 cột, import, export theo luật Directus (FR-034) | Yêu cầu chủ dự án 2026-10-28 | khác (duyệt 2026-10-28) | — |
 | D-189.4 | Share trong giao diện | Mục Shares ở trang item, trang `/admin/shared/:id` | Không có cả hai; link cũ rơi vào trang not found | Yêu cầu chủ dự án 2026-10-28 | khác (duyệt 2026-10-28) | — |
 | D-189.5 | Bảng `backoffice_permissions` ở `/collections`, `/fields`, OAS, GraphQL | Bảng chưa quản lý (meta null), admin thấy qua `/items` | Collection hệ thống ẩn như `backoffice_migrations` | Nguyên tắc II, như D-181 | khác (duyệt 2026-10-28) | — |
 | D-189.6 | Endpoint `/backoffice/permissions` đọc, ghi quyền import, export (FR-020) | Không có (404) | Có, cùng dạng `/permissions` | Ghi quyền ngoài `directus_permissions` (FR-002); path đề xuất khi plan 2026-10-28 | khác (duyệt 2026-10-28) | — |
-| D-189.7 | Lb shared-domain, Ingress | — | `/permissions/me` (exact) và `/backoffice/` (prefix) tới Backoffice | Tránh Directus trả `/permissions/me` thiếu khóa hay 404 cho D-189.6 | khác (duyệt 2026-10-28) | — |
+| D-189.7 | Lb shared-domain, Ingress | — | `/permissions/me` (exact) và `/backoffice/` (prefix) tới Backoffice | Tránh Directus trả `/permissions/me` thiếu khóa hay 404 cho D-189.6 | khác (duyệt 2026-10-28) | — (026: gỡ, FR-009) |
 
 **Cần xác nhận**:
 
@@ -450,7 +450,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - Q: Ô import, export khi toggle tắt? → A: hiện mờ có ghi chú, vẫn lưu được (FR-025).
 - Q: Shares ở trang item, `/shared/:id`? → A: bỏ cả hai, không làm trang thay thế; API giữ (FR-029).
 - Q: Lb, Ingress? → A: `/permissions/me` và endpoint mới về Backoffice; import, export rơi vào Directus không bị chặn
-  (FR-031).
+  (FR-031). (026: gỡ.)
 
 ### Session 2026-10-28 (chủ dự án, `/speckit.specify`)
 
@@ -470,7 +470,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 - D-189, D-189.1..D-189.7 (kể cả path `/backoffice/permissions` và định tuyến lb/Ingress) và các quyết định thiết kế
   R1–R10 của research.md (bảng không `directus_fields`, `rowGuard` tùy chọn của `ImportService`, service với bản sao
-  accountability admin, lưu hai nguồn ở web, bỏ share): duyệt sau `/speckit.plan`, trước `/speckit.tasks`.
+  accountability admin, lưu hai nguồn ở web, bỏ share): duyệt sau `/speckit.plan`, trước `/speckit.tasks`. (026: định tuyến lb/Ingress gỡ.)
 
 ### Sửa khi `/speckit.checklist` api-compat (2026-10-28, checklists/api-compat.md, chủ dự án duyệt áp)
 

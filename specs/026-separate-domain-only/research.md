@@ -250,3 +250,15 @@ lại nội dung cũ, không xóa câu cũ. Một dòng của bảng gồm nhi�
   `40643815956` của phiên khác xong; run CI `40649899202`, Semgrep `40649899253`; số run đã gửi phiên 021.
 - `graphify update .` chạy sau khi sửa.
 - CI `40649899202` xanh toàn bộ (kể cả `deploy` 2 lượt và `deploy-k8s` với chart chưa đổi); lượt 1 đóng.
+
+## Kết quả lượt 2 (2026-10-28)
+
+- Chart: `helm lint` sạch; `ci/test-template.sh` local 69 check đạt với `KUBECONFORM=true` (không có kubeconform local;
+  CI chạy thật). Check "Ingress: no other path" lúc đầu đếm cả `path:` của probe → đếm theo `^ +- path: /`.
+- Kind (T023): không có `kind` local → CI `deploy-k8s` (run ghi ở "Đóng lượt 2"). US3 kịch bản 2, 3 chưa kiểm tay: không
+  có môi trường chung domain (FR-012).
+- README: prettier `--write` sau khi sửa (bảng căn lại). SC-001: các chỗ còn nhắc nhãn/route cũ chỉ là mục chuyển đổi,
+  check phủ định, bước giả lập US2-3 và chú thích (quickstart §5). SC-007: kiểm theo đoạn (awk `RS=""`) vì ghi chú đứng
+  cuối đoạn; đạt.
+- Ghi chú "(026: ...)" thêm ở 003 (6), 004 (1), 014 (2), 020 (9), 021 (3), 023 (6), 024 (7), 025 (10): 44 chỗ, không đổi
+  nội dung cũ.

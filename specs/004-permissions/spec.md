@@ -95,7 +95,7 @@ cache của feature 005); `tests/db/app/cache.test.ts` (`PATCH /users/me/track/p
 
 Người dùng của feature này là client đang gọi Directus (gọi API bằng token của user, static token, share hoặc không
 token), quản trị viên (quản lý user, role, policy, quyền qua API hoặc qua app Directus trỏ vào app mới) và đội vận hành
-(chạy Directus và app mới song song sau một load balancer, cùng DB, Redis và file `.env`).
+(chạy Directus và app mới song song sau một load balancer, cùng DB, Redis và file `.env`). (026: hai app ở hai domain riêng; "app Directus trỏ vào app mới" là E2E qua proxy, FR-106.)
 
 ### User Story 1 - Mọi request chạy với đúng accountability như Directus (Priority: P1)
 

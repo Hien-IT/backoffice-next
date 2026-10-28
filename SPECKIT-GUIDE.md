@@ -2040,7 +2040,7 @@ Ghi chú đưa vào spec và plan 025 (đọc code ngày 2026-10-28, chưa chạ
 
 ### 026: Backoffice chạy cạnh Directus chỉ ở domain riêng
 
-Trạng thái: đang soạn. Đã chạy `/speckit.specify` 2026-10-28 (`specs/026-separate-domain-only/`: spec FR-001..FR-015,
+Trạng thái: đã implement 2026-10-28 (lượt 1 `4d92fa84`, CI 40649899202; lượt 2 commit và run ghi ở research "Đóng lượt 2"); còn đóng feature khi CI lượt 2 xanh. Đã chạy `/speckit.specify` 2026-10-28 (`specs/026-separate-domain-only/`: spec FR-001..FR-015,
 SC-001..SC-007, US1 compose, US2 Helm, US3 chuyển từ chung domain; checklist requirements đạt; 2 câu chốt: Q1 user SAML
 chỉ dùng Directus app ở domain Directus, Q2 sửa constitution) và bước 0 (constitution 3.3.0, 2026-10-28); spec 019 có
 ghi chú "revised by 026"; `/speckit.clarify` 2026-10-28: 5 câu chốt Q3–Q7 (bảng cuối mục); thêm FR-015 rà soát chỗ lệch luồng Directus vì

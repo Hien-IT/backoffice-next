@@ -159,7 +159,7 @@ nhận path json.
 - Cột `jsonb` tạo tay và cột `json` do app tạo đều là field kiểu json, đều phải lọc được.
 - Bookmark có path json mở trên Directus app: Directus trả 403 `FORBIDDEN` (D-184.1, chấp nhận; đo ở T002).
 - Ở chế độ shared-domain (lb có cả Directus), request có path json rơi vào Directus nhận 403 (D-184, chấp nhận, không
-  thêm định tuyến).
+  thêm định tuyến). (026: chế độ shared-domain đã bỏ; ở domain Backoffice mọi request tới BE; gọi thẳng domain Directus vẫn 403.)
 - Settings > Presets mở một bookmark có path json: điều kiện hiện đọc được (field, path, kiểu); không có mục thêm path json
   mới ở màn này.
 - Validation của field, filter của panel Insights: không có mục "JSON path" (FR-015); flow không có danh sách field của
@@ -278,11 +278,11 @@ plan PHẢI có test xác nhận.
 | 8 | Hàm `json()` theo vendor | Có cho postgres (kể cả cockroachdb, redshift), mysql, sqlite, mssql, oracle | `apps/api/src/database/helpers/fn/dialects/*.ts`, `fn/index.ts:2-8` |
 | 9 | Directus khi lưu permission | Không kiểm key của filter khi lưu [Inference] | `directus/api/src/services/permissions.ts` |
 | 9.1 | Flow condition, validation của field | Chạy `validatePayload` (joi, trong JS) trên dữ liệu, không thành SQL; key lạ = không khớp | `directus/api/src/operations/condition/index.ts:20`, `directus/api/src/permissions/modules/process-payload/process-payload.ts:118` |
-| 10 | Lb chế độ shared-domain | `api_pool` có `directus:8055` và `backoffice-api`; Helm Service `-api` chọn pod theo label pool dùng chung; separate-domain chỉ Backoffice | `deploy/compose/lb/shared-domain.conf:10-13`, `deploy/helm/backoffice/templates/ingress.yaml` |
+| 10 | Lb chế độ shared-domain | `api_pool` có `directus:8055` và `backoffice-api`; Helm Service `-api` chọn pod theo label pool dùng chung; separate-domain chỉ Backoffice | `deploy/compose/lb/shared-domain.conf:10-13`, `deploy/helm/backoffice/templates/ingress.yaml` (026: bỏ; pool chỉ replica BE) |
 | 11 | Dữ liệu và schema | Không thêm bảng, cột, migration; `directus_presets.filter` là JSON tự do | — |
 
 **Kết luận** [Inference]: Directus không phải làm gì; DB, Redis, file không đổi. Directus chỉ thấy bookmark có điều kiện
-nó không hiểu (400 khi mở) và nhận 400 cho request có path json nếu lb gửi tới nó.
+nó không hiểu (400 khi mở) và nhận 400 cho request có path json nếu lb gửi tới nó. (026: lb không còn gửi tới Directus.)
 
 ## Khác biệt so với Directus *(mandatory)*
 
@@ -290,7 +290,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
-| D-184 | Lọc theo path trong field json (`/items`, export, `SEARCH`) | 403 `FORBIDDEN` (tên field `"field, path, type"` không tồn tại; T002) | Lọc theo field, path, kiểu trên Postgres và SQLite; vendor khác 400 với thông báo riêng. Ở shared-domain, request rơi vào Directus vẫn nhận 403 (không thêm định tuyến ở lb) | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
+| D-184 | Lọc theo path trong field json (`/items`, export, `SEARCH`) | 403 `FORBIDDEN` (tên field `"field, path, type"` không tồn tại; T002) | Lọc theo field, path, kiểu trên Postgres và SQLite; vendor khác 400 với thông báo riêng. Ở shared-domain, request rơi vào Directus vẫn nhận 403 (không thêm định tuyến ở lb) | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — (026: câu "Ở shared-domain" không còn áp dụng; gọi thẳng domain Directus vẫn 403) |
 | D-184.2 | `sort=json(field, path[, type])`, `fields=json(field, path, type)` | `sort`: 403 `FORBIDDEN` (kiểm quyền path); `fields` ba tham số: 200, giá trị null (T002) | `sort` chạy (có kiểu khi có `type`); `fields` ba tham số trả giá trị có kiểu, chuẩn hóa JSON | Hệ quả của D-184 (cùng parser `json(...)`); checklist 2026-10-27 CHK002, CHK026 | khác (duyệt 2026-10-27) | — |
 | D-184.1 | Bookmark/preset có path json mở ở Directus app | Không tạo được | Lưu vào `directus_presets` dùng chung; Directus app mở bookmark đó nhận 403 | Chủ dự án 2026-10-27: chấp nhận | khác (duyệt 2026-10-27) | — |
 | D-185 | Permission có filter chứa path json | Lưu được (200, T002); request của role đó lỗi 403 | 400 khi lưu; chỉ permission, không kiểm `/fields`, `/flows`, `/operations` | Tránh làm hỏng mọi request của role ở cả hai app; clarify 2026-10-27 câu 5 | khác (duyệt 2026-10-27) | — |
@@ -319,7 +319,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - Q: Dùng ở đâu? → A: chỉ filter của Content (và drawer chọn item) (FR-013, FR-015, D-187).
 - Q: Request có path json: Directus 400, Backoffice 200? → A: đồng ý ghi khác biệt (D-184).
 - Q: Ở shared-domain, lb có thể gửi request tới Directus (400). Thêm định tuyến? → A: không; "nếu API có hỗ trợ là được
-  rồi" (D-184).
+  rồi" (D-184). (026: không còn.)
 
 ### Session 2026-10-27 (chủ dự án, `/speckit.clarify`)
 
@@ -385,7 +385,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   `json_valid`; bản bundled của package `sqlite3` là 3.44) (sửa khi checklist 2026-10-27).
 - Lọc theo path không dùng được index thường; admin tự tạo index nếu cần (ngoài phạm vi), ghi cách làm trong quickstart.
 - Người dùng gọi qua lb shared-domain có thể nhận 403 từ Directus; muốn chắc chắn thì gọi qua domain riêng của Backoffice
-  (chế độ separate-domain) hoặc qua Backoffice trực tiếp.
+  (chế độ separate-domain) hoặc qua Backoffice trực tiếp. (026: ở domain Backoffice luôn tới BE.)
 
 ## Success Criteria *(mandatory)*
 

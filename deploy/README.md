@@ -21,8 +21,9 @@ Docker Hub. Muốn push thì đăng nhập (`docker login`) rồi đặt `INPUT_
 Mục lục: [Thay image Directus bằng Backoffice](#thay-image-directus-bằng-backoffice) ·
 [CSP của app quản trị](#csp-của-app-quản-trị) · [Máy dev](#máy-dev-deploycompose) ·
 [Env Directus bắt buộc](#env-directus-bắt-buộc-khi-chạy-nhiều-instance) · [Tắt máy an toàn](#tắt-máy-an-toàn) ·
-[Domain riêng](#domain-riêng) · [Kubernetes](#kubernetes-deployhelmbackoffice) ·
-[Chạy độc lập](#chạy-độc-lập-không-directus) · [Lệnh CLI](#lệnh-cli)
+[Chạy cạnh Directus: hai domain](#chạy-cạnh-directus-hai-domain) · [Kubernetes](#kubernetes-deployhelmbackoffice) ·
+[Chuyển từ chung domain](#chuyển-từ-chung-domain-sang-domain-riêng) · [Chạy độc lập](#chạy-độc-lập-không-directus) ·
+[Lệnh CLI](#lệnh-cli)
 
 ## Thay image Directus bằng Backoffice
 
@@ -34,6 +35,9 @@ Trong một service Directus đang chạy (compose hoặc Deployment Kubernetes)
 `/backoffice/migrations`), vì đường dẫn tương đối của env (`STORAGE_LOCAL_ROOT=./uploads`, `EXTENSIONS_PATH`,
 `MIGRATIONS_PATH`) tính từ `/backoffice`. Đường dẫn tuyệt đối trong env (ví dụ `DB_FILENAME=/directus/database/x.db`)
 thì mount đúng đường đó. Storage S3/MinIO không cần dời gì.
+
+Service đã đổi image là một bản Backoffice: nó phục vụ domain Backoffice (mục "Chạy cạnh Directus: hai domain") với
+`PUBLIC_URL` riêng của domain đó, không nằm trong pool của domain Directus (spec 026, Q7).
 
 Giới hạn (FR-024):
 
@@ -60,8 +64,9 @@ biến `CONTENT_SECURITY_POLICY_DIRECTIVES__*` và `CONTENT_SECURITY_POLICY_USE_
 - Giá trị `false` làm Directus không khởi động; container web bỏ biến đó và ghi cảnh báo.
 - Các biến `CONTENT_SECURITY_POLICY_*` khác (`REPORT_ONLY`...) bị bỏ qua, có cảnh báo.
 
-App ở origin khác API (không phải hai chế độ của 019): thêm origin của API vào `connect-src`, `img-src`, `media-src`, ví
-dụ `CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC=array:'self',https://*,wss://*,https://api.example.com`.
+App ở origin khác API (không phải bố cục cạnh Directus, nơi FE và BE cùng domain Backoffice): thêm origin của API vào
+`connect-src`, `img-src`, `media-src`, ví dụ
+`CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC=array:'self',https://*,wss://*,https://api.example.com`.
 
 Live preview (khung xem trang ở trang item) mở một site khác trong iframe: thêm site đó vào `frame-src`, ví dụ
 `CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC=https://preview.example.com`. Directus cũng cần đúng biến này.
@@ -69,7 +74,8 @@ Live preview (khung xem trang ở trang item) mở một site khác trong iframe
 ## Máy dev (`deploy/compose`)
 
 Chỉ cần Docker. Directus 11.17.4, BE (mặc định 2 replica), FE, Postgres, Redis, MinIO (S3) và một load balancer nginx
-non-root, dùng chung một file `.env` (Directus và BE đọc nguyên file này, chỉ khác image).
+non-root với hai domain (cổng): Directus ở 8090, Backoffice ở 8091 (spec 026). Mọi service dùng chung một file `.env`
+(Directus và BE đọc nguyên file này, chỉ khác image); hai service Backoffice chỉ đặt riêng `PUBLIC_URL`.
 
 ```bash
 cd deploy/compose
@@ -77,12 +83,12 @@ cd deploy/compose
 docker compose up -d --wait
 ```
 
-| Cổng trên máy | Dịch vụ                                                                         |
-| ------------- | ------------------------------------------------------------------------------- |
-| 8090          | load balancer: `/admin` vào FE, còn lại vào pool gồm Directus và các replica BE |
-| 8091          | load balancer của chế độ domain riêng (Backoffice)                              |
-| 8095          | Directus gọi thẳng                                                              |
-| ngẫu nhiên    | mỗi replica BE: `docker compose port --index <i> backoffice-api 8055`           |
+| Cổng trên máy | Dịch vụ                                                                              |
+| ------------- | ------------------------------------------------------------------------------------ |
+| 8090          | domain Directus qua load balancer: mọi path tới Directus (Directus app ở `/admin`)   |
+| 8091          | domain Backoffice qua load balancer: `/admin` vào FE, còn lại chỉ vào các replica BE |
+| 8095          | Directus gọi thẳng                                                                   |
+| ngẫu nhiên    | mỗi replica BE: `docker compose port --index <i> backoffice-api 8055`                |
 
 - Số replica: `BACKOFFICE_REPLICAS=3 docker compose up -d --wait`. Tag image: `BACKOFFICE_TAG=local` (mặc định
   `latest`).
@@ -114,20 +120,20 @@ hình thiếu (cảnh báo một instance của 001 chưa có `SYNCHRONIZATION_S
 
 | Biến                                                                   | Khi nào                                                                                                               | Giá trị cần                                                                                                                               |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `PUBLIC_URL`                                                           | dùng SSO, share, link mời; chế độ domain riêng                                                                        | URL thật của domain (mặc định `/`); chế độ domain riêng: bản Backoffice đặt riêng (FR-071)                                                |
+| `PUBLIC_URL`                                                           | dùng SSO, share, link mời; chạy cạnh Directus                                                                         | URL thật của domain (mặc định `/`); cạnh Directus: bản Backoffice đặt riêng URL domain của nó (spec 026 FR-003)                           |
 | `TUS_ENABLED`                                                          | muốn upload TUS (mặc định `false`)                                                                                    | `true`; cần thêm `REDIS` và storage dùng chung                                                                                            |
-| `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN`                 | chế độ domain riêng                                                                                                   | không đặt, hoặc domain cha phủ cả hai domain (FR-076)                                                                                     |
-| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS`      | SSO và chế độ domain riêng                                                                                            | thêm URL của domain Backoffice                                                                                                            |
+| `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN`                 | chạy cạnh Directus (hai domain)                                                                                       | không đặt, hoặc domain cha phủ cả hai domain (FR-076)                                                                                     |
+| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS`      | SSO khi chạy cạnh Directus                                                                                            | thêm URL của domain Backoffice                                                                                                            |
 | `AWS_REQUEST_CHECKSUM_CALCULATION`, `AWS_RESPONSE_CHECKSUM_VALIDATION` | storage S3 không phải AWS/MinIO (vd Ceph RGW) từ chối checksum trailer: chunk TUS trả 500 `XAmzContentSHA256Mismatch` | `WHEN_REQUIRED` (mặc định `WHEN_SUPPORTED` của `@aws-sdk/client-s3` 3.928.0 gửi `UploadPart` stream dạng `aws-chunked` + `x-amz-trailer`) |
 
 **Khuyến nghị**:
 
-| Biến                                | Giá trị                                                     | Lý do                                                                                                                |
-| ----------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `WEBSOCKETS_ENABLED`                | `false` (mặc định)                                          | Backoffice không có `/websocket` (Nguyên tắc XI); Directus trong cùng pool mà bật thì chỉ một phần instance trả được |
-| `CACHE_ENABLED`, `CACHE_AUTO_PURGE` | tùy; compose đặt `true`                                     | response cache dùng chung qua `CACHE_STORE=redis`                                                                    |
-| `SERVER_SHUTDOWN_TIMEOUT`           | lớn hơn request dài nhất cần giữ khi tắt (mặc định 1000 ms) | FR-033, edge case request dài                                                                                        |
-| `IP_TRUST_PROXY`                    | giữ mặc định `true`                                         | đứng sau load balancer (FR-051)                                                                                      |
+| Biến                                | Giá trị                                                     | Lý do                                                                                              |
+| ----------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `WEBSOCKETS_ENABLED`                | `false` (mặc định)                                          | Backoffice không có `/websocket` (Nguyên tắc XI); bật ở Directus chỉ có tác dụng ở domain Directus |
+| `CACHE_ENABLED`, `CACHE_AUTO_PURGE` | tùy; compose đặt `true`                                     | response cache dùng chung qua `CACHE_STORE=redis`                                                  |
+| `SERVER_SHUTDOWN_TIMEOUT`           | lớn hơn request dài nhất cần giữ khi tắt (mặc định 1000 ms) | FR-033, edge case request dài                                                                      |
+| `IP_TRUST_PROXY`                    | giữ mặc định `true`                                         | đứng sau load balancer (FR-051)                                                                    |
 
 Tự kiểm khi không dùng Helm:
 
@@ -150,18 +156,18 @@ interface, display, layout, module, panel trong app web mới.
   nhiều replica (hoặc HPA) mà `EXTENSIONS_LOCATION` rỗng, trừ khi `extensions.inImage=true`.
 - **Một máy, không MinIO cho extension**:
   `docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml up -d --wait` gắn chung volume
-  `extensions` vào `/directus/extensions` của Directus và `/backoffice/extensions` của mọi replica Backoffice, để `EXTENSIONS_LOCATION` rỗng (không
-  node nào sync, cài/gỡ ghi thẳng vào volume, nạp lại qua bus). Không dùng cho nhiều máy hay Kubernetes.
+  `extensions` vào `/directus/extensions` của Directus và `/backoffice/extensions` của mọi replica Backoffice, để
+  `EXTENSIONS_LOCATION` rỗng (không node nào sync, cài/gỡ ghi thẳng vào volume, nạp lại qua bus). Không dùng cho nhiều
+  máy hay Kubernetes.
 - **Cài**: Settings > Marketplace của app web mới hoặc của Directus app (cùng bảng `directus_extensions`, cùng storage);
   cài ở một node thì node khác thấy trong vài giây.
 - **Nguồn `module`**: khai báo gói extension trong `dependencies` của `apps/api/package.json`, build lại image API.
-- **Đóng sẵn vào image**: image dẫn xuất chép extension vào `/backoffice/extensions`, đặt `extensions.inImage=true`, không
-  dùng marketplace (bản cài sẽ không tới các pod khác).
+- **Đóng sẵn vào image**: image dẫn xuất chép extension vào `/backoffice/extensions`, đặt `extensions.inImage=true`,
+  không dùng marketplace (bản cài sẽ không tới các pod khác).
 - **Nâng cấp từ 019**: đặt `EXTENSIONS_LOCATION` trong ConfigMap/`.env` dùng chung (hoặc `extensions.inImage=true`)
   trước `helm upgrade`; compose: thêm `EXTENSIONS_LOCATION=s3` vào `.env`.
-- **Load balancer**: `/extensions/sources/*` (chunk app extension) chỉ tới Backoffice (`bo_pool` ở compose, Service
-  `<release>-api-only` ở Helm): chunk của app web mới giữ bare specifier cho import map (D-137), chunk của Directus thì
-  không.
+- **Chunk app extension**: `/extensions/sources/*` ở domain Backoffice do BE trả (chunk giữ bare specifier cho import
+  map, D-137), ở domain Directus do Directus trả; không cần route riêng (spec 026).
 - **Extension làm crash**: tắt nó rồi khởi động lại các node:
   `UPDATE directus_extensions SET enabled = false WHERE folder = '<thư mục>';` (hoặc xóa thư mục trên storage), rồi
   `kubectl rollout restart deployment/<release>-api` / `docker compose up -d --force-recreate backoffice-api directus`.
@@ -190,21 +196,22 @@ Thời hạn tắt máy phải lớn hơn khoảng trễ + `SERVER_SHUTDOWN_TIME
 `SERVER_SHUTDOWN_TIMEOUT` (export lớn, chunk TUS chậm) bị cắt khi tắt replica, giống Directus: tăng biến này trong cấu
 hình chung nếu cần. Client TUS tiếp tục được từ offset ở instance khác.
 
-## Domain riêng
+## Chạy cạnh Directus: hai domain
 
-Dùng khi muốn chạy Backoffice ở một domain khác (ví dụ `backoffice.example.com`) bên cạnh Directus đang phục vụ người
-dùng ở domain của nó (ví dụ `cms.example.com`), không chạm vào Deployment, Service, Ingress của Directus. Hai bản dùng
-chung DB, Redis, storage và cùng ConfigMap/Secret; thay đổi ở bản này hiện ngay ở bản kia.
+Khi Backoffice chạy cạnh Directus (chung DB, Redis, storage, cùng `.env`/ConfigMap/Secret), Backoffice ở domain riêng
+(ví dụ `backoffice.example.com`); Directus giữ domain, `/admin`, Deployment, Service, Ingress của nó và không bao giờ
+nằm trong pool API của Backoffice (spec 026, Nguyên tắc VII 3.3.0). Đây là bố cục duy nhất khi có Directus; chế độ chung
+domain của 019 đã bỏ (bản cài cũ: mục "Chuyển từ chung domain sang domain riêng"). Thay đổi ở bản này hiện ngay ở bản
+kia.
 
-Bản Backoffice chỉ đặt riêng **một** biến: `PUBLIC_URL` = URL của domain Backoffice (ngoại lệ Nguyên tắc VIII, đã duyệt
-T079). Directus dùng `PUBLIC_URL` cho `Location` của TUS, link share và mời, callback SSO, `<base href>` của app; giữ
-giá trị của Directus thì các URL này trỏ sai domain.
+Bản Backoffice chỉ đặt riêng **một** biến: `PUBLIC_URL` = URL của domain Backoffice (Nguyên tắc VIII 3.3.0). Directus
+dùng `PUBLIC_URL` cho `Location` của TUS, link share và mời, callback SSO, `<base href>` của app; giữ giá trị của
+Directus thì các URL này trỏ sai domain. Vì hai app khác `PUBLIC_URL`, link trong thông báo mention, link mời,
+`Location` TUS và callback SSO mang domain của app nhận request; cả hai domain đều hợp lệ.
 
-- Compose: `docker compose -f docker-compose.yml -f docker-compose.separate-domain.yml up -d --wait` (Directus ở 8090,
-  Backoffice ở 8091). Trên `localhost`, cookie không tách theo cổng nên hai bản dùng chung cookie khi dev (vô hại: cùng
-  `SECRET`).
-- Kubernetes: `helm install ... -f deploy/helm/backoffice/values-separate-domain.yaml` (`domain.publicUrl`, host riêng,
-  Directus không mang nhãn pool).
+- Compose: `docker compose up -d --wait` (mặc định; Directus ở 8090, Backoffice ở 8091, mục "Máy dev"). Trên
+  `localhost`, cookie không tách theo cổng nên hai bản dùng chung cookie khi dev (vô hại: cùng `SECRET`).
+- Kubernetes: `ingress.host` và `domain.publicUrl` bắt buộc (mục "Kubernetes"); thiếu thì chart dừng.
 
 **Cookie domain.** `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN` không bị đặt riêng. Nếu cấu hình chung có đặt
 mà giá trị không phủ host Backoffice (ví dụ `cms.example.com` với host `backoffice.example.com`), trình duyệt bỏ cookie
@@ -227,58 +234,56 @@ này có thể được trả ở domain kia, giống hai bản Directus khác d
 
 ## Kubernetes (`deploy/helm/backoffice`)
 
-Chart tạo Deployment, Service cho BE và FE, Ingress chung một domain, HPA cho BE. Chart không khai báo biến Directus
-nào: pod đọc nguyên ConfigMap và Secret mà Deployment Directus đang dùng (`envFrom`; FE chỉ đọc ConfigMap).
+Chart tạo Deployment, Service cho BE và FE, Ingress trên domain Backoffice, HPA cho BE. Chart không khai báo biến
+Directus nào: pod đọc nguyên ConfigMap và Secret mà Deployment Directus đang dùng (`envFrom`; FE chỉ đọc ConfigMap).
 
 ```bash
 helm install backoffice deploy/helm/backoffice \
   --set directus.configMap=directus-config \
   --set directus.secret=directus-secret \
-  --set ingress.host=cms.example.com
+  --set ingress.host=backoffice.example.com \
+  --set domain.publicUrl=https://backoffice.example.com
 ```
 
 Không dùng Helm: `helm template ... > manifests.yaml` rồi `kubectl apply -f manifests.yaml` (khi đó không có bước kiểm
 cấu hình của chart: tự kiểm theo mục "Ràng buộc khi chạy nhiều instance").
 
-| Value                                                               | Mặc định                    | Ý nghĩa                                                                     |
-| ------------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------- |
-| `directus.configMap`, `directus.secret`                             | (bắt buộc)                  | ConfigMap, Secret của Directus                                              |
-| `api.autoscaling.*`                                                 | bật, 2–10 replica, CPU 70 % | HPA `autoscaling/v2` (cần metrics-server)                                   |
-| `api.shutdownDelaySeconds`, `api.terminationGracePeriodSeconds`     | 10, 30                      | `preStop` và thời hạn tắt máy                                               |
-| `apiPool.name`                                                      | tên release                 | nhãn `backoffice.io/api-pool` mà Service của BE chọn                        |
-| `uploads.existingClaim`                                             | rỗng                        | PVC `ReadWriteMany` có sẵn cho storage `local`, mount ở `/backoffice/uploads` |
-| `ingress.host`, `.className`, `.tls`, `.annotations`, `.extraPaths` |                             | Ingress                                                                     |
-| `domain.publicUrl`                                                  | rỗng                        | chế độ domain riêng: `PUBLIC_URL` của Backoffice                            |
-| `mode`                                                              | `shared`                    | `shared` (cạnh Directus) hay `standalone` (mục "Chạy độc lập")              |
-| `migrations.configMap`                                              | rỗng                        | ConfigMap custom migration, mount ở `/backoffice/migrations`                |
-| `bootstrap.backoffLimit`, `.activeDeadlineSeconds`, `.resources`    | 3, 600, `api.resources`     | Job `bootstrap` của chế độ `standalone`                                     |
+| Value                                                               | Mặc định                    | Ý nghĩa                                                                                        |
+| ------------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `directus.configMap`, `directus.secret`                             | (bắt buộc)                  | ConfigMap, Secret của Directus                                                                 |
+| `api.autoscaling.*`                                                 | bật, 2–10 replica, CPU 70 % | HPA `autoscaling/v2` (cần metrics-server)                                                      |
+| `api.shutdownDelaySeconds`, `api.terminationGracePeriodSeconds`     | 10, 30                      | `preStop` và thời hạn tắt máy                                                                  |
+| `uploads.existingClaim`                                             | rỗng                        | PVC `ReadWriteMany` có sẵn cho storage `local`, mount ở `/backoffice/uploads`                  |
+| `ingress.host`, `.className`, `.tls`, `.annotations`, `.extraPaths` |                             | Ingress trên domain Backoffice; `extraPaths` tới Service khác trong namespace (không Directus) |
+| `domain.publicUrl`                                                  | (bắt buộc ở `shared`)       | `PUBLIC_URL` của domain Backoffice, biến duy nhất đặt riêng (spec 026)                         |
+| `mode`                                                              | `shared`                    | `shared` = cạnh Directus ở domain riêng, hay `standalone` (mục "Chạy độc lập")                 |
+| `migrations.configMap`                                              | rỗng                        | ConfigMap custom migration, mount ở `/backoffice/migrations`                                   |
+| `bootstrap.backoffLimit`, `.activeDeadlineSeconds`, `.resources`    | 3, 600, `api.resources`     | Job `bootstrap` của chế độ `standalone`                                                        |
 
 Probe: readiness `/server/health`, liveness và startup `/server/ping` (DB hoặc Redis mất thì pod ra khỏi traffic, không
 bị khởi động lại hàng loạt). Pod chạy non-root (BE 1000, FE 1001), không leo quyền, bỏ mọi capability.
 
 **Kiểm cấu hình khi cài.** Khi `helm install`/`upgrade`, chart đọc ConfigMap và Secret của Directus và dừng nếu cấu hình
 chỉ an toàn cho một instance (thiếu Redis, `CACHE_STORE`/`RATE_LIMITER_STORE`/`SYNCHRONIZATION_STORE` khác `redis`,
-thiếu `SECRET`, SQLite, storage driver `local` không có PVC dùng chung), hoặc, ở chế độ domain riêng, khi cookie domain
-không phủ host Backoffice. Thông báo nêu biến, giá trị và giá trị cần đặt trong env Directus. `helm template` và
-`--dry-run=client` không đọc được cụm nên bỏ qua bước này.
+thiếu `SECRET`, SQLite, storage driver `local` không có PVC dùng chung), hoặc khi cookie domain không phủ host
+Backoffice (`ingress.host`, hoặc host của `domain.publicUrl` khi tắt Ingress; mọi lần cài, nâng cấp `shared`). Thông báo
+nêu biến, giá trị và giá trị cần đặt trong env Directus. `helm template` và `--dry-run=client` không đọc được cụm nên bỏ
+qua bước này. Riêng `domain.publicUrl` rỗng ở `mode: shared` thì dừng ở mọi đường, kể cả `helm template` (spec 026).
 
-**Đưa Directus vào pool (chung domain).** Thêm vào pod template của Deployment Directus nhãn
-`backoffice.io/api-pool: <apiPool.name>` và `lifecycle.preStop.exec.command: ["sleep", "10"]`, rồi gỡ host đó khỏi
-Ingress của Directus (tránh hai Ingress cùng host). Bỏ nhãn để đưa Directus ra khỏi pool.
+**Bản cài chung domain của 019.** Nâng cấp theo mục "Chuyển từ chung domain sang domain riêng"; chart không còn nhãn
+pool và không sửa Deployment Directus.
 
 **Lọc theo path trong field json (spec 023).** Chỉ API Backoffice nhận key `json(field, path[, type])` trong filter
-(Postgres, SQLite; vendor khác 400). Ở chế độ chung domain (pool có Directus: `api_pool` ở compose, Service `-api` ở
-Helm) request có json path rơi vào Directus nhận 403 `FORBIDDEN` (D-184), không định tuyến riêng ở lb; trang Content của
-app web mới hiện lỗi API như khi `/items` lỗi. Chế độ domain riêng và standalone (pool chỉ có Backoffice) không bị ảnh
-hưởng. Bookmark có json path lưu trong `directus_presets` dùng chung; Directus app mở bookmark đó cũng nhận 403 (D-184.1).
+(Postgres, SQLite; vendor khác 400). Gọi thẳng domain Directus với key này thì Directus 11.17.4 trả 403 `FORBIDDEN`
+(D-184); ở domain Backoffice mọi request tới BE (spec 026). Bookmark có json path lưu trong `directus_presets` dùng
+chung; Directus app mở bookmark đó cũng nhận 403 (D-184.1).
 
 **Cài đặt tìm kiếm, Import, Export của collection chặn cả API (spec 024).** Tắt `bo_show_search`, `bo_show_import` hay
 `bo_show_export` (Settings > Data Model, card "Content: Search, Import, Export") thì API Backoffice trả 403 `FORBIDDEN`
 (câu của lỗi quyền collection) cho tìm kiếm, import, export trên collection đó, với mọi người gọi kể cả admin (D-188).
-Directus 11.17.4 không đọc ba cài đặt này: ở chế độ chung domain request rơi vào Directus vẫn được trả lời, không định
-tuyến riêng ở lb; muốn chặn đủ thì dùng domain riêng hoặc standalone. Lưu cài đặt ở app nào cũng có tác dụng ngay trên
-mọi replica Backoffice (bus `schemaChanged`); sửa thẳng bằng SQL thì gọi `POST /utils/cache/clear` (hoặc
-`node cli.js cache clear`).
+Directus 11.17.4 không đọc ba cài đặt này: gọi thẳng domain Directus vẫn được trả lời; ở domain Backoffice mọi request
+tới BE nên bị chặn đủ (spec 026). Lưu cài đặt ở app nào cũng có tác dụng ngay trên mọi replica Backoffice (bus
+`schemaChanged`); sửa thẳng bằng SQL thì gọi `POST /utils/cache/clear` (hoặc `node cli.js cache clear`).
 
 **Ingress annotation.** Chart không đặt annotation riêng của controller. Upload lớn cần bỏ giới hạn body và không đệm
 body; request dài cần timeout đọc đủ lâu (FR-051):
@@ -291,23 +296,43 @@ body; request dài cần timeout đọc đủ lâu (FR-051):
   controller dưới 5 s: Traefik `--serverstransport.forwardingtimeouts.idleconntimeout=4s` (CI kind dùng giá trị này),
   ingress-nginx `upstream-keepalive-timeout: "4"` trong ConfigMap của controller.
 
-**SAML.** Backoffice không có SAML (D-24 của 003). Hệ thống có user SAML định tuyến login SAML về Directus qua
-`ingress.extraPaths`, ví dụ:
+**SAML.** Backoffice không có SAML (D-24 của 003). User SAML chỉ dùng Directus app ở domain Directus; cookie của domain
+đó không gửi tới domain Backoffice nên họ không dùng được Backoffice app (spec 026, Q1). `ingress.extraPaths` chỉ dành
+cho Service khác trong namespace, không trỏ Directus từ domain Backoffice.
 
-```yaml
-ingress:
-  extraPaths:
-    - { path: /auth/login/saml, pathType: Prefix, service: directus, port: 8055 }
-```
+## Chuyển từ chung domain sang domain riêng
 
-(`saml` là tên provider trong `AUTH_PROVIDERS`; path này gồm cả callback `/auth/login/saml/acs`.)
+Cho bản cài theo chế độ chung domain của 019 (Directus trong pool qua nhãn `backoffice.io/api-pool`, Ingress của chart
+giữ domain Directus). `helm upgrade` với values cũ (không `domain.publicUrl`) dừng trước khi đổi tài nguyên và báo value
+cần đặt. Các bước, theo thứ tự:
+
+1. DNS: trỏ domain Backoffice (B) về Ingress controller.
+2. Env Directus (ConfigMap/Secret): `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN` bỏ hoặc đặt domain cha phủ cả
+   hai (mục "Cookie domain"); SSO: thêm URL của B vào `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST` (và
+   `AUTH_ALLOWED_PUBLIC_URLS`) và callback ở IdP.
+3. `helm upgrade` với `ingress.host=<B>` và `domain.publicUrl=https://<B>`: Ingress của chart rời domain Directus (D),
+   Service `<release>-api-only` và các path riêng bị xóa, Service `<release>-api` chỉ còn chọn pod BE; các replica BE
+   khởi động lại cuốn chiếu vì pod template bỏ nhãn pool ([Inference] theo `maxUnavailable: 0` của 019 FR-033 không mất
+   request; chưa đo khi nâng cấp từ 019).
+4. Ngay sau đó thêm host D vào Ingress của Directus (giữa bước 3 và 4 domain D không có Ingress; không để hai Ingress
+   cùng host).
+5. Kiểm: `D/admin` là Directus app, `B/admin` là Backoffice app; `kubectl get endpoints <release>-api` chỉ có IP pod BE.
+6. User đăng nhập lại ở B (cookie theo host; phiên cũ vẫn hợp lệ ở D). User SAML không còn dùng được Backoffice app (mục
+   "SAML").
+7. Lùi lại khi cần: `helm rollback <release> <revision cũ>` rồi trả host D về Ingress cũ của chart (gỡ khỏi Ingress của
+   Directus).
+8. Sau cùng, khi chắc không lùi: gỡ nhãn `backoffice.io/api-pool` (và `preStop` sleep nếu đã thêm) khỏi pod template của
+   Deployment Directus. Để lại cũng vô hại: không Service nào chọn nhãn đó nữa.
+
+Compose: `docker-compose.separate-domain.yml` và `lb/shared-domain.conf` không còn; `docker-compose.yml` mặc định đã là
+bố cục hai domain.
 
 ## Chạy độc lập (không Directus)
 
 Từ 021, Backoffice tự cài DB và chạy migration như Directus 11.17.4, nên chạy được một mình. DB vẫn dùng được với
-Directus 11.17.4 (từ 022 có thêm migration riêng của Backoffice, xem mục dưới). Chỉ Postgres và SQLite (D-145); vendor khác cần image
-Directus để cài và migrate. Chạy `bootstrap` ở **một** nơi (service một lần của compose, Job của Helm); các replica chỉ
-`start`.
+Directus 11.17.4 (từ 022 có thêm migration riêng của Backoffice, xem mục dưới). Chỉ Postgres và SQLite (D-145); vendor
+khác cần image Directus để cài và migrate. Chạy `bootstrap` ở **một** nơi (service một lần của compose, Job của Helm);
+các replica chỉ `start`.
 
 Không có khi chạy một mình (ngoài phạm vi, Nguyên tắc XI): gửi email (log thay vì gửi), WebSocket và realtime, SAML,
 storage ngoài Local/S3, AI/MCP, deployment module, visual editing, telemetry.
@@ -359,12 +384,13 @@ helm install backoffice deploy/helm/backoffice \
   Deployment), `helm upgrade` lỗi (release và pod đang chạy giữ nguyên); log: `kubectl logs job/<release>-bootstrap`.
 - Đổi ConfigMap migration thì chạy `helm upgrade` ngay: pod mới (HPA) thấy file chưa chạy sẽ dừng ở `start` (migration
   lệch). `MIGRATIONS_PATH` để trống hoặc `./migrations` (chart kiểm).
-- Không cần ConfigMap, Secret hay PVC của Directus; không gắn nhãn pool cho Directus.
+- Không cần ConfigMap, Secret hay PVC của Directus; không `domain.publicUrl` (`PUBLIC_URL` nằm trong ConfigMap của
+  Backoffice).
 
-**Chế độ chung** (`mode: shared`, compose mặc định): replica Backoffice chạy CMD của image (`bootstrap` rồi `start`) như
-container Directus. DB phải do Directus bootstrap trước (019); N replica (và các container Directus) có thể cùng áp một
-custom migration mới, như N container Directus: thêm custom migration khi chỉ một instance đang chạy, hoặc dùng chế độ
-độc lập.
+**Chế độ chung** (`mode: shared` = cạnh Directus ở domain riêng, compose mặc định): replica Backoffice chạy CMD của
+image (`bootstrap` rồi `start`) như container Directus. DB phải do Directus bootstrap trước (019); N replica (và các
+container Directus) có thể cùng áp một custom migration mới, như N container Directus: thêm custom migration khi chỉ một
+instance đang chạy, hoặc dùng chế độ độc lập.
 
 **Phục hồi khi lỗi** (như Directus, FR-015):
 
@@ -382,8 +408,9 @@ custom migration mới, như N container Directus: thêm custom migration khi ch
 ## Migration riêng của Backoffice (spec 022)
 
 Backoffice có migration riêng (constitution 3.2.0), ghi trong bảng `backoffice_migrations`, không bao giờ trong
-`directus_migrations`. Migration đầu tiên `20261026A` thêm `bo_show_search`, `bo_show_import`, `bo_show_export` (boolean,
-mặc định `true`) vào `directus_collections` và ba dòng `directus_fields` để form collection có nhãn en-US/vi-VN.
+`directus_migrations`. Migration đầu tiên `20261026A` thêm `bo_show_search`, `bo_show_import`, `bo_show_export`
+(boolean, mặc định `true`) vào `directus_collections` và ba dòng `directus_fields` để form collection có nhãn
+en-US/vi-VN.
 
 - **Không cần làm gì:** `bootstrap` (CMD của image, Job Helm, service `bootstrap` của compose) chạy migration Directus
   (Postgres, SQLite) rồi migration riêng còn thiếu, trên **mọi** vendor. Vendor khác Postgres và SQLite: chỉ chạy khi DB
@@ -391,9 +418,9 @@ mặc định `true`) vào `directus_collections` và ba dòng `directus_fields`
 - **Nhiều replica cùng lúc:** chạy dưới khóa Redis `backoffice-migrations` (namespace `REDIS_LOCK_NAMESPACE`); không có
   Redis hoặc khác namespace thì mỗi bước vẫn chịu được việc process khác làm trước (bảng, cột, dòng đã có không lỗi;
   dòng `directus_fields` trùng bị xóa, giữ dòng đầu).
-- **`start` thiếu migration riêng:** dừng với `Backoffice migrations do not match.` và `Missing Backoffice migrations
-  (not run yet): …`; chạy `node cli.js bootstrap` (hoặc khởi động lại container). Dòng lạ (DB của bản Backoffice mới hơn)
-  cũng dừng: dùng image mới hơn.
+- **`start` thiếu migration riêng:** dừng với `Backoffice migrations do not match.` và
+  `Missing Backoffice migrations (not run yet): …`; chạy `node cli.js bootstrap` (hoặc khởi động lại container). Dòng lạ
+  (DB của bản Backoffice mới hơn) cũng dừng: dùng image mới hơn.
 - **Không có lệnh CLI riêng, không có down.** Gỡ tay khi cần (Postgres):
 
   ```sql
@@ -403,14 +430,16 @@ mặc định `true`) vào `directus_collections` và ba dòng `directus_fields`
   ```
 
   rồi `node cli.js cache clear --system`. Bản Backoffice có migration này sẽ chạy lại nó ở `bootstrap` sau.
+
 - **Directus chạy chung:** không cần file, biến môi trường hay cấu hình mới; `migrate:latest|up|down` của Directus không
   đổi. Directus app thấy ba cài đặt trong form collection (không có tác dụng ở Content của Directus app) và bảng
-  `backoffice_migrations` trong nhóm bảng chưa quản lý (admin). Backoffice coi bảng này là collection hệ thống (ẩn, 403 ở
-  `/items`, không có trong GraphQL và OAS: D-181). Muốn Directus app cũng không thấy bảng: thêm `backoffice_migrations`
-  vào `DB_EXCLUDE_TABLES` của **cả hai** app, giữ hai bảng mặc định
+  `backoffice_migrations` trong nhóm bảng chưa quản lý (admin). Backoffice coi bảng này là collection hệ thống (ẩn, 403
+  ở `/items`, không có trong GraphQL và OAS: D-181). Muốn Directus app cũng không thấy bảng: thêm
+  `backoffice_migrations` vào `DB_EXCLUDE_TABLES` của **cả hai** app, giữ hai bảng mặc định
   (`spatial_ref_sys,sysdiagrams,backoffice_migrations`; tùy chọn).
-- **Nâng Directus lên bản sau 11.17.4:** trước khi ghim bản mới, `grep -rn "bo_\|backoffice_"
-  directus/api/src/database/migrations` phải rỗng (tên cột hay bảng trùng sẽ làm migration của một bên lỗi).
+- **Nâng Directus lên bản sau 11.17.4:** trước khi ghim bản mới,
+  `grep -rn "bo_\|backoffice_" directus/api/src/database/migrations` phải rỗng (tên cột hay bảng trùng sẽ làm migration
+  của một bên lỗi).
 
 ### Quyền import, export theo policy (spec 025)
 
@@ -431,19 +460,18 @@ Migration `20261028A` tạo bảng `backoffice_permissions` (`policy`, `collecti
 - **Migration hỏng giữa chừng** (bảng có, index thiếu): `bootstrap` thấy bảng thì bỏ qua bước tạo; tạo index tay:
   `CREATE INDEX backoffice_permissions_policy_collection_action_index ON backoffice_permissions (policy, collection, action);`
   rồi ghi dòng `20261028A` vào `backoffice_migrations` nếu chưa có (hoặc gỡ tay như trên và chạy lại `bootstrap`).
-- **Directus chạy chung** (khác biệt chủ dự án đã duyệt): Directus không kiểm `import`, `export`, nên request import,
-  export tới Directus vẫn trả 200 (D-189.1). Response cache của `/permissions/me` dùng chung khóa: Backoffice có thể trả
-  bản Directus đã cache (không có `import`, `export`; app web khi đó theo luật Directus) và ngược lại (D-189.2).
-  Directus app đặt sau proxy tới API Backoffice nhận 403 khi import, export cho tới khi admin cấp quyền. Activity của
-  Directus app hiện các dòng ghi vào `backoffice_permissions` (collection Directus chưa quản lý).
-- **Load balancer, Ingress (D-189.7):** `/permissions/me` (exact) và `/backoffice/*` chỉ tới Backoffice (`bo_pool` ở
-  compose shared-domain, Service `<release>-api-only` ở Helm), như `/extensions/sources/*`. Lb tự viết: thêm hai route
-  này; request import, export khác vẫn có thể rơi vào Directus và không bị chặn (như 023, 024).
+- **Directus chạy cạnh** (khác biệt chủ dự án đã duyệt): Directus không kiểm `import`, `export`, nên request import,
+  export gọi thẳng domain Directus vẫn trả 200 (D-189.1); ở domain Backoffice mọi request tới BE (spec 026). Response
+  cache của `/permissions/me` dùng chung khóa: Backoffice có thể trả bản Directus đã cache (không có `import`, `export`;
+  app web khi đó theo luật Directus) và ngược lại (D-189.2). Directus app đặt sau proxy tới API Backoffice nhận 403 khi
+  import, export cho tới khi admin cấp quyền. Activity của Directus app hiện các dòng ghi vào `backoffice_permissions`
+  (collection Directus chưa quản lý).
 
 ## Lệnh CLI
 
 Image Backoffice có CLI của Directus 11.17.4 (021): cùng lệnh, option, log và mã thoát, tên chương trình `backoffice`
-(D-147). Chạy `node cli.js <lệnh>` trong thư mục `/backoffice` của image (D-174), trên cùng env với API (cùng DB, Redis, storage):
+(D-147). Chạy `node cli.js <lệnh>` trong thư mục `/backoffice` của image (D-174), trên cùng env với API (cùng DB, Redis,
+storage):
 
 | Việc                                | Lệnh                                                                                                                               |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |

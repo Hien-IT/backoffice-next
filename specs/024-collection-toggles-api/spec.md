@@ -153,7 +153,7 @@ ghi trước; flow "Read Data" có từ khóa trên collection đã tắt.
   Backoffice (FR-013). Sửa thẳng bằng SQL thì cần xóa cache (`/utils/cache/clear` hay lệnh `cache clear`) như mọi thay
   đổi schema khác.
 - Chế độ shared-domain: lb gửi request tới Directus thì không bị chặn (D-188); muốn chặn đủ thì dùng standalone hoặc
-  separate-domain.
+  separate-domain. (026: chế độ shared-domain đã bỏ; ở domain Backoffice mọi request tới BE.)
 - Directus app ở cấu hình proxy tới API mới: tìm kiếm, export, import của A trong Directus app nhận lỗi 403 (D-188).
 - Bookmark có từ khóa trong `directus_presets` dùng chung: Backoffice (Content, drawer) không gửi từ khóa; Directus app ở
   cấu hình proxy tới API mới mở bookmark đó nhận 403.
@@ -213,7 +213,7 @@ ghi trước; flow "Read Data" có từ khóa trên collection đã tắt.
   câu 2).
 - **FR-015**: Không thêm bảng, cột, migration; không sửa `directus/`. Directus 11.17.4 chạy cùng DB không đổi hành vi.
 - **FR-016**: Tài liệu (quickstart của 024, `deploy/README` hoặc migration-guide) PHẢI ghi: tắt toggle là ẩn giao diện và
-  chặn API Backoffice; ở shared-domain request tới Directus không bị chặn.
+  chặn API Backoffice; ở shared-domain request tới Directus không bị chặn. (026: không còn; gọi thẳng domain Directus không bị chặn.)
 - **FR-017**: Ngoài FR-002, FR-003, mọi từ khóa tìm kiếm khác rỗng nhắm vào collection tắt `bo_show_search` qua HTTP
   của Backoffice PHẢI bị từ chối như FR-006, gồm: `GET /items/<collection>/<id>`; `PATCH`, `DELETE /items/<collection>`
   theo query (body `query.search`); `search` trong query string của request ghi tới `/items/<collection>` (`POST`,
@@ -258,10 +258,10 @@ ghi trước; flow "Read Data" có từ khóa trên collection đã tắt.
 | 9 | Đọc cài đặt | SchemaOverview chỉ chọn 5 cột của `directus_collections`, không có `bo_show_*` | `directus/api/src/utils/get-schema.ts:129-131` |
 | 10 | DrawerCollection | Lấy từ khóa từ preset và luôn hiện ô tìm kiếm; drawer của shim dùng lại component này | `apps/web/src/components/drawers/DrawerCollection.vue:60`, `:204`; `apps/web/src/directus-shim/components/DrawerCollection.vue:6` |
 | 11 | Content (022) | `showSearch`, `activeSearch` theo `bo_show_search !== false` | `apps/web/src/modules/content/routes/CollectionRoute.vue:140-144` |
-| 12 | Lb chế độ shared-domain | `api_pool` có `directus:8055` | `deploy/compose/lb/shared-domain.conf:12` |
+| 12 | Lb chế độ shared-domain | `api_pool` có `directus:8055` | `deploy/compose/lb/shared-domain.conf:12` (026: bỏ) |
 
 **Kết luận** [Inference]: Directus không phải làm gì; DB, Redis, file không đổi. Directus vẫn trả 200 cho request mà
-Backoffice chặn, nên ở shared-domain việc chặn không đủ.
+Backoffice chặn, nên ở shared-domain việc chặn không đủ. (026: lb không còn gửi tới Directus.)
 
 ## Khác biệt so với Directus *(mandatory)*
 
@@ -269,7 +269,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
-| D-188 | Tìm kiếm trên collection tắt `bo_show_search` (REST `search`, body `query.search`, `deep._search`, GraphQL `search` kể cả field quan hệ, kể cả đi từ endpoint hệ thống `/users`, `/graphql/system`) | 200, tìm như thường | REST 403 `FORBIDDEN` cho mọi người gọi, kể cả admin; GraphQL HTTP 200 với `errors[].extensions.code = FORBIDDEN` cho field đó, field khác vẫn có dữ liệu; schema GraphQL không đổi; đường ghi (`PATCH`/`DELETE` theo query, `?search=` trên request ghi, mutation) từ chối trước khi ghi, không đổi dữ liệu. Ở shared-domain request rơi vào Directus vẫn 200 (không thêm định tuyến ở lb); Directus app ở cấu hình proxy tới API mới nhận 403 | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
+| D-188 | Tìm kiếm trên collection tắt `bo_show_search` (REST `search`, body `query.search`, `deep._search`, GraphQL `search` kể cả field quan hệ, kể cả đi từ endpoint hệ thống `/users`, `/graphql/system`) | 200, tìm như thường | REST 403 `FORBIDDEN` cho mọi người gọi, kể cả admin; GraphQL HTTP 200 với `errors[].extensions.code = FORBIDDEN` cho field đó, field khác vẫn có dữ liệu; schema GraphQL không đổi; đường ghi (`PATCH`/`DELETE` theo query, `?search=` trên request ghi, mutation) từ chối trước khi ghi, không đổi dữ liệu. Ở shared-domain request rơi vào Directus vẫn 200 (không thêm định tuyến ở lb); Directus app ở cấu hình proxy tới API mới nhận 403 | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — (026: câu "Ở shared-domain" không còn áp dụng) |
 | D-188.1 | Export trên collection tắt `bo_show_export` (`export` của `/items`, `POST /utils/export`) | 200, trả hoặc tạo file | 403 `FORBIDDEN`, không trả, không tạo file | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
 | D-188.2 | Import trên collection tắt `bo_show_import` (`POST /utils/import`) | 200, nhập item | 403 `FORBIDDEN`, không nhập item | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
 | D-188.3 | Drawer chọn item và ô "Search Filter" của `list-o2m`, `list-m2m` với collection tắt `bo_show_search` | Luôn có ô tìm kiếm | Ẩn ô nhập từ khóa, giữ nút bộ lọc, không gửi từ khóa của preset (sửa FR-009 của 022) | Hệ quả của D-188, chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
@@ -284,7 +284,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 ### Session 2026-10-27 (chủ dự án, trước `/speckit.specify`)
 
 - Q: Ở shared-domain lb có Directus trong pool, request rơi vào Directus không bị chặn. Xử lý? → A: chấp nhận như 023,
-  không thêm định tuyến ở lb, ghi giới hạn vào spec (D-188, FR-016).
+  không thêm định tuyến ở lb, ghi giới hạn vào spec (D-188, FR-016). (026: không còn.)
 - Q: FR-009 của 022 giữ ô tìm kiếm trong DrawerCollection; API chặn thì drawer lỗi. Chọn? → A: drawer theo cài đặt
   (FR-014, D-188.3).
 - Q: Admin có bị chặn không? → A: có, như FR-006 của 022 (FR-007).
@@ -344,7 +344,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - Cài đặt là cấu hình của từng collection, không phải permission: không vào bảng quyền, không đổi `/permissions/me`.
 - Lỗi chặn dùng câu của lỗi quyền collection (FR-006), nên client hiện có xử lý như lỗi quyền (sửa khi analyze
   2026-10-27, I1).
-- Người dùng gọi qua lb shared-domain có thể không bị chặn; muốn chắc chắn thì dùng standalone hoặc separate-domain.
+- Người dùng gọi qua lb shared-domain có thể không bị chặn; muốn chắc chắn thì dùng standalone hoặc separate-domain. (026: ở domain Backoffice luôn tới BE.)
 - Bước kiểm tra cài đặt thêm vào mỗi request đọc items; chi phí nhỏ so với truy vấn DB [Inference], đo bằng benchmark
   hiện có.
 - Resolver riêng của scope `/graphql/system` (`users_me`, `server_specs`...) không kiểm `deep` vào collection người dùng

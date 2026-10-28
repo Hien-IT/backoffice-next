@@ -28,21 +28,8 @@ spec:
             backend:
               service: { name: {{ .service }}, port: { number: {{ .port }} } }
           {{- end }}
-          # Spec 020 (D-137): the app extension chunks come from the Backoffice pods only.
-          - path: /extensions/sources
-            pathType: Prefix
-            backend:
-              service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
-          # Spec 025 (D-189.7): /permissions/me with the import and export keys and /backoffice/* from the Backoffice pods
-          # only.
-          - path: /permissions/me
-            pathType: Exact
-            backend:
-              service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
-          - path: /backoffice
-            pathType: Prefix
-            backend:
-              service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
+          # Spec 026 (FR-007, FR-009): the Backoffice domain only; every API path, /extensions/sources, /permissions/me
+          # and /backoffice/* included, reaches the BE pods through the one Service.
           - path: /admin
             pathType: Prefix
             backend:

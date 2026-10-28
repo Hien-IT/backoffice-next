@@ -10,6 +10,9 @@ api:
     limits: { memory: 768Mi }
 web:
   image: { tag: ci, pullPolicy: Never }
+# Spec 026: the Backoffice domain of the kind cluster; Directus (ci/deps.yaml) keeps cms.test without an Ingress.
 ingress:
   className: traefik
-  host: cms.test
+  host: backoffice.test
+domain:
+  publicUrl: http://backoffice.test

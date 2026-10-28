@@ -76,10 +76,12 @@ Theo mục "Chuyển từ chung domain sang domain riêng" của `deploy/README.
 grep -rniE "shared-domain|api-pool|apiPool|bo-api-only|api_pool.*directus" deploy .github/workflows CLAUDE.md
 ```
 
-→ không có kết quả (trừ mục "Chuyển từ chung domain" của README nhắc nhãn cũ).
+→ chỉ còn: mục "Chuyển từ chung domain" của README (nhãn cũ), check phủ định trong `ci/test-template.sh`, bước giả lập
+nhãn cũ (US2-3) và comment US3-1 trong `ci/kind-test.sh`, các dòng CLAUDE.md ghi "removed by 026" (kiểm 2026-10-28).
 
 ```bash
-grep -rnE "chung domain|shared-domain|rơi vào Directus" specs/0[0-2][0-9]-*/spec.md | grep -v "specs/019-\|specs/026-" | grep -v "(026:"
+for f in specs/0[0-2][0-9]-*/spec.md; do case $f in specs/019-*|specs/026-*) continue;; esac; awk -v F="$f" 'BEGIN{RS=""} /chung domain|shared-domain|rơi vào Directus/ && !/\(026:/ {print F": "substr($0,1,120)}' "$f"; done
 ```
 
-→ không có kết quả (mọi chỗ còn lại có ghi chú "(026: ...)").
+→ không có kết quả: mọi đoạn (paragraph, bảng) còn nhắc chung domain có ghi chú "(026: ...)" (ghi chú đứng cuối đoạn,
+nên kiểm theo đoạn chứ không theo dòng; kiểm 2026-10-28).

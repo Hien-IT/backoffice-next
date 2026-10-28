@@ -75,7 +75,7 @@ OpenID; feature này tự viết test đối chiếu cho các luồng đó (FR-1
 
 Người dùng của feature này là người dùng cuối và client đang gọi Directus (đăng nhập, giữ phiên, gọi API bằng
 token), quản trị viên (cấu hình SSO) và đội vận hành (chạy Directus và app mới song song
-sau một load balancer, cùng DB, Redis và file `.env`).
+sau một load balancer, cùng DB, Redis và file `.env`). (026: khi chạy cạnh Directus, hai app ở hai domain riêng, mỗi app sau pool của chính nó; token và trạng thái vẫn dùng chung qua DB, Redis, `SECRET`.)
 
 ### User Story 1 - Đăng nhập bằng email và mật khẩu, token dùng chéo hai bên (Priority: P1)
 
@@ -85,7 +85,7 @@ hệt Directus. Token này dùng được ở mọi instance Directus và app m�
 
 **Why this priority**: Đây là tiêu chí chấp nhận chính của feature và là điều kiện chạy song song (Nguyên tắc IV).
 Request của một người dùng có thể đi vào bất kỳ instance nào; nếu một bên không nhận token của bên kia, người dùng
-bị đăng xuất ngẫu nhiên.
+bị đăng xuất ngẫu nhiên. (026: giữa các replica BE; với Directus là token dùng chéo qua `SECRET` chung, không qua một lb chung.)
 
 **Independent Test**: Chạy Directus và app mới trên cùng DB, Redis và `SECRET`. Đăng nhập ở app mới bằng một user
 có sẵn với mỗi chế độ. So response với cùng request gửi tới Directus (status, body, header `Set-Cookie`, dòng mới
@@ -123,7 +123,7 @@ trong cookie. Phiên tạo ở Directus refresh hoặc logout được ở app m
 token đó hết hiệu lực ở cả hai bên.
 
 **Why this priority**: Access token mặc định sống 15 phút. Nếu refresh chỉ chạy ở một bên, sau 15 phút người dùng bị
-đăng xuất khi request refresh rơi vào instance kia.
+đăng xuất khi request refresh rơi vào instance kia. (026: giữa các replica BE; Directus ở domain riêng.)
 
 **Independent Test**: Đăng nhập ở Directus ở mỗi chế độ. Gọi `POST /auth/refresh` ở app mới: nhận token mới, dòng
 trong `directus_sessions` đổi giống khi Directus refresh. Gọi `POST /auth/logout` ở Directus với refresh token mới:
@@ -377,7 +377,7 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   `directus_users.provider` không còn trong `AUTH_PROVIDERS` (ở cả hai app).
 - Luồng SSO OpenID hoặc OAuth2 bắt đầu ở một bên rồi callback rơi vào bên kia (load balancer không dùng sticky
   session, Nguyên tắc VII): thành công như khi chạy trọn ở một bên, vì cookie `openid.<provider>`, `oauth2.<provider>`
-  ký bằng `SECRET` chung và có cùng nội dung.
+  ký bằng `SECRET` chung và có cùng nội dung. (026: giữa các replica BE; mỗi app ở domain riêng nhận callback của chính nó, cookie ký `SECRET` chung vẫn đọc được.)
 - LDAP hoặc IdP không truy cập được khi đăng nhập hoặc refresh: lỗi giống driver của Directus
   (`503 SERVICE_UNAVAILABLE` hoặc `401 INVALID_CREDENTIALS`).
 - Request refresh hoặc logout với token trong cả body và cookie: chọn theo `mode` và quy tắc của Directus
@@ -662,7 +662,7 @@ Khác biệt mới:
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
 | D-23 | Email đặt lại mật khẩu (`POST /auth/password/request`) | Gửi email chứa link đặt lại qua `EMAIL_*` | Không gửi, ghi log `warn` có email người nhận, không có token hay link (FR-062). Response và thời gian trả về giống Directus | Nguyên tắc X | ngoài phạm vi | — |
-| D-24 | Provider driver `saml` | Đăng ký provider, có route `/auth/login/<provider>`, có trong `GET /auth` | Bỏ qua, log `warn` khi khởi động; route trả `404`; không có trong `GET /auth`. Refresh và logout session của user SAML trả `503 INVALID_PROVIDER_CONFIG` như Directus khi tắt SAML (FR-078); hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus | Nguyên tắc XI (1.3.0) | ngoài phạm vi | — |
+| D-24 | Provider driver `saml` | Đăng ký provider, có route `/auth/login/<provider>`, có trong `GET /auth` | Bỏ qua, log `warn` khi khởi động; route trả `404`; không có trong `GET /auth`. Refresh và logout session của user SAML trả `503 INVALID_PROVIDER_CONFIG` như Directus khi tắt SAML (FR-078); hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus | Nguyên tắc XI (1.3.0) | ngoài phạm vi | — (026: user SAML chỉ dùng Directus app ở domain Directus; không còn định tuyến `/auth/*` trong một lb chung) |
 | D-25 | Issuer trong `otpauth_url` khi `project_name` trống | `Directus` | `Backoffice` | Nguyên tắc IX (nhãn issuer TFA được liệt kê) | đổi thương hiệu | — |
 | D-09.10 | `POST /users/me/tfa/enable`, `POST /users/me/tfa/disable`, `POST /users/:pk/tfa/disable` | Bật, tắt TFA (kiểm quyền qua `ItemsService`) | `404 ROUTE_NOT_FOUND` | Cần kiểm quyền và revision theo quyền đọc (004, sửa từ 005 theo spec 004), Clarifications | ngoài phạm vi (tạm thời) | 004 |
 | D-26 | Event `auth.login`, `auth.jwt`, `auth.create`, `auth.update`, `authenticate` (filter và action) | Phát cho extension và flow | Không phát; từ feature 005 phát như Directus, chỉ còn flow theo event chưa chạy (thu hẹp ở 005) | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
@@ -691,7 +691,7 @@ Khác biệt mới:
   `/users/register`, `/users/invite`, `/users/invite/accept` và đặt static token cho user (004).
 - Dọn session hết hạn ở mỗi lần đăng nhập không giới hạn số dòng, giống Directus; chi phí ở quy mô thiết kế nằm trong
   benchmark SC-007.
-- Tài liệu triển khai (feature 019) ghi: hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus (D-24).
+- Tài liệu triển khai (feature 019) ghi: hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus (D-24). (026: không còn; user SAML dùng Directus app ở domain Directus.)
 - Khi SIGTERM, app mới đóng DB và Redis như 001; kết nối LDAP và kết nối tới IdP không có bước đóng riêng, process thoát
   sau bước tắt của `@godaddy/terminus`, giống Directus.
 - Không thêm metric cho auth: Directus 11.17.4 không có metric này.

@@ -174,24 +174,24 @@ Directus `generation` không đổi, pod còn nhãn cũ không có trong endpoin
 
 ### Values và template
 
-- [ ] T017 [US2] `chart/values.yaml` theo `contracts/helm-values.md`: xóa khối `apiPool` (:49-52); comment `mode` (:4-8)
+- [X] T017 [US2] `chart/values.yaml` theo `contracts/helm-values.md`: xóa khối `apiPool` (:49-52); comment `mode` (:4-8)
       thêm "`shared` = next to Directus (shared DB, Redis, storage) on its own domain (spec 026)"; comment `ingress.host`
       (:76) → "Required: the Backoffice domain (next to Directus it is NOT the Directus domain, spec 026 FR-007)"; comment
       `extraPaths` (:81) → "Paths routed before /admin and /, to another Service of the namespace (never Directus: spec
       026 FR-001)"; `domain.publicUrl` (:83-85) → "Required in mode shared (spec 026 FR-003): PUBLIC_URL of the Backoffice
       domain, the only variable set apart from the Directus env; ignored in standalone (021 FR-083)"; `git rm
       chart/values-separate-domain.yaml`.
-- [ ] T018 [P] [US2] `chart/templates/_helpers.tpl`: xóa `backoffice.pool` (:3); `chart/templates/api-deployment.yaml`: xóa
+- [X] T018 [P] [US2] `chart/templates/_helpers.tpl`: xóa `backoffice.pool` (:3); `chart/templates/api-deployment.yaml`: xóa
       dòng nhãn `backoffice.io/api-pool` (:25); `chart/templates/api-service.yaml`: comment :10 → "The BE pods of this
       release only (spec 026 FR-006): Directus never joins the pool", `selector` = `{{- include "backoffice.selector"
       (dict "Release" .Release "component" "api") | nindent 4 }}`; `git rm chart/templates/api-only-service.yaml`.
-- [ ] T019 [P] [US2] `chart/templates/ingress.yaml`: xóa ba path `/extensions/sources`, `/permissions/me`, `/backoffice`
+- [X] T019 [P] [US2] `chart/templates/ingress.yaml`: xóa ba path `/extensions/sources`, `/permissions/me`, `/backoffice`
       (:31-45) và comment của chúng; còn `extraPaths` → `/admin` → `/`; `chart/templates/NOTES.txt`: dòng 1 → "Backoffice
       {{ .Chart.AppVersion }} on {{ .Values.ingress.host }}: /admin -> <release>-web, the rest -> <release>-api."; nhánh
       `shared` (:9-18) → "PUBLIC_URL={{ .Values.domain.publicUrl }} for the Backoffice pods; Directus keeps its own domain
       and /admin (spec 026). The database must be bootstrapped by Directus before Backoffice pods start (shared mode)."
       (bỏ hướng dẫn gắn nhãn pool); nhánh standalone không đổi.
-- [ ] T020 [US2] `chart/templates/_checks.tpl` theo `contracts/helm-values.md`: (1) ngay sau kiểm `mode` (:12-14) thêm
+- [X] T020 [US2] `chart/templates/_checks.tpl` theo `contracts/helm-values.md`: (1) ngay sau kiểm `mode` (:12-14) thêm
       `{{- if and (eq .Values.mode "shared") (not .Values.domain.publicUrl) -}}{{- fail "domain.publicUrl is empty: next to
       Directus (mode: shared) Backoffice runs on its own domain. Set domain.publicUrl (https://backoffice.example.com) and
       ingress.host (backoffice.example.com); upgrading a shared-domain release of 019: see \"Chuyển từ chung domain sang
@@ -202,7 +202,7 @@ Directus `generation` không đổi, pod còn nhãn cũ không có trong endpoin
 
 ### Kiểm template và kind
 
-- [ ] T021 [US2] `chart/ci/test-template.sh` theo `contracts/tests.md` "ci/test-template.sh": `base` thêm `--set
+- [X] T021 [US2] `chart/ci/test-template.sh` theo `contracts/tests.md` "ci/test-template.sh": `base` thêm `--set
       domain.publicUrl=https://h.test`; xóa rendering `separate.yaml` (:23, vòng `for` :29) và check :34, :39-40, :52,
       :54-55, :57-61, :138; `options.yaml` `extraPaths` ví dụ `/hook` → service `other` port 80; thêm check: "shared:
       PUBLIC_URL on api and web only" (= 2), "shared: the Backoffice URL" (`value: "https://h.test"`), "shared: no other env
@@ -212,7 +212,7 @@ Directus `generation` không đổi, pod còn nhãn cũ không có trong endpoin
       `domain.publicUrl`), "NOTES shared: own domain" (`Directus keeps its own domain`); "NOTES standalone: ..." :86 →
       `! grep -q PUBLIC_URL`; chart giả `fakeLookup`: thêm case ConfigMap `REFRESH_TOKEN_COOKIE_DOMAIN=other.test` →
       `helm template` (với `base`) dừng và thông báo chứa `h.test`; chạy `chart/ci/test-template.sh` local xanh.
-- [ ] T022 [US2] `chart/ci/values-kind.yaml`: `ingress.host: backoffice.test`, thêm `domain.publicUrl: http://backoffice.test`;
+- [X] T022 [US2] `chart/ci/values-kind.yaml`: `ingress.host: backoffice.test`, thêm `domain.publicUrl: http://backoffice.test`;
       `chart/ci/kind-test.sh` theo `contracts/tests.md` "ci/kind-test.sh": `api()` Host `backoffice.test` (:15); comment
       :44 "Routing (spec 026 FR-002)"; sau :46 thêm ba curl 200 cho `/permissions/me` (với token: dời xuống sau khi có
       `$token`), `/backoffice/permissions`, `/extensions/sources/index.js` (US2-2); thay :48-56 bằng: ghi
@@ -225,7 +225,7 @@ Directus `generation` không đổi, pod còn nhãn cũ không có trong endpoin
       "$1" ]; }` kiểm 200/404/200 cùng lúc (020 FR-040 giữ; port-forward :97 dời lên trước); FR-076 (:128-129) bỏ `--set
       apiPool.name=bo2`; FR-053 (:141-142) bỏ `--set apiPool.name=bo3`, thêm `--set domain.publicUrl=http://bo3.test`;
       phần standalone (:155-219) không đổi.
-- [ ] T023 [US2] Chạy kind local nếu T001 có `kind` (`kind create cluster --name bo-deploy`, build/tag image `:ci`,
+- [X] T023 [US2] Chạy kind local nếu T001 có `kind` (`kind create cluster --name bo-deploy`, build/tag image `:ci`,
       `KIND_CLUSTER=bo-deploy chart/ci/kind-test.sh`, `kind delete cluster --name bo-deploy`), không thì để CI `deploy-k8s`
       ở T029; ghi "Kết quả T023" vào `research.md`.
 
@@ -241,13 +241,13 @@ theo thứ tự FR-013; kịch bản 2, 3 kiểm tay theo tài liệu.
 **Independent Test**: kind: `helm upgrade bo` với `--set domain.publicUrl=` lỗi, thông báo chứa `domain.publicUrl`,
 `generation` của `bo-api` không đổi; README có mục chuyển đổi với 8 bước theo FR-013 (`quickstart.md` §4).
 
-- [ ] T024 [US3] `chart/ci/kind-test.sh`: trước `helm uninstall bo` (:153) thêm khối US3-1: `g=$(kubectl get deployment
+- [X] T024 [US3] `chart/ci/kind-test.sh`: trước `helm uninstall bo` (:153) thêm khối US3-1: `g=$(kubectl get deployment
       bo-api -o jsonpath='{.metadata.generation}')`; `if out=$(helm upgrade bo "$chart" -f "$chart/ci/values-kind.yaml"
       --set domain.publicUrl= --set ingress.host=cms.test 2>&1); then fail "US3-1: upgrade without the Backoffice domain is
       stopped"; elif echo "$out" | grep -q 'domain.publicUrl' && [ "$(kubectl get deployment bo-api -o
       jsonpath='{.metadata.generation}')" = "$g" ]; then ok "US3-1: upgrade without the Backoffice domain is stopped, nothing
       changed"; else fail "US3-1: message or generation: $out"; fi`.
-- [ ] T025 [US3] `deploy/README.md` theo `research.md` R6 và spec FR-013, FR-010, FR-005 (số dòng của 2026-10-28): mục lục
+- [X] T025 [US3] `deploy/README.md` theo `research.md` R6 và spec FR-013, FR-010, FR-005 (số dòng của 2026-10-28): mục lục
       (:20-24) thêm "Chuyển từ chung domain sang domain riêng", đổi "Domain riêng" → "Chạy cạnh Directus: hai domain";
       "Thay image" (:27-50) thêm câu Q7; "Máy dev" bảng cổng (:80-85): 8090 = Directus qua lb (Directus app ở `/admin`),
       8091 = Backoffice (`/admin` → FE, còn lại → replica BE), 8095, ngẫu nhiên; "Extensions" bỏ bullet Load balancer
@@ -277,7 +277,7 @@ theo thứ tự FR-013; kịch bản 2, 3 kiểm tay theo tài liệu.
 
 **Purpose**: ghi chú trỏ về 026 ở spec cũ (FR-014, FR-015), `CLAUDE.md`, `SPECKIT-GUIDE.md`, đóng lượt.
 
-- [ ] T026 [P] Ghi chú `(026: ...)` tại chỗ theo bảng `research.md` R7 (quy ước ở cuối R7; không viết lại nội dung cũ):
+- [X] T026 [P] Ghi chú `(026: ...)` tại chỗ theo bảng `research.md` R7 (quy ước ở cuối R7; không viết lại nội dung cũ):
       `specs/003-auth-session/spec.md` (US intro, edge case SSO callback, D-24, Assumption SAML);
       `specs/004-permissions/spec.md` (US intro); `specs/014-content-module/spec.md` ("Cần xác nhận": localStorage, link
       share); `specs/020-extensions/spec.md` ("Đã có" 019, US1 Why, US2 intro, FR-040, FR-047, FR-062, D-137 cột Lý do,
@@ -288,13 +288,13 @@ theo thứ tự FR-013; kịch bản 2, 3 kiểm tay theo tài liệu.
       FR-033, D-189.1, D-189.7, Clarifications "Lb, Ingress?" và "Duyệt 2026-10-28", khảo sát dòng 17 + kết luận). Kiểm
       SC-007: `grep -rnE "chung domain|shared-domain|rơi vào Directus" specs/0[0-2][0-9]-*/spec.md | grep -v
       "specs/019-\|specs/026-" | grep -v "(026:"` rỗng (câu nào còn thì thêm ghi chú).
-- [ ] T027 [P] `CLAUDE.md`: dòng 019 (bỏ "separate-domain override with its own PUBLIC_URL" → "next to Directus Backoffice
+- [X] T027 [P] `CLAUDE.md`: dòng 019 (bỏ "separate-domain override with its own PUBLIC_URL" → "next to Directus Backoffice
       on its own domain, only PUBLIC_URL set apart (026)"), dòng 020 (bỏ "lb/Ingress route /extensions/sources to Backoffice
       only" → "(route removed by 026)"), dòng 025 và Recent Changes 025 ("lb and Ingress route ... (D-189.7)" → "D-189.7
       removed by 026"), dòng 026 ở Active Technologies: "planned" → "implemented 2026-xx-xx in two waves"; thêm dòng 026
       đầu Recent Changes; `SPECKIT-GUIDE.md` mục 026: trạng thái "đã implement", số commit, run CI; `specs/026-.../spec.md`
       không đổi nội dung (chỉ ghi kết quả vào `research.md`).
-- [ ] T028 [P] `specs/026-separate-domain-only/research.md`: mục "Kết quả lượt 2" (test-template, kind local/CI, số run,
+- [X] T028 [P] `specs/026-separate-domain-only/research.md`: mục "Kết quả lượt 2" (test-template, kind local/CI, số run,
       lỗi đã sửa; ghi rõ US3 kịch bản 2, 3 chưa kiểm tay vì không có môi trường chung domain, FR-012); `quickstart.md` §5
       chạy hai lệnh grep và ghi kết quả.
 - [ ] T029 Đóng lượt 2: `chart/ci/test-template.sh` xanh; `pnpm prettier --check deploy/README.md .github/workflows/ci.yml`;
