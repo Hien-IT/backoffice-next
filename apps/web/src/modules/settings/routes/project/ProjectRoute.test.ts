@@ -1,6 +1,6 @@
 // Feature 016 (T091, US5-1, US5-2, US5-5, FR-072, FR-076): the Project and Appearance pages as DR project.vue and
 // appearance/item.vue: the fields of directus_settings without the theming, AI and MCP groups (Appearance: theming
-// only), collaborative editing read-only without websockets, save sends `PATCH /settings` with the edited keys only
+// only), no Reporting nor Collaborative Editing section (owner 2026-10-28), save sends `PATCH /settings` with the edited keys only
 // and reloads the server info. The fields come from settings.yaml of DR 11.17.4: every interface it names is
 // registered, with its option keys, and the two special fields keep their DR interface and options.
 import type { Field } from '@directus/types';
@@ -93,12 +93,12 @@ describe('ProjectRoute', () => {
 		expect(names).toEqual(expect.arrayContaining(['project_name', 'project_owner', 'module_bar', 'basemaps']));
 	});
 
-	test('collaborative_editing_enabled is read-only without websockets', async () => {
+	test('no Reporting nor Collaborative Editing section (owner 2026-10-28)', async () => {
 		const { wrapper } = await open(ProjectRoute);
+		const names = formFields(wrapper).map((field) => field.field);
 
-		expect(formFields(wrapper).find((field) => field.field === 'collaborative_editing_enabled')?.meta?.readonly).toBe(
-			true,
-		);
+		expect(names.filter((name) => name.startsWith('report') || name.startsWith('collaborative_editing'))).toEqual([]);
+		expect(names).toContain('mapbox_key');
 	});
 
 	test('save: PATCH /settings with the edited keys only, then the server info reloads', async () => {

@@ -27,31 +27,26 @@ const { fields: allFields } = useCollection('directus_settings');
 
 const EXCLUDED_GROUPS = ['theming_group', 'ai_group', 'mcp_group'] as const;
 
+// Owner 2026-10-28: no Reporting nor Collaborative Editing section; the values stay in the database for the DR app.
+const HIDDEN_FIELDS = [
+	'reporting_divider',
+	'report_feature_url',
+	'report_bug_url',
+	'report_error_url',
+	'collaborative_editing_divider',
+	'collaborative_editing_enabled',
+];
+
 const fields = computed(() => {
-	return allFields.value
-		.map((field) => {
-			if (
-				field.field === 'collaborative_editing_enabled' &&
-				(serverStore.info.websocket === false || serverStore.info.websocket?.['collaborativeEditing'] === false)
-			) {
-				return {
-					...field,
-					meta: {
-						...field.meta,
-						readonly: true,
-					},
-				} as any;
-			}
+	return allFields.value.filter((field) => {
+		if (HIDDEN_FIELDS.includes(field.field)) return false;
 
-			return field;
-		})
-		.filter((field) => {
-			if (field.meta?.group) {
-				return (EXCLUDED_GROUPS as readonly string[]).includes(field.meta?.group) === false;
-			}
+		if (field.meta?.group) {
+			return (EXCLUDED_GROUPS as readonly string[]).includes(field.meta?.group) === false;
+		}
 
-			return (EXCLUDED_GROUPS as readonly string[]).includes(field.field) === false;
-		});
+		return (EXCLUDED_GROUPS as readonly string[]).includes(field.field) === false;
+	});
 });
 
 const initialValues = ref(clone(settingsStore.settings));
