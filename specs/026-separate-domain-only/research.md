@@ -262,3 +262,7 @@ lại nội dung cũ, không xóa câu cũ. Một dòng của bảng gồm nhi�
   cuối đoạn; đạt.
 - Ghi chú "(026: ...)" thêm ở 003 (6), 004 (1), 014 (2), 020 (9), 021 (3), 023 (6), 024 (7), 025 (10): 44 chỗ, không đổi
   nội dung cũ.
+- Phát hiện của phiên 022 trước khi push (15:35): `tests/parity/src/accepted-differences.test.ts` (job `quality`,
+  FR-101 của 011) đọc ô "Gỡ ở" của mỗi dòng D-xxx; ghi chú "(026: ...)" đặt trong ô đó làm 6 mã lệch (D-24, D-137,
+  D-184, D-188, D-189.1, D-189.7). Sửa: ghi chú chuyển sang ô "Lý do"; D-189.7 ghi "Gỡ ở" = `026` và entry của nó bị
+  xóa khỏi `accepted-differences.ts` (khác biệt không còn: không lb/Ingress nào định tuyến riêng). Test xanh (5/5).

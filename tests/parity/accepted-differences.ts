@@ -497,11 +497,4 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		reason: '/backoffice/permissions exists at Backoffice only (Directus 404).',
 	},
-	{
-		id: 'D-189.7',
-		feature: '025',
-		kind: 'doc',
-		reason:
-			'Removed by spec 026: next to Directus, Backoffice is on its own domain and every path of that domain reaches the BE (no lb or Ingress route).',
-	},
 ];
