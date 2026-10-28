@@ -38,7 +38,7 @@ async function fill(wrapper: Awaited<ReturnType<typeof mountForm>>['wrapper'], e
 }
 
 describe('LoginForm', () => {
-	test('labelled fields with autocomplete, forgot password link', async () => {
+	test('labelled fields with autocomplete, no forgot password link (owner 2026-10-29)', async () => {
 		const { wrapper } = await mountForm();
 		const email = wrapper.get('input[name="email"]');
 		const password = wrapper.get('input[name="password"]');
@@ -47,7 +47,7 @@ describe('LoginForm', () => {
 		expect(email.attributes('autocomplete')).toBe('username');
 		expect(wrapper.get(`label[for="${password.attributes('id')}"]`).text()).toBe('Password');
 		expect(password.attributes('autocomplete')).toBe('current-password');
-		expect(wrapper.get('a').attributes('href')).toBe('/reset-password');
+		expect(wrapper.find('a').exists()).toBe(false);
 		expect(wrapper.get('button[type="submit"]').text()).toBe('Sign In');
 		wrapper.unmount();
 	});

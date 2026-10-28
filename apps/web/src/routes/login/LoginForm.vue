@@ -1,9 +1,10 @@
 <!-- Ported from directus/app/src/routes/login/components/login-form/login-form.vue -->
 <script setup lang="ts">
 // Backoffice: fields have visible labels (FR-067); errors show in a danger BoNotice (role=alert) instead of a warning
-// notice; the email check is a plain pattern instead of zod (not a dependency of the app).
+// notice; the email check is a plain pattern instead of zod (not a dependency of the app). Owner 2026-10-29: no "Forgot
+// Password" link under the button (DR links /reset-password; the route stays).
 import { computed, ref, watch } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { login } from '../../auth.ts';
 import BoButton from '../../components/BoButton.vue';
 import BoInput from '../../components/BoInput.vue';
@@ -130,16 +131,8 @@ async function onSubmit() {
 		<BoNotice v-if="error" type="danger">
 			{{ errorFormatted }}
 		</BoNotice>
-		<div class="flex flex-col items-center gap-5">
-			<BoButton type="submit" full-width :loading="loggingIn">
-				{{ $t('sign_in') }}
-			</BoButton>
-			<RouterLink
-				to="/reset-password"
-				class="rounded-sm text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
-			>
-				{{ $t('forgot_password') }}
-			</RouterLink>
-		</div>
+		<BoButton type="submit" full-width :loading="loggingIn">
+			{{ $t('sign_in') }}
+		</BoButton>
 	</form>
 </template>

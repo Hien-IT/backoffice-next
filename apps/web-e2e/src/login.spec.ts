@@ -50,6 +50,9 @@ async function openLogin(page: Page, query = '') {
 test('signs in with email and password, then signs out (US1-1, US1-6)', async ({ page, apiUrl }) => {
 	await openLogin(page);
 	await expect(page).toHaveTitle(/^Sign In · /);
+	// Owner 2026-10-29: no "Forgot Password" link under the button (DR has one; /admin/reset-password stays).
+	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
+	await expect(page.getByRole('link', { name: 'Forgot Password' })).toHaveCount(0);
 
 	await login(page, appUser);
 	await expect(page).toHaveURL(CONTENT_URL);
