@@ -180,8 +180,12 @@ Kết quả [Inference: đọc văn bản, chưa chạy thử]:
 | `deploy/`: mọi chỗ (compose, lb conf, chart, ci, README) | Đã nằm trong R1–R6; thêm từ lượt c: `lb/standalone.conf:1` chú thích "like shared-domain.conf" → trỏ `shared.conf`; `_checks.tpl:5` chú thích "on a separate domain"; `test-template.sh:138` tên check "FR-076: shared domain ignores cookie domains" → bỏ; `values.yaml:76,84` chú thích "shared domain / separate domain" |
 | `CLAUDE.md`, `.github/workflows/ci.yml` | R5, R8 |
 
-Chưa quét: `apps/web/docker/*` (nginx, csp.awk, 40-config.sh), `apps/web/vite-plugin-extensions.ts` (ngoài phạm vi
-lượt c; [Inference] không liên quan domain: CSP và bundle extension không phụ thuộc Directus ở pool).
+Lượt quét bổ sung (2026-10-28, sau khi đóng lượt 2, theo yêu cầu chủ dự án): `apps/{api,web}/Dockerfile`,
+`apps/web/nginx.conf`, `apps/web/docker/*`, `vite-plugin-extensions.ts`, `vite.config.ts`, `index.html`, `cli.js`,
+scripts: 0 chỗ nhắc domain chung, pool, cổng compose hay host kind; `apps/*/src` + `libs` theo từ khóa domain/pool/host:
+chỉ `extract-token.ts:46` (comment port nguyên văn) và `endpoint-app.test.ts:82` (`cms.test` là host bất kỳ của unit
+test). FE lấy `apiUrl` từ `PUBLIC_URL` (mặc định `/`, cùng origin) theo từng app; API đọc cookie domain từ env chung
+và `PUBLIC_URL` cho redirect/callback SSO theo từng app (port nguyên văn). Kết luận 1 giữ nguyên.
 
 ### Quy ước ghi chú (FR-014)
 
