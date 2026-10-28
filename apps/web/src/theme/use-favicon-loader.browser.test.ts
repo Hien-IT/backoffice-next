@@ -76,6 +76,35 @@ test('the sprites play while a request runs, then the gait cycle ends and the no
 	expect(seen.size).toBeGreaterThan(SPRITE_FRAMES);
 });
 
+// Owner 2026-10-28: a request longer than the 3.5 s of the requests queue (and than one loop) keeps the sprites playing.
+test('a request longer than one loop keeps the sprites playing, then the normal favicon is back', async () => {
+	const store = useRequestsStore();
+	const href = scope.run(() => useFaviconLoader(ref(COLOR)))!;
+	const loop = timeline().length * FAVICON_FRAME_MS;
+
+	const id = store.startRequest();
+	await vi.waitFor(() => expect(href.value).toMatch(/^data:image\/png/));
+	const first = href.value;
+
+	let stopped = false;
+	let restarted = false;
+	const sample = setInterval(() => {
+		stopped ||= href.value === null;
+		restarted ||= performance.now() - started > loop / 2 && href.value === first;
+	}, 10);
+	const started = performance.now();
+	await new Promise((resolve) => setTimeout(resolve, loop + 1000));
+	clearInterval(sample);
+
+	expect(stopped).toBe(false);
+	expect(restarted).toBe(true);
+	store.endRequest(id);
+	// The next stop may be after the rest of a gait cycle and a whole change.
+	await vi.waitFor(() => expect(href.value).toBeNull(), {
+		timeout: FAVICON_FRAME_MS * (SPRITE_FRAMES + TRANSITION_FRAMES + 2),
+	});
+}, 15_000);
+
 test('desktop Chrome, Edge and Firefox get the animation', () => {
 	expect(canAnimateFavicon()).toBe(true);
 	fakeNavigator('userAgent', `${CHROME} Edg/131.0.0.0`);

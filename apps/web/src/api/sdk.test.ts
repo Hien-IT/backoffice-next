@@ -43,6 +43,7 @@ describe('wrapped fetch', () => {
 
 		expect(fetch.mock.calls[0]![1]).toMatchObject({ credentials: 'include' });
 		expect(requests.queueHasItems).toBe(false);
+		expect(requests.runningHasItems).toBe(false);
 	});
 
 	// A request ends in the store it started in without making that pinia the active one again: a test that set its own

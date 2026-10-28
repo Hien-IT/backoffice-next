@@ -3,7 +3,7 @@
 // stores of the test running 3.5 s later).
 import { createPinia, getActivePinia, setActivePinia } from 'pinia';
 import { afterEach, expect, test, vi } from 'vitest';
-import { useRequestsStore } from './requests.ts';
+import { RUNNING_LIMIT_MS, useRequestsStore } from './requests.ts';
 
 afterEach(() => vi.useRealTimers());
 
@@ -31,4 +31,22 @@ test('the 3.5 s timeout clears the request and keeps the active pinia of the mom
 	// The active pinia first: reading a getter of an options store makes its pinia the active one too.
 	expect(getActivePinia()).toBe(next);
 	expect(requests.queue.size).toBe(0);
+});
+
+// Owner 2026-10-28 (D-173): the loading favicon follows `running`, which keeps a request past 3.5 s until it ends.
+test('running keeps a request after 3.5 s until it ends, at most RUNNING_LIMIT_MS', () => {
+	vi.useFakeTimers();
+	setActivePinia(createPinia());
+	const requests = useRequestsStore();
+
+	const id = requests.startRequest();
+	vi.advanceTimersByTime(3500);
+	expect(requests.queueHasItems).toBe(false);
+	expect(requests.runningHasItems).toBe(true);
+	requests.endRequest(id);
+	expect(requests.runningHasItems).toBe(false);
+
+	requests.startRequest();
+	vi.advanceTimersByTime(RUNNING_LIMIT_MS);
+	expect(requests.runningHasItems).toBe(false);
 });

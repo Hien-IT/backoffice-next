@@ -69,6 +69,7 @@ async function wrappedFetch(input: RequestInfo | URL, init?: RequestInit): Promi
 		// Backoffice: the state, not the endRequest action, which would make the pinia of the request's start the active
 		// one again when the answer comes after a test set its own (see stores/requests.ts).
 		requestsStore.queue.delete(id);
+		requestsStore.running.delete(id);
 
 		// Backoffice: the SDK's own timed refresh also pauses the queue; resume it once the refresh answered.
 		if (path === '/auth/refresh') resumeQueue();

@@ -1,5 +1,6 @@
 // Owner 2026-10-23 (D-173): while API requests run (the requests store that drives the sidebar logo loader, like the
-// DR module-bar logo sprite) the favicon plays drawn sprites: a runner, then a cyclist, then a swimmer, each
+// DR module-bar logo sprite, but its `running` set: a request longer than 3.5 s keeps playing, owner 2026-10-28) the
+// favicon plays drawn sprites: a runner, then a cyclist, then a swimmer, each
 // sport changing into the next (favicon-sprites.ts), white on the favicon circle in the project color. A started gait
 // cycle or change plays to its end, as the DR sprite does, then the normal favicon is back. Where the animation
 // is not shown well (canAnimateFavicon) the favicon never changes.
@@ -87,13 +88,13 @@ export function useFaviconLoader(color: Ref<string>) {
 		href.value = frames[0]!;
 		timer = setInterval(() => {
 			index = (index + 1) % frames.length;
-			if (steps[index]!.stop && !requestsStore.queueHasItems) return stop();
+			if (steps[index]!.stop && !requestsStore.runningHasItems) return stop();
 			href.value = frames[index]!;
 		}, FAVICON_FRAME_MS);
 	}
 
 	watch(
-		() => requestsStore.queueHasItems,
+		() => requestsStore.runningHasItems,
 		(hasItems) => {
 			if (hasItems) start();
 		},
