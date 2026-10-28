@@ -1,9 +1,10 @@
 <!-- Ported from directus/app/src/modules/settings/routes/flows/flow-drawer.vue -->
 <script setup lang="ts">
 // Backoffice (spec 017 FR-012, recipe Q-33): VDrawer is BoDrawer (persistent, `apply` = meta+Enter), the sidebar tabs
-// are a vertical BoTabs from 1024 px (horizontal above the content below, as the field drawer of 016), VSelect is
-// BoSelect, VFancySelect is BoFancySelect, VForm is BoForm, the header action buttons are BoButton. api.post/patch go
-// through the SDK (`fields=id`: the SDK joins arrays, research R9). Errors open the error dialog (D-66).
+// are a vertical BoTabs from 1024 px (horizontal above the content below, as the field drawer of 016; a 160 px column,
+// owner 2026-10-29, so the 640 px drawer leaves the trigger cards more room), VSelect is BoSelect, VFancySelect is
+// BoFancySelect, VForm is BoForm, the header action buttons are BoButton. api.post/patch go through the SDK
+// (`fields=id`: the SDK joins arrays, research R9). Errors open the error dialog (D-66).
 import type { TriggerType } from '@directus/types';
 import { useMediaQuery } from '@vueuse/core';
 import { computed, reactive, ref, watch } from 'vue';
@@ -268,6 +269,7 @@ const LABEL = 'mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/
 				:items="tabs"
 				:label="isNew ? $t('creating_new_flow') : $t('updating_flow')"
 				:orientation="wide ? 'vertical' : 'horizontal'"
+				:list-class="wide ? 'w-40!' : undefined"
 			>
 				<template #content="{ item }">
 					<div v-if="item.value === 'flow_setup'" class="grid grid-cols-2 gap-x-6 gap-y-5">

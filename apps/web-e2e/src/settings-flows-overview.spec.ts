@@ -101,6 +101,25 @@ test('create one flow per trigger: POST /flows with the drawer values, then the 
 	expect(stored.map((flow) => flow.trigger)).toEqual(['event', 'webhook', 'schedule', 'operation', 'manual']);
 });
 
+test('the drawer tabs are a 160 px column from 1024 px, the trigger cards get the rest (D-194)', async ({ page }) => {
+	await openFlows(page);
+	await page.getByRole('button', { name: 'Create Flow' }).first().click();
+	await drawer(page).getByRole('textbox', { name: /^Name/ }).fill(tempFlowName('overview', 'tabs'));
+	await page.getByRole('button', { name: 'Next' }).click();
+
+	const tabs = drawer(page).getByRole('tablist');
+	if (page.viewportSize()!.width < 1024) {
+		await expect(tabs).toHaveAttribute('aria-orientation', 'horizontal');
+		return;
+	}
+	await expect(tabs).toHaveAttribute('aria-orientation', 'vertical');
+	expect((await tabs.boundingBox())!.width).toBe(160);
+	// The longest trigger description is not cut in the 640 px drawer (`truncate`).
+	const manual = drawer(page).getByText('Triggers on manual run within selected collection(s)', { exact: true });
+	await expect(manual).toBeVisible();
+	expect(await manual.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+});
+
 test('row menu: set inactive, edit the description, delete (US1-6)', async ({ page }) => {
 	const name = tempFlowName('overview', 'menu');
 	await createTempFlow(api, name);

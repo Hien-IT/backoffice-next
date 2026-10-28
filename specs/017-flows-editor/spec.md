@@ -457,7 +457,8 @@ dùng chéo của SC-002.
 - **FR-011**: Nút "+" PHẢI khóa khi `useCollectionPermissions('directus_flows').createAllowed === false` với tooltip
   `not_allowed`, không thì tooltip `create_flow`; trạng thái rỗng như kịch bản US1-2.
 - **FR-012**: Drawer flow PHẢI là port của `flow-drawer.vue`: props `primaryKey` (`+` mặc định), `startTab`; hai tab
-  dọc (`BoTabs orientation vertical` trong cột trái của drawer, 016 Q-22), tab 2 khóa khi tên rỗng; field và mặc định
+  dọc (`BoTabs orientation vertical` trong cột trái của drawer, 016 Q-22; cột rộng 160 px, D-194), tab 2 khóa khi tên
+  rỗng; field và mặc định
   như kịch bản US1-3; `BoFancySelect` năm trigger và `BoForm` options với `primary-key="+"`; quy tắc reset options như
   kịch bản US1-4; nút theo tab: Next (`arrow_forward`, flow mới ở tab 1), Save (`check`, flow có sẵn), Finish Setup
   (`check`, flow mới ở tab 2); `@apply` của drawer theo cùng logic; lưu như kịch bản US1-5 và US1-6; emit `done(id)`
@@ -748,6 +749,7 @@ dụng cho mọi màn của 017, không lặp. Gỡ ở 017: D-92 (016), D-72 (p
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
+| D-194 | Bề ngang cột tab dọc của drawer flow (từ 1024 px) | Tab dọc trong sidebar của `v-drawer`, rộng 198 px, nội dung ở phần còn lại của drawer | Cột 160 px thay cho 224 px của `BoTabs` dọc; drawer vẫn 640 px từ `xl`, nên năm thẻ trigger và form Flow Setup rộng thêm 64 px (mô tả dài nhất của trigger, Manual, không còn bị cắt); dưới 1024 px tab ngang như cũ | Owner yêu cầu (2026-10-29) | khác | — |
 | D-106 | Form options của operation `mail` trong drawer operation | Chỉ các field của `operations/mail/index.ts` | Thêm `BoNotice` info ở đầu form: Backoffice không gửi email, operation chỉ ghi log và trả thành công (D-34); field và giá trị ghi giữ nguyên | Nguyên tắc X (không gửi email); người dùng cần biết trước khi cấu hình; owner chọn B (Clarifications 2026-10-17) | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên; tech lead xác nhận khi duyệt bảng khác
@@ -777,6 +779,7 @@ biệt, SC-010):
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
+| D-194 | `routes/flows/FlowDrawer.vue` (`:list-class="wide ? 'w-40!' : undefined"`; `BoTabs` dùng chung không đổi, các drawer khác giữ 224 px); E2E `settings-flows-overview.spec.ts` (tablist 160 px và mô tả Manual không cắt ở 1280 px, tab ngang ở 768 px) | Owner yêu cầu (2026-10-29) |
 | D-106 | `routes/flows/OperationDetail.vue`: `BoNotice` info `operations_mail_not_sent_notice` (overlay en-US, vi-VN) trên form options khi loại là `mail`; field và giá trị ghi giữ nguyên (bộ so payload T090, E2E `settings-flows-operations`) | Owner chọn B (Clarifications); duyệt (tech lead, 2026-10-17) |
 | R-43 | `use-flow-editor.ts` port `deletePanel` của `flow.vue`: không hộp xác nhận, con thành panel lẻ (`flow.test.ts`, payload (4)) | Duyệt (tech lead, 2026-10-17) |
 | R-44 | `use-flow-editor.ts`: guard sửa dở chỉ xét `stagedPanels`/`panelsToBeDeleted` như Directus | Duyệt (tech lead, 2026-10-17) |
