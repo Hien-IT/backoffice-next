@@ -243,3 +243,10 @@ lại nội dung cũ, không xóa câu cũ. Một dòng của bảng gồm nhi�
 - Lượt standalone (`DEPLOY_MODE=standalone`, 13:54–13:58, sau `down -v`): 38/66 đạt, 27 skip (Directus, `domains`,
   `image-swap`, `extensions`), 1 đỏ (`web-image` nhãn revision, local như trên). Override standalone với `!reset`,
   `!override`: `lb` chỉ 8090, `config.json` `apiUrl` 8090, env replica = env `bootstrap`.
+
+## Đóng lượt 1 (2026-10-28)
+
+- Commit `4d92fa84` (feat) sau ba commit docs (`ff626a1e`, `810c6327`, `9d8a7765`); push 14:24 sau khi phiên 022 OK và run
+  `40643815956` của phiên khác xong; run CI `40649899202`, Semgrep `40649899253`; số run đã gửi phiên 021.
+- `graphify update .` chạy sau khi sửa.
+- CI `40649899202` xanh toàn bộ (kể cả `deploy` 2 lượt và `deploy-k8s` với chart chưa đổi); lượt 1 đóng.

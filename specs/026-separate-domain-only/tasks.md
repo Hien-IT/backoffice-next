@@ -153,7 +153,7 @@ lb: cổng 8081 chỉ IP replica, cổng 8080 chỉ IP Directus (`quickstart.md`
 
 ### Đóng lượt 1
 
-- [ ] T016 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p parity-tests`; `docker compose config` ba tổ hợp (mặc định,
+- [X] T016 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p parity-tests`; `docker compose config` ba tổ hợp (mặc định,
       standalone, shared-extensions) hợp lệ; `git add` theo đường dẫn (`deploy/compose`, `tests/parity/src/deploy`,
       `tests/parity/accepted-differences.ts`, `.github/workflows/ci.yml`, `specs/026-separate-domain-only/research.md`,
       `tasks.md`); commit `feat(026): compose next to Directus on two domains by default, deploy suite on that layout`;
