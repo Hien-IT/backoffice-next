@@ -208,10 +208,12 @@ test('header menu: sort, align, move left/right, width and hide', async () => {
 	expect(width.value).toBe('144');
 	await userEvent.fill(width, '20');
 	await userEvent.keyboard('{Enter}');
+	// The widths reach the layout options after the 350 ms debounce of DR; a busy CI runner needed more than 1 s
+	// (CI 40629501938).
 	await vi.waitFor(
 		() => expect(layoutOptions.value.widths).toEqual({ body: 32, date_published: 144, title: 144, status: 144 }),
 		{
-			timeout: 1000,
+			timeout: 5000,
 		},
 	);
 	await userEvent.keyboard('{Escape}');
