@@ -266,3 +266,10 @@ lại nội dung cũ, không xóa câu cũ. Một dòng của bảng gồm nhi�
   FR-101 của 011) đọc ô "Gỡ ở" của mỗi dòng D-xxx; ghi chú "(026: ...)" đặt trong ô đó làm 6 mã lệch (D-24, D-137,
   D-184, D-188, D-189.1, D-189.7). Sửa: ghi chú chuyển sang ô "Lý do"; D-189.7 ghi "Gỡ ở" = `026` và entry của nó bị
   xóa khỏi `accepted-differences.ts` (khác biệt không còn: không lb/Ingress nào định tuyến riêng). Test xanh (5/5).
+
+## Đóng lượt 2 (2026-10-28)
+
+- Commit `711912e7` (feat) + `9c51d772` (fix bảng D) sau `9e18ea46` (docs lượt 1); push 15:45 sau khi phiên 022 OK, main
+  rảnh; run CI `40658073965`, Semgrep `40658074009`; số run đã gửi phiên 021. `graphify update` chạy qua hook sau commit.
+- CI `40658073965` xanh toàn bộ (`deploy-k8s` với chart mới và kind US2/US3-1, `deploy` 2 lượt, `quality` với
+  accepted-differences, `guard-differences`); lượt 2 đóng, feature 026 implemented.

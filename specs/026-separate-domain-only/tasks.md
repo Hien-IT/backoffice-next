@@ -297,7 +297,7 @@ theo thứ tự FR-013; kịch bản 2, 3 kiểm tay theo tài liệu.
 - [X] T028 [P] `specs/026-separate-domain-only/research.md`: mục "Kết quả lượt 2" (test-template, kind local/CI, số run,
       lỗi đã sửa; ghi rõ US3 kịch bản 2, 3 chưa kiểm tay vì không có môi trường chung domain, FR-012); `quickstart.md` §5
       chạy hai lệnh grep và ghi kết quả.
-- [ ] T029 Đóng lượt 2: `chart/ci/test-template.sh` xanh; `pnpm prettier --check deploy/README.md .github/workflows/ci.yml`;
+- [X] T029 Đóng lượt 2: `chart/ci/test-template.sh` xanh; `pnpm prettier --check deploy/README.md .github/workflows/ci.yml`;
       `git add` theo đường dẫn (`deploy/helm/backoffice`, `deploy/README.md`, `specs/003-*/spec.md`, `specs/004-*/spec.md`,
       `specs/014-*/spec.md`, `specs/020-*/spec.md`, `specs/021-*/spec.md`, `specs/023-*/spec.md`, `specs/024-*/spec.md`,
       `specs/025-*/spec.md`, `specs/026-separate-domain-only`, `CLAUDE.md`, `SPECKIT-GUIDE.md`); commit `feat(026): Helm

@@ -3,7 +3,7 @@
 **Feature Branch**: `026-separate-domain-only` (làm trên `main` như 012–025, không tạo branch; `specs/026-*` là thư mục
 feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-28
-**Status**: Draft
+**Status**: Implemented 2026-10-28, hai lượt trên `main` (`4d92fa84`; `711912e7`, `9c51d772`), CI 40649899202 và 40658073965 xanh (deploy, deploy-k8s, quality, guard-differences, e2e, parity)
 **Input**: User description: "Bỏ hẳn chế độ "chung domain" của spec 019 (FR-050: một domain, /admin → FE Backoffice, các
 path khác → pool gồm Directus + replica BE). Khi Backoffice chạy song song với Directus (chung DB, Redis, storage), hai
 bản PHẢI ở hai domain riêng: Directus giữ domain, /admin, Ingress, Deployment của nó và không vào pool API; Backoffice
