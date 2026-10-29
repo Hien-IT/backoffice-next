@@ -81,11 +81,11 @@ function onOpenChange(open: boolean) {
 		:title="disabled ? $t('view_raw_value') : $t('edit_raw_value')"
 		@update:open="onOpenChange"
 	>
-		<!-- the JSON editor is capped at --input-height-xl: form-field-raw-editor.vue:107-114 -->
+		<!-- the JSON editor is capped at --input-height-xl: form-field-raw-editor.vue:107-114 (style below) -->
 		<component
 			:is="inputCode"
 			v-if="type === 'object' && inputCode"
-			class="[&_.CodeMirror]:max-h-[28.125rem] [&_.CodeMirror-scroll]:max-h-[28.125rem]"
+			class="raw-editor-code"
 			:value="internalValue"
 			:disabled="disabled"
 			:line-number="false"
@@ -109,3 +109,13 @@ function onOpenChange(open: boolean) {
 		</template>
 	</BoDialog>
 </template>
+
+<style>
+/*
+ * Unlayered like the 56.25rem cap of codemirror-theme.css, which outranks a Tailwind utility: with a utility the
+ * CodeMirror box was 28.125rem but its scroller 56.25rem, so the lines below the box could not be scrolled to (D-197).
+ */
+.raw-editor-code .CodeMirror-scroll {
+	max-height: 28.125rem;
+}
+</style>
