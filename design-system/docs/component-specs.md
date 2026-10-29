@@ -253,7 +253,8 @@ w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text
 - Title `mb-2 pe-14 text-2xl font-semibold text-gray-800 dark:text-white/90`; description
   `mb-6 text-sm text-gray-500 lg:mb-7 dark:text-gray-400`; body `custom-scrollbar overflow-y-auto p-2`; footer
   `mt-6 flex items-center gap-3 px-2 lg:justify-end` with an outline and a primary (or danger) compact button
-- Focus trap, Esc, focus return and scroll lock come from Reka.
+- Focus trap, Esc, focus return and scroll lock come from Reka. A modal opened from a menu item returns the focus to
+  that menu's trigger (BoDialog records it on open; Reka would record the menu item, gone on close; 013 D-197).
 - Changed from TailAdmin: close icon gray-400 → gray-500.
 
 ### Avatar (`ui/Avatar.vue`)

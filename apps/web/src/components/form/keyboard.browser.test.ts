@@ -237,6 +237,20 @@ describe('relational, file, list', () => {
 		document.querySelector<HTMLElement>('[data-field="list"] .row-open')!.focus();
 		await drawerRoundTrip();
 	});
+
+	test('list: "View Raw Value" in the row menu shows the row JSON, Esc closes it (D-197)', async () => {
+		await mountForm('bo_std', ['list']);
+		await vi.waitFor(() => expect(document.querySelector('[aria-label="Options for Row B (1)"]')).not.toBeNull());
+
+		const trigger = document.querySelector<HTMLElement>('[aria-label="Options for Row B (1)"]')!;
+		trigger.focus();
+		await chooseInMenu('View Raw Value');
+		await vi.waitFor(() => expect(dialog()?.textContent).toContain('"title": "Row B"'));
+
+		await userEvent.keyboard('{Escape}');
+		await vi.waitFor(() => expect(dialog()).toBeNull());
+		await vi.waitFor(() => expect(active()).toBe(trigger));
+	});
 });
 
 describe('groups', () => {

@@ -1,6 +1,7 @@
 // Repeater (`list`, spec FR-037, FR-084, FR-094 / D-60, Edge Cases): DR has no list.test.ts; these are the
 // contracts/tests.md §5 checks on the bo_std `list` fixture field and its seeded values (one is not an array).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
+import type CodeMirror from 'codemirror';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { computed } from 'vue';
@@ -70,7 +71,8 @@ async function select(item: HTMLElement) {
 	await flushPromises();
 }
 
-const menuText = (item: HTMLElement) => item.textContent!.replace(/^(delete|arrow_upward|arrow_downward)/, '').trim();
+const menuText = (item: HTMLElement) =>
+	item.textContent!.replace(/^(code|delete|arrow_upward|arrow_downward)/, '').trim();
 
 describe('config', () => {
 	test('is the Directus repeater on json, options as an async component (D-56 lifted in 016)', () => {
@@ -169,13 +171,18 @@ describe('options', () => {
 		const sorted = mountList({ value: seeded(1) });
 
 		expect(sorted.find('.drag-handle').exists()).toBe(false);
-		expect((await openMenu(sorted, 0)).map(menuText)).toEqual(['Remove Item']);
+		expect((await openMenu(sorted, 0)).map(menuText)).toEqual(['View Raw Value', 'Remove Item']);
 		sorted.unmount();
 
 		const manual = mountList({ value: seeded(1), sort: undefined });
 		expect(rows(manual)).toEqual(['Row A (2)', 'Row B (1)']);
 		expect(manual.findAll('.drag-handle')).toHaveLength(2);
-		expect((await openMenu(manual, 0)).map(menuText)).toEqual(['Remove Item', 'Move up', 'Move down']);
+		expect((await openMenu(manual, 0)).map(menuText)).toEqual([
+			'View Raw Value',
+			'Remove Item',
+			'Move up',
+			'Move down',
+		]);
 	});
 });
 
@@ -309,6 +316,21 @@ describe('editing', () => {
 		expect(wrapper.text()).toContain('No items');
 	});
 
+	test('"View Raw Value" shows the row as read-only JSON and emits nothing (D-197)', async () => {
+		const wrapper = mountList({ value: seeded(1) });
+
+		await select((await openMenu(wrapper, 0)).find((i) => menuText(i) === 'View Raw Value')!);
+		const dialog = dialogs().find((d) => d.textContent?.includes('View Raw Value'))!;
+		const editor = (dialog.querySelector('.CodeMirror') as unknown as { CodeMirror: CodeMirror.Editor }).CodeMirror;
+		expect(JSON.parse(editor.getValue())).toEqual({ title: 'Row B', count: 1 });
+		expect(editor.getOption('readOnly')).toBeTruthy();
+
+		buttonIn(dialog, 'Done')!.click();
+		await flushPromises();
+		expect(dialogs().some((d) => d.textContent?.includes('View Raw Value'))).toBe(false);
+		expect(wrapper.emitted('input')).toBeUndefined();
+	});
+
 	test('keyboard: "Move down" in the row menu emits the reordered array (D-60)', async () => {
 		const wrapper = mountList({ value: seeded(1), sort: undefined });
 
@@ -335,16 +357,16 @@ describe('states', () => {
 		expect(wrapper.find('.drag-handle').exists()).toBe(false);
 
 		const items = await openMenu(wrapper, 0);
-		expect(items.map(menuText)).toEqual(['Remove Item']);
-		expect(items[0]!.hasAttribute('data-disabled')).toBe(true);
+		expect(items.map(menuText)).toEqual(['View Raw Value', 'Remove Item']);
+		expect(items.map((i) => i.hasAttribute('data-disabled'))).toEqual([false, true]);
 	});
 
-	test('nonEditable: no add button, no row menu, rows still open the (read-only) form', async () => {
+	test('nonEditable: no add button, only "View Raw Value" in the row menu, rows still open the (read-only) form', async () => {
 		const wrapper = mountList({ value: seeded(1), sort: undefined, nonEditable: true });
 
 		expect(wrapper.find('.actions').exists()).toBe(false);
-		expect(wrapper.find('button.row-menu').exists()).toBe(false);
 		expect(wrapper.find('.drag-handle').exists()).toBe(false);
+		expect((await openMenu(wrapper, 0)).map(menuText)).toEqual(['View Raw Value']);
 
 		await wrapper.get('button.row-open').trigger('click');
 		await flushPromises();
@@ -352,7 +374,12 @@ describe('states', () => {
 	});
 
 	test('the group is linked to the field label and note/error (label linking)', () => {
-		const a11y = computed(() => ({ inputId: 'f-list', labelId: 'f-list-label', describedBy: 'f-list-error', invalid: true }));
+		const a11y = computed(() => ({
+			inputId: 'f-list',
+			labelId: 'f-list-label',
+			describedBy: 'f-list-error',
+			invalid: true,
+		}));
 		const wrapper = mountList({}, { [FORM_FIELD_A11Y as symbol]: a11y });
 		const group = wrapper.get('.repeater');
 

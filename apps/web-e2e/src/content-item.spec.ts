@@ -186,3 +186,20 @@ test('tab title and a read-only form for a viewer (FR-051, FR-098)', { tag: '@co
 	await expect(title(page)).toBeDisabled();
 	await expect(page.getByRole('button', { name: 'Not Allowed' }).first()).toBeDisabled();
 });
+
+test('repeater: "View Raw Value" in the row menu shows the row JSON read-only (013 D-197)', async ({ page }) => {
+	await signIn(page);
+	await openItem(page, 'bo_std', 1);
+
+	const trigger = page.getByRole('button', { name: 'Options for Row B (1)' });
+	await trigger.click();
+	await page.getByRole('menuitem', { name: 'View Raw Value' }).click();
+
+	const dialog = page.getByRole('dialog', { name: 'View Raw Value' });
+	await expect(dialog).toContainText('"title": "Row B"');
+	await expect(dialog).toContainText('"count": 1');
+
+	await page.keyboard.press('Escape');
+	await expect(dialog).toHaveCount(0);
+	await expect(trigger).toBeFocused();
+});

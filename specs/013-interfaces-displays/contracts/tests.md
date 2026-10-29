@@ -47,7 +47,7 @@ kiểm FR-054, FR-081, SC-007.
    - chữ, số, ngày, lựa chọn: Tab vào, gõ hoặc mũi tên chọn, Enter/Space xác nhận, Esc đóng overlay, focus về ô;
    - tags: Enter hoặc dấu phẩy thêm, Backspace xóa tag cuối;
    - quan hệ, file, list: Tab tới nút tạo/chọn, Enter mở drawer, Esc đóng, focus về nút; menu dòng có "Lên", "Xuống"
-     (D-60), bỏ chọn bằng phím;
+     (D-60), bỏ chọn bằng phím; menu dòng của `list` có "View Raw Value" mở JSON của mục chỉ đọc, Esc đóng (D-197);
    - nhóm: tabs bằng mũi tên, accordion và detail bằng Enter/Space;
    - editor bên thứ ba: vào và ra bằng Tab (không bẫy focus), phím tắt như Directus.
 

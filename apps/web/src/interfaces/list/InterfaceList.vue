@@ -17,7 +17,8 @@ import { getRemoveAction } from '../../components/BoRemove.vue';
 import BoSortableList from '../../components/BoSortableList.vue';
 import BoDrawer from '../../components/drawers/BoDrawer.vue';
 import BoForm from '../../components/form/BoForm.vue';
-import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
+import FormFieldRawEditor from '../../components/form/FormFieldRawEditor.vue';
+import { FORM_FIELD_A11Y, type FormField } from '../../components/form/types.ts';
 import RenderTemplate from '../../components/render/RenderTemplate.vue';
 import { renderStringTemplate } from '../../utils/render-string-template.ts';
 
@@ -237,10 +238,15 @@ function itemLabel(item: Record<string, any>, index: number): string {
 // Backoffice: v-remove `confirm` as a row menu item and a confirmation dialog.
 const removing = ref<Record<string, any> | null>(null);
 
+// Backoffice (D-197): "View Raw Value" in the row menu shows the item JSON read-only, also on a non-editable field.
+const rawItem = ref<Record<string, any> | null>(null);
+const RAW_FIELD: FormField = { field: 'raw', name: 'raw', type: 'json' };
+
 function rowActions(item: Record<string, any>): BoMenuItem[] {
-	if (props.nonEditable) return [];
+	const viewRaw: BoMenuItem = { text: t('view_raw_value'), icon: 'code', onSelect: () => (rawItem.value = item) };
+	if (props.nonEditable) return [viewRaw];
 	const { icon, text } = getRemoveAction({ confirm: true });
-	return [{ text: t(text), icon, disabled: props.disabled, onSelect: () => (removing.value = item) }];
+	return [viewRaw, { text: t(text), icon, disabled: props.disabled, onSelect: () => (removing.value = item) }];
 }
 
 function confirmRemove() {
@@ -353,5 +359,14 @@ const ROW_BUTTON =
 				<BoButton variant="danger" @click="confirmRemove">{{ t('delete_label') }}</BoButton>
 			</template>
 		</BoDialog>
+
+		<FormFieldRawEditor
+			:show-modal="rawItem !== null"
+			:field="RAW_FIELD"
+			:current-value="rawItem"
+			disabled
+			@cancel="rawItem = null"
+			@set-raw-value="rawItem = null"
+		/>
 	</div>
 </template>
