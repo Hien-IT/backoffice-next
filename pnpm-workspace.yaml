@@ -171,7 +171,7 @@ catalog:
   '@vitejs/plugin-vue': 6.0.1
   pinia: 2.3.1 # spec 020 (R4): the shared pinia of app extensions, same version as Directus 11.17.4
   vue-router: 4.6.3
-  vue-i18n: 11.1.12
+  vue-i18n: 11.4.14 # security patch (GHSA-83rm-6c8r-g728), Directus 11.17.4 has 11.1.12
   '@vue/test-utils': 2.4.6
   happy-dom: 20.8.9
   jsdom: 26.1.0 # unit tests that sanitize: DOMPurify >= 3.4.8 is a no-op under happy-dom (owner 2026-10-23)
