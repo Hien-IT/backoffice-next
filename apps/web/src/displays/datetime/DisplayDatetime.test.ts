@@ -92,6 +92,14 @@ describe('options (en-US)', () => {
 		expect(config.handler!('2024-03-15', { format: 'short' }, { field: field('date') as never })).toBe('Mar 15, 2024');
 		expect(config.handler!(null, {}, { field: field('date') as never })).toBeNull();
 	});
+
+	test('a value that does not fit the type shows as is instead of throwing (D-198)', () => {
+		const value = '2026-10-29T13:09:32.157+07:00';
+
+		expect(text({ type: 'dateTime', value })).toBe(value);
+		expect(text({ type: 'timestamp', tz: 'Asia/Tokyo', value: 'not a date' })).toBe('not a date');
+		expect(config.handler!(value, {}, { field: { type: 'dateTime' } as never })).toBe(value);
+	});
 });
 
 describe('vi-VN', () => {

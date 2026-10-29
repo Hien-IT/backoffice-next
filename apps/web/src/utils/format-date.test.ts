@@ -261,3 +261,19 @@ describe('timezone', () => {
 		expect(formatTimezoneLabel('Asia/Tokyo', '2023-01-01T00:00:00.000Z')).toBe('Asia/Tokyo (GMT+9)');
 	});
 });
+
+// Backoffice (D-198): DR throws RangeError (date-fns) on a value that does not fit the type.
+describe('values that do not fit the type', () => {
+	const offset = '2026-10-29T13:09:32.157+07:00';
+
+	test.each(['dateTime', 'date', 'time'] as const)('%s returns the value as is, also when relative', (type) => {
+		expect(formatDate(offset, { type })).toBe(offset);
+		expect(formatDate(offset, { type, relative: true })).toBe(offset);
+		expect(formatDate(offset, { type, relative: true, strict: true })).toBe(offset);
+	});
+
+	test('an invalid timestamp returns the value; its timezone label is the zone alone', () => {
+		expect(formatDate('not a date', { type: 'timestamp', tz: 'Asia/Tokyo' })).toBe('not a date');
+		expect(formatTimezoneLabel('Asia/Tokyo', 'not a date')).toBe('Asia/Tokyo');
+	});
+});

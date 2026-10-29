@@ -1,5 +1,6 @@
 // Ported from directus/app/src/utils/format-date.ts
 // Backoffice: `!`/casts only for the strict tsconfig (noUncheckedIndexedAccess, exactOptionalPropertyTypes).
+import { isValid } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { i18n } from '../lang/index.ts';
 import { getDateFNSLocale } from './get-date-fns-locale.ts';
@@ -35,14 +36,18 @@ export interface FormatDateOptions {
  * ```
  */
 export function formatDate(value: string, options: FormatDateOptions) {
+	const date = parseDate(value, options.type);
+	// Backoffice (D-198): a value that does not fit the field type shows as is; DR throws RangeError (date-fns).
+	if (!isValid(date)) return value;
+
 	if (options.relative) {
 		if (options.strict) {
-			return localizedFormatDistanceStrict(parseDate(value, options.type), new Date(), {
+			return localizedFormatDistanceStrict(date, new Date(), {
 				addSuffix: options.suffix!,
 				roundingMethod: options.round!,
 			});
 		} else {
-			return localizedFormatDistance(parseDate(value, options.type), new Date(), {
+			return localizedFormatDistance(date, new Date(), {
 				addSuffix: options.suffix!,
 			});
 		}
@@ -72,8 +77,6 @@ export function formatDate(value: string, options: FormatDateOptions) {
 		format = options.format;
 	}
 
-	const date = parseDate(value, options.type);
-
 	if (options.type === 'timestamp' && options.tz?.trim()) {
 		return formatInTimeZone(date, options.tz, format, { locale: getDateFNSLocale()! });
 	}
@@ -86,6 +89,7 @@ export function formatDate(value: string, options: FormatDateOptions) {
  */
 export function formatTimezoneLabel(tz: string, value: string): string {
 	const date = parseDate(value, 'timestamp');
+	if (!isValid(date)) return tz;
 	const offset = formatInTimeZone(date, tz, 'O');
 	return `${tz} (${offset})`;
 }
