@@ -263,7 +263,10 @@ describe('drag and drop keyboard paths (contracts/layouts.md §5)', () => {
 		);
 		toggle.focus();
 		await userEvent.keyboard('{Enter}');
-		const handle = await found(() => document.querySelector<HTMLElement>('[role="separator"]'));
+		// The page also has the sidebar resize handle (012 D-190, first in the DOM): pick the live preview one.
+		const handle = await found(() =>
+			document.querySelector<HTMLElement>(`[role="separator"][aria-label="${t('live_preview.change_size')}"]`),
+		);
 		const size = () => Number(localStorage.getItem('backoffice-live-preview-size'));
 		const start = size() || 50;
 
