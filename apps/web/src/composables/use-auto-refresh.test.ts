@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, ref } from 'vue';
 import { emitter, Events } from '../events.ts';
-import { useAutoRefresh } from './use-auto-refresh.ts';
+import { autoRefreshActive, useAutoRefresh } from './use-auto-refresh.ts';
 
 function mountPage(value: number | null) {
 	const refresh = vi.fn();
@@ -97,5 +97,25 @@ describe('useAutoRefresh', () => {
 
 		expect(refresh).not.toHaveBeenCalled();
 		wrapper.unmount();
+	});
+
+	it('marks auto refresh active while a mounted page has an interval', async () => {
+		const first = mountPage(30);
+		const second = mountPage(null);
+		expect(autoRefreshActive.value).toBe(true);
+
+		second.interval.value = 10;
+		await Promise.resolve();
+		first.wrapper.unmount();
+		expect(autoRefreshActive.value).toBe(true);
+
+		second.interval.value = null;
+		await Promise.resolve();
+		expect(autoRefreshActive.value).toBe(false);
+
+		second.interval.value = 60;
+		await Promise.resolve();
+		second.wrapper.unmount();
+		expect(autoRefreshActive.value).toBe(false);
 	});
 });

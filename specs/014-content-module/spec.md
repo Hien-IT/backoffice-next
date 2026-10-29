@@ -815,7 +815,7 @@ editing, D-67)
   `refresh_interval` của preset; chạy `refresh` của layout mỗi chu kỳ; ngừng khi tab idle (`idle.ts` của 012), làm mới
   ngay và chạy lại khi tab hoạt động; nút làm mới tay. Bộ đếm thuộc trang (`composables/use-auto-refresh.ts`), chạy cả
   khi popover panel chi tiết (D-128 của 012) đóng; trước 2026-10-28 nó nằm trong mục Refresh nên chỉ chạy khi popover mở
-  (lỗi, đã sửa; cùng cho Insights, Presets, Translations).
+  (lỗi, đã sửa; cùng cho Insights, Presets, Translations). Khi chu kỳ > 0, nút mở panel chi tiết có chấm (D-199 của 012).
 
 **Quyền**
 

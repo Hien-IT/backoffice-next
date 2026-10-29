@@ -121,7 +121,9 @@ test('batch delete with confirmation (US6-6, FR-095)', async ({ page }) => {
 	await expect(page.getByRole('main').getByRole('table').locator('tbody tr')).toHaveCount(0);
 });
 
-test('auto refresh asks the items again with the detail popover closed (US6-6, FR-099)', async ({ page }) => {
+test('auto refresh asks the items again with the detail popover closed and dots the toggle (US6-6, FR-099, D-199)', async ({
+	page,
+}) => {
 	await signIn(page);
 	await openCollection(page, 'bo_content');
 	await waitForTable(page);
@@ -132,6 +134,10 @@ test('auto refresh asks the items again with the detail popover closed (US6-6, F
 	// The timer belongs to the page (2026-10-28): it keeps running once the popover is closed.
 	await page.keyboard.press('Escape');
 	await expect(page.getByRole('combobox', { name: 'Refresh Interval' })).toHaveCount(0);
+	// D-199: the toggle shows a dot while the page auto refreshes; the name stays, the dot is its description.
+	const toggle = page.getByRole('button', { name: 'Open sidebar', exact: true });
+	await expect(toggle.locator('[data-auto-refresh-dot]')).toBeVisible();
+	await expect(toggle).toHaveAccessibleDescription('Auto Refresh');
 
 	const again = await page.waitForRequest(
 		(request) => request.method() === 'GET' && /\/items\/bo_content$/.test(new URL(request.url()).pathname),

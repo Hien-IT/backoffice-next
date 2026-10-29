@@ -6,10 +6,13 @@
 // focus goes back to the toggle. Focus moving out does not close it: a dialog opened from a detail would unmount with
 // the detail. Open state is the sidebar store (`collapsed` = closed), closed again on every page (PrivateView).
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
+import { useId } from 'vue';
 import BoButton from '../components/BoButton.vue';
+import { autoRefreshActive } from '../composables/use-auto-refresh.ts';
 import { useSidebarStore } from './stores/sidebar.ts';
 
 const sidebarStore = useSidebarStore();
+const dotId = useId();
 
 function onOpen(open: boolean) {
 	if (open) sidebarStore.expand();
@@ -22,12 +25,24 @@ function onOpen(open: boolean) {
 		<PopoverTrigger as-child>
 			<!-- Owner 2026-10-22 (D-161): the `info` icon in both states (DR right_panel_open/close); the open state
 			     is the brand tint of the button (Reka data-state). -->
+			<!-- D-199: a dot while the page auto refreshes (the badge of RefreshSidebarDetail), "Auto Refresh" as the
+			     description so the name stays open_sidebar / close_sidebar. -->
 			<BoButton
 				variant="ghost"
 				icon="info"
+				square
 				:aria-label="$t(sidebarStore.collapsed ? 'open_sidebar' : 'close_sidebar')"
-				class="data-[state=open]:bg-brand-500/[0.08] data-[state=open]:text-brand-600 dark:data-[state=open]:text-brand-400"
-			/>
+				:aria-describedby="autoRefreshActive ? dotId : undefined"
+				class="relative data-[state=open]:bg-brand-500/[0.08] data-[state=open]:text-brand-600 dark:data-[state=open]:text-brand-400"
+			>
+				<span
+					v-if="autoRefreshActive"
+					data-auto-refresh-dot
+					class="absolute end-1.5 top-1.5 size-2 rounded-full bg-brand-500 ring-2 ring-white dark:bg-brand-400 dark:ring-gray-900"
+				>
+					<span :id="dotId" class="sr-only">{{ $t('auto_refresh') }}</span>
+				</span>
+			</BoButton>
 		</PopoverTrigger>
 		<PopoverPortal>
 			<PopoverContent

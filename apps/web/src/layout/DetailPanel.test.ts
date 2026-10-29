@@ -1,5 +1,7 @@
 import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { defineComponent, h, ref } from 'vue';
+import { useAutoRefresh } from '../composables/use-auto-refresh.ts';
 import { mountLayout, press } from '../test-utils/layout.ts';
 import DetailPanel from './DetailPanel.vue';
 import { useSidebarStore } from './stores/sidebar.ts';
@@ -52,5 +54,26 @@ describe('DetailPanel (L-4, popover owner 2026-10-20)', () => {
 		expect(sidebarStore.collapsed).toBe(true);
 		await vi.waitFor(() => expect(aside()).toBeNull());
 		await vi.waitFor(() => expect(document.activeElement).toBe(button('Open sidebar')));
+	});
+
+	test('the toggle shows a dot while the page auto refreshes (D-199)', async () => {
+		const interval = ref<number | null>(10);
+		const Page = defineComponent({
+			setup() {
+				useAutoRefresh(interval, () => {});
+				return () => h(DetailPanel, null, { default: () => 'Details' });
+			},
+		});
+
+		await mountLayout(Page);
+		useSidebarStore().collapse();
+		const dot = () => document.body.querySelector('[data-auto-refresh-dot]');
+		await vi.waitFor(() => expect(dot()).not.toBeNull());
+		const describedBy = button('Open sidebar')!.getAttribute('aria-describedby')!;
+		expect(document.getElementById(describedBy)!.textContent).toBe('Auto Refresh');
+
+		interval.value = null;
+		await vi.waitFor(() => expect(dot()).toBeNull());
+		expect(button('Open sidebar')!.hasAttribute('aria-describedby')).toBe(false);
 	});
 });

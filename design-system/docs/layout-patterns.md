@@ -260,6 +260,9 @@ settings, permissions), not by this pack.
 - Toggle icon (owner 2026-10-22, D-161): `info` in both states (Directus `right_panel_open` / `right_panel_close`); the
   open state is the button tint `data-[state=open]:bg-brand-500/[0.08] text-brand-600` (dark `text-brand-400`); the
   name stays `open_sidebar` / `close_sidebar`.
+- Auto refresh dot (owner 2026-10-29, D-199): while the page has an auto refresh interval (`autoRefreshActive` of
+  `composables/use-auto-refresh.ts`), the toggle has a `size-2` `brand-500` dot (dark `brand-400`) at its top end
+  corner with a white ring (dark gray-900); the name stays, `auto_refresh` is its `aria-describedby` description.
 - Owner 2026-10-20: on every screen a popover under its toggle at the end of the page header (Reka `Popover`, `side`
   bottom, `align` end), closed on every page load; the toggle shows only when the page has details. Esc and a click
   outside close it, focus returns to the toggle; focus moving out does not close it (a dialog opened from a detail
