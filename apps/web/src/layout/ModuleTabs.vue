@@ -3,13 +3,16 @@
 // (AppSidebar, layout-patterns §2), after the owner's mock-up (2026-10-22): an icon per module with its name under it.
 // The active module has aria-current and the white tile; the others take the text and tile colors picked from the
 // project color (D-163). The module_bar links (Add Link) and the app extension modules (D-144) share one tile with a
-// menu (owner 2026-10-22, D-162), in module_bar order; links to other sites open a new tab from it.
+// menu (owner 2026-10-22, D-162), in module_bar order; links to other sites open a new tab from it. D-200 (owner
+// 2026-10-31): `compact` shows icon-only tiles in rows that wrap, the names stay as accessible names and titles.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import BoIcon from '../components/BoIcon.vue';
 import BoMenu, { type BoMenuItem } from '../components/BoMenu.vue';
 import { type ModuleBarItem, useModuleBar } from './composables/use-module-bar.ts';
+
+const { compact = false } = defineProps<{ compact?: boolean }>();
 
 const { t } = useI18n();
 const { mainModules, moreModules, isActive } = useModuleBar();
@@ -26,11 +29,12 @@ const moreItems = computed<BoMenuItem[]>(() =>
 );
 
 const ITEM =
-	'flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--project-foreground) dark:focus-visible:outline-white';
+	'flex w-full min-w-0 flex-col items-center justify-center rounded-xl text-theme-xs font-medium no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--project-foreground) dark:focus-visible:outline-white';
 
 function itemClass(active: boolean) {
 	return [
 		ITEM,
+		compact ? 'py-2' : 'gap-1.5 px-1 py-3',
 		active
 			? 'bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60 dark:bg-white/20 dark:text-white dark:shadow-none dark:ring-1 dark:ring-white/30'
 			: 'bg-(--project-tile) text-(--project-foreground) hover:bg-(--project-tile-hover) dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
@@ -46,7 +50,10 @@ function linkProps(modulePart: ModuleBarItem) {
 
 <template>
 	<nav :aria-label="t('modules')" data-testid="module-bar">
-		<ul class="m-0 grid list-none grid-cols-3 gap-2 p-0">
+		<ul
+			class="m-0 grid list-none p-0"
+			:class="compact ? 'grid-cols-[repeat(auto-fill,minmax(2rem,1fr))] gap-1' : 'grid-cols-3 gap-2'"
+		>
 			<li v-for="modulePart in mainModules" :key="modulePart.id">
 				<component
 					:is="modulePart.to !== undefined ? RouterLink : 'a'"
@@ -56,7 +63,7 @@ function linkProps(modulePart: ModuleBarItem) {
 					:class="itemClass(isActive(modulePart))"
 				>
 					<BoIcon :name="modulePart.icon" />
-					<span class="w-full truncate text-center">{{ modulePart.name }}</span>
+					<span :class="compact ? 'sr-only' : 'w-full truncate text-center'">{{ modulePart.name }}</span>
 				</component>
 			</li>
 
@@ -66,7 +73,7 @@ function linkProps(modulePart: ModuleBarItem) {
 						<button type="button" :title="t('links_and_extensions')" :class="itemClass(moreActive)">
 							<BoIcon name="apps" />
 							<!-- Name "More: Links and extensions": it starts with the visible label (WCAG 2.5.3). -->
-							<span class="w-full truncate text-center">{{ t('more_modules') }}</span>
+							<span :class="compact ? 'sr-only' : 'w-full truncate text-center'">{{ t('more_modules') }}</span>
 							<span class="sr-only">: {{ t('links_and_extensions') }}</span>
 						</button>
 					</template>

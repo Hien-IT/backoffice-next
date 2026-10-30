@@ -5,7 +5,8 @@
 // contrasts more with the project color (D-163), on the project color block of the sidebar (owner's mock-up
 // 2026-10-22; `Backoffice` when project_name is empty, FR-026). An uploaded project_logo sits on a white tile (D-159),
 // the default app icon on none. The Backoffice logo replaces the animated DR sprite, so the loader is the
-// progress bar for both logos; project_url is a link only with an http(s) scheme (FR-026).
+// progress bar for both logos; project_url is a link only with an http(s) scheme (FR-026). D-200: `compact` is the
+// small logo and the name without the descriptor.
 import { computed, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import logo from '../assets/logo.png';
@@ -15,6 +16,8 @@ import { useRequestsStore } from '../stores/requests.ts';
 import { useServerStore } from '../stores/server.ts';
 import { useSettingsStore } from '../stores/settings.ts';
 import { getAssetUrl } from '../utils/get-asset-url.ts';
+
+const { compact = false } = defineProps<{ compact?: boolean }>();
 
 const { t } = useI18n();
 
@@ -68,8 +71,11 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 				class="flex min-w-0 items-center gap-3 rounded-lg text-(--project-foreground) no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--project-foreground) dark:text-white dark:focus-visible:outline-white"
 			>
 				<span
-					class="relative flex size-12 shrink-0 items-center justify-center rounded-lg"
-					:class="{ 'bg-white p-1.5': customLogoPath }"
+					class="relative flex shrink-0 items-center justify-center rounded-lg"
+					:class="[
+						compact ? 'size-8' : 'size-12',
+						{ 'bg-white': customLogoPath, [compact ? 'p-1' : 'p-1.5']: customLogoPath },
+					]"
 				>
 					<img v-if="customLogoPath" :src="customLogoPath" :alt="name" class="size-full object-contain" />
 					<img v-else :src="logo" :alt="name" class="size-full object-contain" />
@@ -82,8 +88,15 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 				</span>
 				<!-- The logo alt already names the project: the visible name is not read twice. -->
 				<span class="min-w-0 leading-tight">
-					<span class="block truncate text-lg font-semibold" aria-hidden="true" :title="name">{{ name }}</span>
-					<span v-if="descriptor" class="mt-0.5 block truncate text-theme-xs" :title="descriptor">
+					<span
+						class="block truncate font-semibold"
+						:class="compact ? 'text-base' : 'text-lg'"
+						aria-hidden="true"
+						:title="name"
+					>
+						{{ name }}
+					</span>
+					<span v-if="descriptor && !compact" class="mt-0.5 block truncate text-theme-xs" :title="descriptor">
 						{{ descriptor }}
 					</span>
 				</span>

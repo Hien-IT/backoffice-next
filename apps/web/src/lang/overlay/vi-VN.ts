@@ -16,6 +16,8 @@ export default {
 	navigation: 'Điều hướng',
 	// Owner 2026-10-28: the handle that resizes the inline sidebar.
 	resize_navigation: 'Thay đổi độ rộng thanh điều hướng',
+	// D-200: the toggle that makes the project card of the sidebar compact.
+	compact_modules: 'Thu gọn khối module',
 	pick_color: 'Chọn màu',
 	browser_color_picker: 'Bộ chọn của trình duyệt',
 	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.

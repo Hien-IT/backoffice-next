@@ -67,6 +67,12 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   share one `apps` tile labelled `more_modules` ("More", accessible name "More: Links and extensions", D-162) opening a
   BoMenu of them in `module_bar` order, the open one checked; the tile is active on their pages and absent when there
   are none.
+- Compact card (owner 2026-10-31, D-200): a toggle at the card's top end (`size-8 rounded-lg`, `aria-pressed`, label
+  `compact_modules`, icon `unfold_less` / `unfold_more`, `text-(--project-foreground) hover:bg-(--project-tile-hover)`,
+  dark `text-white hover:bg-white/10`) switches the card to `gap-3 p-3`, the logo to `size-8` with the name `text-base`
+  and no descriptor, and the tiles to icons only (`py-2`, grid `grid-cols-[repeat(auto-fill,minmax(2rem,1fr))] gap-1`,
+  rows wrap on a narrow column; the names stay `sr-only` and in `title`). Saved in `backoffice-module-bar-compact`, also
+  for the drawer.
 - Below the block, on white: the open module's title row (`px-5 pt-5 pb-3`, module icon gray-500 / gray-400, `h2`
   `text-base font-semibold`, then the `module-actions-<id>` target, e.g. the Content hidden-collections toggle), then its
   `navigation` slot (`px-5`, scrolls); pages without navigation keep the column with the tiles only.

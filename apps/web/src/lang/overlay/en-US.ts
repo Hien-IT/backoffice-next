@@ -14,6 +14,8 @@ export default {
 	navigation: 'Navigation',
 	// Owner 2026-10-28: the handle that resizes the inline sidebar.
 	resize_navigation: 'Resize navigation',
+	// D-200: the toggle that makes the project card of the sidebar compact.
+	compact_modules: 'Compact modules',
 	// D-162: the sidebar tile of the module_bar links and the extension modules.
 	links_and_extensions: 'Links and extensions',
 	more_modules: 'More',

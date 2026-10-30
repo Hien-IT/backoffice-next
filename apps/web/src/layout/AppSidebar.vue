@@ -10,7 +10,8 @@
 // bottom (DR module-bar-avatar.vue). From `xl` it is fixed inline, 290 px by default, and the header toggle hides it
 // (saved); below `xl` it is a drawer (Reka Dialog: backdrop, focus trap, Esc, focus back to the opener). Owner
 // 2026-10-28: the inline column is resizable (DR private-view-resize-handle.vue) by its end edge, with the pointer or
-// the arrow keys (window splitter pattern); the drawer keeps 290 px.
+// the arrow keys (window splitter pattern); the drawer keeps 290 px. D-200 (owner 2026-10-31): a pressed toggle at the
+// card's top end makes it compact (small logo, icon tiles), so a short screen keeps room for the module navigation.
 import { createReusableTemplate } from '@vueuse/core';
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 import BoIcon from '../components/BoIcon.vue';
@@ -84,10 +85,23 @@ function resizeByKey(event: KeyboardEvent) {
 
 			<div
 				data-testid="module-rail"
-				class="m-3 flex shrink-0 flex-col gap-4 rounded-2xl bg-(--project-color) p-4 shadow-theme-md dark:bg-[color-mix(in_srgb,var(--project-color)_30%,var(--color-gray-900))] dark:shadow-none dark:ring-1 dark:ring-white/10"
+				class="m-3 flex shrink-0 flex-col rounded-2xl bg-(--project-color) shadow-theme-md dark:bg-[color-mix(in_srgb,var(--project-color)_30%,var(--color-gray-900))] dark:shadow-none dark:ring-1 dark:ring-white/10"
+				:class="navBarStore.modulesCompact ? 'gap-3 p-3' : 'gap-4 p-4'"
 			>
-				<SidebarLogo />
-				<ModuleTabs />
+				<div class="flex items-start gap-2">
+					<SidebarLogo :compact="navBarStore.modulesCompact" class="flex-1" />
+					<button
+						type="button"
+						:aria-pressed="navBarStore.modulesCompact"
+						:aria-label="$t('compact_modules')"
+						:title="$t('compact_modules')"
+						class="flex size-8 shrink-0 items-center justify-center rounded-lg text-(--project-foreground) hover:bg-(--project-tile-hover) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--project-foreground) dark:text-white dark:hover:bg-white/10 dark:focus-visible:outline-white"
+						@click="navBarStore.modulesCompact = !navBarStore.modulesCompact"
+					>
+						<BoIcon :name="navBarStore.modulesCompact ? 'unfold_more' : 'unfold_less'" size="sm" />
+					</button>
+				</div>
+				<ModuleTabs :compact="navBarStore.modulesCompact" />
 			</div>
 
 			<div v-if="currentModule" class="flex items-center gap-2 px-5 pt-5 pb-3">

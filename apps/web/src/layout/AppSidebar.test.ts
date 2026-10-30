@@ -94,6 +94,26 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 		expect(aside.element.style.width).toBe('240px');
 	});
 
+	test('D-200: the card toggle makes it compact (small logo, icon tiles with their names kept), saved', async () => {
+		const { wrapper } = await render();
+		const block = wrapper.get('[data-testid="module-rail"]');
+		const toggle = block.get('button[aria-label="Compact modules"]');
+		const tile = () => block.get('[data-testid="module-bar"] a[href="/files"]');
+		expect(toggle.attributes('aria-pressed')).toBe('false');
+		expect(tile().get('span:not([aria-hidden])').classes()).toContain('truncate');
+
+		await toggle.trigger('click');
+		expect(toggle.attributes('aria-pressed')).toBe('true');
+		expect(block.classes()).toContain('p-3');
+		expect(block.find('span.size-8').exists()).toBe(true);
+		expect(tile().get('span:not([aria-hidden])').classes()).toContain('sr-only');
+		expect(tile().text()).toContain('File Library');
+		expect(localStorage.getItem('backoffice-module-bar-compact')).toBe('true');
+
+		await toggle.trigger('click');
+		expect(block.find('span.size-8').exists()).toBe(false);
+	});
+
 	test('below xl: a modal drawer opened from the store, Esc closes it', async () => {
 		await render({ props: { drawer: true } });
 		const navBarStore = useNavBarStore();

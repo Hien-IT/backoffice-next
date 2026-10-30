@@ -3,7 +3,8 @@
 // from `xl` (290 px or the 90 px rail, TailAdmin `isExpanded`), saved under the backoffice- key (Principle IX) with
 // storage errors kept in memory (useLayoutStorage); below `xl` the sidebar is a drawer whose `drawerOpen` (TailAdmin
 // `isMobileOpen`) is never saved. Owner 2026-10-28: the inline column is resizable like the DR nav column, its width
-// saved in `backoffice-nav-bar-size` (DR `nav-bar-size`), 240 to 480 px.
+// saved in `backoffice-nav-bar-size` (DR `nav-bar-size`), 240 to 480 px. D-200 (owner 2026-10-31): `modulesCompact`
+// shows the project card with a small logo and the module tiles as icons only, saved in `backoffice-module-bar-compact`.
 import { createEventHook } from '@vueuse/core';
 import { clamp } from 'lodash-es';
 import { defineStore } from 'pinia';
@@ -18,6 +19,8 @@ export const useNavBarStore = defineStore('nav-bar-store', () => {
 	const collapsed = useLayoutStorage('backoffice-nav-bar-collapsed', false);
 
 	const storedSize = useLayoutStorage('backoffice-nav-bar-size', NAV_BAR_SIZE.default);
+
+	const modulesCompact = useLayoutStorage('backoffice-module-bar-compact', false);
 
 	const size = computed({
 		get: () =>
@@ -61,6 +64,7 @@ export const useNavBarStore = defineStore('nav-bar-store', () => {
 	return {
 		collapsed,
 		size,
+		modulesCompact,
 		drawerOpen,
 		inlineNav,
 		collapse,
