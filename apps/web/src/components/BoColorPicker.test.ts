@@ -1,6 +1,6 @@
-import Color from 'color';
 // Ported from directus/app/src/interfaces/select-color/select-color.test.ts
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
+import Color from 'color';
 import { afterEach, describe, expect, it } from 'vitest';
 import { i18n } from '../lang/index.ts';
 import BoColorPicker from './BoColorPicker.vue';
