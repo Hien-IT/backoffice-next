@@ -478,6 +478,10 @@ search, bookmarks, last accessed collection) is the Directus one. Built: `apps/w
   dark:text-gray-400 dark:hover:text-gray-300`, no icon, `mt-3` from the previous root row, its children without the
   `ps-4` indent; the toggle, click and keyboard stay the same. Deeper folders and collections with children keep the
   row style.
+- Inside or outside a group (D-202, owner 2026-10-31): the children of a group title hang on a start guide line
+  (`ms-3 border-s border-gray-200 ps-1`, dark `border-gray-800`), and a root row right after a group title, open or
+  closed, has a divider above it (`mt-3 border-t border-gray-200 pt-3`, dark `border-gray-800`; the title `li` carries
+  `data-nav-heading`, the row the sibling variant `[[data-nav-heading]+&]:`).
 - Dense (more than 5 visible collections, Directus `dense`): `min-h-8 text-theme-sm`; otherwise `min-h-9 text-sm`.
 - Bookmarks: child rows of their collection (`?bookmark=<id>` link), the bookmark icon (default `bookmark`) and color; a
   row menu button at the end

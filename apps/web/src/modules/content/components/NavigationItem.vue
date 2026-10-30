@@ -25,7 +25,8 @@ const hidden = computed(() => collection.value.meta?.hidden === true);
 const to = computed(() => (collection.value.schema ? getCollectionRoute(collection.value.collection) : ''));
 const tabindex = computed(() => (nav.tabStop.value === node.key ? 0 : -1));
 // Owner 2026-10-22 (D-156): a root folder reads as a TailAdmin menu group title, its children are not indented, so the
-// tree looks two levels deep.
+// tree looks two levels deep. D-202 (owner 2026-10-31): its children hang on a start guide line and a root row right
+// after a group title has a divider above it, so rows inside and outside the group (open or closed) read apart.
 const heading = computed(() => node.level === 1 && node.group && !collection.value.schema);
 
 const FOCUS =
@@ -39,7 +40,13 @@ function onFolderClick() {
 <template>
 	<li
 		role="treeitem"
-		:class="{ 'not-first:mt-3': heading }"
+		:class="
+			heading
+				? 'not-first:mt-3'
+				: node.level === 1 &&
+					'[[data-nav-heading]+&]:mt-3 [[data-nav-heading]+&]:border-t [[data-nav-heading]+&]:border-gray-200 [[data-nav-heading]+&]:pt-3 dark:[[data-nav-heading]+&]:border-gray-800'
+		"
+		:data-nav-heading="heading || undefined"
 		:data-key="node.key"
 		:aria-level="node.level"
 		:aria-expanded="node.group ? open : undefined"
@@ -111,7 +118,12 @@ function onFolderClick() {
 			</button>
 		</div>
 
-		<ul v-if="open" role="group" class="m-0 mt-1 flex list-none flex-col gap-1 p-0" :class="{ 'ps-4': !heading }">
+		<ul
+			v-if="open"
+			role="group"
+			class="m-0 mt-1 flex list-none flex-col gap-1 p-0"
+			:class="heading ? 'ms-3 border-s border-gray-200 ps-1 dark:border-gray-800' : 'ps-4'"
+		>
 			<template v-for="child in node.children" :key="child.key">
 				<NavigationBookmark v-if="child.bookmark" :node="child" />
 				<NavigationItem v-else :node="child" />

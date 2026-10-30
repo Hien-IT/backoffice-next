@@ -134,6 +134,20 @@ describe('ContentNavigation', () => {
 		expect(row(wrapper, 'pages').exists()).toBe(false);
 	});
 
+	test('D-202: a group title hangs its children on a guide line, the next root row has a divider above it', async () => {
+		const { wrapper } = await setup({ activeGroups: ['folder', 'locked'] });
+
+		expect(row(wrapper, 'folder').attributes('data-nav-heading')).toBe('true');
+		expect(row(wrapper, 'folder').get('ul[role="group"]').classes()).toEqual(
+			expect.arrayContaining(['border-s', 'ms-3', 'ps-1']),
+		);
+		expect(row(wrapper, 'locked').get('ul[role="group"]').classes()).toContain('ps-4');
+		// The divider is a sibling selector: it draws on the root row right after the group title only.
+		expect(row(wrapper, 'locked').classes()).toContain('[[data-nav-heading]+&]:border-t');
+		expect(document.querySelector('[data-nav-heading] + li')?.getAttribute('data-key')).toBe('locked');
+		expect(row(wrapper, 'pages').classes()).not.toContain('[[data-nav-heading]+&]:border-t');
+	});
+
 	test('opens the parent groups of the current collection', async () => {
 		const { wrapper } = await setup({ props: { currentCollection: 'pages' }, path: '/content/pages' });
 
