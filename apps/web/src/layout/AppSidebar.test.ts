@@ -106,6 +106,7 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 		expect(toggle.attributes('aria-pressed')).toBe('true');
 		expect(block.classes()).toContain('p-3');
 		expect(block.find('span.size-8').exists()).toBe(true);
+		expect(block.get('[data-testid="module-bar"] ul').classes()).toContain('grid-flow-col');
 		expect(tile().get('span:not([aria-hidden])').classes()).toContain('sr-only');
 		expect(tile().text()).toContain('File Library');
 		expect(localStorage.getItem('backoffice-module-bar-compact')).toBe('true');

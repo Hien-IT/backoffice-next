@@ -4,7 +4,8 @@
 // The active module has aria-current and the white tile; the others take the text and tile colors picked from the
 // project color (D-163). The module_bar links (Add Link) and the app extension modules (D-144) share one tile with a
 // menu (owner 2026-10-22, D-162), in module_bar order; links to other sites open a new tab from it. D-200 (owner
-// 2026-10-31): `compact` shows icon-only tiles in rows that wrap, the names stay as accessible names and titles.
+// 2026-10-31): `compact` shows icon-only tiles on one row that share the card width (the owner saw the More tile
+// wrap alone at 240 px), the names stay as accessible names and titles.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
@@ -50,10 +51,7 @@ function linkProps(modulePart: ModuleBarItem) {
 
 <template>
 	<nav :aria-label="t('modules')" data-testid="module-bar">
-		<ul
-			class="m-0 grid list-none p-0"
-			:class="compact ? 'grid-cols-[repeat(auto-fill,minmax(2rem,1fr))] gap-1' : 'grid-cols-3 gap-2'"
-		>
+		<ul class="m-0 grid list-none p-0" :class="compact ? 'auto-cols-fr grid-flow-col gap-1' : 'grid-cols-3 gap-2'">
 			<li v-for="modulePart in mainModules" :key="modulePart.id">
 				<component
 					:is="modulePart.to !== undefined ? RouterLink : 'a'"
