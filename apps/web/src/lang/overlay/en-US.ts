@@ -21,6 +21,14 @@ export default {
 	more_modules: 'More',
 	pick_color: 'Pick color',
 	browser_color_picker: 'Browser picker',
+	// D-201: the deep color presets of the color picker.
+	color_royal_blue: 'Royal Blue',
+	color_ocean: 'Ocean',
+	color_teal: 'Teal',
+	color_forest: 'Forest',
+	color_burgundy: 'Burgundy',
+	color_magenta: 'Magenta',
+	color_burnt_orange: 'Burnt Orange',
 	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.
 	move_up: 'Move up',
 	move_down: 'Move down',

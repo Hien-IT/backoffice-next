@@ -88,9 +88,9 @@ describe('select-color', () => {
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
 
-	test('option:select-color.presets: the 9 Directus presets by default, the option replaces them', async () => {
+	test('option:select-color.presets: 6 Directus presets and 7 D-201 presets by default, the option replaces them', async () => {
 		const defaults = mountColor({ value: null, width: 'half' });
-		expect(await presets(defaults)).toHaveLength(9);
+		expect(await presets(defaults)).toHaveLength(13);
 		defaults.unmount();
 
 		const custom = await presets(mountColor(fixtureProps('select_color')));

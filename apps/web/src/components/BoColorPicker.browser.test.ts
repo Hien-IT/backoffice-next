@@ -21,7 +21,7 @@ test('the browser picker button opens the native color input; its value keeps th
 	const click = vi.spyOn(native, 'click').mockImplementation(() => {});
 
 	expect(native.value).toBe('#ff0000');
-	[...document.querySelectorAll('button')].find((button) => button.textContent?.includes('Browser picker'))!.click();
+	document.querySelector<HTMLButtonElement>('button[aria-label="Browser picker"]')!.click();
 	expect(click).toHaveBeenCalledOnce();
 
 	native.value = '#00ff00';

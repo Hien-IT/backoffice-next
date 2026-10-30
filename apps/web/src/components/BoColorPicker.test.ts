@@ -1,3 +1,4 @@
+import Color from 'color';
 // Ported from directus/app/src/interfaces/select-color/select-color.test.ts
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -158,7 +159,7 @@ describe('BoColorPicker', () => {
 		expect(emitted(wrapper)).toEqual(['#3399FF']);
 	});
 
-	it('shows the Directus default presets and selects one', async () => {
+	it('shows the D-201 default presets (Directus without Yellow, Orange, White, plus 7 deep colors) and selects one', async () => {
 		const wrapper = mountPicker({ modelValue: '#6644FF' });
 		await openPanel(wrapper);
 
@@ -167,12 +168,16 @@ describe('BoColorPicker', () => {
 			'Purple',
 			'Blue',
 			'Green',
-			'Yellow',
-			'Orange',
 			'Red',
 			'Black',
 			'Gray',
-			'White',
+			'Royal Blue',
+			'Ocean',
+			'Teal',
+			'Forest',
+			'Burgundy',
+			'Magenta',
+			'Burnt Orange',
 		]);
 		expect(presets[0]!.getAttribute('aria-pressed')).toBe('true');
 		expect(presets[1]!.getAttribute('aria-pressed')).toBe('false');
@@ -180,6 +185,28 @@ describe('BoColorPicker', () => {
 		presets[1]!.click();
 
 		expect(emitted(wrapper)).toEqual(['#3399FF']);
+	});
+
+	it('D-201: the deep presets keep their hex values, the browser picker is an icon-only button', async () => {
+		const wrapper = mountPicker({ modelValue: '#0023C4' });
+		await openPanel(wrapper);
+
+		const presets = [...document.body.querySelectorAll<HTMLButtonElement>('button.preset')];
+		expect(presets.slice(6).map((preset) => Color(preset.style.background).hex())).toEqual([
+			'#0023C4',
+			'#0B6E99',
+			'#00796B',
+			'#2E7D32',
+			'#8B1E3F',
+			'#B5179E',
+			'#C2410C',
+		]);
+		expect(presets.find((preset) => preset.getAttribute('aria-pressed') === 'true')?.getAttribute('aria-label')).toBe(
+			'Royal Blue',
+		);
+
+		const picker = document.body.querySelector<HTMLButtonElement>('button[aria-label="Browser picker"]')!;
+		expect(picker.textContent?.trim()).toBe('colorize');
 	});
 
 	it('uses custom presets', async () => {

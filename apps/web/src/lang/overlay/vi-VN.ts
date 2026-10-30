@@ -20,6 +20,14 @@ export default {
 	compact_modules: 'Thu gọn khối module',
 	pick_color: 'Chọn màu',
 	browser_color_picker: 'Bộ chọn của trình duyệt',
+	// D-201: the deep color presets of the color picker.
+	color_royal_blue: 'Xanh hoàng gia',
+	color_ocean: 'Xanh đại dương',
+	color_teal: 'Xanh mòng két',
+	color_forest: 'Xanh rừng',
+	color_burgundy: 'Đỏ rượu vang',
+	color_magenta: 'Hồng tím',
+	color_burnt_orange: 'Cam cháy',
 	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.
 	move_up: 'Lên',
 	move_down: 'Xuống',

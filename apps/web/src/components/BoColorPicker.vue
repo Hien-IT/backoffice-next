@@ -73,14 +73,6 @@ const presetsWithDefaults = computed(
 				color: '#2ECDA7', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
-				name: t('colors.yellow'),
-				color: '#FFC23B', // raw-color-allowed: DR data default (Q-C)
-			},
-			{
-				name: t('colors.orange'),
-				color: '#FFA439', // raw-color-allowed: DR data default (Q-C)
-			},
-			{
 				name: t('colors.red'),
 				color: '#E35169', // raw-color-allowed: DR data default (Q-C)
 			},
@@ -92,10 +84,15 @@ const presetsWithDefaults = computed(
 				name: t('colors.gray'),
 				color: '#A2B5CD', // raw-color-allowed: DR data default (Q-C)
 			},
-			{
-				name: t('colors.white'),
-				color: '#FFFFFF', // raw-color-allowed: DR data default (Q-C)
-			},
+			// Backoffice (owner 2026-10-31, D-201): DR Yellow, Orange and White dropped; deep colors that suit a project
+			// color added, white text on each.
+			{ name: t('color_royal_blue'), color: '#0023C4' }, // raw-color-allowed: preset data (D-201)
+			{ name: t('color_ocean'), color: '#0B6E99' }, // raw-color-allowed: preset data (D-201)
+			{ name: t('color_teal'), color: '#00796B' }, // raw-color-allowed: preset data (D-201)
+			{ name: t('color_forest'), color: '#2E7D32' }, // raw-color-allowed: preset data (D-201)
+			{ name: t('color_burgundy'), color: '#8B1E3F' }, // raw-color-allowed: preset data (D-201)
+			{ name: t('color_magenta'), color: '#B5179E' }, // raw-color-allowed: preset data (D-201)
+			{ name: t('color_burnt_orange'), color: '#C2410C' }, // raw-color-allowed: preset data (D-201)
 		],
 );
 
@@ -523,14 +520,20 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 							:maxlength="opacity ? 9 : 7"
 							autocomplete="off"
 							spellcheck="false"
-							class="h-9 w-full px-3"
+							class="h-10 w-full px-3"
 							:class="[FIELD, FIELD_VALID]"
 							@change="hex = ($event.target as HTMLInputElement).value"
 						/>
 					</div>
-					<BoButton variant="secondary" icon="colorize" @click="activateColorPicker">
-						{{ t('browser_color_picker') }}
-					</BoButton>
+					<!-- D-201: icon only, as high as the HEX input, so the HEX input keeps the row. -->
+					<BoTooltip :text="t('browser_color_picker')">
+						<BoButton
+							variant="secondary"
+							icon="colorize"
+							:aria-label="t('browser_color_picker')"
+							@click="activateColorPicker"
+						/>
+					</BoTooltip>
 					<input
 						ref="htmlColorInput"
 						type="color"

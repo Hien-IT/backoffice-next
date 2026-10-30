@@ -716,15 +716,18 @@ Shared parts (each component declares the constants it uses locally; there is no
   - One row per channel (+ alpha with `opacity`) `flex items-center gap-3`: label
     `w-5 shrink-0 truncate text-theme-xs text-gray-500 dark:text-gray-400` (full name in `title`), a Slider (Slider
     track / range / thumb classes, thumb labelled by the label) and a `h-9 w-16 shrink-0 FIELD px-2` number input.
-  - Hex: visible label "HEX" (Label classes) and a `h-9 FIELD px-3` input (`maxlength` 7, 9 with opacity), next to a
-    secondary Button `colorize` "Browser color picker" (`browser_color_picker`) that opens a hidden
-    `<input type="color" class="sr-only" tabindex="-1" aria-hidden="true">`.
-  - Presets (Directus `presets`): `grid grid-cols-8 gap-2`; button `h-6 w-6 rounded-md FOCUS`, color by `style`, Tooltip
+  - Hex: visible label "HEX" (Label classes) and a `h-10 FIELD px-3` input (`maxlength` 7, 9 with opacity), next to an
+    icon-only secondary Button `colorize` (`size-10`, `aria-label` and Tooltip `browser_color_picker`, D-201) that opens
+    a hidden `<input type="color" class="sr-only" tabindex="-1" aria-hidden="true">`.
+  - Presets (Directus `presets`; without the option, D-201: the Directus defaults without Yellow, Orange and White, then 7 deep colors: Royal Blue
+    `#0023C4`, Ocean `#0B6E99`, Teal `#00796B`, Forest `#2E7D32`, Burgundy `#8B1E3F`, Magenta `#B5179E`, Burnt Orange
+    `#C2410C`, white text 5.1:1 or more on each): `grid grid-cols-8 gap-2`; button `h-6 w-6 rounded-md FOCUS`, color by `style`, Tooltip
     and `aria-label` = preset name or value, `aria-pressed`; selected adds
     `ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-brand-400 dark:ring-offset-gray-dark`, low contrast
     with the popover adds `ring-1 ring-gray-500 ring-inset`.
-- Deviation: the mode Select is the Tier 1 `h-11` size (the draft said `h-9`); the native picker button has a text
-  label.
+- Deviation: the mode Select is the Tier 1 `h-11` size (the draft said `h-9`); since D-201 (owner 2026-10-31) the
+  native picker button is icon-only (it had the text label) and the default presets drop Directus Yellow, Orange and
+  White and add 7 deep colors.
 - Invalid value: `FIELD_INVALID` (error line from the form).
 
 ### IconPicker (`BoIconPicker`; Directus `select-icon`)
