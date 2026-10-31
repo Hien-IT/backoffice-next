@@ -302,7 +302,8 @@ chạy ở mọi lần push. Lệch Nguyên tắc X (benchmark là cổng chặn
 hai job vào `needs` của `publish` trong `ci.yml` (cần đủ phút Actions hoặc self-hosted runner).
 
 `joi` dùng 18.2.6 thay vì 18.0.1 của Directus: bản vá bảo mật (advisory high GHSA-6h2x-m376-mqjq), cùng cách xử lý
-`nanoid` ở 001. API `joi` dùng trong `libs/validation` không đổi giữa hai bản; test gốc của Directus chạy qua.
+`nanoid` ở 001. API `joi` dùng trong `libs/validation` không đổi giữa hai bản; test gốc của Directus chạy qua. Từ
+2026-10-31 dùng 18.3.1 (advisory high GHSA-4528-x5fx-h6hg).
 
 Rủi ro đã biết, theo dõi trong tasks:
 

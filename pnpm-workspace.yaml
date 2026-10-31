@@ -108,7 +108,7 @@ catalog:
   otplib: 12.0.1
   openid-client: 5.7.1
   ldapts: 8.1.3
-  joi: 18.2.6 # security patch (GHSA-6h2x-m376-mqjq), Directus 11.17.4 has 18.0.1
+  joi: 18.3.1 # security patch (GHSA-6h2x-m376-mqjq, GHSA-4528-x5fx-h6hg), Directus 11.17.4 has 18.0.1
   flat: 6.0.1
   date-fns: 4.1.0
   wellknown: 0.5.0
@@ -297,10 +297,11 @@ overrides:
   fast-xml-parser@>=5.0.0 <5.5.6: 5.5.12 # via @aws-sdk/client-s3
   js-yaml@>=4.0.0 <4.3.2: 4.3.2 # via @directus/utils 13.4.1 (apps/web, feature 013)
   path-to-regexp@<0.1.13: 0.1.13 # express4 (express@4.21.2 as Directus, spec 020 D-139) pins 0.1.12: GHSA-37ch-88jc-xwx2
-  joi@>=18.0.0 <18.2.6: 18.2.6 # via @directus/utils 13.4.1 (apps/web, feature 013), same patch as apps/api
+  joi@>=18.0.0 <18.3.1: 18.3.1 # via @directus/utils 13.4.1 (apps/web, feature 013), same patch as apps/api
   nanoid@>=4.0.0 <5.1.16: 5.1.16 # via @directus/composables 11.4.1 (apps/web, spec 020): GHSA-28wg-ghj8-5hjv, GHSA-xwg4-73v4-xw9w, same patch as the catalog
   multer@>=2.0.0 <2.5.0: 2.5.0 # @nestjs/platform-express 12.1.2 pins 2.4.0: GHSA-q7qp-rjg7-q26m
   body-parser@<1.20.9: 1.20.9 # express4 (express@4.21.2 as Directus, spec 020 D-139) pins 1.20.3: GHSA-27r3-jxmh-p828
+  follow-redirects@>=1.16.0 <1.16.2: 1.16.2 # via axios 1.15.0 (the Directus version, kept): GHSA-mrwp-f3q8-3g9p
   zod@>=4.0.0 <4.6.6: 4.6.6 # via @directus/utils 13.4.1 (apps/web, feature 013): GHSA-mrhx-c7xc-m3w5, same patch as the catalog
 
 # tar 6 comes with sqlite3 5.1.7 (same as Directus 11.17.4); only sqlite3/deps/extract.js loads it, to unpack the

@@ -499,8 +499,8 @@ catalogs:
       specifier: 2.7.0
       version: 2.7.0
     joi:
-      specifier: 18.2.6
-      version: 18.2.6
+      specifier: 18.3.1
+      version: 18.3.1
     js-yaml:
       specifier: 4.3.2
       version: 4.3.2
@@ -750,10 +750,11 @@ overrides:
   fast-xml-parser@>=5.0.0 <5.5.6: 5.5.12
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
   path-to-regexp@<0.1.13: 0.1.13
-  joi@>=18.0.0 <18.2.6: 18.2.6
+  joi@>=18.0.0 <18.3.1: 18.3.1
   nanoid@>=4.0.0 <5.1.16: 5.1.16
   multer@>=2.0.0 <2.5.0: 2.5.0
   body-parser@<1.20.9: 1.20.9
+  follow-redirects@>=1.16.0 <1.16.2: 1.16.2
   zod@>=4.0.0 <4.6.6: 4.6.6
 
 importers:
@@ -1005,7 +1006,7 @@ importers:
         version: 5.0.3
       joi:
         specifier: 'catalog:'
-        version: 18.2.6
+        version: 18.3.1
       js-yaml:
         specifier: 'catalog:'
         version: 4.3.2
@@ -1813,7 +1814,7 @@ importers:
         version: 11.3.2
       joi:
         specifier: 'catalog:'
-        version: 18.2.6
+        version: 18.3.1
       js-yaml:
         specifier: 'catalog:'
         version: 4.3.2
@@ -1856,7 +1857,7 @@ importers:
         version: link:../utils
       joi:
         specifier: 'catalog:'
-        version: 18.2.6
+        version: 18.3.1
 
   tests/benchmark:
     devDependencies:
@@ -5280,6 +5281,7 @@ packages:
   '@smithy/core@3.35.2':
     resolution: {integrity: sha512-ejTukBuP/Pg3t9N8Ux+0zKsXeHWm7p6W3HbXFOyltKasSxZwCFmvTut7kBdZSCF3m9y1bXXyVu6p2xuMFcsTyQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: Deprecated due to a bug in custom logger data redaction. See https://github.com/aws/aws-sdk-js-v3/issues/8393.
 
   '@smithy/credential-provider-imds@4.5.2':
     resolution: {integrity: sha512-A9uSdn72ozbRUSit0eib0TW7nXuNPlaeM0zcGkJ+nE6tFcSDbnmtwoxbTCFBukVQcszDAyvsd7+rTduPTXpygg==}
@@ -7687,8 +7689,8 @@ packages:
   focus-trap@5.1.0:
     resolution: {integrity: sha512-CkB/nrO55069QAUjWFBpX6oc+9V90Qhgpe6fBWApzruMq5gnlh90Oo7iSSDK7pKiV5ugG6OY2AXM5mxcmL3lwQ==}
 
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -8228,8 +8230,8 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
-  joi@18.2.6:
-    resolution: {integrity: sha512-8MD5jy4xIcTQi/pHbc10auxclVoJS3pPNiLaTNfW0eh90GbOPU+Y2AjDQnuQsUcHUGNJxqTMmAW6Ho895RaKPA==}
+  joi@18.3.1:
+    resolution: {integrity: sha512-mV9M4Llh4va3NT90p7KBtQhoZqjs8xLX7EWYE4y/GG3yLF6REbIBEHSUb0UX1JXRht2w5tiLSsvmpYc5akiqIw==}
     engines: {node: '>= 20'}
 
   jose@4.15.9:
@@ -13039,7 +13041,7 @@ snapshots:
       '@directus/system-data': 4.4.0
       date-fns: 4.1.0
       fs-extra: 11.3.2
-      joi: 18.2.6
+      joi: 18.3.1
       js-yaml: 4.3.2
       lodash-es: 4.18.1
       micromustache: 8.0.3
@@ -13053,7 +13055,7 @@ snapshots:
       '@directus/system-data': 4.4.0
       date-fns: 4.1.0
       fs-extra: 11.3.2
-      joi: 18.2.6
+      joi: 18.3.1
       js-yaml: 4.3.2
       lodash-es: 4.18.1
       micromustache: 8.0.3
@@ -16426,7 +16428,7 @@ snapshots:
 
   axios@1.15.0:
     dependencies:
-      follow-redirects: 1.16.1
+      follow-redirects: 1.16.2
       form-data: 4.0.6
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
@@ -17806,7 +17808,7 @@ snapshots:
       tabbable: 4.0.0
       xtend: 4.0.2
 
-  follow-redirects@1.16.1: {}
+  follow-redirects@1.16.2: {}
 
   foreground-child@3.3.1:
     dependencies:
@@ -18348,7 +18350,7 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  joi@18.2.6:
+  joi@18.3.1:
     dependencies:
       '@hapi/address': 5.1.1
       '@hapi/formula': 3.0.2
