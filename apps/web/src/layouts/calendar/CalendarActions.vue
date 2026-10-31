@@ -13,7 +13,7 @@ defineProps<{
 	<span
 		role="status"
 		aria-live="polite"
-		class="sr-only whitespace-nowrap text-theme-sm text-gray-500 sm:not-sr-only dark:text-gray-400"
+		class="whitespace-nowrap text-theme-sm text-gray-500 max-sm:sr-only dark:text-gray-400"
 	>
 		<template v-if="showingCount">{{ showingCount }}</template>
 	</span>

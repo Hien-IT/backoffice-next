@@ -42,7 +42,9 @@ shell layout (sidebar, header, content, detail panel).
 - Spacing and radius use the Tailwind default scale, as TailAdmin does (`rounded-lg`, `rounded-xl`, `rounded-2xl`,
   `p-4`, `md:p-6`, ...).
 - Never redefine a Tailwind utility (`.sr-only`, `.hidden`, ...) in the app CSS: a copy in `@layer utilities` comes
-  after Tailwind's and beats its variants (`sm:not-sr-only`); an unlayered copy beats every utility.
+  after Tailwind's and beats its variants (`sm:not-sr-only`); an unlayered copy beats every utility. Third-party CSS
+  does the same (Font Awesome injects an unlayered `.sr-only`), so write screen-reader-only below a breakpoint as
+  `max-sm:sr-only`, never `sr-only sm:not-sr-only`.
 - Interactive components use Reka UI primitives and follow `docs/component-specs.md` (states, keyboard, linked labels,
   status never by color alone).
 - TailAdmin code is a reference only. When a substantial part of a TailAdmin file is copied, keep the MIT notice

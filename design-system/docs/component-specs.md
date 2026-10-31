@@ -1139,7 +1139,7 @@ Built: `components/BoTable.vue`, `components/BoPagination.vue`,
   rows or more or the limit is below 25 (Directus). Deviation: the Select is the Tier 1 `h-11` BoSelect, not `h-9` (one
   Select size in the app). Deviation: no skeleton while the count loads; the pagination shows once the count is there.
 - Count line (layout actions, `TabularActions`):
-  `sr-only whitespace-nowrap text-theme-sm text-gray-500 sm:not-sr-only dark:text-gray-400`, `role="status"`
+  `whitespace-nowrap text-theme-sm text-gray-500 max-sm:sr-only dark:text-gray-400`, `role="status"`
   `aria-live="polite"`, always in the DOM (FR-115b), the sort change in sr-only text. Deviation: below `sm` it is
   screen-reader only, not `display: none` (Directus), so the page change is still announced.
 - Ctrl/Cmd + A on the table box selects all (Directus `useShortcut('meta+a')`).
