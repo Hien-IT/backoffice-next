@@ -855,7 +855,10 @@ editing, D-67)
   ±5 %, Home/End), điều kiện bộ lọc (menu); hộp thoại và drawer bẫy focus; mọi nút icon có nhãn; bảng có
   caption/`aria-label`, header `scope`, cột sắp xếp `aria-sort`.
 - **FR-115b**: Dòng số đếm là vùng `role="status" aria-live="polite"`; đổi trang và sắp xếp thông báo qua vùng đó
-  ("Trang n", "Sắp theo X tăng dần").
+  ("Trang n", "Sắp theo X tăng dần"). Từ `sm` dòng này hiện trên header ("1-25 of 60 Items"), dưới `sm` chỉ trình đọc
+  màn hình đọc (`sr-only sm:not-sr-only`) ở cả năm layout. (Sửa lỗi 2026-10-31: `.sr-only` tự định nghĩa trong
+  `styles/base.css` ở `@layer utilities` đè `sm:not-sr-only` nên dòng số đếm bị ẩn ở mọi độ rộng; đã gỡ, test
+  `src/layouts/actions.browser.test.ts`.)
 - **FR-115c**: Focus sau hành động: xóa item → tiêu đề trang danh sách; lưu và tạo tiếp → field đầu (`autofocus`); đóng
   hộp so sánh hoặc drawer → nút đã mở; xóa bookmark đang mở → tiêu đề trang collection.
 - **FR-115d**: Hộp xác nhận (xóa, archive, hàng loạt, rời trang, xóa version/bookmark/nhóm) focus ban đầu vào nút Hủy
