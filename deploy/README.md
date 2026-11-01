@@ -10,8 +10,9 @@ Tài liệu vận hành của feature 019 (`specs/019-deployment-packaging/`). B
 Build tại máy (linux/amd64, qua `@nx-tools/nx-container`):
 
 ```bash
-pnpm nx run api:container
-pnpm nx run web:container
+pnpm nx run deploy:container # cả hai image (project deploy, target container)
+pnpm nx run api:container    # chỉ API
+pnpm nx run web:container    # chỉ web
 ```
 
 Image được gắn tag `hiennd23/backoffice-<app>:local` (compose của parity dùng) và `:latest`; lệnh không tự push lên

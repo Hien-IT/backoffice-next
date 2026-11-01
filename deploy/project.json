@@ -1,0 +1,12 @@
+{
+	"$schema": "../node_modules/nx/schemas/project-schema.json",
+	"name": "deploy",
+	"projectType": "application",
+	"targets": {
+		"container": {
+			"executor": "nx:noop",
+			"dependsOn": [{ "projects": ["api", "web"], "target": "container" }],
+			"cache": false
+		}
+	}
+}
