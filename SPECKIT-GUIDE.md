@@ -5,6 +5,54 @@ prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`
 
 ---
 
+## Mục lục
+
+Thêm mục mới (ví dụ spec 030) thì thêm một dòng ở đây, anchor là tiêu đề viết thường, bỏ dấu câu, khoảng trắng thành `-`.
+
+- [1. Các quyết định đã chốt](#1-các-quyết-định-đã-chốt)
+- [2. Quy trình Spec Kit cho mỗi feature](#2-quy-trình-spec-kit-cho-mỗi-feature)
+- [3. Chuẩn bị trước khi chạy Spec Kit (đã làm sẵn)](#3-chuẩn-bị-trước-khi-chạy-spec-kit-đã-làm-sẵn)
+- [4. Bước 1: Constitution](#4-bước-1-constitution)
+  - [Sửa constitution theo feature](#sửa-constitution-theo-feature)
+- [5. Lộ trình feature](#5-lộ-trình-feature)
+- [6. Lệnh Spec Kit cho từng feature](#6-lệnh-spec-kit-cho-từng-feature)
+  - [001: Nền tảng workspace và kết nối hệ thống](#001-nền-tảng-workspace-và-kết-nối-hệ-thống)
+  - [002: Schema overview và cache dùng chung](#002-schema-overview-và-cache-dùng-chung)
+  - [003: Xác thực và phiên đăng nhập](#003-xác-thực-và-phiên-đăng-nhập)
+  - [004: Phân quyền](#004-phân-quyền)
+  - [005: CRUD items, response cache, export, event](#005-crud-items-response-cache-export-event)
+  - [006: Quản lý data model](#006-quản-lý-data-model)
+  - [007: Files, folders, assets](#007-files-folders-assets)
+  - [008: Activity, revisions, versions, comments](#008-activity-revisions-versions-comments)
+  - [009: Flows và tự động hóa](#009-flows-và-tự-động-hóa)
+  - [010: Collection hệ thống còn lại](#010-collection-hệ-thống-còn-lại)
+  - [011: GraphQL](#011-graphql)
+  - [012: Khung app web và đăng nhập](#012-khung-app-web-và-đăng-nhập)
+  - [013: Bộ interfaces và displays](#013-bộ-interfaces-và-displays)
+  - [014: Module Content](#014-module-content)
+  - [015: Module Files và Users](#015-module-files-và-users)
+  - [016: Module Settings](#016-module-settings)
+  - [017: Trình chỉnh sửa Flows](#017-trình-chỉnh-sửa-flows)
+  - [018: Insights, Activity, Notifications](#018-insights-activity-notifications)
+  - [019: Đóng gói và triển khai đa instance](#019-đóng-gói-và-triển-khai-đa-instance)
+  - [020: Extensions](#020-extensions)
+  - [021: Chạy độc lập: khởi tạo DB, migration và CLI](#021-chạy-độc-lập-khởi-tạo-db-migration-và-cli)
+  - [022: Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng](#022-ẩn-hiện-ô-tìm-kiếm-import-export-theo-collection-migration-riêng)
+  - [023: Filter theo path trong field json](#023-filter-theo-path-trong-field-json)
+  - [024: API chặn tìm kiếm, Import, Export theo cài đặt collection](#024-api-chặn-tìm-kiếm-import-export-theo-cài-đặt-collection)
+  - [025: Quyền Import, Export theo policy, bỏ Share khỏi giao diện](#025-quyền-import-export-theo-policy-bỏ-share-khỏi-giao-diện)
+  - [026: Backoffice chạy cạnh Directus chỉ ở domain riêng](#026-backoffice-chạy-cạnh-directus-chỉ-ở-domain-riêng)
+  - [027: Khóa chính uuid tự sinh dùng UUID v7](#027-khóa-chính-uuid-tự-sinh-dùng-uuid-v7)
+  - [028: Filter so sánh hai field của cùng collection](#028-filter-so-sánh-hai-field-của-cùng-collection)
+  - [029: Đăng nhập bằng Passkey (WebAuthn)](#029-đăng-nhập-bằng-passkey-webauthn)
+- [7. Phần chung của `/speckit.plan`](#7-phần-chung-của-speckitplan)
+- [8. Chọn model cho từng bước](#8-chọn-model-cho-từng-bước)
+- [9. Mẹo khi chạy](#9-mẹo-khi-chạy)
+- [10. Rủi ro cần lưu ý](#10-rủi-ro-cần-lưu-ý)
+- [11. Hoãn tới khi xong mọi spec](#11-hoãn-tới-khi-xong-mọi-spec)
+
+---
+
 ## 1. Các quyết định đã chốt
 
 | Chủ đề             | Quyết định                                                                                                                                                                                                                                                                                                                                                     |
