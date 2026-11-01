@@ -240,6 +240,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 025 | Quyền Import, Export theo policy (bảng backoffice_permissions), bỏ Share khỏi giao diện                         | 016, 024  | BE, FE |
 | 026 | Backoffice chạy cạnh Directus chỉ ở domain riêng (bỏ chế độ chung domain của 019)                               | 019, 020, 025 | Deploy |
 | 027 | Khóa chính uuid tự sinh dùng UUID v7 thay cho v4                                                                | 005, 021  | BE     |
+| 028 | Filter so sánh hai field của cùng collection ($FIELD(b) ở vế phải; Content, /items, /graphql)                  | 005, 011, 014, 023 | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -2251,6 +2252,133 @@ Ghi chú đưa vào spec và plan 027 (đọc code ngày 2026-10-29):
   phạm vi.
 - D-192 chưa dùng ở `specs/`, `CLAUDE.md`, `design-system/docs/` (kiểm 2026-10-29).
 
+### 028: Filter so sánh hai field của cùng collection
+
+Trạng thái: `/speckit.specify`, `/speckit.clarify` (5 câu) và `/speckit.plan` (research R1–R12, data-model, contracts, quickstart) chạy 2026-11-01; D-203..D-206 duyệt 2026-11-01; `/speckit.checklist` api-compat (26 mục, 5 phát hiện đã sửa), `/speckit.tasks` (41 task, ba lượt) và `/speckit.analyze` (6 phát hiện đã sửa, I1 theo cách a: mọi `$FIELD(...)` là giá trị động, tên sai → 400) chạy 2026-11-01; tiếp theo commit `docs(028): spec, plan, tasks` rồi `/speckit.implement` lượt 1. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("thêm filter field a eq field b ở trang Content");
+sáu câu chốt ở bảng cuối mục, code đọc ngày 2026-11-01 ở phần "Ghi chú". Thư mục: `specs/028-field-compare-filter/`.
+Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi" (chạm apply-query, permissions, GraphQL schema như
+023). Không sửa constitution (Nguyên tắc III cho phép khác biệt API khi ghi theo Nguyên tắc X), không thêm dependency,
+không migration, không DDL.
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Ảnh hưởng tới Directus** (không sửa code, cấu hình hay DB của Directus; ba chỗ dùng chung bị chạm gián tiếp):
+
+- Bookmark/preset trong `directus_presets` chứa `$FIELD(b)`: Directus app mở bookmark đó so field với chuỗi nguyên văn
+  `'$FIELD(b)'`. [Unverified] cột text ra 0 dòng, cột số/ngày trên Postgres lỗi ép kiểu; đo ở lượt 1 rồi ghi D-203 như
+  D-184.1 (023 dự đoán 400, đo ra 403).
+- Permission trong `directus_permissions` dùng chung: API Backoffice từ chối `$FIELD` khi lưu permission/validation (như
+  D-185), nên Directus không bao giờ chạy filter đó.
+- Response cache dùng chung: key là object-hash của path, query, user (`apps/api/src/utils/get-cache-key.ts`); từ 026
+  request chỉ tới domain Backoffice nên Directus không đọc entry có `$FIELD`. [Inference]
+
+**Code port từ Directus bị sửa** (mỗi chỗ ghi comment `Backoffice (spec 028, D-203)` theo Nguyên tắc IX, giữ dòng
+`Ported from` ở đầu file; danh sách đầy đủ kèm số dòng ở phần "Ghi chú"): `filter/operator.ts` (đã sửa ở 023),
+`flatten-filter.ts` hoặc `extract-paths-from-query.ts` (port nguyên văn, lần đầu sửa), `permissions.service.ts` (hàm
+chặn của D-185), GraphQL `schema/read.ts` + `utils/replace-funcs.ts` (đã sửa ở 023), web `system-filter/*` (port của
+`directus/app/src/interfaces/_system/system-filter`, đã sửa ở 013 và 023). Không chạm: ItemsService, run-ast ngoài
+operator.ts, dialect helpers (so sánh cột với cột là SQL chuẩn, mọi vendor), `parse-filter.ts` của `libs/utils`,
+validate-query.ts, schema cache, flows, extensions, export (đi qua cùng filter), guard 024/025.
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/028-field-compare-filter và đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Feature 028: filter so sánh hai field của cùng collection (field-compare-filter). Bối cảnh: filter của Directus 11.17.4 và Backoffice chỉ so field với giá trị cố định hoặc biến động ($NOW, $CURRENT_USER, $CURRENT_ROLE, $CURRENT_ROLES, $CURRENT_POLICIES); không có cách lọc item mà một field so với field khác của cùng item, ví dụ total > paid_amount (số với số) hay date_updated > date_published (ngày với ngày). Use case cụ thể chưa chốt (chủ dự án 2026-11-01), spec lấy hai ví dụ đó làm kịch bản chính và dữ liệu mẫu. Mục tiêu: trên trang Content người dùng thêm một dòng lọc "field a <toán tử> field b", API /items nhận cùng filter đó và trả đúng item, bookmark/preset giữ được; schema và dữ liệu không đổi, chạy song song với Directus. Cú pháp trong query: giá trị động $FIELD(<tên field>) ở vế phải, cùng dạng với $NOW: filter[total][_gt]=$FIELD(paid_amount), JSON {"total": {"_gt": "$FIELD(paid_amount)"}}; bookmark lưu nguyên chuỗi đó vào directus_presets. Phạm vi đã chốt (chủ dự án 2026-11-01): hai field cùng collection, không qua quan hệ (field m2o dùng cột khóa ngoại của nó, ví dụ user_created = assignee; clarify xác nhận); 6 toán tử so sánh _eq, _neq, _gt, _gte, _lt, _lte; không toán tử chuỗi (_contains, _starts_with...), không _in, _between; hai field phải cùng nhóm kiểu: số với số (integer, bigInteger, float, decimal), ngày giờ với ngày giờ (date, dateTime, timestamp), chuỗi với chuỗi (string, text), boolean với boolean, uuid với uuid; khác nhóm thì API trả 400 với thông báo rõ và UI chỉ liệt kê field cùng nhóm; mọi vendor (chỉ dùng so sánh cột với cột của SQL, không hàm riêng dialect); null ở một trong hai field thì không khớp như SQL (clarify chốt _neq với null). REST /items, SEARCH, export theo filter và GraphQL /graphql có filter tương đương, làm cùng feature. Quyền: kiểm quyền đọc trên cả field a và field b như hai filter key; field b không có quyền đọc thì lỗi như filter trên field không có quyền, không lộ giá trị. Chỉ dùng ở filter của trang Content (/content/<collection>: sidebar filter, bookmark); không ở DrawerCollection, permission/policy, flow, insights, validation và conditions của field; API từ chối $FIELD trong filter và validation của permission khi lưu như D-185. UI: trong ô giá trị của dòng lọc có nút chọn field (menu các field cùng nhóm kiểu của collection), chip hiện tên field b thay cho chuỗi $FIELD(...); gõ tay $FIELD(b) vẫn nhận; nhãn en-US và vi-VN. Khác biệt với Directus ghi từ D-203, chủ dự án duyệt theo Nguyên tắc X (không sửa constitution, không dependency, không migration, không DDL): 1. Bookmark/preset có $FIELD lưu vào directus_presets dùng chung; Directus app mở bookmark đó so field với chuỗi nguyên văn "$FIELD(b)" (0 dòng hoặc lỗi tùy kiểu cột, đo ở lượt 1 và ghi vào spec): chấp nhận. 2. Chỉ dùng trong filter của Content. 3. Request có $FIELD: Backoffice trả 200 đúng item, Directus trả kết quả khác; parity suite ghi khác biệt này, mọi request khác vẫn giống Directus, kể cả GraphQL introspection/SDL (input mới bị normalizer bỏ như D-186). 4. Chuỗi nguyên văn "$FIELD(...)" không còn lọc được như giá trị thường, giống $NOW ở Directus. Ngoài phạm vi: field qua quan hệ ($FIELD(author.age)), so với field của item khác, biểu thức (a + b), toán tử chuỗi, aggregate, index tự tạo (so hai cột không dùng index, ghi rủi ro quét bảng ở spec).
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Bỏ qua được: phạm vi đã chốt 2026-11-01 (cùng collection, 6 toán tử so sánh, cùng nhóm kiểu với 400 ở API và UI chỉ liệt kê field cùng nhóm, chỉ trang Content, GraphQL cùng feature). Tập trung vào: nhóm kiểu chính xác (integer với float, date với timestamp, string với text, uuid với m2o tới users; time, hash, json, geometry, alias bị loại); null ở một vế với _neq (SQL không khớp; có đổi thành khớp không); so chuỗi phân biệt hoa thường theo collation từng vendor (chấp nhận khác vendor hay ép LOWER); field b không có quyền đọc trả 403 hay coi như không có; GraphQL: $FIELD trong _eq String chỉ chạy với field string, số/ngày/boolean cần input riêng như <f>_json hay toán tử _eq_field, và cách normalizer bỏ khỏi introspection; dòng lọc hiện gì khi field b bị xóa hay đổi tên (bookmark cũ); chip và menu chọn field dùng tên hiển thị hay key.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-203+)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Phần chung BE: Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Phần chung FE: Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 028 có cả BE và FE, không thêm dependency, không migration, không DDL. API: apps/api/src/database/run-ast/lib/apply-query/filter/operator.ts applyWhere (:139, đã sửa ở 023): nhận chuỗi $FIELD(x) trước compareValue = cast(compareValue) (:195, castToNumber ném 400 Invalid numeric value), vế phải là getColumn(knex, table, x, false, schema, { originalCollectionName }) như vế trái (:115) thay cho binding, chỉ 6 toán tử; kiểm field x tồn tại trong collection và cùng nhóm kiểu theo SchemaOverview (InvalidQueryError 400), chọn chỗ đặt (applyOperator hay validate-query.ts) và ghi comment khác biệt (Nguyên tắc IX). Quyền: apps/api/src/permissions/modules/process-ast/utils/flatten-filter.ts (:5, port nguyên văn, chỉ lấy key) hoặc extract-paths-from-query.ts (:26) thêm field x vào readOnlyPaths để kiểm quyền đọc như filter key; apps/api/src/services/permissions.service.ts assertNoJsonPathFilter (:204) mở rộng chặn $FIELD. libs/utils/src/shared/parse-filter.ts parseDynamicVariable (:142) để nguyên: chuỗi $FIELD đi qua nguyên vẹn; web dùng @directus/utils 13.4.1 (5 prefix cố định, directus/packages/utils/shared/is-dynamic-variable.ts) nên nhận biết $FIELD bằng kiểm riêng ở web. GraphQL: apps/api/src/services/graphql/schema/read.ts (_eq của string_filter_operators là GraphQLString :125; number/date/boolean là Float/Date/Boolean nên chuỗi $FIELD không vào được): thêm input theo mẫu <f>_json của 023 (:438 json_path_filter_operators, :529) hoặc toán tử _eq_field.._lte_field: String trong từng *_filter_operators, rewrite sang dạng REST trong apps/api/src/services/graphql/utils/replace-funcs.ts (:13 replaceJsonPaths, gọi từ schema/parse-query.ts:25) trước sanitizeQuery, normalizer parity bỏ input mới khỏi introspection/SDL như D-186. Web (port của directus/app/src/interfaces/_system/system-filter): apps/web/src/interfaces/_system/system-filter/InputComponent.vue isValueValid (:114) dùng isDynamicVariable của @directus/utils nên $FIELD bị từ chối ở field số/uuid (pattern :67): cho qua; InputGroup.vue thêm nút chọn field cạnh nút biến {{ }} (:265) mở BoMenu các field cùng nhóm kiểu; Nodes.vue chip hiện tên field b (theo rawFieldNames) như nhãn json path (:164); prop bật riêng includeFieldCompare theo đường includeJsonPath (FieldList → SearchInput → SystemFilter → Nodes → InputGroup), chỉ apps/web/src/modules/content/routes/CollectionRoute.vue (:426) bật, DrawerCollection.vue (:216) không; chuỗi overlay field_compare* ở apps/web/src/lang/overlay/{en-US,vi-VN}.ts. Test: unit operator.ts (6 toán tử, cast, null, khác nhóm kiểu 400, field không tồn tại, field có quyền hạn chế) và flatten-filter; parity tests/parity/src/items/field-compare.test.ts theo mẫu json-path.test.ts (cùng request và bookmark gửi cả hai app, đo hành vi Directus, khác biệt D-203 ghi vào bảng "Khác biệt so với Directus" của spec vì tests/parity/src/spec-differences.ts đọc bảng đó), permission bị từ chối, GraphQL src/graphql/read.test.ts; E2E apps/web-e2e/src/content-filter-field-compare.spec.ts trong ba cấu hình theo mẫu content-filter-json-path.spec.ts (ở proxy tới Directus ghi kết quả Directus); không thêm case benchmark (so hai cột không dùng index, ghi rủi ro ở spec). Ghi D-203+ vào spec, CLAUDE.md, tests/parity/README.md; design-system/docs/migration-guide.md chỉ cho quyết định giao diện (nút chọn field, chip), research R9 của 027.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. api-compat: khác biệt D-203+ ghi đủ, request không có $FIELD vẫn giống Directus (kể cả giá trị chuỗi bắt đầu bằng $ khác), quyền đọc trên cả hai field, field b chỉ vào SQL qua getColumn (không ghép chuỗi), 400 khi khác nhóm kiểu hay field không tồn tại, permission có $FIELD bị từ chối, GraphQL introspection/SDL ngoài input mới vẫn giống
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Chia ba lượt như 023: lượt 1 API REST (operator, quyền đọc field b, 400 khác nhóm kiểu, chặn $FIELD trong permission, đo hành vi Directus với cùng request và bookmark để ghi D-203) với unit và parity; lượt 2 Web (prop includeFieldCompare, nút chọn field, chip, InputComponent, nhãn) với E2E ba cấu hình; lượt 3 GraphQL (input, replace-funcs, normalizer, parity introspection) và tài liệu (spec, CLAUDE.md, tests/parity/README.md, SPECKIT-GUIDE.md). Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Lượt 1: API REST (operator, quyền đọc field b, 400 khác nhóm kiểu, chặn $FIELD trong permission, đo hành vi Directus để ghi D-203) với unit và parity. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Lượt 2: Web (prop includeFieldCompare, nút chọn field, chip, InputComponent, nhãn) với E2E ba cấu hình. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=028-field-compare-filter khi chạy script .specify. Lượt 3: GraphQL (input, replace-funcs, normalizer, parity introspection) và tài liệu. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Quyết định của chủ dự án (2026-11-01):
+
+| Câu hỏi                      | Chốt                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Use case                     | Chưa chốt; spec lấy số với số (`total > paid_amount`) và ngày với ngày (`date_updated > date_published`) |
+| Phạm vi                      | Hai field cùng collection, không qua quan hệ                                                           |
+| Toán tử                      | 6: `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte`                                                         |
+| Hai field khác nhóm kiểu     | Cả hai lớp: API trả 400, UI chỉ liệt kê field cùng nhóm                                                |
+| Chỗ dùng                     | Chỉ filter của trang Content; DrawerCollection, permission/policy, flow, insights, validation không    |
+| GraphQL                      | Cùng feature, lượt 3                                                                                   |
+| Cú pháp (mặc định, chưa hỏi) | `$FIELD(<field>)` ở vế phải, cùng dạng `$NOW`; không làm toán tử mới kiểu `_eq_field` ở REST           |
+| UI (mặc định, chưa hỏi)      | Nút chọn field trong ô giá trị, chip hiện tên field; gõ tay `$FIELD(b)` vẫn nhận                       |
+| Khác biệt parity             | Ghi từ D-203 như D-184.1, đo hành vi Directus ở lượt 1                                                 |
+
+Ghi chú đưa vào spec và plan 028 (đọc code ngày 2026-11-01, chưa chạy thử):
+
+- Engine: `applyWhere` (`operator.ts:139`) giữ chuỗi toán tử của DR; `compareValue = cast(compareValue)` (`:195`) ép
+  theo kiểu field a, `castToNumber('$FIELD(b)')` ném 400 Invalid numeric value nên phải nhận biết `$FIELD` trước đó. Vế trái đã qua
+  `getColumn` với alias bảng (`:115`); vế phải dùng lại hàm đó nên field b không ghép chuỗi SQL.
+- Validate: `validateFilterPrimitive` (`apps/api/src/utils/validate-query.ts:133`) nhận chuỗi, nên `$FIELD(b)` qua được
+  ở cả hai app; `parseDynamicVariable` (`libs/utils/src/shared/parse-filter.ts:142`) không có nhánh `$FIELD`, chuỗi đi
+  qua nguyên vẹn, không cần sửa.
+- Quyền: `flattenFilter` (`flatten-filter.ts:5`) chỉ lấy key, không lấy giá trị; không sửa thì user không có quyền đọc
+  field b vẫn dò được giá trị b qua `a = $FIELD(b)`. `assertNoJsonPathFilter` (`permissions.service.ts:204`) là chỗ chặn
+  permission của D-185, mở rộng cho `$FIELD`.
+- Không dùng toán tử mới (`_eq_field`) ở REST. [Inference, đọc code port chưa chạy] Directus cho chuỗi qua
+  `validateFilter` (nhánh `default`) rồi `applyOperator` không có nhánh cho toán tử lạ nên không thêm điều kiện nào:
+  bookmark dùng chung mở trên Directus app hiện toàn bộ dòng, tệ hơn 403 của 023. Dạng giá trị `{ _eq: { _field: 'b' } }`
+  bị Directus trả 400 (`validateFilterPrimitive`) nhưng không vào được GraphQL và ô nhập của web.
+- GraphQL: `string_filter_operators` có `_eq: GraphQLString` (`read.ts:125`); `number_filter_operators` (`:251`),
+  `date_filter_operators` (`:208`), `boolean_filter_operators` (`:190`) là Float/Date/Boolean. 023 thêm
+  `json_path_filter_operators` (`:438`) và `<f>_json` (`:529`), rewrite ở `replace-funcs.ts:13`, gọi từ
+  `parse-query.ts:25`.
+- Web: `InputComponent.vue:9` import `isDynamicVariable` từ `@directus/utils`
+  (`directus/packages/utils/shared/is-dynamic-variable.ts`: 5 prefix cố định); `:67` pattern số/uuid; `:114` cho qua
+  biến động và `{{ }}`. `InputGroup.vue:265` nút biến `{{ }}` (chỗ đặt nút chọn field). `CollectionRoute.vue:426` và
+  `DrawerCollection.vue:216` bật `include-json-path`; 028 chỉ bật ở CollectionRoute.
+- Directus với `$FIELD`: [Unverified] so với chuỗi nguyên văn; cột text ra 0 dòng, cột số/ngày trên Postgres lỗi ép
+  kiểu. Đo ở lượt 1 như T002 của 023.
+- `tests/parity/src/spec-differences.ts` đọc bảng "Khác biệt so với Directus" của spec (FR-101) để lấy mã D: spec 028
+  phải có bảng đó với D-203 (D-200..D-202 đã dùng ở spec 014 và layout-patterns).
+- Hiệu năng [Inference]: so hai cột không dùng index B-tree, 10 triệu dòng quét bảng; 028 không làm index.
+
 ---
 
 ## 7. Phần chung của `/speckit.plan`
@@ -2290,7 +2418,7 @@ bước khó.
 khuôn có sẵn thì dùng model rẻ hơn.
 
 **Feature lõi** là những feature khó giữ tương thích với Directus nhất: **002, 003, 004, 005, 006, 009, 011** (BE) và
-**013, 014** (FE), **020** và **023** (cả hai).
+**013, 014** (FE), **020**, **023** và **028** (cả hai).
 
 | Bước                    | Feature lõi                                                                                                                                | Feature còn lại                                                                | Lý do                                                                          |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
