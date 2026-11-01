@@ -7,7 +7,16 @@ import { closeHostDb } from '../auth/db-effects.js';
 import { appRequest, appUrl } from '../directus-api.js';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import { capture, type Captured } from '../parity.js';
-import { attachPolicy, cleanup, CreateRole, createPolicy, createShare, uniqueName } from '../permissions/fixtures.js';
+import {
+	attachPolicy,
+	cleanup,
+	CreateRole,
+	createField,
+	createPolicy,
+	createShare,
+	createUserCollection,
+	uniqueName,
+} from '../permissions/fixtures.js';
 import {
 	adminJwt,
 	createGraphqlModel,
@@ -338,5 +347,177 @@ describe('spec 023 D-186: json path filters (Backoffice only)', () => {
 			expect(gate.extensions.code).toBe('INVALID_QUERY');
 			expect(gate.message).toContain('not supported');
 		}
+	});
+});
+
+// Spec 028 (US3, D-205, SC-004): `<f>_field` compare inputs exist at Backoffice only (Directus has no such input), so
+// these documents go to Backoffice and are checked against the REST `$FIELD(b)` value of the same filter at Backoffice.
+describe('spec 028 D-205: field compare filters (Backoffice only)', () => {
+	const INVOICES = `gql_cmp_${run}`;
+	const CUSTOMERS = `gql_cmp_customers_${run}`;
+	const A = 'aaaaaaaa-0000-4000-8000-000000000001';
+	const B = 'bbbbbbbb-0000-4000-8000-000000000002';
+	let invoices: number[] = [];
+
+	beforeAll(async () => {
+		await createUserCollection(CUSTOMERS, [
+			{ field: 'credit', type: 'integer' },
+			{ field: 'balance', type: 'integer' },
+		]);
+
+		await createUserCollection(INVOICES, [
+			{ field: 'title', type: 'string' },
+			{ field: 'slug', type: 'string' },
+			{ field: 'total', type: 'integer' },
+			{ field: 'paid_amount', type: 'integer' },
+			{ field: 'price', type: 'decimal' },
+			// SQLite: Directus adds the special `cast-timestamp` to the field meta, which must exist.
+			{ field: 'published_at', type: 'timestamp', meta: { interface: 'datetime' } },
+			{ field: 'updated_at', type: 'timestamp', meta: { interface: 'datetime' } },
+			{ field: 'active', type: 'boolean' },
+			{ field: 'featured', type: 'boolean' },
+			{ field: 'owner', type: 'uuid' },
+			{ field: 'reviewer', type: 'uuid' },
+		]);
+
+		await createField(INVOICES, { field: 'customer', type: 'integer', meta: { special: ['m2o'] } });
+		await appRequest('directus', 'POST', '/relations', {
+			collection: INVOICES,
+			field: 'customer',
+			related_collection: CUSTOMERS,
+		});
+
+		const customers = (
+			await appRequest('directus', 'POST', `/items/${CUSTOMERS}`, [
+				{ credit: 10, balance: 5 },
+				{ credit: 5, balance: 10 },
+			])
+		).data as { id: number }[];
+
+		invoices = (
+			(
+				await appRequest('directus', 'POST', `/items/${INVOICES}`, [
+					// prettier-ignore
+					{ title: 'Alpha', slug: 'Alpha', total: 100, paid_amount: 60, price: 100, published_at: '2026-01-01T00:00:00Z', updated_at: '2026-02-01T00:00:00Z', active: true, featured: true, owner: A, reviewer: A, customer: customers[0]!.id },
+					// prettier-ignore
+					{ title: 'Beta', slug: 'beta', total: 50, paid_amount: 60, price: 49.5, published_at: '2026-03-01T00:00:00Z', updated_at: '2026-02-01T00:00:00Z', active: true, featured: false, owner: A, reviewer: B, customer: customers[1]!.id },
+					// prettier-ignore
+					{ title: 'Gamma', slug: 'gamma', total: 70, paid_amount: null, price: 70, published_at: null, updated_at: '2026-02-01T00:00:00Z', active: null, featured: false, owner: null, reviewer: B, customer: customers[0]!.id },
+					// prettier-ignore
+					{ title: 'Delta', slug: 'Delta', total: 60, paid_amount: 60, price: 60, published_at: '2026-02-01T00:00:00Z', updated_at: '2026-02-01T00:00:00Z', active: false, featured: false, owner: B, reviewer: B, customer: null },
+				])
+			).data as { id: number }[]
+		).map((row) => row.id);
+	}, 300_000);
+
+	const ids = (captured: Captured, key: string): string[] => {
+		expect((captured.json as any).errors, JSON.stringify((captured.json as any).errors)).toBeUndefined();
+		return (captured.json as any).data[key].map((row: { id: string | number }) => String(row.id));
+	};
+
+	const restIds = async (filter: unknown) => {
+		const rest = await capture(appUrl('backoffice'), {
+			path: `/items/${INVOICES}?sort=id&fields=id&filter=${encodeURIComponent(JSON.stringify(filter))}`,
+			headers: { authorization: `Bearer ${admin}`, 'cache-control': 'no-store' },
+		});
+		expect(rest.status, rest.text).toBe(200);
+		return (rest.json as any).data.map((row: { id: number }) => String(row.id));
+	};
+
+	it('each type group, _or, merged with plain operators, through m2o, aggregate, a mutation: the ids of the REST $FIELD(b) value', async () => {
+		const cases: [string, unknown][] = [
+			['{ total_field: { _gt: { field: "paid_amount" } } }', { total: { _gt: '$FIELD(paid_amount)' } }],
+			['{ total_field: { _lte: { field: "price" } } }', { total: { _lte: '$FIELD(price)' } }],
+			['{ updated_at_field: { _gt: { field: "published_at" } } }', { updated_at: { _gt: '$FIELD(published_at)' } }],
+			['{ title_field: { _eq: { field: "slug" } } }', { title: { _eq: '$FIELD(slug)' } }],
+			['{ active_field: { _neq: { field: "featured" } } }', { active: { _neq: '$FIELD(featured)' } }],
+			['{ owner_field: { _eq: { field: "reviewer" } } }', { owner: { _eq: '$FIELD(reviewer)' } }],
+			[
+				'{ _or: [{ total_field: { _gt: { field: "paid_amount" } } }, { title: { _eq: "Gamma" } }] }',
+				{ _or: [{ total: { _gt: '$FIELD(paid_amount)' } }, { title: { _eq: 'Gamma' } }] },
+			],
+			[
+				'{ total: { _gte: 60 }, total_field: { _gte: { field: "paid_amount" } } }',
+				{ total: { _gte: '$FIELD(paid_amount)' } },
+			],
+			[
+				'{ customer: { credit_field: { _gt: { field: "balance" } } } }',
+				{ customer: { credit: { _gt: '$FIELD(balance)' } } },
+			],
+		];
+
+		for (const [filter, rest] of cases) {
+			const result = await gql('backoffice', 'items', `{ ${INVOICES}(filter: ${filter}, sort: ["id"]) { id } }`, {
+				token: admin,
+			});
+			const got = ids(result, INVOICES);
+			expect(got.length, filter).toBeGreaterThan(0);
+			expect(got, filter).toEqual(await restIds(rest));
+		}
+
+		const aggregated = await gql(
+			'backoffice',
+			'items',
+			`{ ${INVOICES}_aggregated(filter: { total_field: { _gt: { field: "paid_amount" } } }) { count { id } } }`,
+			{ token: admin },
+		);
+		expect(Number((aggregated.json as any).data[`${INVOICES}_aggregated`][0].count.id)).toBe(1);
+
+		// A mutation: the filter keeps the items written to those that match.
+		const update = (field: string) =>
+			gql(
+				'backoffice',
+				'items',
+				`mutation { update_${INVOICES}_items(ids: ["${invoices[0]}", "${invoices[3]}"], filter: { total_field: { _gt: { field: "${field}" } } }, data: { slug: "written" }) { id } }`,
+				{ token: admin },
+			);
+		expect((await update('paid_amount')).json).toEqual({
+			data: { [`update_${INVOICES}_items`]: [{ id: String(invoices[0]) }] },
+		});
+		expect((await update('price')).json).toEqual({ data: { [`update_${INVOICES}_items`]: [] } });
+	});
+
+	it('another type group, a relation name, an unknown field, an operator the type lacks: an error', async () => {
+		const error = async (filter: string) => {
+			const result = await gql('backoffice', 'items', `{ ${INVOICES}(filter: ${filter}) { id } }`, { token: admin });
+			return (result.json as any).errors?.[0];
+		};
+
+		const group = await error('{ total_field: { _gt: { field: "title" } } }');
+		expect(group.extensions.code).toBe('INVALID_QUERY');
+		expect(group.message).toContain('must be a number field like "total"');
+		expect((await error('{ total_field: { _eq: { field: "customer.credit" } } }')).extensions.code).toBe(
+			'INVALID_QUERY',
+		);
+		// An unknown field b fails the path check like an unknown filter key (FR-006).
+		expect((await error('{ total_field: { _eq: { field: "nope" } } }')).extensions.code).toBe('FORBIDDEN');
+		expect((await error('{ active_field: { _gt: { field: "featured" } } }')).extensions.code).toBe('INVALID_QUERY');
+	});
+
+	it('the compare inputs are in the Backoffice schema of the items scope only', async () => {
+		const type = await gql(
+			'backoffice',
+			'items',
+			'{ __type(name: "field_compare_operators") { name inputFields { name type { name } } } }',
+			{
+				token: admin,
+			},
+		);
+		expect((type.json as any).data.__type.inputFields).toEqual(
+			['_eq', '_neq', '_gt', '_gte', '_lt', '_lte'].map((name) => ({ name, type: { name: 'field_ref' } })),
+		);
+
+		const filter = await gql('backoffice', 'items', `{ __type(name: "${INVOICES}_filter") { inputFields { name } } }`, {
+			token: admin,
+		});
+		const names = (filter.json as any).data.__type.inputFields.map((f: { name: string }) => f.name);
+		for (const field of ['total', 'title', 'published_at', 'active', 'owner', 'customer']) {
+			expect(names, field).toContain(`${field}_field`);
+		}
+
+		const system = await gql('backoffice', 'system', '{ __type(name: "field_compare_operators") { name } }', {
+			token: admin,
+		});
+		expect((system.json as any).data.__type).toBeNull();
 	});
 });

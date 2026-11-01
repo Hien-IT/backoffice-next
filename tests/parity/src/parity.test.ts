@@ -238,6 +238,20 @@ describe('compare()', () => {
 		expect(compare('POST /graphql', directus, backoffice)).toEqual([]);
 	});
 
+	test('spec 028 D-205: no ETag compare and types by name when one side has the field compare types', () => {
+		const schema = (types: { name: string }[], etag: string) => {
+			const captured = { ...base, isJson: true, headers: { etag }, json: { data: { __schema: { types } } } };
+			return { ...captured, text: JSON.stringify(captured.json) };
+		};
+		const directus = schema([{ name: 'Query' }, { name: 'ID' }], 'W/"1-a"');
+		const backoffice = schema(
+			[{ name: 'Query' }, { name: 'field_compare_operators' }, { name: 'field_ref' }, { name: 'ID' }],
+			'W/"2-b"',
+		);
+
+		expect(compare('POST /graphql', directus, backoffice)).toEqual([]);
+	});
+
 	test('compares access-control-* headers and Retry-After by format', () => {
 		const a = { ...base, headers: { 'access-control-allow-origin': '*', 'retry-after': '10' } };
 		const b = { ...base, headers: { 'access-control-allow-origin': '*', 'retry-after': '3' } };

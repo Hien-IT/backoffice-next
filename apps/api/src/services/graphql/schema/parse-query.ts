@@ -7,7 +7,7 @@ import { getRelatedCollection } from '../../../database/get-ast-from-query/utils
 import { sanitizeQuery } from '../../../utils/sanitize-query.js';
 import { validateQuery } from '../../../utils/validate-query.js';
 import { filterReplaceM2A, filterReplaceM2ADeep } from '../utils/filter-replace-m2a.js';
-import { replaceFuncs, withJsonPaths } from '../utils/replace-funcs.js';
+import { replaceFuncs, withBackofficeFilters } from '../utils/replace-funcs.js';
 import { parseArgs } from './parse-args.js';
 
 /**
@@ -23,7 +23,7 @@ export async function getQuery(
 	collection?: string,
 ): Promise<Query> {
 	// Backoffice (spec 023, D-186): <f>_json inputs become json(...) keys before sanitizeQuery parses the filter.
-	const query: Query = await sanitizeQuery(withJsonPaths(rawQuery), schema, accountability);
+	const query: Query = await sanitizeQuery(withBackofficeFilters(rawQuery), schema, accountability);
 
 	const parseAliases = (selections: readonly SelectionNode[]) => {
 		const aliases: Record<string, string> = {};
@@ -158,7 +158,10 @@ export async function getQuery(
 					merge(
 						{},
 						get(query.deep, path),
-						mapKeys(await sanitizeQuery(withJsonPaths(args), schema, accountability), (_value, key) => `_${key}`),
+						mapKeys(
+							await sanitizeQuery(withBackofficeFilters(args), schema, accountability),
+							(_value, key) => `_${key}`,
+						),
 					),
 				);
 			}

@@ -2,7 +2,7 @@
 import type { SelectionNode } from 'graphql';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { sanitizeQuery } from '../../../utils/sanitize-query.js';
-import { withJsonPaths } from '../utils/replace-funcs.js';
+import { withBackofficeFilters } from '../utils/replace-funcs.js';
 import { getQuery } from './parse-query.js';
 
 // AST node helpers
@@ -50,7 +50,7 @@ vi.mock('../utils/filter-replace-m2a.js', () => ({
 
 vi.mock('../utils/replace-funcs.js', () => ({
 	replaceFuncs: vi.fn((v) => v),
-	withJsonPaths: vi.fn((v) => v),
+	withBackofficeFilters: vi.fn((v) => v),
 }));
 
 const mockSchema = { relations: [] } as any;
@@ -267,17 +267,19 @@ describe('json path filters', () => {
 		vi.clearAllMocks();
 	});
 
-	test('the query and the field arguments go through withJsonPaths before sanitizeQuery', async () => {
+	test('the query and the field arguments go through withBackofficeFilters before sanitizeQuery', async () => {
 		const mapped = { filter: { 'json(details, a, number)': { _eq: 1 } } };
-		vi.mocked(withJsonPaths).mockImplementation((q: any) => (q.filter ? mapped : q));
+		vi.mocked(withBackofficeFilters).mockImplementation((q: any) => (q.filter ? mapped : q));
 		const rawQuery = { filter: { details_json: { path: 'a', number: { _eq: 1 } } } };
 		const selections = [field('posts', { args: [gqlFilterArg({ details_json: { path: 'b', text: { _eq: 'x' } } })] })];
 
 		await getQuery(rawQuery as any, mockSchema, selections, mockVariableValues, mockAccountability);
 
-		expect(withJsonPaths).toHaveBeenNthCalledWith(1, rawQuery);
+		expect(withBackofficeFilters).toHaveBeenNthCalledWith(1, rawQuery);
 		expect(vi.mocked(sanitizeQuery).mock.calls[0]![0]).toBe(mapped);
-		expect(withJsonPaths).toHaveBeenNthCalledWith(2, { filter: { details_json: { path: 'b', text: { _eq: 'x' } } } });
+		expect(withBackofficeFilters).toHaveBeenNthCalledWith(2, {
+			filter: { details_json: { path: 'b', text: { _eq: 'x' } } },
+		});
 		expect(vi.mocked(sanitizeQuery).mock.calls[1]![0]).toBe(mapped);
 	});
 });

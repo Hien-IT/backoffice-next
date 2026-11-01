@@ -3,8 +3,8 @@
 **Feature Branch**: `028-field-compare-filter` (làm trên `main` như 012–027, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=028-field-compare-filter`)
 **Created**: 2026-11-01
-**Status**: Lượt 1 (API REST, D-203, D-204) và lượt 2 (web, D-206) implement 2026-11-01 trên `main`; lượt 3 (GraphQL)
-chờ (spec và
+**Status**: Implemented 2026-11-01, ba lượt trên `main` (lượt 1 API REST D-203/D-204, lượt 2 web D-206, lượt 3 GraphQL
+D-205 và tài liệu; CI ở lượt đóng feature) (spec và
 clarify 2026-11-01, 5 câu; plan 2026-11-01: research R1–R12, data-model, contracts, quickstart; D-203..D-206 duyệt
 2026-11-01, chủ dự án kiêm tech lead; checklist api-compat và analyze 2026-11-01, phát hiện đã sửa; tasks 41 task ba
 lượt)
@@ -315,6 +315,14 @@ component mới (FR-015, chủ dự án kiêm design owner).
   field cùng nhóm (`total _eq $FIELD(customer)` với FK integer, clarify câu 1).
 - Bộ đối chiếu: D-204 là `doc` vì entry `http` D-185 (cùng endpoint, cùng mã `INVALID_PAYLOAD`) khớp trước.
 - Parity xanh trên Postgres 16, SQLite, MySQL 8 (T009); MySQL so chuỗi không phân biệt hoa thường.
+
+### Kết quả lượt 3 (2026-11-01)
+
+- GraphQL: `field_ref`, `field_compare_operators`, `<f>_field` cho cột của năm nhóm ở scope items (không cho field có
+  tên bắt đầu `__`, để danh sách lỗi schema giống DR); `replaceFieldCompares` gộp với `<f>` có sẵn, `_field` thắng;
+  parity `graphql/read.test.ts` khối 028 (tập id bằng REST cho từng nhóm, `_or`, gộp, m2o, aggregate, mutation; lỗi
+  khác nhóm `INVALID_QUERY`, field không có `FORBIDDEN`); introspection/SDL so qua normalizer (D-205 `doc`).
+- D-206 `doc` ở bộ đối chiếu; README parity, CLAUDE.md, SPECKIT-GUIDE cập nhật.
 
 ### Sửa khi `/speckit.analyze` (2026-11-01, chủ dự án: sửa hết, I1 theo cách a)
 

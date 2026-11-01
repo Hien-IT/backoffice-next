@@ -143,6 +143,15 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   chối ở Backoffice (D-185). GraphQL `<f>_json` (D-186) ở `src/graphql/read.test.ts`, normalizer bỏ type
   `json_path_filter_operators` khỏi introspection/SDL; D-187 là phần web. Request đọc gửi `Cache-Control: no-store` vì
   key cache response dùng chung giữa hai app.
+- `src/items/field-compare.test.ts` (spec 028, bộ `full` và `reduced` trên mọi vendor): giá trị `$FIELD(b)` ở sáu toán tử
+  so sánh so hai field của cùng collection qua `/items`, `SEARCH`, export, aggregate, m2o, quyền đọc trên field b
+  (403 như filter key), permission có `$FIELD` bị từ chối (D-204, entry `http` D-185 nhận). Directus coi giá trị là
+  chuỗi: field số 400, field timestamp/boolean/uuid 500 ở Postgres (MySQL: timestamp 500, boolean/uuid 200), SQLite 200,
+  field chuỗi 200 so chuỗi nguyên văn; bảng `DIRECTUS_STATUS` trong file ghi vendor đã đo, vendor nightly để mở (D-203,
+  `http` theo collection `parity_field_compare_*` với `when` 400 hoặc 500; Directus 200 thì so riêng từng app). MySQL
+  so chuỗi không phân biệt hoa thường (`CASE_INSENSITIVE`). GraphQL `<f>_field: field_compare_operators` với
+  `field_ref { field }` (D-205) ở `src/graphql/read.test.ts`, normalizer bỏ hai type và các field `*_field` khỏi
+  introspection/SDL; D-206 là phần web.
 - `src/items/collection-toggles.test.ts` (spec 024, bộ `full` và `reduced` trên mọi vendor): `bo_show_search`,
   `bo_show_import`, `bo_show_export` tắt chặn API Backoffice. Request đọc (`GET`/`SEARCH /items`, `PATCH`/`DELETE` theo
   query không khớp dòng nào) gửi tới hai app, khác biệt chấp nhận là D-188 (`http`, collection `parity_toggles_*`,

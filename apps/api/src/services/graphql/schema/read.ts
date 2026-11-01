@@ -35,6 +35,10 @@ function subscribeUnavailable(): never {
 	throw new Error('Backoffice: GraphQL subscriptions have no transport (D-17)');
 }
 import { type InconsistentFields, type Schema, SYSTEM_DENY_LIST } from './index.js';
+import {
+	FIELD_COMPARE_OPERATORS,
+	fieldCompareGroup,
+} from '../../../database/run-ast/lib/apply-query/filter/field-compare.js';
 
 /**
  * Create readable types and attach resolvers for each. Also prepares full filter argument structures
@@ -452,6 +456,23 @@ export async function getReadableTypes(
 		},
 	});
 
+	// Backoffice (spec 028, D-205): `<f>_field` compares a field with another field of the same collection; the value
+	// names field b inside `field_ref` (a plain String could not be told from a real field named `<f>_field` when the
+	// input is mapped to the REST value `$FIELD(b)`, research R5).
+	const FieldRef = schemaComposer.createInputTC({
+		name: 'field_ref',
+		fields: {
+			field: {
+				type: new GraphQLNonNull(GraphQLString),
+			},
+		},
+	});
+
+	const FieldCompareFilterOperators = schemaComposer.createInputTC({
+		name: 'field_compare_operators',
+		fields: Object.fromEntries(FIELD_COMPARE_OPERATORS.map((operator) => [operator, { type: FieldRef }])),
+	});
+
 	const subscriptionEventType = schemaComposer.createEnumTC({
 		name: 'EventEnum',
 		values: {
@@ -529,6 +550,20 @@ export async function getReadableTypes(
 				if (field.type === 'json' && gql.scope === 'items' && !(`${field.field}_json` in collection.fields)) {
 					acc[`${field.field}_json`] = {
 						type: JsonPathFilterOperators,
+					};
+				}
+
+				// Backoffice (spec 028, D-205): a column of a type group, items scope only, not over a real field of that name; a
+				// field whose name GraphQL refuses (`__x`) gets none, so the schema errors stay those of DR.
+				if (
+					gql.scope === 'items' &&
+					!field.alias &&
+					fieldCompareGroup(field.type) !== null &&
+					!field.field.startsWith('__') &&
+					!(`${field.field}_field` in collection.fields)
+				) {
+					acc[`${field.field}_field`] = {
+						type: FieldCompareFilterOperators,
 					};
 				}
 

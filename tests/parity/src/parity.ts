@@ -204,7 +204,10 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 	// route has no body to look at). Spec 023 D-186: the same for the json path filter type that only Backoffice has
 	// (its ETag differs, and graphql-js may reach a filter operator type earlier through it).
 	const backofficeCollections =
-		[directus, backoffice].some((c) => BACKOFFICE_TABLE.test(c.text) || c.text.includes(JSON_PATH_TYPE)) ||
+		[directus, backoffice].some(
+			(c) =>
+				BACKOFFICE_TABLE.test(c.text) || c.text.includes(JSON_PATH_TYPE) || c.text.includes('field_compare_operators'),
+		) ||
 		(/^\/server\/specs\/graphql(\/system)?$/.test(path) && directus.text === '' && backoffice.text === '');
 
 	for (const name of [...names].sort()) {

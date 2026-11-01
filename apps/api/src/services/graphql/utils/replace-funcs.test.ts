@@ -1,7 +1,7 @@
 // Backoffice (spec 023, D-186): `<f>_json` GraphQL filter inputs to the REST key json(f, path, type).
 import { InvalidQueryError } from '@backoffice/errors';
 import { describe, expect, test } from 'vitest';
-import { replaceFuncs, replaceJsonPaths } from './replace-funcs.js';
+import { replaceFieldCompares, replaceFuncs, replaceJsonPaths, withBackofficeFilters } from './replace-funcs.js';
 
 describe('replaceJsonPaths', () => {
 	test('top level, each type', () => {
@@ -61,6 +61,86 @@ describe('replaceJsonPaths', () => {
 		expect(replaceJsonPaths(undefined)).toBeUndefined();
 		expect(replaceJsonPaths(null)).toBeNull();
 		expect(replaceJsonPaths('{"a":1}')).toBe('{"a":1}');
+	});
+});
+
+// Backoffice (spec 028, D-205): `<f>_field: { _op: { field } }` to the REST value `$FIELD(b)`.
+describe('replaceFieldCompares', () => {
+	test('top level, each operator', () => {
+		expect(replaceFieldCompares({ total_field: { _gt: { field: 'paid_amount' } } })).toEqual({
+			total: { _gt: '$FIELD(paid_amount)' },
+		});
+		expect(
+			replaceFieldCompares({ total_field: { _eq: { field: 'a' }, _neq: { field: 'b' }, _lte: { field: 'c' } } }),
+		).toEqual({ total: { _eq: '$FIELD(a)', _neq: '$FIELD(b)', _lte: '$FIELD(c)' } });
+	});
+
+	test('merged with the plain operators of the field, the _field operator wins, either order', () => {
+		expect(replaceFieldCompares({ total: { _gte: 1 }, total_field: { _gt: { field: 'paid_amount' } } })).toEqual({
+			total: { _gte: 1, _gt: '$FIELD(paid_amount)' },
+		});
+		expect(replaceFieldCompares({ total: { _gt: 1 }, total_field: { _gt: { field: 'paid_amount' } } })).toEqual({
+			total: { _gt: '$FIELD(paid_amount)' },
+		});
+		expect(replaceFieldCompares({ total_field: { _gt: { field: 'paid_amount' } }, total: { _gt: 1 } })).toEqual({
+			total: { _gt: '$FIELD(paid_amount)' },
+		});
+	});
+
+	test('nested: m2o, _and/_or, _some, arrays, next to other keys and json paths', () => {
+		const filter = {
+			_and: [
+				{ customer: { credit_field: { _gt: { field: 'balance' } } } },
+				{ _or: [{ status: { _eq: 'paid' } }, { updated_at_field: { _gte: { field: 'published_at' } } }] },
+				{ lines: { _some: { qty_field: { _neq: { field: 'shipped' } } } } },
+			],
+		};
+
+		expect(replaceFieldCompares(filter)).toEqual({
+			_and: [
+				{ customer: { credit: { _gt: '$FIELD(balance)' } } },
+				{ _or: [{ status: { _eq: 'paid' } }, { updated_at: { _gte: '$FIELD(published_at)' } }] },
+				{ lines: { _some: { qty: { _neq: '$FIELD(shipped)' } } } },
+			],
+		});
+	});
+
+	test('graphql-js argument objects (null prototype)', () => {
+		const ref = Object.assign(Object.create(null), { field: 'paid_amount' });
+		const ops = Object.assign(Object.create(null), { _gt: ref });
+		const filter = Object.assign(Object.create(null), { total_field: ops });
+
+		expect(replaceFieldCompares(filter)).toEqual({ total: { _gt: '$FIELD(paid_amount)' } });
+	});
+
+	test('a real field whose name ends in _field keeps its scalar operators', () => {
+		expect(replaceFieldCompares({ x_field: { _eq: 'abc' } })).toEqual({ x_field: { _eq: 'abc' } });
+		expect(replaceFieldCompares({ x_field: { _gt: 1, _lt: 5 } })).toEqual({ x_field: { _gt: 1, _lt: 5 } });
+		expect(replaceFieldCompares({ x_field: { _in: [{ field: 'a' }] } })).toEqual({
+			x_field: { _in: [{ field: 'a' }] },
+		});
+		expect(replaceFieldCompares({ x_field: { _null: true } })).toEqual({ x_field: { _null: true } });
+	});
+
+	test('non objects are returned as they are', () => {
+		expect(replaceFieldCompares(undefined)).toBeUndefined();
+		expect(replaceFieldCompares(null)).toBeNull();
+		expect(replaceFieldCompares('x')).toBe('x');
+	});
+});
+
+describe('withBackofficeFilters', () => {
+	test('json paths and field compares of the filter, other query parts untouched', () => {
+		const query: { limit: number; filter?: unknown } = {
+			limit: 1,
+			filter: { details_json: { path: 'a', number: { _eq: 1 } }, total_field: { _gt: { field: 'paid_amount' } } },
+		};
+
+		expect(withBackofficeFilters(query)).toEqual({
+			limit: 1,
+			filter: { 'json(details, a, number)': { _eq: 1 }, total: { _gt: '$FIELD(paid_amount)' } },
+		});
+		expect(withBackofficeFilters({ limit: 1 } as { limit: number; filter?: unknown })).toEqual({ limit: 1 });
 	});
 });
 

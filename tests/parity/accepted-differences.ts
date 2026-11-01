@@ -542,4 +542,18 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'A permission whose row filter or validation compares two fields with $FIELD(b) is refused at Backoffice (400 INVALID_PAYLOAD), saved at Directus; the D-185 http entry (same endpoints and code) accepts the response difference, /backoffice/permissions is Backoffice only (D-189.6).',
 	},
+	{
+		id: 'D-205',
+		feature: '028',
+		kind: 'doc',
+		reason:
+			'GraphQL items scope: <collection>_filter has <f>_field: field_compare_operators (values field_ref { field }) for the columns of a type group at Backoffice only; introspection, SDL and server_specs_graphql are compared without those two types and input fields (withoutBackofficeIntrospection, withoutBackofficeSdl in src/normalizers.ts), with no ETag compare and types by name when one side has them (src/parity.ts).',
+	},
+	{
+		id: 'D-206',
+		feature: '028',
+		kind: 'doc',
+		reason:
+			'The web filter of the Content page offers a field of the same type group as the value of the six comparison operators (picker and chip, stored as $FIELD(b)); the Directus app, the item drawer and the other Backoffice filters do not.',
+	},
 ];

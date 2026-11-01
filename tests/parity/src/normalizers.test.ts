@@ -269,6 +269,89 @@ describe('spec 023 D-186: the json path filter type is left out of the GraphQL s
 	});
 });
 
+describe('spec 028 D-205: the field compare inputs are left out of the GraphQL schema', () => {
+	const directusSdl = [
+		'input articles_filter {',
+		'  total: number_filter_operators',
+		'  x_field: string_filter_operators',
+		'  _and: [articles_filter]',
+		'}',
+		'',
+		'input boolean_filter_operators {',
+		'  _eq: Boolean',
+		'}',
+	].join('\n');
+	const backofficeSdl = [
+		'input articles_filter {',
+		'  total: number_filter_operators',
+		'  total_field: field_compare_operators',
+		'  x_field: string_filter_operators',
+		'  _and: [articles_filter]',
+		'}',
+		'',
+		'input field_ref {',
+		'  field: String!',
+		'}',
+		'',
+		'input field_compare_operators {',
+		'  _eq: field_ref',
+		'  _lte: field_ref',
+		'}',
+		'',
+		'input boolean_filter_operators {',
+		'  _eq: Boolean',
+		'}',
+	].join('\n');
+
+	test('SDL text and server_specs_graphql: the two inputs and the <f>_field lines go, a real x_field stays', () => {
+		expect(normalizeText(backofficeSdl)).toBe(directusSdl);
+		expect(normalizeText(directusSdl)).toBe(directusSdl);
+		expect(normalizeBody('/graphql/system', { data: { server_specs_graphql: backofficeSdl } })).toEqual({
+			data: { server_specs_graphql: directusSdl },
+		});
+	});
+
+	test('introspection: the two types and the input fields of the compare type go, other inputs stay', () => {
+		const compare = { kind: 'INPUT_OBJECT', name: 'field_compare_operators', ofType: null };
+		const body = {
+			data: {
+				__schema: {
+					types: [
+						{
+							name: 'articles_filter',
+							fields: null,
+							inputFields: [
+								{ name: 'total', type: { kind: 'INPUT_OBJECT', name: 'number_filter_operators', ofType: null } },
+								{ name: 'total_field', type: compare },
+								{ name: 'x_field', type: { kind: 'INPUT_OBJECT', name: 'string_filter_operators', ofType: null } },
+							],
+						},
+						{ name: 'field_compare_operators', fields: null, inputFields: [{ name: '_eq' }] },
+						{ name: 'field_ref', fields: null, inputFields: [{ name: 'field' }] },
+					],
+				},
+			},
+		};
+
+		expect(normalizeBody('/graphql', body)).toEqual({
+			data: {
+				__schema: {
+					types: [
+						{
+							name: 'articles_filter',
+							fields: null,
+							inputFields: [
+								{ name: 'total', type: { kind: 'INPUT_OBJECT', name: 'number_filter_operators', ofType: null } },
+								{ name: 'x_field', type: { kind: 'INPUT_OBJECT', name: 'string_filter_operators', ofType: null } },
+							],
+						},
+					],
+				},
+			},
+		});
+	});
+});
+
 describe('tokens', () => {
 	test('classifies empty values, JWTs and 64-character tokens', () => {
 		expect(tokenKind('')).toBe('<empty>');

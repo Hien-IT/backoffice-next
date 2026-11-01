@@ -32,6 +32,12 @@ const schema = new SchemaBuilder()
 		c.field('title').string();
 		c.field('author').m2o('directus_users');
 		c.field('details').json();
+		c.field('total').integer();
+		c.field('published_at').timestamp();
+		c.field('active').boolean();
+		c.field('secret').hash();
+		c.field('tags').o2m('article_tags', 'article_id');
+		c.field('title_field').string();
 	})
 	.collection('directus_users', (c) => {
 		c.field('id').uuid().primary();
@@ -112,6 +118,39 @@ describe('generateSchema', () => {
 		const sdl = await generateSchema(gql({ scope: 'system' }), 'sdl');
 		expect(sdl).not.toContain('json_path_filter_operators');
 		expect(sdl).not.toContain('_json:');
+	});
+
+	// Backoffice (spec 028, D-205): <f>_field on the filter of the columns of a type group, items scope only.
+	test('columns of a type group get <f>_field: field_compare_operators in the items scope only', async () => {
+		const s = (await generateSchema(gql())) as GraphQLSchema;
+		const filter = s.getType('articles_filter') as GraphQLInputObjectType;
+		const fields = filter.getFields();
+
+		for (const field of ['total', 'published_at', 'active', 'author']) {
+			expect(String(fields[`${field}_field`]!.type), field).toBe('field_compare_operators');
+		}
+		// A real field named title_field: no compare input for title; json, hash and alias fields have none.
+		expect(String(fields['title_field']!.type)).toBe('string_filter_operators');
+		for (const field of ['details', 'secret', 'tags', 'id']) {
+			expect(fields[`${field}_field`], field).toBe(field === 'id' ? fields['id_field'] : undefined);
+		}
+		expect(String(fields['id_field']!.type)).toBe('field_compare_operators');
+
+		const operators = s.getType('field_compare_operators') as GraphQLInputObjectType;
+		expect(Object.fromEntries(Object.values(operators.getFields()).map((f) => [f.name, String(f.type)]))).toEqual({
+			_eq: 'field_ref',
+			_neq: 'field_ref',
+			_gt: 'field_ref',
+			_gte: 'field_ref',
+			_lt: 'field_ref',
+			_lte: 'field_ref',
+		});
+		const ref = s.getType('field_ref') as GraphQLInputObjectType;
+		expect(String(ref.getFields()['field']!.type)).toBe('String!');
+
+		const sdl = await generateSchema(gql({ scope: 'system' }), 'sdl');
+		expect(sdl).not.toContain('field_compare_operators');
+		expect(sdl).not.toContain('input field_ref');
 	});
 
 	test('a cached schema is returned without generating again', async () => {

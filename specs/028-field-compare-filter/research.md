@@ -248,6 +248,12 @@ giá trị thường hôm nay, ghi Assumptions; unit test chỉ dùng chuỗi kh
 không phân biệt hoa thường (`title _eq $FIELD(slug)` khớp cả `Beta`/`beta`, `Gamma`/`gamma`), Postgres và SQLite phân
 biệt; test ghi kỳ vọng theo vendor (`CASE_INSENSITIVE`). Vendor nightly chưa chạy (T040).
 
+**Kết quả lượt 3** (2026-11-01): unit `replace-funcs` (gộp, `_field` thắng, bỏ qua field thật `x_field`), `schema/index`
+(`<f>_field` cho integer/timestamp/boolean/uuid/m2o, không cho json/hash/alias, không khi có field thật `<f>_field`,
+không ở scope system); parity Postgres `graphql/read.test.ts` khối 028 và `graphql/schema.test.ts` (sau khi bỏ
+`<f>_field` cho tên bắt đầu `__`: case "field named __x" của 011 so danh sách lỗi schema với DR). T040: vendor nightly
+chưa chạy, chủ dự án quyết định.
+
 ## R11. Hiệu năng
 
 So hai cột không dùng index B-tree của một cột; không tạo index, không case benchmark (SC-006 giữ ngưỡng của scenario

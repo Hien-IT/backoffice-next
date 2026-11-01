@@ -105,6 +105,14 @@ function withoutBackofficeSpecs(body: unknown): unknown {
 /** Spec 023 D-186: the GraphQL input type of a json path filter (Backoffice only). */
 export const JSON_PATH_TYPE = 'json_path_filter_operators';
 
+/** Spec 028 D-205: the GraphQL input types of a field compare filter (Backoffice only). */
+export const FIELD_COMPARE_TYPES = ['field_compare_operators', 'field_ref'];
+
+/** A Backoffice-only GraphQL input type name (D-186, D-205). */
+export function isBackofficeInputType(name: unknown): boolean {
+	return name === JSON_PATH_TYPE || FIELD_COMPARE_TYPES.includes(String(name));
+}
+
 /** Spec 022 D-181, spec 025 D-189.5: the Backoffice system tables Directus sees as plain tables. */
 export const BACKOFFICE_TABLE = /backoffice_(?:migrations|permissions)/;
 
@@ -121,8 +129,8 @@ export function withoutBackofficeIntrospection(body: unknown): unknown {
 	if (!Array.isArray(schema['types'])) return body;
 
 	const named = (value: unknown) =>
-		isObject(value) && (BACKOFFICE_TABLE.test(String(value['name'] ?? '')) || value['name'] === JSON_PATH_TYPE);
-	const jsonPathInput = (value: unknown) => isObject(value) && typeName(value['type']) === JSON_PATH_TYPE;
+		isObject(value) && (BACKOFFICE_TABLE.test(String(value['name'] ?? '')) || isBackofficeInputType(value['name']));
+	const jsonPathInput = (value: unknown) => isObject(value) && isBackofficeInputType(typeName(value['type']));
 	const types = schema['types']
 		.filter((type) => !named(type))
 		.map((type) => {
@@ -265,7 +273,8 @@ export function normalizeText(text: string): string {
  * Spec 023 D-186: also without `input json_path_filter_operators` and the `<f>_json: json_path_filter_operators` lines.
  */
 export function withoutBackofficeSdl(sdl: string): string {
-	if (!BACKOFFICE_TABLE.test(sdl) && !sdl.includes(JSON_PATH_TYPE)) return sdl;
+	if (!BACKOFFICE_TABLE.test(sdl) && !sdl.includes(JSON_PATH_TYPE) && !sdl.includes('field_compare_operators'))
+		return sdl;
 
 	const trailing = /\n*$/.exec(sdl)![0];
 
@@ -278,6 +287,9 @@ export function withoutBackofficeSdl(sdl: string): string {
 			.replace(/^ {2}\w*backoffice_(?:migrations|permissions)\w*[(:][^\n]*\n/gm, '')
 			.replace(/^input json_path_filter_operators \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm, '')
 			.replace(/^ {2}\w+_json: json_path_filter_operators\n/gm, '')
+			// Spec 028 D-205: the two inputs and the `<f>_field` lines.
+			.replace(/^input (?:field_compare_operators|field_ref) \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm, '')
+			.replace(/^ {2}\w+_field: field_compare_operators\n/gm, '')
 			.replace(/\n+$/, '') + trailing
 	);
 }

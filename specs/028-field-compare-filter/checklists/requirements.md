@@ -50,4 +50,7 @@
   contracts/api.md, data-model, tasks T002, T003, T007, T041.
 - Sau implement lượt 1 (2026-11-01): FR-001..FR-007, FR-009..FR-011 có unit (`field-compare`, `operator`, `flatten-filter`,
   hai service permission) và parity ba vendor; D-203 cột Directus là số đo (T002), D-204 là `doc` ở bộ đối chiếu.
+- Sau implement lượt 2 và 3 (2026-11-01): FR-008 có unit (`replace-funcs`, `schema/index`) và parity GraphQL (tập id bằng
+  REST, introspection/SDL qua normalizer); FR-012..FR-015 có unit (`InputGroup`, `InputComponent`), browser (axe) và E2E
+  ba cấu hình; SC-006 đo ở `benchmark-items` sau khi đóng feature (T041).
 - Hành vi Directus với `$FIELD` (D-203, D-203.1) ghi [Unverified], đo ở lượt 1 implement như T002 của 023.

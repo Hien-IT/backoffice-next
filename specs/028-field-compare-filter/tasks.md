@@ -254,32 +254,32 @@ introspection/SDL (`graphql` suite) xanh.
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T031 [P] [US3] Thêm vào `gql/utils/replace-funcs.test.ts`: `replaceFieldCompares` (`{ total_field: { _gt: { field:
+- [X] T031 [P] [US3] Thêm vào `gql/utils/replace-funcs.test.ts`: `replaceFieldCompares` (`{ total_field: { _gt: { field:
       'paid_amount' } } }` → `{ total: { _gt: '$FIELD(paid_amount)' } }`; gộp với `total` có sẵn, `_field` thắng cùng
       toán tử; lồng `_and`/`_or`/mảng/quan hệ; object không đúng dạng (`{ _gt: 'x' }`, khóa lạ) giữ nguyên; `_json` vẫn
       chạy); `withBackofficeFilters` (đổi tên từ `withJsonPaths`, test cũ sửa tên). Chạy đỏ.
-- [ ] T032 [P] [US3] Thêm vào `gql/schema/index.test.ts`: `<collection>_filter` scope items có `total_field`,
+- [X] T032 [P] [US3] Thêm vào `gql/schema/index.test.ts`: `<collection>_filter` scope items có `total_field`,
       `title_field`, `published_at_field`, `active_field`, `owner_field` kiểu `field_compare_operators`; không cho json,
       alias, hash, geometry; không khi có field thật `total_field`; scope system không có; type `field_ref` có
       `field: String!`. Chạy đỏ.
-- [ ] T033 [P] [US3] Thêm khối `describe('spec 028 D-205: field compare filters (Backoffice only)')` vào
+- [X] T033 [P] [US3] Thêm khối `describe('spec 028 D-205: field compare filters (Backoffice only)')` vào
       `parity/graphql/read.test.ts` theo khối 023 (:253): sáu toán tử trên số, chuỗi, timestamp, boolean, uuid; `_or`;
       m2o lồng; `_aggregated`; `update_<c>_items(filter:)`; so tập id với REST (SC-004); lỗi khác nhóm (`INVALID_QUERY`),
       field không có (`FORBIDDEN`/`INVALID_QUERY` theo user), `active_field._gt` (`INVALID_QUERY`). Chạy đỏ.
-- [ ] T034 [P] [US3] Thêm vào `parity/normalizers.test.ts` và `parity/parity.test.ts`: introspection bỏ type
+- [X] T034 [P] [US3] Thêm vào `parity/normalizers.test.ts` và `parity/parity.test.ts`: introspection bỏ type
       `field_compare_operators`, `field_ref` và field `*_field` của type đó (không bỏ field thật `x_field` kiểu khác);
       SDL bỏ hai `input ... {}` và dòng `  <f>_field: field_compare_operators`. Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Sửa `gql/schema/read.ts` theo `contracts/graphql.md`: `FieldRef`, `FieldCompareFilterOperators` sau
+- [X] T035 [US3] Sửa `gql/schema/read.ts` theo `contracts/graphql.md`: `FieldRef`, `FieldCompareFilterOperators` sau
       `JsonPathFilterOperators`; trong vòng lặp field: `gql.scope === 'items'`, `fieldCompareGroup(field.type)`,
       `!field.alias`, không có field thật `<f>_field` → `acc[`${field.field}_field`]`; comment `// Backoffice (spec 028,
       D-205)`. T032 xanh; `gql/schema/*.test.ts` hiện có xanh.
-- [ ] T036 [US3] Sửa `gql/utils/replace-funcs.ts` (`replaceFieldCompares`, `withBackofficeFilters` gọi cả hai rewrite,
+- [X] T036 [US3] Sửa `gql/utils/replace-funcs.ts` (`replaceFieldCompares`, `withBackofficeFilters` gọi cả hai rewrite,
       giữ `replaceJsonPaths`), đổi call site ở `gql/schema/parse-query.ts` (hai chỗ) và `gql/utils/aggregate-query.ts`.
       T031 xanh; `parse-query.test.ts`, `aggregate-query.test.ts` xanh.
-- [ ] T037 [US3] Sửa `parity/normalizers.ts` (`FIELD_COMPARE_TYPES`, `withoutBackofficeIntrospection`,
+- [X] T037 [US3] Sửa `parity/normalizers.ts` (`FIELD_COMPARE_TYPES`, `withoutBackofficeIntrospection`,
       `withoutBackofficeSdl`), thêm D-205 `doc` vào `tests/parity/accepted-differences.ts`; chạy T033, T034 và bộ
       `graphql` (introspection, SDL, `server_specs_graphql`; profile `graphql-nointro` không đổi) trên Postgres; sửa
       tới xanh.
@@ -288,13 +288,13 @@ introspection/SDL (`graphql` suite) xanh.
 
 ## Phase 7: Polish & Cross-Cutting (lượt 3)
 
-- [ ] T038 [P] Thêm D-206 `doc` vào `tests/parity/accepted-differences.ts`; thêm mục `src/items/field-compare.test.ts`
+- [X] T038 [P] Thêm D-206 `doc` vào `tests/parity/accepted-differences.ts`; thêm mục `src/items/field-compare.test.ts`
       (spec 028) vào `tests/parity/README.md` theo mẫu mục 023 (:138).
-- [ ] T039 [P] Tài liệu: `CLAUDE.md` dòng 028 ở Active Technologies ("planned" → "implemented", kết quả T002, câu chữ
+- [X] T039 [P] Tài liệu: `CLAUDE.md` dòng 028 ở Active Technologies ("planned" → "implemented", kết quả T002, câu chữ
       cuối) và mục Recent Changes; `SPECKIT-GUIDE.md` dòng Trạng thái 028 "Đã xong" với commit và run CI;
       `specs/028-field-compare-filter/spec.md` Status + bảng D (câu chữ cuối), `research.md` "Kết quả lượt 1/2/3";
       `checklists/requirements.md` ghi "Sau implement".
-- [ ] T040 [P] Vendor khác (MariaDB, MSSQL, Oracle, CockroachDB): chạy `nightly.yml` thủ công với `field-compare` hoặc
+- [X] T040 [P] (chưa chạy, chủ dự án quyết định; research R10) Vendor khác (MariaDB, MSSQL, Oracle, CockroachDB): chạy `nightly.yml` thủ công với `field-compare` hoặc
       để chủ dự án quyết định như T055 của 023; ghi kết quả (hoặc "chưa chạy") vào `research.md` R10.
 - [ ] T041 Đóng lượt 3: `pnpm nx run-many -t lint,typecheck -p api web parity-tests`; `api:test` `gql/`; parity
       Postgres `graphql` và bộ `full`; `git add` theo đường dẫn; commit `feat(graphql): field compare input and docs
