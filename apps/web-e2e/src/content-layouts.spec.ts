@@ -74,6 +74,17 @@ test('calendar: next month asks the new date range; events of October (US4-2, FR
 	await list;
 
 	await page.goto('/admin/content/bo_content');
+
+	// The fixture events are in October 2026 and the calendar opens on the current month (the run of 2026-11-01 failed
+	// on the first of the month): walk from today to October 2026, one list request per step.
+	const now = new Date();
+	const steps = (2026 - now.getFullYear()) * 12 + (10 - (now.getMonth() + 1));
+	for (let i = 0; i < Math.abs(steps); i++) {
+		const moved = page.waitForRequest((r) => r.url().includes('/items/bo_content?') && r.url().includes('_between'));
+		await page.getByRole('button', { name: steps < 0 ? 'Previous month' : 'Next month' }).click();
+		await moved;
+	}
+
 	await expect(page.getByRole('main').getByText('Content 02').first()).toBeVisible();
 
 	const next = page.waitForRequest((r) => decodeURIComponent(r.url()).includes('"_between":["2026-11-'));
