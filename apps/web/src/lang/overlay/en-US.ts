@@ -97,6 +97,11 @@ export default {
 	json_path_type_boolean: 'Boolean',
 	json_path_invalid: 'Invalid JSON path. Examples: Amount, items[0].sku, items[*].sku',
 	json_path_apply: 'Apply',
+	// Spec 028 (D-206): the field picker of a filter value ($FIELD(b)) on the Content page.
+	field_compare: 'Compare with a field',
+	field_compare_with: 'Compared with {field}',
+	field_compare_value: 'Enter a value',
+	field_compare_missing: 'Field {field} not found',
 	// Spec 025 (D-189.3): the import and export columns of the permission matrix, the Formats tab of their drawer and
 	// the hint of a cell whose bo_show_* toggle is off.
 	import: 'Import',

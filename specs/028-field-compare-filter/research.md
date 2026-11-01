@@ -188,6 +188,14 @@ biến `{{ }}` (:252-269) chỉ với `variableInputEnabled` và `_in/_nin`; `No
 **Alternatives**: mục trong `FieldList` (field b là giá trị, không phải key; FieldList là danh sách key); form riêng
 như `JsonPathForm` (nặng hơn một menu).
 
+**Kết quả lượt 2** (2026-11-01): unit `InputGroup` (16), `InputComponent` (12), browser `SystemFilter` + a11y trang Content
+(axe sạch ở nút, chip và menu mở trên trang; trong harness component Reka ẩn phần còn lại khi menu modal mở nên bỏ axe
+ở bước đó), E2E `content-filter-field-compare.spec.ts` 3/3 ở `proxy-api`, `cors`, `proxy-directus` (Directus 400 với
+field số, layout hiện `INVALID_QUERY` và nút Reset Page Preferences). Hai điểm DR gặp khi viết E2E: treeitem của field
+ngày có nút mở rộng ở đầu nên chọn bằng Enter; Directus 11.17.4 không có `case 'timestamp'` trong
+`getFilterOperatorsForType`, dòng lọc timestamp mở với "Contains" (danh sách mặc định, vẫn có `_gt`..`_lte`), cả hai
+app như nhau. `InputComponent` giữ `onUpdated` của DR nên `aria-invalid` của giá trị bị từ chối không giữ sau render.
+
 ## R7. Bookmark và Directus app (D-203.1) [Unverified]
 
 Bookmark lưu `{"total": {"_gt": "$FIELD(paid_amount)"}}` vào `directus_presets.filter` (JSON tự do, FR-010). Directus

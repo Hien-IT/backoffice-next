@@ -183,6 +183,8 @@ describe('CollectionRoute toggles', () => {
 
 			expect(wrapper.findComponent(SearchInput).props('showSearch')).toBe(true);
 			expect(layoutSearch(wrapper)).toBe('abc');
+			// Spec 028 (D-206): the Content page turns on the field picker of the filter value.
+			expect(wrapper.findComponent(SearchInput).props('includeFieldCompare')).toBe(true);
 		},
 	);
 

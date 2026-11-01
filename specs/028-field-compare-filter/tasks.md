@@ -191,12 +191,12 @@ quyền và D-204 xanh.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T017 [P] [US2] Tạo `web/utils/field-compare.test.ts`: `parseFieldCompare`, `formatFieldCompare`,
+- [X] T017 [P] [US2] Tạo `web/utils/field-compare.test.ts`: `parseFieldCompare`, `formatFieldCompare`,
       `fieldCompareGroup` (cùng case với T003, không có assert schema). Chạy đỏ.
-- [ ] T018 [P] [US2] Tạo `sf/InputComponent.test.ts` (chưa có): field `integer` với `$FIELD(paid_amount)` → không
+- [X] T018 [P] [US2] Tạo `sf/InputComponent.test.ts` (chưa có): field `integer` với `$FIELD(paid_amount)` → không
       `aria-invalid`, emit `input`; `$field(x)` → invalid như nay; `uuid` với `$FIELD(owner)` hợp lệ; `$NOW` vẫn hợp lệ.
       Chạy đỏ.
-- [ ] T019 [P] [US2] Tạo `sf/InputGroup.test.ts` (chưa có; mount với Pinia stores `fields`, `relations` giả như
+- [X] T019 [P] [US2] Tạo `sf/InputGroup.test.ts` (chưa có; mount với Pinia stores `fields`, `relations` giả như
       `SystemFilter.test.ts`): nút `field_compare` chỉ khi `includeFieldCompare` ∧ toán tử trong sáu ∧ field a thuộc nhóm
       (không với `_contains`, field json, không prop); menu liệt kê field cùng nhóm của collection của field a (số:
       `paid_amount`, `price`; không `title`, không field a, không o2m alias), tên hiển thị, `(key)` khi hai field trùng
@@ -204,12 +204,12 @@ quyền và D-204 xanh.
       → chip tên hiển thị, `aria-label` `field_compare_with`; field b không có → chip `text-error-500`, `aria-invalid`,
       `title` `field_compare_missing`; mục `field_compare_value` → emit `null`; field a qua quan hệ (`order.total`) liệt
       kê field của `orders`. Chạy đỏ.
-- [ ] T020 [P] [US2] Thêm vào `sf/SystemFilter.browser.test.ts` và `web/modules/content/a11y.browser.test.ts`: Tab tới
+- [X] T020 [P] [US2] Thêm vào `sf/SystemFilter.browser.test.ts` và `web/modules/content/a11y.browser.test.ts`: Tab tới
       nút, Enter mở menu, mũi tên + Enter chọn, focus về chip; axe không vi phạm với nút, menu, chip, chip lỗi. Chạy đỏ.
-- [ ] T021 [P] [US2] Thêm vào `web/components/SearchInput.test.ts` (prop tới `SystemFilter`), test của
+- [X] T021 [P] [US2] Thêm vào `web/components/SearchInput.test.ts` (prop tới `SystemFilter`), test của
       `web/modules/content/routes/CollectionRoute.vue` (có `include-field-compare`) và
       `web/components/drawers/DrawerCollection.test.ts` (không có). Chạy đỏ.
-- [ ] T022 [P] [US2] Tạo `e2e/content-filter-field-compare.spec.ts` theo `e2e/content-filter-json-path.spec.ts` và
+- [X] T022 [P] [US2] Tạo `e2e/content-filter-field-compare.spec.ts` theo `e2e/content-filter-json-path.spec.ts` và
       research R9: collection `bo_cmp_<config>` (`total`, `paid_amount` integer; `published_at`, `updated_at` timestamp;
       3 dòng) tạo qua API của cấu hình; luồng US2 bằng chuột (Filter → Add Filter → Total → Greater than → nút ⇄ → Paid
       Amount; bảng còn đúng dòng); bằng bàn phím; chip hiện "Paid Amount"; lưu bookmark, tải lại, mở bookmark cùng kết
@@ -219,23 +219,23 @@ quyền và D-204 xanh.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Tạo `web/utils/field-compare.ts` theo `contracts/web.md` (header `// Backoffice (spec 028, D-206)`).
+- [X] T023 [US2] Tạo `web/utils/field-compare.ts` theo `contracts/web.md` (header `// Backoffice (spec 028, D-206)`).
       T017 xanh.
-- [ ] T024 [US2] Sửa `sf/InputComponent.vue` `isValueValid`: `parseFieldCompare(value)` hợp lệ; comment spec 028. T018
+- [X] T024 [US2] Sửa `sf/InputComponent.vue` `isValueValid`: `parseFieldCompare(value)` hợp lệ; comment spec 028. T018
       xanh.
-- [ ] T025 [US2] Sửa `sf/InputGroup.vue` theo `contracts/web.md` và research R6: prop `includeFieldCompare`,
+- [X] T025 [US2] Sửa `sf/InputGroup.vue` theo `contracts/web.md` và research R6: prop `includeFieldCompare`,
       `canCompareField`, `compareFields` (từ `fieldsStore.getFieldsForCollection(fieldInfo.collection)`), nút
       `swap_horiz` + `BoMenu`, chip (bình thường và lỗi), `field_compare_value`; focus về nút/chip khi menu đóng. T019
       xanh.
-- [ ] T026 [US2] Nối prop: `sf/Nodes.vue` (→ `InputGroup`, `Nodes` đệ quy), `sf/SystemFilter.vue` (hai chỗ),
+- [X] T026 [US2] Nối prop: `sf/Nodes.vue` (→ `InputGroup`, `Nodes` đệ quy), `sf/SystemFilter.vue` (hai chỗ),
       `web/components/SearchInput.vue`, `web/modules/content/routes/CollectionRoute.vue` (`include-field-compare`);
       `web/components/drawers/DrawerCollection.vue` không đổi. T021 xanh.
-- [ ] T027 [P] [US2] Thêm bốn khóa `field_compare`, `field_compare_with`, `field_compare_value`,
+- [X] T027 [P] [US2] Thêm bốn khóa `field_compare`, `field_compare_with`, `field_compare_value`,
       `field_compare_missing` vào `web/lang/overlay/en-US.ts` và `web/lang/overlay/vi-VN.ts` theo `contracts/web.md`.
-- [ ] T028 [P] [US2] Thêm gạch đầu dòng "Field compare (spec 028, D-206)" vào recipe Q-7 của
+- [X] T028 [P] [US2] Thêm gạch đầu dòng "Field compare (spec 028, D-206)" vào recipe Q-7 của
       `design-system/docs/component-specs.md` (sau "JSON path form"): nút icon, menu, chip, chip lỗi, bàn phím; không
       component mới, không màu mới.
-- [ ] T029 [US2] Chạy T020 (browser project) và T022 ở ba cấu hình local (`E2E_CONFIG=proxy-api`, `cors`,
+- [X] T029 [US2] Chạy T020 (browser project) và T022 ở ba cấu hình local (`E2E_CONFIG=proxy-api`, `cors`,
       `proxy-directus`, profile `web`); sửa tới xanh.
 - [ ] T030 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e`; `web:test` các file đã sửa (project `unit`
       và `browser`, coverage FE ≥ 60 %); `web:build`; E2E ba cấu hình xanh; `git add` theo đường dẫn; commit `feat(web):

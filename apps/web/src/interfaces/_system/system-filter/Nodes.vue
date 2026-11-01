@@ -79,6 +79,8 @@ interface Props {
 	variableInputEnabled: boolean | undefined;
 	/** Backoffice (spec 023): json path rules can change their path and type. */
 	includeJsonPath?: boolean;
+	/** Backoffice (spec 028, D-206): the value control offers a field of the same type group (`$FIELD(b)`). */
+	includeFieldCompare?: boolean;
 }
 
 // Backoffice: a multi-word name (vue/multi-word-component-names); the template refers to itself by it.
@@ -93,6 +95,7 @@ const props = withDefaults(defineProps<Props>(), {
 	relationalFieldSelectable: true,
 	rawFieldNames: false,
 	includeJsonPath: false,
+	includeFieldCompare: false,
 });
 
 const emit = defineEmits<{
@@ -548,6 +551,8 @@ const POPOVER =
 								:field="element"
 								:collection="collection"
 								:variable-input-enabled="variableInputEnabled"
+								:raw-field-names="rawFieldNames"
+								:include-field-compare="includeFieldCompare"
 								@update:field="replaceNode(index, $event)"
 							/>
 							<span class="ms-auto inline-flex items-center">
@@ -640,6 +645,7 @@ const POPOVER =
 							:raw-field-names="rawFieldNames"
 							:variable-input-enabled="variableInputEnabled"
 							:include-json-path="includeJsonPath"
+							:include-field-compare="includeFieldCompare"
 							@change="$emit('change')"
 							@remove-node="$emit('remove-node', [`${index}.${filterInfo[index]!.name}`, ...$event])"
 							@update:filter="replaceNode(index, { [filterInfo[index]!.name]: $event } as Filter)"

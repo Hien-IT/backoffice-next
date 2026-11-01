@@ -2,15 +2,22 @@
 <script setup lang="ts">
 // Backoffice: icon buttons are buttons with labels (FR-027); `{{ }}` braces of the variable input are text around a
 // compact input.
-import type { FieldFilter } from '@directus/types';
+import type { Field, FieldFilter } from '@directus/types';
 import { clone, get } from 'lodash-es';
 import { computed, nextTick, onBeforeMount, ref, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../../components/BoIcon.vue';
+import BoMenu, { type BoMenuItem } from '../../../components/BoMenu.vue';
 import { useCollection } from '../../../composables/use-collection.ts';
 import { useFakeVersionField } from '../../../composables/use-fake-version-field.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useRelationsStore } from '../../../stores/relations.ts';
+import {
+	fieldCompareGroup,
+	formatFieldCompare,
+	isFieldCompareOperator,
+	parseFieldCompare,
+} from '../../../utils/field-compare.ts';
 import { jsonFilterType, parseJsonPathKey } from '../../../utils/json-path.ts';
 import InputComponent from './InputComponent.vue';
 import { fieldToFilter, getComparator, getField, splitFieldPath } from './utils.ts';
@@ -23,6 +30,9 @@ const props = defineProps<{
 	field: FieldFilter;
 	collection: string;
 	variableInputEnabled?: boolean | undefined;
+	rawFieldNames?: boolean;
+	/** Backoffice (spec 028, D-206): the value control offers a field of the same type group (`$FIELD(b)`). */
+	includeFieldCompare?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -139,6 +149,59 @@ const value = computed<unknown | unknown[]>({
 });
 
 const choices = computed(() => fieldInfo.value?.meta?.options?.['choices'] ?? []);
+
+// Backoffice (spec 028, D-206): with `includeFieldCompare`, the six comparison operators take a field of the same
+// collection and type group as their value (`$FIELD(b)`), picked from a menu; the value shows as a chip with the name
+// of field b (its key when it no longer exists, in the error colour). A typed `$FIELD(b)` is read the same way.
+const fieldKey = computed(() => splitFieldPath(fieldPath.value).at(-1)!);
+const compareGroup = computed(() => fieldCompareGroup(fieldInfo.value?.type));
+
+const canCompareField = computed(
+	() =>
+		!!props.includeFieldCompare &&
+		!isVersionField.value &&
+		parseJsonPathKey(fieldKey.value) === null &&
+		isFieldCompareOperator(comparator.value) &&
+		compareGroup.value !== null,
+);
+
+const compareCollection = computed(() => fieldInfo.value?.collection ?? props.collection);
+
+const compareFields = computed(() =>
+	fieldsStore
+		.getFieldsForCollection(compareCollection.value)
+		.filter((field) => field.field !== fieldKey.value && fieldCompareGroup(field.type) === compareGroup.value),
+);
+
+/** The display name, with the key when another listed field has the same name (clarify 2026-11-01 Q5). */
+function fieldLabel(field: Field): string {
+	if (props.rawFieldNames) return field.field;
+	const twins = compareFields.value.filter((other) => other.name === field.name && other.field !== field.field);
+	return twins.length > 0 ? `${field.name} (${field.field})` : field.name;
+}
+
+const compareWith = computed(() => parseFieldCompare(fieldValue.value));
+
+const compareWithField = computed(() =>
+	compareWith.value === null ? null : fieldsStore.getField(compareCollection.value, compareWith.value),
+);
+
+const compareMissing = computed(() => compareWith.value !== null && compareWithField.value === null);
+const compareLabel = computed(() =>
+	compareWithField.value ? fieldLabel(compareWithField.value) : (compareWith.value ?? ''),
+);
+const chipEl = ref<HTMLButtonElement | null>(null);
+
+const compareItems = computed<BoMenuItem[]>(() => [
+	{ text: t('field_compare_value'), icon: 'edit', onSelect: () => (value.value = null) },
+	...compareFields.value.map((field) => ({
+		text: fieldLabel(field),
+		onSelect: () => {
+			value.value = formatFieldCompare(field.field);
+			nextTick(() => chipEl.value?.focus());
+		},
+	})),
+]);
 const inputRefs = ref<any[]>([]);
 
 function setValueAt(index: number, newVal: any) {
@@ -244,6 +307,12 @@ function useVariableInput() {
 	}
 }
 
+// Spec 028: the chip of a compared field (as the field chip of the rule) and the picker button (as the `{{ }}` one).
+const CHIP =
+	'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-theme-sm whitespace-nowrap hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:hover:bg-white/5 dark:focus-visible:outline-brand-400';
+const PICKER =
+	'inline-flex size-6 items-center justify-center rounded-full text-gray-500 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400';
+
 // DR `.list .value:not(:last-child)::after { content: ',' }`.
 const COMMA = "after:me-1 after:text-gray-500 after:content-[','] dark:after:text-gray-400";
 const BRACES = 'font-mono text-theme-sm text-gray-500 dark:text-gray-400';
@@ -275,13 +344,41 @@ const BRACES = 'font-mono text-theme-sm text-gray-500 dark:text-gray-400';
 
 	<template v-else>
 		<template v-if="['_eq', '_neq', '_lt', '_gt', '_lte', '_gte'].includes(comparator)">
-			<InputComponent
-				:is="interfaceType"
-				:choices="choices"
-				:type="fieldInfo?.type ?? 'unknown'"
-				:value="value as ScalarValue"
-				@input="value = $event"
-			/>
+			<!-- Backoffice (spec 028, D-206): a chip for `$FIELD(b)`, else the value control and the field picker. -->
+			<BoMenu v-if="canCompareField && compareWith !== null" :items="compareItems">
+				<template #trigger>
+					<button
+						ref="chipEl"
+						type="button"
+						:class="[
+							CHIP,
+							compareMissing ? 'text-error-500 dark:text-error-400' : 'text-brand-500 dark:text-brand-400',
+						]"
+						:aria-label="t('field_compare_with', { field: compareLabel })"
+						:aria-invalid="compareMissing ? 'true' : undefined"
+						:title="compareMissing ? t('field_compare_missing', { field: compareWith }) : t('field_compare')"
+					>
+						<BoIcon name="swap_horiz" size="sm" />
+						{{ compareLabel }}
+					</button>
+				</template>
+			</BoMenu>
+			<template v-else>
+				<InputComponent
+					:is="interfaceType"
+					:choices="choices"
+					:type="fieldInfo?.type ?? 'unknown'"
+					:value="value as ScalarValue"
+					@input="value = $event"
+				/>
+				<BoMenu v-if="canCompareField" :items="compareItems">
+					<template #trigger>
+						<button type="button" :class="PICKER" :aria-label="t('field_compare')" :title="t('field_compare')">
+							<BoIcon name="swap_horiz" size="sm" />
+						</button>
+					</template>
+				</BoMenu>
+			</template>
 		</template>
 		<template
 			v-else-if="

@@ -13,6 +13,7 @@ import { useI18n } from 'vue-i18n';
 import BoDatePicker from '../../../components/BoDatePicker.vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoMenu, { type BoMenuItem } from '../../../components/BoMenu.vue';
+import { parseFieldCompare } from '../../../utils/field-compare.ts';
 import { getInterface } from '../../index.ts';
 
 type Choice = {
@@ -112,6 +113,11 @@ function isValueValid(value: any): boolean {
 	}
 
 	if (isDynamicVariable(value) || /^{{\s*?\S+?\s*?}}$/.test(value)) {
+		return true;
+	}
+
+	// Backoffice (spec 028, D-206): `$FIELD(b)` compares with another field, whatever the pattern of the type.
+	if (parseFieldCompare(value) !== null) {
 		return true;
 	}
 

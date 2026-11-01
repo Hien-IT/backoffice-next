@@ -1322,6 +1322,16 @@ Built: `components/SearchInput.vue`, `components/FieldList.vue`,
   above the popover like the Select of the tabular options) and a small primary Button `json_path_apply`; Enter in the
   input applies; an invalid path shows the error and adds nothing. The rule chip of a json path reads
   `Field › path (Type)` and, with `includeJsonPath`, opens the same form prefilled; elsewhere it is plain text.
+- Field compare (spec 028, D-206; owner as design owner 2026-11-01: built from this recipe, no new component recipe):
+  with `includeFieldCompare` (Content page only) the value control of `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte` on a
+  number, string, boolean, uuid or date field gets a picker icon Button `swap_horiz` (`size-6` round, `aria-label`
+  `field_compare`, the classes of the `{{ }}` toggle) after the input; it opens a BoMenu with `field_compare_value`
+  ("Enter a value") first and then the fields of the same type group of the collection of the field, by display name
+  (the key in parentheses when two share a name). A chosen field replaces the input by a chip button (`font-mono
+  text-theme-sm text-brand-500`, the `swap_horiz` icon, the classes of the rule's field chip, `aria-label`
+  `field_compare_with`) that opens the same menu; a field that no longer exists shows its key in `text-error-500` with
+  `aria-invalid` and the `field_compare_missing` title. The value is stored as `$FIELD(<key>)`; typed by hand it is read
+  the same way; without the prop (item drawer, policies, flows, insights) it stays a plain value in the input.
 
 ### Page header controls (Q-8; bookmark, version menu, save split button, notices)
 

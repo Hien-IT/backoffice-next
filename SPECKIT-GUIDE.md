@@ -2254,7 +2254,7 @@ Ghi chú đưa vào spec và plan 027 (đọc code ngày 2026-10-29):
 
 ### 028: Filter so sánh hai field của cùng collection
 
-Trạng thái: specify, clarify (5 câu), plan (research R1–R12), checklist api-compat (26 mục), tasks (41 task, ba lượt), analyze (6 phát hiện đã sửa) chạy 2026-11-01, docs commit 668f98d6; D-203..D-206 duyệt 2026-11-01; **lượt 1 (API REST, T001–T016) implement 2026-11-01** (parity xanh Postgres, SQLite, MySQL; Directus đo ở T002: số 400, chuỗi 200 so chuỗi, timestamp/boolean/uuid 500 ở Postgres, 200 ở SQLite, MySQL 500/200/200); tiếp theo `/speckit.implement` lượt 2 (web). Soạn 2026-11-01 từ câu hỏi của chủ dự án ("thêm filter field a eq field b ở trang Content");
+Trạng thái: specify, clarify (5 câu), plan (research R1–R12), checklist api-compat (26 mục), tasks (41 task, ba lượt), analyze (6 phát hiện đã sửa) chạy 2026-11-01, docs commit 668f98d6; D-203..D-206 duyệt 2026-11-01; **lượt 1 (API REST, T001–T016) implement 2026-11-01** (parity xanh Postgres, SQLite, MySQL; Directus đo ở T002: số 400, chuỗi 200 so chuỗi, timestamp/boolean/uuid 500 ở Postgres, 200 ở SQLite, MySQL 500/200/200); **lượt 2 (web, T017–T030) implement 2026-11-01** (unit, browser, E2E 3 cấu hình xanh local); tiếp theo `/speckit.implement` lượt 3 (GraphQL + tài liệu). Soạn 2026-11-01 từ câu hỏi của chủ dự án ("thêm filter field a eq field b ở trang Content");
 sáu câu chốt ở bảng cuối mục, code đọc ngày 2026-11-01 ở phần "Ghi chú". Thư mục: `specs/028-field-compare-filter/`.
 Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi" (chạm apply-query, permissions, GraphQL schema như
 023). Không sửa constitution (Nguyên tắc III cho phép khác biệt API khi ghi theo Nguyên tắc X), không thêm dependency,

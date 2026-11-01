@@ -89,6 +89,8 @@ describe('DrawerCollection', () => {
 	test('the search bar of the drawer turns on the JSON path entry', async () => {
 		const wrapper = await mountDrawer();
 		expect(wrapper.findComponent(SearchInput).props('includeJsonPath')).toBe(true);
+		// Spec 028 (D-206): the field picker of the filter value is for the Content page only.
+		expect(wrapper.findComponent(SearchInput).props('includeFieldCompare')).toBe(false);
 	});
 
 	test('default columns: first 4 visible fields (sorted), sort field, limit 25, page 1; title and subtitle', async () => {

@@ -417,13 +417,15 @@ function clearFilters() {
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 
-				<!-- Backoffice (spec 023, D-187): "JSON path" under json fields of the filter. -->
+				<!-- Backoffice (spec 023, D-187): "JSON path" under json fields of the filter; spec 028 (D-206): a field of the
+				     same type group as the filter value. -->
 				<SearchInput
 					v-model="search"
 					v-model:filter="filter"
 					:collection="collection"
 					:show-search="showSearch"
 					include-json-path
+					include-field-compare
 				/>
 
 				<template v-if="selection.length > 0">

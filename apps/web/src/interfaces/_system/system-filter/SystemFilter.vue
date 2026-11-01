@@ -52,6 +52,8 @@ interface Props {
 	rawEditorEnabled?: boolean;
 	/** Backoffice (spec 023, D-187): offer "JSON path" under json fields (Content page and item drawer only). */
 	includeJsonPath?: boolean;
+	/** Backoffice (spec 028, D-206): the value control offers a field of the same type group (Content page only). */
+	includeFieldCompare?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -68,6 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
 	relationalFieldSelectable: true,
 	rawFieldNames: false,
 	includeJsonPath: false,
+	includeFieldCompare: false,
 });
 
 const emit = defineEmits<{ input: [value: Filter | null] }>();
@@ -252,6 +255,7 @@ const POPOVER =
 				:raw-field-names="rawFieldNames"
 				:variable-input-enabled="rawEditorEnabled"
 				:include-json-path="includeJsonPath"
+				:include-field-compare="includeFieldCompare"
 				@remove-node="removeNode($event)"
 				@change="emitValue"
 			/>

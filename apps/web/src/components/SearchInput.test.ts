@@ -12,7 +12,7 @@ vi.mock('../interfaces/_system/system-filter/SystemFilter.vue', () => ({
 	__esModule: true,
 	default: {
 		name: 'SystemFilter',
-		props: ['value', 'collectionName', 'inline', 'includeJsonPath'],
+		props: ['value', 'collectionName', 'inline', 'includeJsonPath', 'includeFieldCompare'],
 		template: '<div class="system-filter" />',
 	},
 }));
@@ -210,6 +210,27 @@ describe('Backoffice', () => {
 			await flushPromises();
 
 			expect(wrapper.findComponent({ name: 'SystemFilter' }).props('includeJsonPath')).toBe(expected);
+			wrapper.unmount();
+		}
+	});
+
+	// Spec 028 (D-206): only the Content page turns on the field picker of the filter value.
+	it('includeFieldCompare goes to the filter, off by default', async () => {
+		for (const [props, expected] of [
+			[{}, false],
+			[{ includeFieldCompare: true }, true],
+		] as const) {
+			const wrapper = mount(SearchInput, {
+				props: { modelValue: null, collection: 'bo_std', ...props },
+				global,
+				attachTo: document.body,
+			});
+
+			await wrapper.find('.search-input').trigger('click');
+			await wrapper.find('.icon-filter').trigger('click');
+			await flushPromises();
+
+			expect(wrapper.findComponent({ name: 'SystemFilter' }).props('includeFieldCompare')).toBe(expected);
 			wrapper.unmount();
 		}
 	});

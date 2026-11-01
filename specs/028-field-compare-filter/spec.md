@@ -3,7 +3,8 @@
 **Feature Branch**: `028-field-compare-filter` (làm trên `main` như 012–027, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=028-field-compare-filter`)
 **Created**: 2026-11-01
-**Status**: Lượt 1 (API REST, D-203, D-204) implement 2026-11-01 trên `main`; lượt 2 (web) và 3 (GraphQL) chờ (spec và
+**Status**: Lượt 1 (API REST, D-203, D-204) và lượt 2 (web, D-206) implement 2026-11-01 trên `main`; lượt 3 (GraphQL)
+chờ (spec và
 clarify 2026-11-01, 5 câu; plan 2026-11-01: research R1–R12, data-model, contracts, quickstart; D-203..D-206 duyệt
 2026-11-01, chủ dự án kiêm tech lead; checklist api-compat và analyze 2026-11-01, phát hiện đã sửa; tasks 41 task ba
 lượt)

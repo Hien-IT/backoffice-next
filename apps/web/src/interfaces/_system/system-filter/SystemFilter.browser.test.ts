@@ -145,3 +145,78 @@ test('JSON path: field list → form → Apply with the keyboard; no serious axe
 		),
 	);
 });
+
+// Spec 028 (D-206, FR-012, FR-015): the field picker of a comparison value with the keyboard only (picker → menu → chip
+// → menu → "Enter a value"), and axe on the picker, the open menu and the chip, light and dark.
+test('field compare: picker → menu → chip with the keyboard; no serious axe violation, light and dark', async () => {
+	const { default: axe } = await import('axe-core');
+	const idName = useFieldsStore().getField('bo_content', 'id')!.name;
+
+	const CompareHarness = defineComponent(() => {
+		const value = ref<Record<string, any> | null>({ _and: [{ sort: { _gt: 1 } }] });
+
+		return () =>
+			h('div', [
+				h(SystemFilter, {
+					value: value.value,
+					collectionName: 'bo_content',
+					includeFieldCompare: true,
+					onInput: (v: Record<string, any> | null) => (value.value = v),
+				}),
+				h('pre', { class: 'json' }, JSON.stringify(value.value)),
+			]);
+	});
+
+	mount(CompareHarness, {
+		global: {
+			plugins: [i18n, createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: {} }] })],
+		},
+		attachTo: document.body,
+	});
+
+	async function noSeriousViolation(step: string) {
+		for (const scheme of ['light', 'dark']) {
+			document.documentElement.classList.toggle('dark', scheme === 'dark');
+			const results = await axe.run(document.body, {
+				runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
+			});
+			const serious = results.violations
+				.filter((v) => v.impact === 'serious' || v.impact === 'critical')
+				.flatMap((v) => v.nodes.map((n) => `${step} ${scheme} ${v.id}: ${n.target.join(' ')}`));
+			expect(serious).toEqual([]);
+		}
+		document.documentElement.classList.remove('dark');
+	}
+
+	const picker = document.querySelector<HTMLElement>('[aria-label="Compare with a field"]')!;
+	expect(picker).not.toBeNull();
+	await noSeriousViolation('picker');
+
+	picker.focus();
+	await userEvent.keyboard('{Enter}');
+	await vi.waitFor(() => expect(document.querySelector('[role="menu"]')).not.toBeNull());
+	// No axe here: Reka hides the harness behind the open modal menu (aria-hidden-focus on the rule list); the open menu
+	// is scanned on the real page in modules/content/a11y.browser.test.ts (spec 028). End: the last item (the field).
+	await userEvent.keyboard('{End}');
+	await vi.waitFor(() => expect(document.activeElement?.textContent).toContain(idName));
+	await userEvent.keyboard('{Enter}');
+
+	await vi.waitFor(() =>
+		expect(document.querySelector('.json')!.textContent).toBe(
+			JSON.stringify({ _and: [{ sort: { _gt: '$FIELD(id)' } }] }),
+		),
+	);
+	await vi.waitFor(() => expect(document.activeElement?.getAttribute('aria-label')).toBe(`Compared with ${idName}`));
+	await noSeriousViolation('chip');
+
+	// From the chip back to a typed value.
+	await userEvent.keyboard('{Enter}');
+	await vi.waitFor(() => expect(document.querySelector('[role="menu"]')).not.toBeNull());
+	await userEvent.keyboard('{Home}');
+	await vi.waitFor(() => expect(document.activeElement?.textContent).toContain('Enter a value'));
+	await userEvent.keyboard('{Enter}');
+	await vi.waitFor(() =>
+		expect(document.querySelector('.json')!.textContent).toBe(JSON.stringify({ _and: [{ sort: { _gt: null } }] })),
+	);
+	await vi.waitFor(() => expect(document.activeElement?.getAttribute('aria-label')).toBe('Value'));
+}, 30_000);

@@ -320,6 +320,35 @@ describe('collection page', () => {
 
 		await bothSchemes();
 	}, 30_000);
+
+	// Spec 028 (D-206): the field picker of a comparison value, its menu and the chip of the compared field.
+	test('spec 028 D-206: the filter popover with the field menu open and the compared field chip', async () => {
+		await mountPage('/content/bo_content');
+		await vi.waitFor(() => expect(document.querySelector('tbody tr')).not.toBeNull(), { timeout: 10000 });
+		await userEvent.click(document.querySelector<HTMLElement>('.search-input .icon-filter')!);
+		await userEvent.click(await found(() => byText('button', t('interfaces.filter.add_filter'))));
+
+		// Sort (integer): the default operator is Equals, so the picker shows.
+		await userEvent.click(
+			await found(() => byText('[role="treeitem"] .truncate', 'Sort')?.closest<HTMLElement>('[role="treeitem"]')),
+		);
+		await userEvent.click(
+			await found(() => document.querySelector<HTMLElement>('[aria-label="Compare with a field"]')),
+		);
+		await found(() => document.querySelector('[role="menu"]'));
+		await settle();
+		await bothSchemes();
+
+		const idName = useFieldsStore().getField('bo_content', 'id')!.name;
+		await userEvent.click(
+			await found(() =>
+				[...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) => el.textContent?.includes(idName)),
+			),
+		);
+		await found(() => document.querySelector('[aria-label^="Compared with"]'));
+		await settle();
+		await bothSchemes();
+	}, 30_000);
 });
 
 describe('item page', () => {

@@ -27,10 +27,13 @@ const props = withDefaults(
 		placeholder?: string | undefined;
 		/** Backoffice (spec 023, D-187): "JSON path" under json fields of the filter (Content page and item drawer). */
 		includeJsonPath?: boolean;
+		/** Backoffice (spec 028, D-206): the filter value control offers a field of the same type group (Content page). */
+		includeFieldCompare?: boolean;
 	}>(),
 	{
 		showSearch: true,
 		includeJsonPath: false,
+		includeFieldCompare: false,
 		showFilter: true,
 		collection: undefined,
 		filter: null,
@@ -230,6 +233,7 @@ const collisionBoundary = computed(() => drawerBody?.value ?? null);
 					:value="filter"
 					:collection-name="collection"
 					:include-json-path="includeJsonPath"
+					:include-field-compare="includeFieldCompare"
 					@input="emit('update:filter', $event)"
 				/>
 			</PopoverContent>
