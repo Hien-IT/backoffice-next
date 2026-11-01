@@ -241,6 +241,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 026 | Backoffice chạy cạnh Directus chỉ ở domain riêng (bỏ chế độ chung domain của 019)                               | 019, 020, 025 | Deploy |
 | 027 | Khóa chính uuid tự sinh dùng UUID v7 thay cho v4                                                                | 005, 021  | BE     |
 | 028 | Filter so sánh hai field của cùng collection ($FIELD(b) ở vế phải; Content, /items, /graphql)                  | 005, 011, 014, 023 | BE, FE |
+| 029 | Đăng nhập bằng Passkey (WebAuthn) cho user local; bảng backoffice_passkeys; chỉ Backoffice                      | 003, 012, 015, 022 | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -2378,6 +2379,136 @@ Ghi chú đưa vào spec và plan 028 (đọc code ngày 2026-11-01, chưa chạ
 - `tests/parity/src/spec-differences.ts` đọc bảng "Khác biệt so với Directus" của spec (FR-101) để lấy mã D: spec 028
   phải có bảng đó với D-203 (D-200..D-202 đã dùng ở spec 014 và layout-patterns).
 - Hiệu năng [Inference]: so hai cột không dùng index B-tree, 10 triệu dòng quét bảng; 028 không làm index.
+
+---
+
+### 029: Đăng nhập bằng Passkey (WebAuthn)
+
+Trạng thái: `/speckit.specify` và `/speckit.clarify` (4 câu) chạy 2026-11-01 (spec + checklists/requirements.md,
+D-207..D-207.4 chờ duyệt); plan và các bước sau chưa chạy. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("nếu thêm đăng nhập bằng Passkey cho Backoffice được không");
+sáu câu chốt ở bảng cuối mục, code đọc ngày 2026-11-01 ở phần "Ghi chú". Thư mục: `specs/029-passkey-login/`.
+Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại"; riêng lượt 1 (chạm
+`AuthenticationService.login` của 003) chạy `/speckit.implement` ở effort xhigh. Không sửa constitution: bảng
+`backoffice_passkeys` đi qua migration riêng (Nguyên tắc II từ 3.2.0), khác biệt API ghi theo Nguyên tắc X. Thêm hai
+dependency MIT (chủ dự án duyệt 2026-11-01): `@simplewebauthn/server` 14.0.3 (API, Node >= 20) và
+`@simplewebauthn/browser` 14.0.0 (web). Không DDL ngoài migration riêng, không biến môi trường mới (RP ID và origin lấy
+từ `PUBLIC_URL`).
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Ảnh hưởng tới Directus** (không sửa code, cấu hình hay DB của Directus):
+
+- Directus 11.17.4 không có passkey (không có WebAuthn trong `directus/api/src`, `directus/app/src`). Chỉ app Backoffice
+  đăng nhập được bằng passkey; trên Directus app user đó vẫn dùng mật khẩu (+ OTP).
+- Session do passkey tạo là một dòng `directus_sessions` và cookie giống login local (cùng `SECRET`, cùng
+  `SESSION_COOKIE_*`), nên Directus app ở cùng domain cookie đọc được session đó như mọi session khác.
+- Directus chỉ thấy thêm bảng `backoffice_passkeys` (bảng chưa quản lý trong Data Model, như `backoffice_permissions`);
+  normalizer parity đã bỏ `backoffice_*` ở `/collections`, OAS, GraphQL (022, 025).
+- `GET /auth` (danh sách provider) không đổi: passkey không phải provider, user vẫn `provider = default`.
+
+**Code port từ Directus bị sửa** (mỗi chỗ ghi comment `Backoffice (spec 029, D-207)` theo Nguyên tắc IX, giữ dòng
+`Ported from` ở đầu file): `services/authentication.service.ts` (tách phần tạo session của `login`, xem Ghi chú),
+`controllers/users.controller.ts` hoặc `UsersService.deleteMany` (xóa passkey theo user, như 025 xóa
+`backoffice_permissions` theo policy), `libs/system-data/src/collections/collections.yaml` (`backoffice_passkeys` là
+collection hệ thống ẩn), web `routes/login/LoginForm.vue`, `modules/users/routes/UserItemRoute.vue`. Không chạm: auth
+drivers (local, ldap, oauth2, openid), `TFAService`, refresh/logout, permissions, flows, extensions, GraphQL.
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/029-passkey-login và đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. Feature 029: đăng nhập app Backoffice bằng passkey (WebAuthn, FIDO2) cho user local. Bối cảnh: Directus 11.17.4 và Backoffice chỉ có đăng nhập mật khẩu (+ OTP), LDAP, OAuth2, OpenID; Directus không có passkey, nên đây là tính năng chỉ của Backoffice (như 022, 025, 027), Directus app vẫn đăng nhập bằng mật khẩu. Mục tiêu: user đăng ký một hoặc nhiều passkey trên trang user của chính mình, rồi trên trang login bấm "Đăng nhập bằng Passkey", trình duyệt hỏi passkey (Touch ID, Windows Hello, khóa FIDO, iCloud Keychain, Google Password Manager), không cần gõ email, mật khẩu hay OTP; session tạo ra giống hệt login local (cùng cookie, cùng dòng directus_sessions, cùng activity login, cùng sự kiện auth.login) nên mọi phần còn lại của app và Directus app cùng DB dùng được session đó. Phạm vi đã chốt (chủ dự án 2026-11-01): 1. Passkey thay cả mật khẩu lẫn OTP: user có TFA bật hay role bắt buộc TFA (enforce_tfa) vẫn vào được bằng passkey mà không bị hỏi OTP và không bị đưa tới màn hình bắt cài TFA; passkey là hai yếu tố (thiết bị + sinh trắc/PIN). 2. Chỉ user provider = default (local) và status = active được đăng ký và đăng nhập bằng passkey; user LDAP/SSO không thấy phần passkey và API từ chối; passkey cho họ do IdP lo, không thuộc Backoffice. 3. Đăng nhập passkey thất bại (credential không biết, chữ ký sai, counter lùi) đếm vào auth_login_attempts của user tương ứng như mật khẩu sai, cùng giới hạn, cùng khóa tài khoản (suspended), cùng thời gian chờ chống dò (LOGIN_STALL_TIME), cùng thông báo lỗi chung không lộ user có tồn tại hay không; credential không gắn với user nào thì lỗi chung và không đếm. 4. Quản lý passkey: trên trang user của chính mình có phần "Passkeys" liệt kê passkey (tên do user đặt, ngày tạo, lần dùng cuối), thêm passkey (xác nhận lại mật khẩu hiện tại trước khi đăng ký, như bật TFA), đổi tên, xóa; admin mở trang user khác thấy danh sách và xóa được từng passkey của người đó mà không cần mật khẩu (giống admin tắt TFA của user khác), không thêm hộ; user thường không xem được passkey của người khác. 5. Không có đăng ký passkey trên màn hình login, invite, setup hay reset mật khẩu; user phải đăng nhập bằng mật khẩu lần đầu rồi mới thêm passkey. 6. Xóa user thì passkey của user đó bị xóa (Backoffice); Directus xóa user thì dòng passkey mồ côi bị bỏ qua khi đọc và không đăng nhập được. Dữ liệu: bảng hệ thống mới backoffice_passkeys qua migration riêng của Backoffice (Nguyên tắc II: chỉ bảng tiền tố backoffice_, chỉ up, chạy trên 7 vendor, chạy lại được; không FK tới directus_users như 025 không FK tới directus_policies); mỗi dòng: id (uuid v4 như collection hệ thống, 027), user, credential id, public key, bộ đếm chữ ký, transports, tên thiết bị, ngày tạo, lần dùng cuối, có phải discoverable; collection hệ thống ẩn (403 trên /items, không có trong GraphQL, ngoài Data Model) như backoffice_permissions. Đăng nhập passkey dùng discoverable credential (resident key) để không cần gõ email; passkey đăng ký phải là discoverable và yêu cầu xác minh người dùng (user verification required). Trang login: nút passkey chỉ hiện khi trình duyệt hỗ trợ WebAuthn; không hỗ trợ thì form login như cũ; hủy hộp thoại của trình duyệt thì quay về form, không báo lỗi đỏ; lỗi xác minh thì thông báo chung như sai mật khẩu. Gắn với domain: passkey gắn với hostname của PUBLIC_URL (RP ID); đổi domain là passkey đã đăng ký không dùng được nữa (ghi vào spec và deploy/README); cần HTTPS trừ localhost. Cấu hình cross-site của profile web (trang web ở origin khác API) là câu hỏi mở cho clarify: origin nào được chấp nhận khi xác minh. Đăng ký và xác minh dùng challenge một lần, sống ngắn, không dùng lại được, dùng chung giữa các replica (nhiều instance, Nguyên tắc VII). Khác biệt với Directus ghi từ D-207, chủ dự án duyệt theo Nguyên tắc X (bảng "Khác biệt so với Directus" theo FR-101 để tests/parity/src/spec-differences.ts đọc được): D-207 Backoffice có endpoint passkey dưới tiền tố /backoffice/ (D-189.6), Directus trả 404; D-207.1 GET /collections, OAS, introspection khác ở backoffice_passkeys (đã có normalizer backoffice_*); D-207.2 xóa user ở Backoffice xóa thêm dòng backoffice_passkeys; D-207.3 user bị role bắt buộc TFA đăng nhập bằng passkey không bị bắt cài TFA. Parity: suite tests/parity/src/auth/passkey.test.ts (Directus 404 trên các endpoint mới, mọi request login/refresh/logout khác vẫn giống Directus, session passkey refresh được ở cả hai app cùng DB), dump bảng ở profile bootstrap có backoffice_passkeys. E2E: chỉ chromium, giả lập authenticator qua CDP (WebAuthn.enable, addVirtualAuthenticator với resident key và user verification), firefox/webkit bỏ qua spec passkey; ba cấu hình proxy-directus (nút passkey ẩn hoặc báo không hỗ trợ vì API là Directus), proxy-api, cors. Chuỗi en-US và vi-VN mới ở overlay. Ngoài phạm vi: passkey cho user LDAP/SSO, đăng ký từ màn hình login hay invite, passkey thay cho OTP khi đăng nhập bằng mật khẩu (passkey làm yếu tố thứ hai), bắt buộc passkey theo policy, đồng bộ hay nhập xuất passkey, đăng nhập passkey trên Directus app, static token, conditional UI (autofill) ở ô email.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. Bỏ qua được: phạm vi đã chốt 2026-11-01 (thay mật khẩu lẫn OTP, chỉ user local active, đếm auth_login_attempts, admin xóa được, không đăng ký từ login/invite, xóa user xóa passkey). Hỏi nếu spec chưa rõ: origin chấp nhận ở cấu hình cross-site (trang web ở origin khác PUBLIC_URL: lấy theo Origin của request nếu nằm trong CORS_ORIGIN, hay chỉ PUBLIC_URL); user có TFA bật đăng nhập bằng passkey thì token có enforce_tfa không (D-207.3 nói không); đổi tên passkey có cần mật khẩu không (đề xuất không, chỉ thêm mới cần); số passkey tối đa mỗi user (đề xuất 10); counter lùi (replay) thì chỉ từ chối hay vô hiệu passkey đó (đề xuất từ chối và đếm attempt, không tự xóa); activity login và sự kiện auth.login ghi provider gì (đề xuất "default" và payload có passkey: true để flow phân biệt); user bị suspended do dò passkey có mở lại giống dò mật khẩu không (đề xuất giống hệt). Ghi "Clarifications" vào spec; D-207.x cập nhật theo câu trả lời.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-207+ và hai dependency)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. Phần chung BE/FE như mục 7. Đọc trước: apps/api/src/services/authentication.service.ts (login: getUserID → kiểm status/provider → rate limiter auth_login_attempts → provider.login → OTP → tạo token, dòng directus_sessions, activity, last_access, auth.login; refresh; logout), apps/api/src/auth/drivers/local.ts, apps/api/src/controllers/auth.controller.ts (cookie session mode, response của POST /auth/login), apps/api/src/controllers/users.controller.ts (/users/me/tfa/*, /users/:pk/tfa/disable: mẫu cho endpoint của mình và của admin), apps/api/src/services/backoffice-permissions.service.ts và controller /backoffice/permissions (D-189.6, mẫu service của bảng backoffice_*), apps/api/src/database/backoffice-migrations/20261028A-create-backoffice-permissions.ts (mẫu migration riêng, hasTable + try/catch), libs/system-data/src/collections/collections.yaml (collection hệ thống ẩn), apps/api/src/lock/lib/use-lock.ts (createKv của @backoffice/memory: Redis khi có, local khi không; dùng cho challenge một lần với TTL), apps/api/src/auth/drivers/openid.ts (PUBLIC_URL làm gốc URL), web: apps/web/src/routes/login/LoginForm.vue và composable login của store auth, apps/web/src/composables/use-tfa-setup.ts (requestTFASetup với mật khẩu, adminDisableTFA), apps/web/src/interfaces/_system/system-mfa-setup/SystemMfaSetup.vue (hộp thoại xác nhận mật khẩu, nhánh admin), apps/web/src/modules/users/routes/UserItemRoute.vue (chỗ đặt card Passkeys, cách 022 D-182 thêm card chỉ ở web không có dòng directus_fields), apps/web-e2e/src/login.spec.ts, users-tfa-token.spec.ts, perf.spec.ts (newCDPSession). Quyết định kỹ thuật cần ghi ở plan: 1. Tách phần sau provider.login của AuthenticationService.login thành một hàm tạo session dùng chung (rate limiter, OTP bỏ qua, token, directus_sessions, activity, last_access, auth.login, stall) để login passkey gọi với user đã xác minh, không gọi getUserID/provider.login; login mật khẩu không đổi hành vi (test 003 và parity auth phải xanh nguyên). 2. Endpoint: POST /backoffice/auth/passkey/login/options (public, trả challenge + rpId, không lộ danh sách credential vì discoverable), POST /backoffice/auth/passkey/login (public, body là assertion + mode session/json như /auth/login, set cookie như local), POST /backoffice/users/me/passkeys/options (cần session, body password, trả challenge đăng ký), POST /backoffice/users/me/passkeys (lưu), GET /backoffice/users/me/passkeys, PATCH/DELETE /backoffice/users/me/passkeys/:id, GET/DELETE /backoffice/users/:pk/passkeys(/:id) cho admin; mọi endpoint ngoài /backoffice/ không đổi. 3. Challenge trong kv của @backoffice/memory (namespace riêng, TTL 5 phút, xóa khi dùng), khóa theo challenge id ngẫu nhiên trả cho client, không theo session. 4. RP ID = hostname của PUBLIC_URL; expectedOrigin theo kết quả clarify (PUBLIC_URL, hoặc Origin trong CORS_ORIGIN). 5. Lưu public key và credential id dạng base64url trong cột text, transports JSON, counter integer; đọc bằng Knex trực tiếp hay ItemsService với accountability admin (như BackofficePermissionsService) tùy cái nào ít code hơn; không FK. 6. Xóa user: xóa passkey trong UsersService.deleteMany/deleteOne theo mẫu 025 cascade. 7. Web: nút passkey trong LoginForm.vue (hiện khi window.PublicKeyCredential có và API không phải Directus: kiểm bằng request options trả 404 → ẩn), @simplewebauthn/browser cho startAuthentication/startRegistration, card "Passkeys" trong UserItemRoute.vue theo mẫu card D-150 với BoTable hoặc danh sách, hộp thoại BoDialog cho mật khẩu và tên; en-US/vi-VN ở overlay. 8. Parity: tests/parity/src/auth/passkey.test.ts với vitest + @simplewebauthn/server tự ký (hoặc fixture assertion), D-207 http; dump profile bootstrap. 9. E2E chromium CDP virtual authenticator (protocol internal, ctap2, hasResidentKey, hasUserVerification, isUserVerified) trong spec users-passkey.spec.ts và login-passkey.spec.ts, grep bỏ qua ở firefox/webkit như cách 015 bỏ qua theo project. 10. Rủi ro ghi ở plan: thư viện @simplewebauthn ESM thuần, kiểm chạy trong bundle API và trong vitest; cookie SameSite và origin ở cors; đồng hồ replica không ảnh hưởng (challenge trong Redis). Kết quả: research.md R1–R?, data-model.md (backoffice_passkeys), contracts (OpenAPI của các endpoint /backoffice/), quickstart.md.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. security: challenge một lần và hết hạn, user verification bắt buộc, counter không lùi, rate limit và stall giống mật khẩu, không lộ user tồn tại, admin không thêm hộ, đăng ký cần mật khẩu, origin/RP ID đúng, xóa user xóa passkey, 403 cho user LDAP/SSO và cho /items/backoffice_passkeys. api-compat: mọi endpoint ngoài /backoffice/ giống Directus, session passkey refresh/logout được ở cả hai app, D-207.x ghi đủ trong bảng FR-101, normalizer backoffice_* đủ cho bảng mới, migration chạy lại được trên 7 vendor.
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. Chia hai lượt: lượt 1 API (migration backoffice_passkeys + test chạy lại, collection hệ thống ẩn, tách hàm tạo session, service + controller /backoffice/auth/passkey và /backoffice/users/*/passkeys, rate limit, challenge kv, xóa theo user, unit test, parity passkey.test.ts, dump bootstrap, deploy/README mục RP ID); lượt 2 web (nút login, card Passkeys, hộp thoại mật khẩu và tên, admin xóa, strings, E2E chromium CDP ba cấu hình, a11y). Mỗi lượt kết thúc bằng lint, unit, parity liên quan và commit thẳng main sau khi CI của commit trước xanh (không stage apps/api/project.json, apps/web/project.json).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. Lượt 1: API (migration, collection hệ thống, tách tạo session, endpoint /backoffice/auth/passkey và /backoffice/users/*/passkeys, rate limit, challenge kv, xóa theo user, parity, README). Comment theo Nguyên tắc IX ("DR"), mỗi chỗ sửa code port ghi `Backoffice (spec 029, D-207)`. Chạy lint, unit API, parity auth và passkey trước khi commit; commit thẳng main khi CI của commit trước xanh; không stage apps/api/project.json, apps/web/project.json.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=029-passkey-login khi chạy script .specify. Lượt 2: Web (nút passkey ở LoginForm.vue, card Passkeys ở UserItemRoute.vue, hộp thoại mật khẩu/tên, admin xóa, overlay en-US/vi-VN) với E2E chromium CDP ở ba cấu hình và a11y; cập nhật spec 012/015 ghi chú "(029: ...)" ở login và trang user; đóng spec (Status, D-207.x duyệt). Commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Quyết định của chủ dự án (2026-11-01):
+
+| Câu hỏi                           | Chốt                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Làm không, tên                    | Có; spec 029 `passkey-login`, chỉ Backoffice, bảng `backoffice_passkeys`, không sửa constitution              |
+| Dependency                        | Duyệt `@simplewebauthn/server` 14.0.3 và `@simplewebauthn/browser` 14.0.0 (MIT)                               |
+| Passkey thay gì                   | Cả mật khẩu lẫn OTP; user có TFA hay role `enforce_tfa` vào bằng passkey không bị hỏi OTP                     |
+| User nào                          | Chỉ `provider = default`, `status = active`; LDAP/SSO để IdP tự lo, Backoffice không làm                      |
+| Rate limit                        | Thất bại đếm vào `auth_login_attempts`, dùng lại limiter và stall của login                                   |
+| Quản lý                           | Trang user của mình: xem, thêm (cần mật khẩu), đổi tên, xóa; admin xóa được passkey của user khác như tắt TFA |
+| Discoverable (mặc định, chưa hỏi) | Bắt buộc resident key + user verification, login không cần gõ email                                           |
+| RP ID/origin (clarify câu 1)       | Chỉ `PUBLIC_URL`; cross-site không có passkey, app web ẩn nút và card khi hostname của trang khác RP ID       |
+| Counter lùi (clarify câu 2)        | Từ chối + đếm attempt, passkey giữ nguyên; chỉ kiểm khi bộ đếm đã lưu > 0                                     |
+| `auth.login` (clarify câu 3)       | `provider = default`, `payload.passkey = true`                                                                |
+| Quản lý (clarify câu 4)            | Tối đa 10; chỉ thêm mới cần mật khẩu, đổi tên và xóa chỉ xác nhận                                             |
+
+Ghi chú đưa vào spec và plan 029 (đọc code ngày 2026-11-01, chưa chạy thử):
+
+- `AuthenticationService.login` (`apps/api/src/services/authentication.service.ts:59`) chạy `provider.getUserID` → đọc
+  user → `status !== 'active' || provider !== providerName` → InvalidCredentials (`:131`) → limiter
+  `auth_login_attempts` (`:143`–`:194`, suspend khi hết lượt) → `provider.login` (kiểm argon2 ở `local.ts:36`) → OTP
+  (`:207`–`:223`) → token, `enforce_tfa` khi role bắt buộc và chưa có `tfa_secret` (`:239`–`:255`) → dòng
+  `directus_sessions` (`:288`), activity LOGIN (`:300`), `last_access`, `auth.login` success, reset limiter, stall.
+  Passkey phải vào sau bước `provider.login` với user đã xác minh; tách hàm là chỗ sửa duy nhất của file.
+- Admin tắt TFA của user khác: `POST /users/:pk/tfa/disable` (`users.controller.ts:419`), web `use-tfa-setup.ts:123`;
+  mẫu cho "admin xóa passkey của user khác".
+- Bật TFA cần mật khẩu hiện tại (`requestTFASetup` trong `use-tfa-setup.ts`, hộp thoại trong `SystemMfaSetup.vue`); dùng
+  lại kiểu hộp thoại đó cho "thêm passkey".
+- `system-mfa-setup` gắn vào field `tfa_secret` của `libs/system-data/src/fields/users.yaml:94`; passkey không có field
+  trong `directus_users`, nên card Passkeys thêm ở web như D-182 (không thêm dòng `directus_fields`,
+  `GET /fields/directus_users` không đổi).
+- Kv: `createKv` của `@backoffice/memory` (`apps/api/src/lock/lib/use-lock.ts:21`, Redis khi cấu hình, `local` khi
+  không); challenge đặt ở đó để nhiều replica dùng chung.
+- `PUBLIC_URL` đã là gốc URL của OpenID (`openid.ts:485`, `:515`, `:584`); RP ID lấy hostname của nó, không thêm biến.
+- Migration riêng mẫu `20261028A` (`hasTable` rồi `createTable` trong try/catch cho race không khóa); collection hệ
+  thống ẩn khai báo ở `collections.yaml:129`–`:134` (`backoffice_migrations`, `backoffice_permissions`).
+- E2E: `apps/web-e2e/src/perf.spec.ts:13` đã dùng `context.newCDPSession(page)`; CDP `WebAuthn.addVirtualAuthenticator`
+  chỉ có ở chromium (và msedge), nên spec passkey grep theo project như 015. Cấu hình `cors` chạy ở origin
+  `localhost:8181` tới API `127.0.0.1:8163` (`playwright.config.ts:5`): WebAuthn lấy origin của trang web, không phải
+  của API, nên câu hỏi origin ở clarify.
+- Parity: `tests/parity/src/spec-differences.ts` đọc bảng "Khác biệt so với Directus" của spec (FR-101) để lấy mã D;
+  spec 029 phải có bảng đó với D-207 (D-203..D-206 đã dùng ở spec 028).
+- [Unverified] `@simplewebauthn/server` 14 chạy trong bundle API (ESM, Node 22) và trong vitest; `npm view` ngày
+  2026-11-01: server 14.0.3 (engines node >= 20, MIT), browser 14.0.0 (MIT). Thử ở R1 của plan trước khi viết code.
+- [Inference] Nhiều passkey cùng user và chọn tài khoản ở hộp thoại trình duyệt đều do discoverable credential lo; API
+  chỉ cần tra credential id → user; không cần endpoint "tìm user theo email" nên không lộ user tồn tại.
 
 ---
 
