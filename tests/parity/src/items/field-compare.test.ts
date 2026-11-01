@@ -24,8 +24,9 @@ const ORDERS = `parity_field_compare_${run}`;
 const CUSTOMERS = `parity_field_compare_customers_${run}`;
 
 const vendor = getDbsToTest()[0] ?? 'postgres';
-// MySQL and MariaDB compare strings without case by default (utf8mb4 collation), research R10.
-const CASE_INSENSITIVE = vendor === 'mysql' || vendor === 'maria';
+// MySQL, MariaDB and MSSQL compare strings without case by default (their collations), research R10 (nightly
+// 41279396637 for MSSQL).
+const CASE_INSENSITIVE = ['mysql', 'mysql5', 'maria', 'mssql'].includes(vendor);
 
 const json = (value: unknown) => encodeURIComponent(JSON.stringify(value));
 
@@ -224,7 +225,8 @@ describe(`$FIELD(b) on ${vendor}`, () => {
 			CASE_INSENSITIVE ? ['Alpha', 'Beta', 'Delta', 'Gamma'] : ['Alpha', 'Delta'],
 		);
 		expect(names((await at('backoffice', neq)).body)).toEqual(CASE_INSENSITIVE ? [] : ['Beta', 'Gamma']);
-		expect(names((await at('backoffice', text)).body)).toEqual(['Alpha', 'Delta']);
+		// Oracle stores `text` as CLOB, which no `=` can compare (ORA-00932 at both apps, as for a plain text filter).
+		if (vendor !== 'oracle') expect(names((await at('backoffice', text)).body)).toEqual(['Alpha', 'Delta']);
 
 		const directusEq = await at('directus', eq);
 		expect(directusEq.status).toBe(200);

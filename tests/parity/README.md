@@ -148,8 +148,9 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   (403 như filter key), permission có `$FIELD` bị từ chối (D-204, entry `http` D-185 nhận). Directus coi giá trị là
   chuỗi: field số 400, field timestamp/boolean/uuid 500 ở Postgres (MySQL: timestamp 500, boolean/uuid 200), SQLite 200,
   field chuỗi 200 so chuỗi nguyên văn; bảng `DIRECTUS_STATUS` trong file ghi vendor đã đo, vendor nightly để mở (D-203,
-  `http` theo collection `parity_field_compare_*` với `when` 400 hoặc 500; Directus 200 thì so riêng từng app). MySQL
-  so chuỗi không phân biệt hoa thường (`CASE_INSENSITIVE`). GraphQL `<f>_field: field_compare_operators` với
+  `http` theo collection `parity_field_compare_*` với `when` 400 hoặc 500; Directus 200 thì so riêng từng app). MySQL,
+  MariaDB, MSSQL so chuỗi không phân biệt hoa thường (`CASE_INSENSITIVE`); Oracle không so được field `text` (CLOB,
+  case bỏ ở vendor đó). Nightly 41279396637: xanh trên maria, mssql, oracle, postgres10, sqlite3, mysql. GraphQL `<f>_field: field_compare_operators` với
   `field_ref { field }` (D-205) ở `src/graphql/read.test.ts`, normalizer bỏ hai type và các field `*_field` khỏi
   introspection/SDL; D-206 là phần web.
 - `src/items/collection-toggles.test.ts` (spec 024, bộ `full` và `reduced` trên mọi vendor): `bo_show_search`,

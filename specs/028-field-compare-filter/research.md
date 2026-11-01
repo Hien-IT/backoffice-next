@@ -246,7 +246,11 @@ giá trị thường hôm nay, ghi Assumptions; unit test chỉ dùng chuỗi kh
 
 **Kết quả T009** (2026-11-01): `field-compare.test.ts` xanh trên Postgres 16, SQLite và MySQL 8 (29 case); MySQL so chuỗi
 không phân biệt hoa thường (`title _eq $FIELD(slug)` khớp cả `Beta`/`beta`, `Gamma`/`gamma`), Postgres và SQLite phân
-biệt; test ghi kỳ vọng theo vendor (`CASE_INSENSITIVE`). Vendor nightly chưa chạy (T040).
+biệt; test ghi kỳ vọng theo vendor (`CASE_INSENSITIVE`). Nightly 41279396637 (T040, 2026-11-01, chủ dự án yêu cầu): `field-compare.test.ts` 29/29 trên sqlite3, maria, mysql,
+postgres10; mssql 28/29 (collation không phân biệt hoa thường như MySQL → `CASE_INSENSITIVE` thêm mssql); oracle 28/29
+(`title _eq $FIELD(body)`: `text` là CLOB, ORA-00932 như filter chuỗi thường → case bỏ ở Oracle); cockroachdb: `env-up`
+không lên, không đo. GraphQL `read.test.ts` xanh ở 5 vendor, Oracle hỏng ở setup chung của 011 (không phải 028). Các
+file đỏ khác của nightly là của những feature trước (nightly đang tắt lịch vì vậy).
 
 **Kết quả lượt 3** (2026-11-01): unit `replace-funcs` (gộp, `_field` thắng, bỏ qua field thật `x_field`), `schema/index`
 (`<f>_field` cho integer/timestamp/boolean/uuid/m2o, không cho json/hash/alias, không khi có field thật `<f>_field`,
