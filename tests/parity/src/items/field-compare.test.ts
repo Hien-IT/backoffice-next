@@ -23,7 +23,7 @@ const run = Math.random().toString(16).slice(2, 10);
 const ORDERS = `parity_field_compare_${run}`;
 const CUSTOMERS = `parity_field_compare_customers_${run}`;
 
-const [vendor] = getDbsToTest();
+const vendor = getDbsToTest()[0] ?? 'postgres';
 // MySQL and MariaDB compare strings without case by default (utf8mb4 collation), research R10.
 const CASE_INSENSITIVE = vendor === 'mysql' || vendor === 'maria';
 
@@ -142,11 +142,12 @@ async function compared(path: string, answer: DirectusAnswer | number, auth = to
 	return result;
 }
 
-async function filtered(filter: Record<string, unknown>, directusStatus = 400, extra = ''): Promise<string[]> {
-	const result = await compared(
-		`/items/${ORDERS}?fields=title&limit=-1&filter=${json(filter)}${extra}`,
-		directusStatus,
-	);
+async function filtered(
+	filter: Record<string, unknown>,
+	answer: DirectusAnswer = 'number',
+	extra = '',
+): Promise<string[]> {
+	const result = await compared(`/items/${ORDERS}?fields=title&limit=-1&filter=${json(filter)}${extra}`, answer);
 	expect(result.backoffice.status, result.backoffice.text).toBe(200);
 	return titles(result);
 }
@@ -188,19 +189,19 @@ const CASES: [string, Record<string, unknown>, string[], DirectusAnswer][] = [
 		'm2o: two fields of the related collection',
 		{ customer: { credit: { _gt: '$FIELD(balance)' } } },
 		['Alpha', 'Gamma'],
-		400,
+		'number',
 	],
 	[
 		'_or with a plain condition',
 		{ _or: [{ total: { _gt: '$FIELD(paid_amount)' } }, { title: { _eq: 'Gamma' } }] },
 		['Alpha', 'Gamma'],
-		400,
+		'number',
 	],
 	[
 		'_and with a plain condition',
 		{ _and: [{ total: { _gte: '$FIELD(paid_amount)' } }, { active: { _eq: true } }] },
 		['Alpha'],
-		400,
+		'number',
 	],
 	['spaces inside the parentheses', { total: { _gt: '$FIELD( paid_amount )' } }, ['Alpha'], 'number'],
 	['a field with itself', { total: { _eq: '$FIELD(total)' } }, ['Alpha', 'Beta', 'Delta', 'Gamma'], 'number'],
