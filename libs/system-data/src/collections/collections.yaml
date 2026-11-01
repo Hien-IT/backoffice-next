@@ -133,3 +133,8 @@ data:
   # backoffice_migrations (403 on /items, not in GraphQL); written through /backoffice/permissions.
   - collection: backoffice_permissions
     hidden: true
+
+  # Backoffice (spec 029, D-207.1): the passkeys of local users, a hidden system collection like backoffice_permissions
+  # (403 on /items, not in GraphQL); written through /backoffice/users/*/passkeys only.
+  - collection: backoffice_passkeys
+    hidden: true

@@ -34,6 +34,16 @@ lập trong Vitest trước khi viết service]:
 - Web: `browserSupportsWebAuthn()`, `startRegistration({ optionsJSON })`, `startAuthentication({ optionsJSON })`; hủy
   hộp thoại ném `WebAuthnError`/`DOMException` tên `NotAllowedError`.
 
+**Kết quả T001** (2026-11-01): `pnpm-lock.yaml` thêm `@simplewebauthn/server@14.0.3` và 22 gói phụ thuộc (dựng tay từ
+HEAD vì `pnpm install` lật peer `typescript` của `vue` sang 6.0.3, bẫy đã biết; `pnpm install --frozen-lockfile` qua);
+`pnpm audit --prod`: không advisory nào qua cây này. Tên trường đúng như trên: `generateRegistrationOptions({ rpName,
+rpID, userName, userID: Uint8Array, attestationType, authenticatorSelection, excludeCredentials })`, kết quả đăng ký
+`registrationInfo.{ credential: { id, publicKey, counter, transports }, credentialDeviceType, credentialBackedUp }`,
+`verifyAuthenticationResponse({ ..., credential })` → `authenticationInfo.newCounter`; `options.user.id` là base64url của
+`userID`. Thư viện tự ném khi counter lùi (`newCounter <= counter` với một trong hai > 0), thiếu UV khi
+`requireUserVerification`, origin khác `expectedOrigin`. Bài thử nằm ở `tests/parity/src/auth/webauthn-fake.test.ts`
+(authenticator giả T020 + thư viện thật, 4 test xanh) thay cho `pk/spike.test.ts` tạm.
+
 **Alternatives considered**: `fido2-lib` (ít bảo trì, API cũ), `passport-fido2-webauthn` (gắn passport, không có
 trong app), tự viết (bác vì bảo mật).
 
@@ -173,6 +183,10 @@ URL with a host name"). `expectedOrigin = origin` duy nhất; `rpName = settings
 
 **Alternatives considered**: Origin trong `CORS_ORIGIN` (chủ dự án bác, clarify câu 1); biến `BACKOFFICE_PASSKEY_RP_ID`
 (bác: không cần, Nguyên tắc VIII).
+
+**Kết quả T002** (2026-11-01, Playwright chromium của `apps/web-e2e`): trang `http://localhost:<port>` với `rp.id =
+'localhost'` tạo và dùng được credential discoverable (`userHandle` có); `http://127.0.0.1:<port>` với `rp.id =
+'127.0.0.1'` → `SecurityError: This is an invalid domain.` Giữ quyết định tắt passkey khi hostname là IP.
 
 ## R6. Bảng `backoffice_passkeys`, migration `20261101A`, collection hệ thống ẩn
 
@@ -320,6 +334,10 @@ nhưng origin khác cổng → xác minh 401. **Không cấu hình E2E hiện c�
 - Ở `proxy-directus` (API là Directus → 404) và `cors` (hostname `localhost` ≠ RP ID... thực tế `PUBLIC_URL`
   `127.0.0.1:8163` là IP → API trả 404) các spec chỉ kiểm nút và card ẩn.
 - Cookie: `SESSION_COOKIE_SAME_SITE` mặc định `strict`, trang và API cùng origin qua proxy nên không đổi.
+
+**Kết quả T002**: `WebAuthn.enable` + `WebAuthn.addVirtualAuthenticator({ options: { protocol: 'ctap2', transport:
+'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true } })`
+chạy đúng tên option; `WebAuthn.getCredentials` trả credential đã tạo.
 
 **Alternatives considered**: đổi `PUBLIC_URL` của `backoffice-api` chính sang `http://localhost:8162` (bác: dùng chung env
 với Directus cho parity, lệch `/server/specs/oas` và redirect); E2E chỉ ở `dev` (bác: không có trong CI); nới origin

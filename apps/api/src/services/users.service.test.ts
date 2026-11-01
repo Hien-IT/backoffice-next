@@ -7,6 +7,7 @@ import type { Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createAuthDb } from '../../test/directus-db.js';
 import { clearSystemCache } from '../cache.js';
+import { up as upPasskeys } from '../database/backoffice-migrations/20261101A-create-backoffice-passkeys.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
 import { getDatabaseSchema } from '../schema/get-database-schema.js';
 import { UsersService } from './users.service.js';
@@ -113,6 +114,28 @@ describe('deleteMany', () => {
 		expect((await db('directus_comments').first()).user_updated).toBeNull();
 		expect((await db('directus_notifications').first()).sender).toBeNull();
 		expect((await db('directus_versions').first()).user_updated).toBeNull();
+	});
+
+	// Backoffice (spec 029, D-207.2): no foreign key, so the passkeys of the deleted users are deleted here.
+	test('deletes the backoffice_passkeys rows of the deleted users, keeps the others', async () => {
+		await upPasskeys(db);
+		await service().createOne({ email: 'keeper@example.com', role: ADMIN_ROLE });
+		const gone = String(await service().createOne({ email: 'gone@example.com' }));
+		const kept = String(await service().createOne({ email: 'kept@example.com' }));
+
+		const passkey = (id: string, user: string) => ({ id, user, credential_id: id, public_key: 'k', name: 'n' });
+		await db('backoffice_passkeys').insert([passkey('p1', gone), passkey('p2', gone), passkey('p3', kept)]);
+
+		await service().deleteMany([gone]);
+
+		expect((await db('backoffice_passkeys').select('id')).map((r) => r.id)).toEqual(['p3']);
+	});
+
+	test('without the backoffice_passkeys table (migration not run) the delete still works', async () => {
+		await service().createOne({ email: 'keeper@example.com', role: ADMIN_ROLE });
+		const id = String(await service().createOne({ email: 'gone@example.com' }));
+
+		await expect(service().deleteOne(id)).resolves.toBe(id);
 	});
 
 	test('the last admin: 422 UNPROCESSABLE_CONTENT, the user is kept', async () => {

@@ -37,6 +37,14 @@ let loginAttemptsLimiter: RateLimiterAbstract | undefined;
 
 const useLoginAttemptsLimiter = () => (loginAttemptsLimiter ??= createRateLimiter('RATE_LIMITER', { duration: 0 }));
 
+/** Backoffice (spec 029): the auth.login action emitter of a login, shared by finishLogin. */
+export type LoginStatusEmitter = (
+	status: 'fail' | 'success',
+	loginPayload: any,
+	loginUser: User | undefined,
+	error?: unknown,
+) => void;
+
 export class AuthenticationService {
 	knex: Knex;
 	accountability: Accountability | null;
@@ -64,8 +72,6 @@ export class AuthenticationService {
 			session: boolean;
 		}>,
 	): Promise<LoginResult> {
-		const { nanoid } = await import('nanoid');
-
 		const env = useEnv();
 		const STALL_TIME = env['LOGIN_STALL_TIME'] as number;
 		const timeStart = performance.now();
@@ -135,6 +141,32 @@ export class AuthenticationService {
 			throw loginError;
 		}
 
+		const allowedAttempts = await this.consumeLoginAttempt(user);
+
+		try {
+			await provider.login(clone(user), cloneDeep(updatedPayload));
+		} catch (err) {
+			emitStatus('fail', updatedPayload, user, err);
+			await stall(STALL_TIME, timeStart);
+			throw err;
+		}
+
+		return this.finishLogin(user, updatedPayload, {
+			providerName,
+			otp: options?.otp,
+			session: options?.session,
+			allowedAttempts,
+			timeStart,
+			emitStatus,
+		});
+	}
+
+	/**
+	 * Backoffice (spec 029, D-207, research R2): the auth_login_attempts step of login, verbatim, shared with the passkey
+	 * login. Suspends the user when the attempts run out; a 503 when the limiter is unreachable. Returns the allowed
+	 * attempts (null = no limit) for finishLogin.
+	 */
+	async consumeLoginAttempt(user: User): Promise<number | null> {
 		const settingsService = new SettingsService({
 			knex: this.knex,
 			schema: this.schema,
@@ -196,29 +228,47 @@ export class AuthenticationService {
 			}
 		}
 
-		try {
-			await provider.login(clone(user), cloneDeep(updatedPayload));
-		} catch (err) {
-			emitStatus('fail', updatedPayload, user, err);
-			await stall(STALL_TIME, timeStart);
-			throw err;
-		}
+		return allowedAttempts;
+	}
 
-		if (user.tfa_secret && !options?.otp) {
+	/**
+	 * Backoffice (spec 029, D-207, research R2): the end of login after the provider verified the user, verbatim:
+	 * OTP, token, session row, activity, last_access, auth.login success, limiter reset, stall. The passkey login calls
+	 * it with `passkey: true`: no OTP, no enforce_tfa claim (D-207.3), the session row marked bo_passkey (D-207.5).
+	 */
+	async finishLogin(
+		user: User & { tfa_secret: string | null },
+		updatedPayload: Record<string, any>,
+		options: {
+			providerName: string;
+			otp?: string | undefined;
+			session?: boolean | undefined;
+			passkey?: boolean;
+			allowedAttempts: number | null;
+			timeStart: number;
+			emitStatus: LoginStatusEmitter;
+		},
+	): Promise<LoginResult> {
+		const { nanoid } = await import('nanoid');
+
+		const env = useEnv();
+		const STALL_TIME = env['LOGIN_STALL_TIME'] as number;
+
+		if (!options.passkey && user.tfa_secret && !options.otp) {
 			const loginError = new InvalidOtpError();
-			emitStatus('fail', updatedPayload, user, loginError);
-			await stall(STALL_TIME, timeStart);
+			options.emitStatus('fail', updatedPayload, user, loginError);
+			await stall(STALL_TIME, options.timeStart);
 			throw loginError;
 		}
 
-		if (user.tfa_secret && options?.otp) {
+		if (!options.passkey && user.tfa_secret && options.otp) {
 			const tfaService = new TFAService({ knex: this.knex, schema: this.schema });
-			const otpValid = await tfaService.verifyOTP(user.id, options?.otp);
+			const otpValid = await tfaService.verifyOTP(user.id, options.otp);
 
 			if (otpValid === false) {
 				const loginError = new InvalidOtpError();
-				emitStatus('fail', updatedPayload, user, loginError);
-				await stall(STALL_TIME, timeStart);
+				options.emitStatus('fail', updatedPayload, user, loginError);
+				await stall(STALL_TIME, options.timeStart);
 				throw loginError;
 			}
 		}
@@ -238,7 +288,8 @@ export class AuthenticationService {
 		};
 
 		// Add role-based enforcement to token payload for users who need to set up 2FA
-		if (!user.tfa_secret) {
+		// Backoffice (spec 029, D-207.3): not for a passkey login (two factors already).
+		if (!options.passkey && !user.tfa_secret) {
 			// Check if user has role-based enforcement
 			const roleEnforcement = await this.knex
 				.select('directus_policies.enforce_tfa')
@@ -258,7 +309,7 @@ export class AuthenticationService {
 		const refreshToken = nanoid(64);
 		const refreshTokenExpiration = new Date(Date.now() + getMilliseconds(env['REFRESH_TOKEN_TTL'], 0));
 
-		if (options?.session) {
+		if (options.session) {
 			tokenPayload.session = refreshToken;
 		}
 
@@ -268,7 +319,7 @@ export class AuthenticationService {
 			{
 				status: 'pending',
 				user: user?.id,
-				provider: providerName,
+				provider: options.providerName,
 				type: 'login',
 			},
 			{
@@ -278,7 +329,7 @@ export class AuthenticationService {
 			},
 		);
 
-		const TTL = env[options?.session ? 'SESSION_COOKIE_TTL' : 'ACCESS_TOKEN_TTL'] as StringValue | number;
+		const TTL = env[options.session ? 'SESSION_COOKIE_TTL' : 'ACCESS_TOKEN_TTL'] as StringValue | number;
 
 		const accessToken = jwt.sign(customClaims, getSecret(), {
 			expiresIn: TTL,
@@ -292,6 +343,8 @@ export class AuthenticationService {
 			ip: this.accountability?.ip,
 			user_agent: this.accountability?.userAgent,
 			origin: this.accountability?.origin,
+			// Backoffice (spec 029, D-207.5): the passkey mark; a password session row stays the DR one.
+			...(options.passkey ? { bo_passkey: true } : {}),
 		});
 
 		await this.knex('directus_sessions').delete().where('expires', '<', new Date());
@@ -310,13 +363,13 @@ export class AuthenticationService {
 
 		await this.knex('directus_users').update({ last_access: new Date() }).where({ id: user.id });
 
-		emitStatus('success', updatedPayload, user);
+		options.emitStatus('success', updatedPayload, user);
 
-		if (allowedAttempts !== null) {
-			await loginAttemptsLimiter.set(user.id, 0, 0);
+		if (options.allowedAttempts !== null) {
+			await useLoginAttemptsLimiter().set(user.id, 0, 0);
 		}
 
-		await stall(STALL_TIME, timeStart);
+		await stall(STALL_TIME, options.timeStart);
 
 		return {
 			accessToken,
@@ -340,6 +393,8 @@ export class AuthenticationService {
 			.select({
 				session_expires: 's.expires',
 				session_next_token: 's.next_token',
+				// Backoffice (spec 029, D-207.5): the passkey mark, kept on the rotated session row.
+				session_bo_passkey: 's.bo_passkey',
 				user_id: 'u.id',
 				user_first_name: 'u.first_name',
 				user_last_name: 'u.last_name',
@@ -540,6 +595,8 @@ export class AuthenticationService {
 			ip: this.accountability?.ip,
 			user_agent: this.accountability?.userAgent,
 			origin: this.accountability?.origin,
+			// Backoffice (spec 029, D-207.5): keep the passkey mark of the session (DR rows have none).
+			...(sessionRecord['session_bo_passkey'] ? { bo_passkey: true } : {}),
 		});
 
 		return newSessionToken;

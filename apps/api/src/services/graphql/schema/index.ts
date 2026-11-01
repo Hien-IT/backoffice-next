@@ -50,6 +50,8 @@ export const SYSTEM_DENY_LIST = [
 	'backoffice_migrations',
 	// Backoffice (spec 025, D-189.5): written through /backoffice/permissions only.
 	'backoffice_permissions',
+	// Backoffice (spec 029, D-207.1): written through /backoffice/users/*/passkeys only.
+	'backoffice_passkeys',
 ];
 
 export const READ_ONLY = ['directus_activity', 'directus_revisions'];

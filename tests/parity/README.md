@@ -119,6 +119,12 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `normalizers.ts` bỏ bảng `backoffice_*` khỏi introspection, SDL; `parity.ts` không so ETag của `/permissions/me`.
   Deploy: `src/deploy/backoffice-permissions.test.ts` (quyền đổi ở replica này có tác dụng ngay ở replica khác; lb đưa
   `/permissions/me`, `/backoffice/*` tới Backoffice).
+- `src/auth/passkey.test.ts` (spec 029): đăng nhập passkey với authenticator phần mềm `src/auth/webauthn-fake.ts` (khóa
+  P-256, attestation `none`, ký bằng `node:crypto`; `webauthn-fake.test.ts` kiểm nó với `@simplewebauthn/server`). Route
+  chỉ có ở Backoffice (D-207, Directus 404), nên gọi từng app; RP ID `localhost` và origin `http://localhost:8155` lấy từ
+  `PUBLIC_URL` của `env/<vendor>.env`. Phiên passkey được Directus làm mới, dùng, đăng xuất; `/policies/me/globals` trả
+  `enforce_tfa: false` ở Backoffice, `true` ở Directus với cookie phiên passkey (D-207.5, kiểm từng app); xóa user ở
+  Backoffice xóa passkey (D-207.2). Deploy: `src/deploy/passkey.test.ts` (challenge lấy ở replica A, xác minh ở B).
 
 ### Test items (feature 005)
 
@@ -279,6 +285,9 @@ Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập n�
   (`http://localhost:8181` gọi `http://127.0.0.1:8163`, CORS, cookie `SameSite=None; Secure`, `ACCESS_TOKEN_TTL=30s`).
   `backoffice-web` 8180 là container web trực tiếp (`config.json` `apiUrl` `/`). Hai proxy web phân giải upstream mỗi
   request (`resolver` Docker), không cần restart khi container được tạo lại.
+- Spec 029: `proxy/web-api.conf` đưa `/backoffice/auth/passkey*` và `/backoffice/users/*/passkeys*` tới
+  `backoffice-api-passkey` (cùng image, env, DB, Redis; `PUBLIC_URL=http://localhost:8162`), để E2E passkey mở trang ở
+  `http://localhost:8162` có RP ID `localhost`; phần còn lại, kể cả phiên passkey tạo ra, qua `backoffice-api`.
 - Image `hiennd23/backoffice-web:local`: `env-up` build khi thiếu
   (`docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:local .` từ gốc repo); CI nạp từ artifact `images`.
 

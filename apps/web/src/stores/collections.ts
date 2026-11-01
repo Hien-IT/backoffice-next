@@ -32,6 +32,8 @@ const COLLECTIONS_DENY_LIST = [
 	'backoffice_migrations',
 	// Backoffice (spec 025, D-189.5): the import and export rows, written through /backoffice/permissions only.
 	'backoffice_permissions',
+	// Backoffice (spec 029, D-207.1): the passkeys, written through /backoffice/users/*/passkeys only.
+	'backoffice_passkeys',
 	'directus_relations',
 	'directus_revisions',
 	'directus_sessions',

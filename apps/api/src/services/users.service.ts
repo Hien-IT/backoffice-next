@@ -334,6 +334,12 @@ export class UsersService extends ItemsService {
 		await super.deleteMany(keys, opts);
 		await this.clearUserSessions(keys);
 
+		// Backoffice (spec 029, D-207.2): backoffice_passkeys has no foreign key to directus_users, so the passkeys of
+		// the deleted users go here (REST, GraphQL, flows and extensions all delete users through this service).
+		if (await this.knex.schema.hasTable('backoffice_passkeys')) {
+			await this.knex('backoffice_passkeys').whereIn('user', keys).delete();
+		}
+
 		return keys;
 	}
 

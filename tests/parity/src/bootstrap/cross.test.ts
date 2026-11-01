@@ -247,8 +247,13 @@ describe.skipIf(!pair)('profile bootstrap: installed database and shared migrati
 
 	describe('Backoffice migrations (spec 022 US3, US4, D-180)', () => {
 		const BO_COLUMNS = ['bo_show_search', 'bo_show_import', 'bo_show_export'];
-		// Spec 025 (D-189.5): migration 20261028A creates backoffice_permissions.
-		const BO_VERSIONS = ['20261026A Add Collection UI Toggles', '20261028A Create Backoffice Permissions'];
+		// Spec 025 (D-189.5): migration 20261028A creates backoffice_permissions. Spec 029 (D-207.1, D-207.5): 20261101A
+		// creates backoffice_passkeys and adds directus_sessions.bo_passkey.
+		const BO_VERSIONS = [
+			'20261026A Add Collection UI Toggles',
+			'20261028A Create Backoffice Permissions',
+			'20261101A Create Backoffice Passkeys',
+		];
 		const boVersions = async (db: Knex) =>
 			(await db.select('version', 'name').from('backoffice_migrations').orderBy('version')).map(
 				(r) => `${r.version} ${r.name}`,
@@ -263,6 +268,12 @@ describe.skipIf(!pair)('profile bootstrap: installed database and shared migrati
 			expect(await createInspector(dbs.directus).hasTable('backoffice_migrations')).toBe(false);
 			expect(await createInspector(dbs.directus).hasTable('backoffice_permissions')).toBe(false);
 			expect(await createInspector(dbs.backoffice).hasTable('backoffice_permissions')).toBe(true);
+			expect(await createInspector(dbs.directus).hasTable('backoffice_passkeys')).toBe(false);
+			expect(await createInspector(dbs.backoffice).hasTable('backoffice_passkeys')).toBe(true);
+			const sessionColumns = async (db: Knex) =>
+				(await createInspector(db).columnInfo('directus_sessions')).map((c) => c.name);
+			expect(await sessionColumns(dbs.backoffice)).toContain('bo_passkey');
+			expect(await sessionColumns(dbs.directus)).not.toContain('bo_passkey');
 			const directusColumns = (await createInspector(dbs.directus).columnInfo('directus_collections')).map(
 				(c) => c.name,
 			);

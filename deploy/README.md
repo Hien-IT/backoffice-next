@@ -232,6 +232,24 @@ biến đã có, không thêm biến mới.
 **Cache.** Khóa response cache của Directus không chứa host, nên `/server/specs/oas` (URL theo host) đã cache ở domain
 này có thể được trả ở domain kia, giống hai bản Directus khác domain dùng chung Redis.
 
+## Passkey (spec 029)
+
+User local (`provider = default`) đăng nhập app Backoffice bằng passkey (WebAuthn): Touch ID, Windows Hello, khóa FIDO,
+trình quản lý mật khẩu. Không có biến môi trường mới.
+
+- **`PUBLIC_URL` quyết định domain của passkey.** RP ID là hostname của `PUBLIC_URL` (không cổng, không đường dẫn), và
+  chỉ origin của `PUBLIC_URL` được nhận. `PUBLIC_URL` tương đối (`/`, mặc định) hoặc host là địa chỉ IP thì passkey tắt:
+  mọi route passkey trả 404, app web không hiện nút, log khởi động có dòng `Passkey login is disabled: ...`.
+- **Đổi domain là đăng ký lại.** Passkey đã đăng ký gắn với hostname cũ; đổi `PUBLIC_URL` sang domain khác thì không
+  đăng nhập được bằng chúng nữa (dòng cũ vẫn nằm trong `backoffice_passkeys`, user hoặc admin xóa). Báo người dùng trước.
+- **HTTPS.** Trình duyệt chỉ cho WebAuthn trên HTTPS, trừ `localhost`.
+- **App web ở hostname khác API** (chế độ CORS): passkey không dùng được ở đó (trình duyệt chỉ cho RP ID là hostname của
+  trang); bố cục chuẩn (026) đặt app web và API cùng domain.
+- **Nhiều replica:** challenge (5 phút, một lần) nằm trong Redis (`backoffice:passkey:*`) nên lấy ở replica này, xác minh
+  ở replica kia được. Không có Redis thì challenge nằm trong bộ nhớ từng process: chỉ dùng được với một instance.
+- **Directus chạy cạnh:** phiên do passkey tạo là phiên thường trong `directus_sessions` (cột `bo_passkey = true`);
+  Directus app dùng cùng phiên vẫn bắt cài TFA với role bắt buộc TFA (app Backoffice thì không, D-207.3, D-207.5).
+
 ## Kubernetes (`deploy/helm/backoffice`)
 
 Chart tạo Deployment, Service cho BE và FE, Ingress trên domain Backoffice, HPA cho BE. Chart không khai báo biến
@@ -469,6 +487,22 @@ Migration `20261028A` tạo bảng `backoffice_permissions` (`policy`, `collecti
   app web khi đó theo luật Directus) và ngược lại (D-189.2). Directus app đặt sau proxy tới API Backoffice nhận 403 khi
   import, export cho tới khi admin cấp quyền. Activity của Directus app hiện các dòng ghi vào `backoffice_permissions`
   (collection Directus chưa quản lý).
+
+### Passkey (spec 029)
+
+Migration `20261101A` tạo bảng `backoffice_passkeys` (một credential WebAuthn mỗi dòng: `user`, `credential_id` duy nhất,
+`public_key`, `counter`, `transports`, `name`, `device_type`, `backed_up`, `discoverable`, `date_created`, `last_used`;
+không khóa ngoại) và thêm cột boolean `bo_passkey` (null được) vào `directus_sessions`, không dòng `directus_fields`.
+
+- **Xóa user ở Backoffice** xóa luôn passkey của user; xóa ở Directus để lại dòng mồ côi, không đăng nhập được, xóa tay
+  khi cần (`DELETE FROM backoffice_passkeys WHERE "user" NOT IN (SELECT id FROM directus_users);`).
+- **Gỡ tay** (Postgres), rồi `node cli.js cache clear --system`:
+
+  ```sql
+  DROP TABLE backoffice_passkeys;
+  ALTER TABLE directus_sessions DROP COLUMN bo_passkey;
+  DELETE FROM backoffice_migrations WHERE version = '20261101A';
+  ```
 
 ## Lệnh CLI
 

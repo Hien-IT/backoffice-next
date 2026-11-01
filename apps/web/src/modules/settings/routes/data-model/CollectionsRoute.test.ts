@@ -151,6 +151,12 @@ test('spec 022 (D-181): backoffice_migrations is not listed, its D-118 key repea
 			schema: { name: 'backoffice_permissions' },
 			meta: meta(1, null, { system: true, hidden: true }),
 		},
+		// Spec 029 (D-207.1): the same for backoffice_passkeys.
+		{
+			collection: 'backoffice_passkeys',
+			schema: { name: 'backoffice_passkeys' },
+			meta: meta(1, null, { system: true, hidden: true }),
+		},
 	]);
 
 	[...document.querySelectorAll('button')].find((b) => b.textContent?.includes(t('system_collections')))!.click();
@@ -158,6 +164,7 @@ test('spec 022 (D-181): backoffice_migrations is not listed, its D-118 key repea
 	expect(document.querySelector('a[href="/settings/data-model/directus_migrations"]')).not.toBeNull();
 	expect(document.querySelector('a[href="/settings/data-model/backoffice_migrations"]')).toBeNull();
 	expect(document.querySelector('a[href="/settings/data-model/backoffice_permissions"]')).toBeNull();
+	expect(document.querySelector('a[href="/settings/data-model/backoffice_passkeys"]')).toBeNull();
 });
 
 test('a folder row stands out; an empty folder shows a drop area, an empty table none (owner 2026-10-21)', async () => {

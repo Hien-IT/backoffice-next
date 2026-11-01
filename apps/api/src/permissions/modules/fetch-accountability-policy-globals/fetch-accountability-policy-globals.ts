@@ -4,7 +4,7 @@ import { fetchPolicies } from '../../lib/fetch-policies.js';
 import type { Context } from '../../types.js';
 
 export async function fetchAccountabilityPolicyGlobals(
-	accountability: Pick<Accountability, 'user' | 'roles' | 'ip' | 'admin' | 'app'>,
+	accountability: Pick<Accountability, 'user' | 'roles' | 'ip' | 'admin' | 'app' | 'session'>,
 	context: Context,
 ): Promise<Globals> {
 	const policies = await fetchPolicies(accountability, context);
@@ -17,6 +17,19 @@ export async function fetchAccountabilityPolicyGlobals(
 		.whereIn('id', policies)
 		.where('enforce_tfa', true)
 		.first();
+
+	// Backoffice (spec 029, D-207.5): a session a passkey login created already has two factors, so the app does not
+	// ask for the TFA setup. Only session tokens carry `session`; JSON and static tokens keep the DR answer.
+	if (result && accountability.session) {
+		const session = await context.knex
+			.select('bo_passkey')
+			.from('directus_sessions')
+			.where({ token: accountability.session })
+			.first();
+
+		if (session?.bo_passkey)
+			return { app_access: accountability.app, admin_access: accountability.admin, enforce_tfa: false };
+	}
 
 	return {
 		app_access: accountability.app,

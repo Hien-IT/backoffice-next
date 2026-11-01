@@ -15,6 +15,8 @@ export default defineConfig({
 			'src/deploy/instances.test.ts',
 			// Spec 021: the comparison helpers of profile bootstrap (no Docker).
 			'src/bootstrap/{normalize,dump}.test.ts',
+			// Spec 029: the software WebAuthn authenticator of the passkey suite (no Docker).
+			'src/auth/webauthn-fake.test.ts',
 		],
 		exclude: ['src/db-unchanged.test.ts', 'src/readonly-account.test.ts', 'src/redis-down.test.ts'],
 	},

@@ -22,7 +22,7 @@ afterEach(async () => {
 test('version and name; listed after 20261026A', () => {
 	expect(version).toBe('20261028A');
 	expect(name).toBe('Create Backoffice Permissions');
-	expect(BACKOFFICE_MIGRATIONS.map((m) => m.version)).toEqual(['20261026A', '20261028A']);
+	expect(BACKOFFICE_MIGRATIONS.map((m) => m.version).slice(0, 2)).toEqual(['20261026A', '20261028A']);
 });
 
 test('creates the table with the columns of directus_permissions plus options', async () => {

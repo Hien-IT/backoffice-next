@@ -106,6 +106,8 @@ catalog:
   '@types/jsonwebtoken': 9.0.10
   argon2: 0.44.0
   otplib: 12.0.1
+  # Passkey login (feature 029), MIT, no Directus counterpart (owner approved 2026-11-01)
+  '@simplewebauthn/server': 14.0.3
   openid-client: 5.7.1
   ldapts: 8.1.3
   joi: 18.3.1 # security patch (GHSA-6h2x-m376-mqjq, GHSA-4528-x5fx-h6hg), Directus 11.17.4 has 18.0.1

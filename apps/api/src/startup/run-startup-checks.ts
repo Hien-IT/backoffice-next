@@ -1,5 +1,6 @@
 import { useEnv } from '@backoffice/env';
 import { registerAuthProviders } from '../auth.js';
+import { getPasskeyRp, PASSKEY_DISABLED_WARNING } from '../auth/passkey/rp.js';
 import { warnSingleInstance } from '../config/warn-single-instance.js';
 import { warnUnsupportedVariables } from '../config/warn-unsupported-variables.js';
 import { isInstalled, validateDatabaseConnection, validateDatabaseExtensions } from '../database/index.js';
@@ -61,6 +62,9 @@ export async function runStartupChecks(): Promise<void> {
 	if (!new Url(env['PUBLIC_URL'] as string).isAbsolute()) {
 		logger.warn('"PUBLIC_URL" should be a full URL');
 	}
+
+	// Row 13b [new] (spec 029, FR-026): passkey login needs a host name in PUBLIC_URL.
+	if (getPasskeyRp(env['PUBLIC_URL'] ?? null) === null) logger.warn(PASSKEY_DISABLED_WARNING);
 
 	// Row 14
 	await validateDatabaseExtensions();

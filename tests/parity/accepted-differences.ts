@@ -498,6 +498,47 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: '/backoffice/permissions exists at Backoffice only (Directus 404).',
 	},
 	{
+		id: 'D-207',
+		feature: '029',
+		kind: 'doc',
+		reason:
+			'Passkey login and management under /backoffice/auth/passkey* and /backoffice/users/*/passkeys* exist at Backoffice only (Directus 404); tested per app in src/auth/passkey.test.ts.',
+	},
+	{
+		id: 'D-207.1',
+		feature: '029',
+		kind: 'doc',
+		reason:
+			'backoffice_passkeys is a hidden system collection in Backoffice (403 on /items, not in GraphQL) and a table with meta null in Directus; compared without backoffice_* like D-181, D-189.5.',
+	},
+	{
+		id: 'D-207.2',
+		feature: '029',
+		kind: 'doc',
+		reason:
+			'Deleting a user at Backoffice also deletes its backoffice_passkeys rows (no foreign key); the response is the same.',
+	},
+	{
+		id: 'D-207.3',
+		feature: '029',
+		kind: 'doc',
+		reason: 'A passkey login asks no OTP and its token has no enforce_tfa claim; password logins are unchanged.',
+	},
+	{
+		id: 'D-207.4',
+		feature: '029',
+		kind: 'doc',
+		reason:
+			'The web app shows a passkey sign-in button and a Passkeys card on the user page when the API is Backoffice.',
+	},
+	{
+		id: 'D-207.5',
+		feature: '029',
+		kind: 'doc',
+		reason:
+			'With the cookie of a session a passkey created (directus_sessions.bo_passkey true), GET /policies/me/globals and policies_me_globals answer enforce_tfa false at Backoffice, true at Directus; checked per app because `when` has no request predicate.',
+	},
+	{
 		id: 'D-192',
 		feature: '027',
 		kind: 'doc',

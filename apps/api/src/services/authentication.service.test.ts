@@ -384,6 +384,121 @@ describe('Integration Tests', () => {
 					id: mockUser.id,
 				});
 			});
+
+			// Backoffice (spec 029, D-207.5): a password session row stays the DR one (no bo_passkey column written).
+			it('does not write bo_passkey for a password login', async () => {
+				setupHappyPathTracker();
+
+				await service.login('default', { email: 'john@example.com', password: 'password' }, { session: true });
+
+				expect(tracker.history.insert[0]?.sql).not.toMatch(/bo_passkey/);
+			});
+		});
+
+		// Backoffice (spec 029, research R2, R13): login split into consumeLoginAttempt and finishLogin, reused by the
+		// passkey login with a verified user; a passkey skips the OTP and the enforce_tfa claim and marks its session.
+		describe('finishLogin (spec 029)', () => {
+			const finishOptions = (over: Record<string, unknown> = {}) => ({
+				providerName: 'default',
+				allowedAttempts: null as number | null,
+				timeStart: 0,
+				emitStatus: vi.fn(),
+				...over,
+			});
+
+			it('passkey: no OTP even with tfa_secret, no enforce_tfa lookup, session row marked bo_passkey', async () => {
+				const verifyOTP = vi.spyOn(TFAService.prototype, 'verifyOTP');
+				tracker.on.insert('directus_sessions').response([1]);
+				tracker.on.delete('directus_sessions').response(1);
+				tracker.on.update('directus_users').response([1]);
+				const options = finishOptions({ passkey: true, session: true, allowedAttempts: 5 });
+
+				const result = await service.finishLogin(
+					{ ...mockUser, tfa_secret: 'some-secret' } as any,
+					{ passkey: true, mode: 'session' },
+					options,
+				);
+
+				expect(result).toMatchObject({ accessToken: 'test-access-token', id: mockUser.id });
+				expect(verifyOTP).not.toHaveBeenCalled();
+				expect(tracker.history.select).toHaveLength(0);
+				expect(tracker.history.insert[0]?.sql).toMatch(/bo_passkey/);
+				expect(tracker.history.insert[0]?.bindings).toContain(true);
+				const jwt = (await import('jsonwebtoken')).default;
+				expect(vi.mocked(jwt.sign).mock.calls[0]![0]).not.toHaveProperty('enforce_tfa');
+				expect(vi.mocked(jwt.sign).mock.calls[0]![0]).toHaveProperty('session', 'test-refresh-token');
+				expect(options.emitStatus).toHaveBeenCalledWith(
+					'success',
+					{ passkey: true, mode: 'session' },
+					expect.anything(),
+				);
+				expect(mockRateLimiter.set).toHaveBeenCalledWith(mockUser.id, 0, 0);
+			});
+
+			it('password: tfa_secret without otp is still InvalidOtpError', async () => {
+				await expect(
+					service.finishLogin({ ...mockUser, tfa_secret: 'some-secret' } as any, {}, finishOptions()),
+				).rejects.toBeInstanceOf(InvalidOtpError);
+			});
+		});
+
+		describe('consumeLoginAttempt (spec 029)', () => {
+			it('null attempts: nothing consumed, null returned', async () => {
+				await expect(service.consumeLoginAttempt({ ...mockUser } as any)).resolves.toBeNull();
+				expect(mockRateLimiter.consume).not.toHaveBeenCalled();
+			});
+
+			it('exhausted: suspends the user and answers the allowed attempts', async () => {
+				tracker.on.update('directus_users').responseOnce([1]);
+				vi.spyOn(SettingsService.prototype, 'readSingleton').mockResolvedValue({ auth_login_attempts: 3 } as any);
+				const { RateLimiterRes: MockRateLimiterRes } = await import('../rate-limiter.js');
+				mockRateLimiter.consume.mockRejectedValueOnce(new MockRateLimiterRes());
+				const user = { ...mockUser } as any;
+
+				await expect(service.consumeLoginAttempt(user)).resolves.toBe(3);
+				expect(user.status).toBe('suspended');
+				expect(tracker.history.update[0]?.sql).toMatch(/directus_users/);
+			});
+		});
+
+		describe('refresh keeps the passkey mark (spec 029, D-207.5)', () => {
+			const record = (bo_passkey: boolean | null) => ({
+				session_expires: new Date(Date.now() + 60_000),
+				session_next_token: null,
+				session_bo_passkey: bo_passkey,
+				user_id: mockUser.id,
+				user_status: 'active',
+				user_provider: 'default',
+				user_role: mockUser.role,
+				share_id: null,
+			});
+
+			beforeEach(() => {
+				vi.mocked(getAuthProvider).mockReturnValue({ refresh: vi.fn() } as any);
+			});
+
+			it.each([
+				[true, true],
+				[null, undefined],
+			])('a session row with bo_passkey %s gives the rotated row %s', async (stored, written) => {
+				tracker.on.select('directus_sessions').responseOnce([record(stored)]);
+				tracker.on.update('directus_sessions').responseOnce([{ next_token: 'test-refresh-token' }]);
+				tracker.on.insert('directus_sessions').responseOnce([1]);
+				tracker.on.update('directus_users').response([1]);
+				tracker.on.delete('directus_sessions').response(1);
+
+				await service.refresh('old-token', { session: true });
+
+				expect(tracker.history.select[0]?.sql).toMatch(/bo_passkey/);
+				const insert = tracker.history.insert[0]!;
+
+				if (written) {
+					expect(insert.sql).toMatch(/bo_passkey/);
+					expect(insert.bindings).toContain(true);
+				} else {
+					expect(insert.sql).not.toMatch(/bo_passkey/);
+				}
+			});
 		});
 	});
 });

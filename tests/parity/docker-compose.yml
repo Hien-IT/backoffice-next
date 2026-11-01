@@ -1599,6 +1599,28 @@ services:
       timeout: 5s
       retries: 60
 
+  # Spec 029 (research R10): a second Backoffice API of the main pair whose PUBLIC_URL is the origin the E2E browser opens
+  # for passkeys (http://localhost:8162 through proxy-web-api), so the WebAuthn ceremonies run with RP ID "localhost".
+  # Same image, env, database, Redis and uploads as backoffice-api; proxy-web-api sends only the passkey routes here, and
+  # the sessions it creates are used through backoffice-api (shared SECRET, directus_sessions, Redis: Principle VII).
+  backoffice-api-passkey:
+    <<: *app
+    profiles: [web]
+    image: hiennd23/backoffice-api:local
+    platform: linux/amd64
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/backoffice/uploads
+    environment:
+      PUBLIC_URL: http://localhost:8162
+    depends_on:
+      backoffice-api: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
   proxy-web-api:
     profiles: [web]
     image: nginx:1.27-alpine
@@ -1606,6 +1628,7 @@ services:
       - ./proxy/web-api.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       backoffice-api: { condition: service_healthy }
+      backoffice-api-passkey: { condition: service_healthy }
       backoffice-web: { condition: service_healthy }
     ports:
       - '8162:80'

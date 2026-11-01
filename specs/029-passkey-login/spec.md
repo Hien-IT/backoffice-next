@@ -3,7 +3,8 @@
 **Feature Branch**: `029-passkey-login` (làm trên `main` như 012–028, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=029-passkey-login`)
 **Created**: 2026-11-01
-**Status**: Draft (spec và clarify 2026-11-01, 4 câu; plan 2026-11-01: research R1–R13; checklist security và api-compat
+**Status**: In progress: lượt 1 (API) code xong 2026-11-01, parity Postgres xanh (`auth/passkey` 24/24, `auth/*` hiện có
+13 file, GraphQL, data model), unit API 4340 test xanh; chưa push, chưa CI (spec và clarify 2026-11-01, 4 câu; plan 2026-11-01: research R1–R13; checklist security và api-compat
 2026-11-01, phát hiện đã sửa; D-207..D-207.5, dependency, replica passkey và phương án E duyệt 2026-11-01; tasks 53 task;
 analyze 2026-11-01, HIGH và MEDIUM đã sửa)
 **Input**: User description: "Feature 029: đăng nhập app Backoffice bằng passkey (WebAuthn, FIDO2) cho user local. Bối

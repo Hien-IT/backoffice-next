@@ -40,6 +40,7 @@
 		"@nestjs/common": "catalog:",
 		"@nestjs/core": "catalog:",
 		"@nestjs/platform-express": "catalog:",
+		"@simplewebauthn/server": "catalog:",
 		"@tus/server": "catalog:",
 		"@tus/utils": "catalog:",
 		"archiver": "catalog:",

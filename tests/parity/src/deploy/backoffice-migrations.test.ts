@@ -27,7 +27,11 @@ function psql(sql: string): string[] {
 
 describe('Backoffice migrations on several replicas (spec 022)', () => {
 	it('backoffice_migrations holds one row per migration and directus_collections the three columns', () => {
-		expect(psql('select version from backoffice_migrations order by version')).toEqual(['20261026A', '20261028A']);
+		expect(psql('select version from backoffice_migrations order by version')).toEqual([
+			'20261026A',
+			'20261028A',
+			'20261101A',
+		]);
 		// Spec 025 (D-189.5): the table of migration 20261028A.
 		expect(psql("select count(*) from information_schema.tables where table_name = 'backoffice_permissions'")).toEqual([
 			'1',

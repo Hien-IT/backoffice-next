@@ -13,6 +13,7 @@ import { FoldersController } from './controllers/folders.controller.js';
 import { GraphqlController } from './controllers/graphql.controller.js';
 import { ItemsController } from './controllers/items.controller.js';
 import { OperationsController } from './controllers/operations.controller.js';
+import { BackofficePasskeysController } from './controllers/backoffice-passkeys.controller.js';
 import { BackofficePermissionsController } from './controllers/backoffice-permissions.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
@@ -65,6 +66,8 @@ export class TusModule implements NestModule {
 		PermissionsController,
 		// Backoffice (spec 025, D-189.6).
 		BackofficePermissionsController,
+		// Backoffice (spec 029, D-207): passkey login and management.
+		BackofficePasskeysController,
 		PoliciesController,
 		RelationsController,
 		RevisionsController,

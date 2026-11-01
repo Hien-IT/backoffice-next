@@ -17,6 +17,8 @@ export const REDUCED_FILES = [
 	'src/items/collection-toggles.test.ts',
 	// Spec 025: the import and export permissions of backoffice_permissions (D-189).
 	'src/permissions/backoffice-permissions.test.ts',
+	// Spec 029: passkey login on every vendor (backoffice_passkeys columns, bo_passkey on sessions; D-207).
+	'src/auth/passkey.test.ts',
 	// Spec 027: UUID v7 for the special uuid fields of user collections; sort order per vendor (D-192).
 	'src/items/uuid-v7.test.ts',
 	// Spec 028: $FIELD(b) compares two fields of the same collection on every vendor (plain SQL, D-203).

@@ -113,7 +113,19 @@ describe('SECRET and PUBLIC_URL warnings (rows 12–13), verbatim Directus plus 
 	test('relative PUBLIC_URL', async () => {
 		env = { SECRET: 'a-secret-that-is-longer-than-32-bytes!!', PUBLIC_URL: '/' };
 		await runStartupChecks();
-		expect(logger.warn).toHaveBeenCalledExactlyOnceWith('"PUBLIC_URL" should be a full URL');
+		expect(logger.warn.mock.calls.map(([m]) => m)).toEqual([
+			'"PUBLIC_URL" should be a full URL',
+			'Passkey login is disabled: "PUBLIC_URL" must be an absolute URL with a host name (not an IP address)',
+		]);
+	});
+
+	// Spec 029 (FR-026): an IP address host is a full URL but cannot be a passkey RP ID.
+	test('IP address PUBLIC_URL: passkey login disabled', async () => {
+		env = { SECRET: 'a-secret-that-is-longer-than-32-bytes!!', PUBLIC_URL: 'http://127.0.0.1:8055' };
+		await runStartupChecks();
+		expect(logger.warn).toHaveBeenCalledExactlyOnceWith(
+			'Passkey login is disabled: "PUBLIC_URL" must be an absolute URL with a host name (not an IP address)',
+		);
 	});
 });
 

@@ -13,6 +13,7 @@
 		"@backoffice/schema": "workspace:*",
 		"@backoffice/types": "workspace:*",
 		"@backoffice/utils": "workspace:*",
+		"@simplewebauthn/server": "catalog:",
 		"@types/autocannon": "catalog:",
 		"@types/js-yaml": "catalog:",
 		"@types/jsonwebtoken": "catalog:",

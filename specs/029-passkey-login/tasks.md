@@ -49,7 +49,7 @@ test, build, parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh
 
 **Purpose**: cài gói và chốt ba điểm chưa thử trước khi viết code; kết quả có thể đổi tên option ở R1, cách E2E ở R10.
 
-- [ ] T001 Thêm `@simplewebauthn/server: 14.0.3` vào `catalog:` của `pnpm-workspace.yaml` (comment "spec 029, MIT; không
+- [X] T001 Thêm `@simplewebauthn/server: 14.0.3` vào `catalog:` của `pnpm-workspace.yaml` (comment "spec 029, MIT; không
       có bản tương ứng ở Directus") và `"@simplewebauthn/server": "catalog:"` vào `apps/api/package.json` và
       `devDependencies` của `tests/parity/package.json`; `pnpm install
       --frozen-lockfile=false`; `pnpm audit` (có GHSA thì ghi `auditConfig.ignoreGhsas` với lý do, như tinymce). Viết test
@@ -57,8 +57,9 @@ test, build, parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh
       (bản nháp của `webauthn-fake.ts`, T020), gọi `generateRegistrationOptions` → `verifyRegistrationResponse` →
       `generateAuthenticationOptions` → `verifyAuthenticationResponse` với `rpID: 'localhost'`, `expectedOrigin:
       'http://localhost:8162'`, `requireUserVerification: true`; ghi tên option/kết quả thật và kiểu `userID`
-      (`Uint8Array`) vào "Kết quả T001" ở `cl/research.md` R1, sửa `cl/contracts/api.md` nếu tên trường khác.
-- [ ] T002 [P] Thử trong Playwright chromium (script tạm ở scratchpad, không commit) CDP `WebAuthn.enable` +
+      (`Uint8Array`) vào "Kết quả T001" ở `cl/research.md` R1, sửa `cl/contracts/api.md` nếu tên trường khác. Làm
+      2026-11-01: bài thử gộp vào `parity/auth/webauthn-fake.test.ts` (T020), không tạo `pk/spike.test.ts`.
+- [X] T002 [P] Thử trong Playwright chromium (script tạm ở scratchpad, không commit) CDP `WebAuthn.enable` +
       `WebAuthn.addVirtualAuthenticator({ options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true,
       hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true } })` trên một trang
       `http://localhost:<port>` gọi `navigator.credentials.create` với `rp.id = 'localhost'` và với `rp.id = '127.0.0.1'`
@@ -73,7 +74,7 @@ test, build, parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T003 [P] Tạo `mig/20261101A-create-backoffice-passkeys.test.ts` theo mẫu `mig/20261028A-create-backoffice-permissions
+- [X] T003 [P] Tạo `mig/20261101A-create-backoffice-passkeys.test.ts` theo mẫu `mig/20261028A-create-backoffice-permissions
       .test.ts` (SQLite `:memory:` + `runSeed`): version `20261101A`, name "Create Backoffice Passkeys", danh sách
       `BACKOFFICE_MIGRATIONS` = `['20261026A','20261028A','20261101A']`; cột và null của `backoffice_passkeys` theo
       `cl/data-model.md` (`id` uuid PK, `user` uuid not null, `credential_id` string(255) not null, `public_key` text,
@@ -84,16 +85,16 @@ test, build, parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh
       giữ dòng/cột; race: `hasTable` và `hasColumn` mock `false` một lần → `up` không ném. Sửa assertion danh sách ở
       `mig/20261028A-create-backoffice-permissions.test.ts`, `parity/deploy/backoffice-migrations.test.ts:30`,
       `parity/bootstrap/cross.test.ts:250-265` (thêm bảng và cột). Chạy đỏ.
-- [ ] T004 [P] Tạo `pk/rp.test.ts`: `getPasskeyRp()` với `PUBLIC_URL` `/` → null; `http://127.0.0.1:8056` → null (IP, theo
+- [X] T004 [P] Tạo `pk/rp.test.ts`: `getPasskeyRp()` với `PUBLIC_URL` `/` → null; `http://127.0.0.1:8056` → null (IP, theo
       T002); `https://bo.example.com/x/` → `{ rpId: 'bo.example.com', origin: 'https://bo.example.com' }`;
       `http://localhost:8091` → `{ rpId: 'localhost', origin: 'http://localhost:8091' }`; `https://[::1]:8443` → null.
       Chạy đỏ.
-- [ ] T005 [P] Tạo `pk/challenge-store.test.ts`: `putChallenge`/`takeChallenge` với kho local (không Redis): lấy một lần
+- [X] T005 [P] Tạo `pk/challenge-store.test.ts`: `putChallenge`/`takeChallenge` với kho local (không Redis): lấy một lần
       (lần hai `undefined`), hai `take` cùng lúc (`Promise.all`) chỉ một có giá trị, hết hạn theo `expires` (fake timers),
       giới hạn 10.000 khóa (khóa cũ nhất bị loại), `purpose`/`user` giữ nguyên; với Redis giả (`ioredis-mock` hoặc mock
       `useRedis` có `set`/`getdel`): `set(key, json, 'PX', 300000)` và `getdel` được gọi, key có tiền tố
       `backoffice:passkey:`. Chạy đỏ.
-- [ ] T006 [P] Thêm vào `api/services/authentication.service.test.ts`: `login` mật khẩu không đổi (mọi test hiện có xanh;
+- [X] T006 [P] Thêm vào `api/services/authentication.service.test.ts`: `login` mật khẩu không đổi (mọi test hiện có xanh;
       số lần gọi knex/emitter như cũ); `finishLogin(user, payload, { passkey: true, session: true, ... })`: không gọi
       `TFAService.verifyOTP` dù `tfa_secret` có, không query `enforce_tfa`, token không có `enforce_tfa`, insert
       `directus_sessions` có `bo_passkey: true`, activity LOGIN, `last_access`, `auth.login` success với `provider:
@@ -101,36 +102,36 @@ test, build, parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh
       không `otp` → `InvalidOtpError` như cũ; `consumeLoginAttempt` suspend khi hết lượt và ném 503 khi limiter lỗi (như
       :143-197); `refresh` chế độ session với `record.session_bo_passkey = true` → dòng phiên mới có `bo_passkey: true`,
       với null → null; nhánh không session không đổi. Chạy đỏ.
-- [ ] T007 [P] Thêm vào `api/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals
+- [X] T007 [P] Thêm vào `api/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals
       .test.ts`: policy bắt buộc + `accountability.session` có dòng `bo_passkey = true` → `enforce_tfa: false`; dòng
       `bo_passkey` null → `true`; không `session` (token json) → `true` và không query `directus_sessions`; policy không
       bắt buộc → `false` và không query `directus_sessions`. Chạy đỏ.
 
 ### Implementation
 
-- [ ] T008 Tạo `mig/20261101A-create-backoffice-passkeys.ts` (`version`, `name`, `up`: `hasTable` → `createTable` trong
+- [X] T008 Tạo `mig/20261101A-create-backoffice-passkeys.ts` (`version`, `name`, `up`: `hasTable` → `createTable` trong
       try/catch rồi kiểm lại; `hasColumn('directus_sessions','bo_passkey')` → `alterTable` trong try/catch, mẫu
       `20261026A`; không FK; comment đầu file nêu D-207.1, D-207.5) và thêm vào `BACKOFFICE_MIGRATIONS` ở `mig/index.ts`.
       T003 xanh.
-- [ ] T009 [P] Khai báo collection hệ thống ẩn: `libs/system-data/src/collections/collections.yaml` thêm
+- [X] T009 [P] Khai báo collection hệ thống ẩn: `libs/system-data/src/collections/collections.yaml` thêm
       `backoffice_passkeys` `hidden: true` với comment (403 `/items`, không GraphQL, ghi qua `/backoffice/users/*/passkeys`),
       test ở `libs/system-data/src/collections/index.test.ts` (như D-181); `api/services/graphql/schema/index.ts`
       `SYSTEM_DENY_LIST` thêm `'backoffice_passkeys'`; `parity/normalizers.ts` `BACKOFFICE_TABLE` (:117) và hai regex SDL
       (:284, :287) thêm `passkeys`, case mới ở `parity/normalizers.test.ts`.
-- [ ] T010 [P] Tạo `pk/rp.ts` (`getPasskeyRp()` theo R5: `URL` tuyệt đối, hostname không phải IPv4/IPv6 → `{ rpId, origin
+- [X] T010 [P] Tạo `pk/rp.ts` (`getPasskeyRp()` theo R5: `URL` tuyệt đối, hostname không phải IPv4/IPv6 → `{ rpId, origin
       }`, khác → null; memo theo `PUBLIC_URL`) và `pk/index.ts`; `api/startup/run-startup-checks.ts` log `warn` một lần
       khi `getPasskeyRp() === null` ("passkey login disabled: PUBLIC_URL must be an absolute URL with a host name").
       T004 xanh.
-- [ ] T011 [P] Tạo `pk/challenge-store.ts` theo R4: `TTL = 5 * 60 * 1000`; Redis: `useRedis().set('backoffice:passkey:' +
+- [X] T011 [P] Tạo `pk/challenge-store.ts` theo R4: `TTL = 5 * 60 * 1000`; Redis: `useRedis().set('backoffice:passkey:' +
       challenge, JSON, 'PX', TTL)` và `getdel`; local: `Map` + xóa trong cùng tick + giới hạn 10.000; `takeChallenge` trả
       `undefined` khi `expires < Date.now()`; lỗi Redis ném `ServiceUnavailableError({ service: 'passkey' })`. T005 xanh.
-- [ ] T012 Sửa `api/services/authentication.service.ts` (R2, R13; comment `Backoffice (spec 029, D-207)`): tách
+- [X] T012 Sửa `api/services/authentication.service.ts` (R2, R13; comment `Backoffice (spec 029, D-207)`): tách
       `consumeLoginAttempt(user, ctx)` (:143-197) và `finishLogin(user, updatedPayload, options)` (:207-326) thành
       phương thức public; `login` gọi lại hai hàm (hành vi không đổi); trong `finishLogin`, `options.passkey` bỏ khối OTP
       và khối `enforce_tfa`, insert `directus_sessions` thêm `bo_passkey: options.passkey ? true : null`; `refresh`
       `select` thêm `session_bo_passkey: 's.bo_passkey'`, `updateStatefulSession` insert thêm `bo_passkey:
       sessionRecord['session_bo_passkey'] ?? null`. T006 xanh, mọi test cũ của file xanh.
-- [ ] T013 Sửa `api/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals.ts` (R13,
+- [X] T013 Sửa `api/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals.ts` (R13,
       comment `Backoffice (spec 029, D-207.5)`): `Pick` thêm `'session'`; khi `result` và `accountability.session`: đọc
       `bo_passkey` của dòng `directus_sessions` theo token, `true` → `enforce_tfa: false`. T007 xanh;
       `api/controllers/policies.controller.ts` và `api/services/graphql/resolvers/system.ts` không đổi (cùng hàm).
@@ -147,7 +148,7 @@ authenticator giả rồi đọc dòng `backoffice_passkeys`.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T014 [P] [US2] Tạo `api/services/passkey.service.test.ts` (`vi.mock('@simplewebauthn/server')`, `knex-mock-client`,
+- [X] T014 [P] [US2] Tạo `api/services/passkey.service.test.ts` (`vi.mock('@simplewebauthn/server')`, `knex-mock-client`,
       mock `pk/challenge-store`, mock `AuthenticationService.verifyPassword`): `registrationOptions(user, password)`: sai
       mật khẩu → `InvalidCredentialsError` không gọi limiter; `provider !== 'default'` → `ForbiddenError`; đủ 10 → 
       `InvalidPayloadError` "maximum of 10 passkeys"; options có `rp.id` từ `getPasskeyRp`, `rp.name` = `project_name ||
@@ -159,7 +160,7 @@ authenticator giả rồi đọc dòng `backoffice_passkeys`.
       trả dòng công khai (không `credential_id`, `public_key`, `counter`); `list(user)` sắp `date_created` tăng;
       `rename(user, id, name)` id không của user → `ForbiddenError`; `remove(user, id)` cùng quy tắc; `listForAdmin(pk)`
       user `provider` khác → `[]`; `removeForAdmin(pk, id)` id không thuộc pk → `ForbiddenError`. Chạy đỏ.
-- [ ] T015 [P] [US2] Tạo `api/controllers/backoffice-passkeys.controller.test.ts` (Nest `Test.createTestingModule` +
+- [X] T015 [P] [US2] Tạo `api/controllers/backoffice-passkeys.controller.test.ts` (Nest `Test.createTestingModule` +
       supertest, mock service): bảng route của `@Controller('backoffice')` không đè `backoffice/permissions` (cả hai
       controller trong module test, `GET /backoffice/permissions` vẫn tới controller 025); không `accountability.user` →
       401 ở mọi route `users/me/*`; `users/:pk/*` không admin → 403; `GET` đặt `res.locals.cache === false`; body Joi:
@@ -168,11 +169,11 @@ authenticator giả rồi đọc dòng `backoffice_passkeys`.
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Tạo `api/services/passkey.service.ts` (`PasskeyService`, Knex trực tiếp, `randomUUID()` cho id; hàm của
+- [X] T016 [US2] Tạo `api/services/passkey.service.ts` (`PasskeyService`, Knex trực tiếp, `randomUUID()` cho id; hàm của
       T014; `rpName` đọc `directus_settings.project_name` như `TFAService.generateTFA`; log `info` đăng ký/xóa với user id
       và passkey id) và export ở `api/services/index.ts`; factory trong `api/providers.ts` `serviceProviders` như
       `BackofficePermissionsService` (:200-205). Xóa `pk/spike.test.ts` của T001. T014 xanh.
-- [ ] T017 [US2] Tạo `api/controllers/backoffice-passkeys.controller.ts` `@Controller('backoffice')` với
+- [X] T017 [US2] Tạo `api/controllers/backoffice-passkeys.controller.ts` `@Controller('backoffice')` với
       `users/me/passkeys` (GET, POST), `users/me/passkeys/options` (POST), `users/me/passkeys/:id` (PATCH, DELETE),
       `users/:pk/passkeys` (GET), `users/:pk/passkeys/:id` (DELETE) theo `cl/contracts/api.md` (401/403/404, Joi,
       `res.locals.cache = false`, `respond`); đăng ký ở `api/app.module.ts` `controllers`. T015 xanh (phần users).
@@ -189,7 +190,7 @@ credential của T014/T021, so dòng `directus_sessions`, activity, cookie với
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T018 [US1] Thêm vào `api/services/passkey.service.test.ts`: `loginOptions()` lưu challenge `{ purpose: 'login' }`,
+- [X] T018 [US1] Thêm vào `api/services/passkey.service.test.ts`: `loginOptions()` lưu challenge `{ purpose: 'login' }`,
       `allowCredentials: []`, `userVerification: 'required'`, `rpId`; `login(response, mode, accountability)` theo thứ tự:
       challenge thiếu/hết hạn/purpose `register` → `InvalidCredentialsError` + `emitStatus('fail')` + `stall`, không đếm;
       `response.id` không có dòng → lỗi chung không đếm; dòng có nhưng user không có (mồ côi) → lỗi chung không đếm;
@@ -206,7 +207,7 @@ credential của T014/T021, so dòng `directus_sessions`, activity, cookie với
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Thêm `loginOptions()` và `login()` vào `api/services/passkey.service.ts` (R3; `emitStatus` cùng chữ ký
+- [X] T019 [US1] Thêm `loginOptions()` và `login()` vào `api/services/passkey.service.ts` (R3; `emitStatus` cùng chữ ký
       với `login` của `AuthenticationService`, `timeStart` từ đầu request, `stall(LOGIN_STALL_TIME)` ở mọi nhánh lỗi;
       đọc `challenge` từ `clientDataJSON` của `response` trước khi gọi thư viện) và ba route `auth/passkey`,
       `auth/passkey/login/options`, `auth/passkey/login` vào `api/controllers/backoffice-passkeys.controller.ts`
@@ -225,7 +226,7 @@ SQLite.
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T020 [P] [US4] Tạo `parity/auth/webauthn-fake.ts` (R9): `createFakeAuthenticator({ rpId, origin })` với khóa EC
+- [X] T020 [P] [US4] Tạo `parity/auth/webauthn-fake.ts` (R9): `createFakeAuthenticator({ rpId, origin })` với khóa EC
       P-256 (`generateKeyPairSync('ec', { namedCurve: 'prime256v1' })`), `register(options)` → `RegistrationResponseJSON`
       (clientDataJSON `webauthn.create`, attestation CBOR `{ fmt: 'none', attStmt: {}, authData }`, COSE key map
       `{1:2, 3:-7, -1:1, -2:x, -3:y}`, flags UP|UV|AT, counter 0, credential id 32 byte, transports `['internal']`),
@@ -233,7 +234,7 @@ SQLite.
       `authData || sha256(clientDataJSON)`), encoder CBOR tối thiểu (map, text, bytes, int) và base64url; unit test
       `parity/auth/webauthn-fake.test.ts` kiểm bằng `@simplewebauthn/server` (devDependency của `tests/parity`) với
       `verifyRegistrationResponse`/`verifyAuthenticationResponse`. Chạy xanh trước khi dùng.
-- [ ] T021 [US4] Tạo `parity/auth/passkey.test.ts` (`appRequest`, `at('directus')`, `createUser`, `createRole`,
+- [X] T021 [US4] Tạo `parity/auth/passkey.test.ts` (`appRequest`, `at('directus')`, `createUser`, `createRole`,
       `setSettings`, `hostDb`; `webauthn-fake`): (1) mọi route mới: Directus 404 `ROUTE_NOT_FOUND`; (2) Backoffice 401
       không xác thực, 403 user LDAP (`provider: 'ldap'`), 403 non-admin `GET /backoffice/users/:pk/passkeys`, 400 body
       sai, 401 mật khẩu sai ở options, static token của user local được nhận ở `GET .../me/passkeys` (như TFA);
@@ -257,14 +258,14 @@ SQLite.
       Backoffice → 0 dòng `backoffice_passkeys` của user (D-207.2); `DELETE /users/:id` ở Directus → dòng còn, đăng nhập
       bằng passkey đó → 401; (8) mọi test `parity/auth/*` hiện có xanh nguyên. Thêm file vào `FULL_FILES` và phần (1),
       (3) vào `REDUCED_FILES` của `parity/suite.ts`. Chạy đỏ tới khi T016–T019 xong.
-- [ ] T022 [P] [US4] Thêm vào `tests/parity/accepted-differences.ts`: D-207 (`doc`, route chỉ Backoffice), D-207.1
+- [X] T022 [P] [US4] Thêm vào `tests/parity/accepted-differences.ts`: D-207 (`doc`, route chỉ Backoffice), D-207.1
       (`doc`), D-207.2 (`doc`), D-207.3 (`doc`), D-207.4 (`doc`), D-207.5 (`doc`, kiểm từng app ở T021 phần 4; `when`
       không có điều kiện theo request nên không dùng `http`);
       `parity/spec-differences` đọc được sáu mã từ `cl/spec.md` (test có sẵn).
 
 ### Implementation for User Story 4
 
-- [ ] T023 [US4] Rà `api/services/passkey.service.ts` theo T021: mọi nhánh lỗi đăng nhập đi qua `stall`; đếm attempt chỉ
+- [X] T023 [US4] Rà `api/services/passkey.service.ts` theo T021: mọi nhánh lỗi đăng nhập đi qua `stall`; đếm attempt chỉ
       khi có user; log không ghi challenge/response/public key; `credential_id` tra bằng unique index (không quét); kho
       challenge lỗi → 503. T021 phần (1)–(6) xanh trên Postgres.
 
@@ -278,12 +279,12 @@ SQLite.
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T024 [P] [US3] Thêm vào `api/services/users.service.test.ts`: `deleteMany(keys)` xóa `backoffice_passkeys` `whereIn
+- [X] T024 [P] [US3] Thêm vào `api/services/users.service.test.ts`: `deleteMany(keys)` xóa `backoffice_passkeys` `whereIn
       user` sau `clearUserSessions` khi `hasTable` true, bỏ qua khi false; `deleteOne` đi qua `deleteMany`. Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Sửa `api/services/users.service.ts` `deleteMany` (:335, comment `Backoffice (spec 029, D-207.2)`): sau
+- [X] T025 [US3] Sửa `api/services/users.service.ts` `deleteMany` (:335, comment `Backoffice (spec 029, D-207.2)`): sau
       `clearUserSessions(keys)`, `if (await this.knex.schema.hasTable('backoffice_passkeys')) await
       this.knex('backoffice_passkeys').whereIn('user', keys).delete()`. T024 xanh; T021 phần (7) xanh.
 
@@ -296,20 +297,20 @@ SQLite.
 **Independent Test**: `pnpm nx run parity-tests:env-up --profile web` lên đủ service; `parity/bootstrap`, `parity/deploy`
 xanh.
 
-- [ ] T026 [P] [US5] Sửa `tests/parity/docker-compose.yml` profile `web`: service `backoffice-api-passkey` (cùng image,
+- [X] T026 [P] [US5] Sửa `tests/parity/docker-compose.yml` profile `web`: service `backoffice-api-passkey` (cùng image,
       `env_file`, DB, Redis, volume với `backoffice-api`; `PUBLIC_URL: http://localhost:8162`; healthcheck `/server/ping`;
       `depends_on` như `backoffice-api`) và `tests/parity/proxy/web-api.conf`: `location ^~ /backoffice/auth/passkey` và
       `location ~ ^/backoffice/users/[^/]+/passkeys` → `backoffice-api-passkey:8055`, phần còn lại giữ nguyên;
       `proxy-web-api` `depends_on` thêm service mới. Ghi chú đầu khối (R10). Kiểm local: `env-up --profile web`, `curl
       http://localhost:8162/backoffice/auth/passkey` → `{ data: { rp_id: 'localhost' } }`, `curl
       http://127.0.0.1:8162/backoffice/auth/passkey` cũng 200 (RP ID theo API, web tự ẩn theo hostname).
-- [ ] T027 [P] [US5] Tài liệu vận hành: `deploy/README.md` mục mới "## Passkey (spec 029)" sau "Chạy cạnh Directus: hai
+- [X] T027 [P] [US5] Tài liệu vận hành: `deploy/README.md` mục mới "## Passkey (spec 029)" sau "Chạy cạnh Directus: hai
       domain" (:199): `PUBLIC_URL` tuyệt đối với tên miền (không IP), HTTPS trừ localhost, đổi domain = đăng ký lại,
       không biến env mới, Redis cho nhiều replica, gỡ tay (`DROP TABLE backoffice_passkeys`, `ALTER TABLE directus_sessions
       DROP COLUMN bo_passkey`, xóa dòng `20261101A` trong `backoffice_migrations`); một câu ở mục standalone (:333) và
       mục "Migration riêng của Backoffice (spec 022)" (:411) thêm `20261101A`; `tests/parity/README.md` thêm
       `auth/passkey`, replica passkey của profile `web`, D-207..D-207.5.
-- [ ] T028 [P] [US5] Thêm `parity/deploy/passkey.test.ts` vào bộ deploy (3 replica + 1 Directus qua lb): đăng ký passkey
+- [X] T028 [P] [US5] Thêm `parity/deploy/passkey.test.ts` vào bộ deploy (3 replica + 1 Directus qua lb): đăng ký passkey
       (authenticator giả, `webauthn-fake`) gọi thẳng replica A, lấy challenge đăng nhập ở A, xác minh ở replica B → 200
       (challenge trong Redis dùng chung); cookie dùng được qua lb và qua Directus. Thêm vào danh sách của suite deploy.
 - [ ] T029 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api,system-data,parity-tests`; `pnpm nx run api:test`;

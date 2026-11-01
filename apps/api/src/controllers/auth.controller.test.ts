@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createAuthDb } from '../../test/directus-db.js';
 import { type App, createApp } from '../app.js';
 import { registerAuthProviders } from '../auth.js';
+import { up as upPasskeys } from '../database/backoffice-migrations/20261101A-create-backoffice-passkeys.js';
 import { useLogger } from '../logger/index.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
@@ -66,6 +67,8 @@ async function start(overrides: Record<string, unknown> = {}) {
 
 beforeEach(async () => {
 	state.db = await createAuthDb();
+	// Spec 029 (D-207.5): refresh reads directus_sessions.bo_passkey, which bootstrap adds before any start.
+	await upPasskeys(state.db);
 	const password = await argon2.hash('secret');
 
 	await state.db('directus_roles').insert({ id: ROLE, name: 'Editor' });
