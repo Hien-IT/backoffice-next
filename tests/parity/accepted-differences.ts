@@ -504,4 +504,42 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'Generated special uuid values of user collections are UUID v7 at Backoffice, v4 at Directus; system collections keep v4; batch create responses follow the id order (spec 027).',
 	},
+	// Spec 028: `$FIELD(b)` on the six comparison operators compares two fields of the same collection at Backoffice;
+	// Directus takes the value as a plain string (T002: 400 on a number field, 500 on timestamp/boolean/uuid). Only the
+	// collections of src/items/field-compare.test.ts, and only where Directus failed; string fields (200 at both, other
+	// rows) are compared per app in that file.
+	{
+		id: 'D-203',
+		feature: '028',
+		kind: 'http',
+		endpoints: ['GET /items/parity_field_compare_*', 'SEARCH /items/parity_field_compare_*'],
+		location: { any: true },
+		when: { directusStatus: 400, directusCode: 'INVALID_QUERY' },
+		reason:
+			'A $FIELD(b) value compares two fields at Backoffice; Directus casts the string to the number field and answers 400 "Invalid numeric value" (spec 028 T002).',
+	},
+	{
+		id: 'D-203',
+		feature: '028',
+		kind: 'http',
+		endpoints: ['GET /items/parity_field_compare_*', 'SEARCH /items/parity_field_compare_*'],
+		location: { any: true },
+		when: { directusStatus: 500, directusCode: 'INTERNAL_SERVER_ERROR' },
+		reason:
+			'A $FIELD(b) value on a timestamp, boolean or uuid field: Directus binds the string and the database rejects the cast (500, spec 028 T002).',
+	},
+	{
+		id: 'D-203.1',
+		feature: '028',
+		kind: 'doc',
+		reason:
+			'A bookmark with $FIELD(b) is saved in the shared directus_presets (200 at Directus too); the Directus app opening it sends the same filter and gets the D-203 answer.',
+	},
+	{
+		id: 'D-204',
+		feature: '028',
+		kind: 'doc',
+		reason:
+			'A permission whose row filter or validation compares two fields with $FIELD(b) is refused at Backoffice (400 INVALID_PAYLOAD), saved at Directus; the D-185 http entry (same endpoints and code) accepts the response difference, /backoffice/permissions is Backoffice only (D-189.6).',
+	},
 ];

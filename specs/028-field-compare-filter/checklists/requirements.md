@@ -48,4 +48,6 @@
 - Lượt kiểm 5 (2026-11-01, sau `/speckit.analyze`): đạt; 6 phát hiện (I1 HIGH theo cách a: mọi `$FIELD(...)` là giá
   trị động, tên sai → 400; I2, C1, C2, I3, I4) đã sửa vào FR-001, Edge Cases, D-203, D-203.1, research R1/R2,
   contracts/api.md, data-model, tasks T002, T003, T007, T041.
+- Sau implement lượt 1 (2026-11-01): FR-001..FR-007, FR-009..FR-011 có unit (`field-compare`, `operator`, `flatten-filter`,
+  hai service permission) và parity ba vendor; D-203 cột Directus là số đo (T002), D-204 là `doc` ở bộ đối chiếu.
 - Hành vi Directus với `$FIELD` (D-203, D-203.1) ghi [Unverified], đo ở lượt 1 implement như T002 của 023.

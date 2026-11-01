@@ -3,7 +3,7 @@ import { InvalidQueryError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import knex from 'knex';
 import { describe, expect, test, vi } from 'vitest';
-import { Client_SQLite3 } from '../mock.js';
+import { Client_PG, Client_SQLite3 } from '../mock.js';
 
 const { applyOperator } = await import('./operator.js');
 
@@ -146,8 +146,6 @@ test('applyOperator throws InvalidQueryError for non-numeric array value on inte
 
 // Backoffice (spec 023, research R3, R4): operators on the typed value at a json path, `[*]`, first-dot split.
 describe('json path keys (spec 023)', async () => {
-	const { Client_PG } = await import('../mock.js');
-
 	const jsonSchema = (dbType: string) => {
 		const built = new SchemaBuilder()
 			.collection('products', (c) => {
@@ -267,5 +265,130 @@ describe('json path keys (spec 023)', async () => {
 		expect(() => run(Client_PG, 'json', 'products.json(meta, n, number)', '_eq', 'abc')).toThrow(
 			'Invalid numeric value',
 		);
+	});
+});
+
+// Backoffice (spec 028, D-203): `$FIELD(b)` compares the column with field b of the same collection (research R1).
+describe('$FIELD(b) compares two fields of the same collection', () => {
+	const orders = new SchemaBuilder()
+		.collection('orders', (c) => {
+			c.field('id').id();
+			c.field('total').integer();
+			c.field('paid_amount').integer();
+			c.field('price').decimal();
+			c.field('title').string();
+			c.field('slug').text();
+			c.field('published_at').timestamp();
+			c.field('created_on').dateTime();
+			c.field('active').boolean();
+			c.field('lines').o2m('order_lines', 'order_id');
+		})
+		.build();
+
+	test.each([
+		['_eq', '='],
+		['_neq', '<>'],
+		['_gt', '>'],
+		['_gte', '>='],
+		['_lt', '<'],
+		['_lte', '<='],
+	])('%s becomes a column comparison without bindings', (operator, sql) => {
+		for (const client of [Client_SQLite3, Client_PG]) {
+			const db = vi.mocked(knex.default({ client }));
+			const queryBuilder = db.queryBuilder();
+
+			applyOperator(db, queryBuilder, orders, 'orders.total', operator, '$FIELD(paid_amount)');
+
+			expect(queryBuilder.toSQL().sql).toEqual(`select * where "orders"."total" ${sql} "orders"."paid_amount"`);
+			expect(queryBuilder.toSQL().bindings).toEqual([]);
+		}
+	});
+
+	test('a table alias of a related collection is used on both sides', () => {
+		const db = vi.mocked(knex.default({ client: Client_SQLite3 }));
+		const queryBuilder = db.queryBuilder();
+
+		applyOperator(db, queryBuilder, orders, 'xyzab.total', '_gt', '$FIELD(paid_amount)', 'or', 'orders');
+
+		expect(queryBuilder.toSQL().sql).toEqual(`select * where "xyzab"."total" > "xyzab"."paid_amount"`);
+	});
+
+	test.each([
+		['integer with decimal', 'orders.total', '$FIELD(price)', `"orders"."total" = "orders"."price"`],
+		['string with text', 'orders.title', '$FIELD(slug)', `"orders"."title" = "orders"."slug"`],
+		['a field with itself', 'orders.total', '$FIELD(total)', `"orders"."total" = "orders"."total"`],
+		[
+			'spaces inside the parentheses',
+			'orders.total',
+			'$FIELD( paid_amount )',
+			`"orders"."total" = "orders"."paid_amount"`,
+		],
+	])('%s', (_name, field, value, sql) => {
+		const db = vi.mocked(knex.default({ client: Client_SQLite3 }));
+		const queryBuilder = db.queryBuilder();
+
+		applyOperator(db, queryBuilder, orders, field, '_eq', value);
+
+		expect(queryBuilder.toSQL().sql).toEqual(`select * where ${sql}`);
+	});
+
+	test.each([
+		[
+			'_contains keeps the string as a plain value',
+			'orders.title',
+			'_contains',
+			'$FIELD(slug)',
+			`"orders"."title" like ?`,
+			['%$FIELD(slug)%'],
+		],
+		[
+			'_in keeps the string as a plain value',
+			'orders.title',
+			'_in',
+			'$FIELD(slug)',
+			`"orders"."title" in (?)`,
+			['$FIELD(slug)'],
+		],
+		[
+			'a lowercase $field is a plain value',
+			'orders.title',
+			'_eq',
+			'$field(slug)',
+			`"orders"."title" = ?`,
+			['$field(slug)'],
+		],
+		[
+			'an unclosed $FIELD( is a plain value',
+			'orders.title',
+			'_eq',
+			'$FIELD(slug',
+			`"orders"."title" = ?`,
+			['$FIELD(slug'],
+		],
+	])('%s', (_name, field, operator, value, sql, bindings) => {
+		const db = vi.mocked(knex.default({ client: Client_SQLite3 }));
+		const queryBuilder = db.queryBuilder();
+
+		applyOperator(db, queryBuilder, orders, field, operator, value);
+
+		expect(queryBuilder.toSQL().sql).toEqual(`select * where ${sql}`);
+		expect(queryBuilder.toSQL().bindings).toEqual(bindings);
+	});
+
+	test.each([
+		['a function key', 'orders.year(published_at)', '$FIELD(created_on)', 'only allowed on a plain field'],
+		['a json path key', 'orders.json(meta, a, number)', '$FIELD(total)', 'only allowed on a plain field'],
+		['another type group', 'orders.total', '$FIELD(title)', 'must be a number field like "total" (got string)'],
+		['timestamp with dateTime', 'orders.published_at', '$FIELD(created_on)', 'must be a timestamp field'],
+		['an unknown field', 'orders.total', '$FIELD(nope)', 'unknown field "nope" in collection "orders"'],
+		['an alias field', 'orders.total', '$FIELD(lines)', 'must be a column field'],
+		['a relational path', 'orders.total', '$FIELD(author.age)', 'a field of the same collection is expected'],
+		['an empty name', 'orders.total', '$FIELD()', 'a field of the same collection is expected'],
+	])('%s is refused with 400', (_name, field, value, message) => {
+		const db = vi.mocked(knex.default({ client: Client_SQLite3 }));
+		const queryBuilder = db.queryBuilder();
+
+		expect(() => applyOperator(db, queryBuilder, orders, field, '_eq', value)).toThrow(InvalidQueryError);
+		expect(() => applyOperator(db, queryBuilder, orders, field, '_eq', value)).toThrow(message);
 	});
 });

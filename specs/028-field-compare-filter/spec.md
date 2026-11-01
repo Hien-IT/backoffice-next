@@ -3,10 +3,10 @@
 **Feature Branch**: `028-field-compare-filter` (làm trên `main` như 012–027, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=028-field-compare-filter`)
 **Created**: 2026-11-01
-**Status**: Draft (spec và clarify 2026-11-01, 5 câu; plan 2026-11-01: research R1–R12, data-model, contracts,
-quickstart; D-203..D-206 duyệt 2026-11-01, chủ dự án kiêm tech lead; checklist api-compat 2026-11-01, 5 phát hiện
-đã sửa; tasks 2026-11-01, 41 task ba lượt; analyze 2026-11-01, 6 phát hiện đã sửa; tiếp theo `/speckit.implement`
-lượt 1)
+**Status**: Lượt 1 (API REST, D-203, D-204) implement 2026-11-01 trên `main`; lượt 2 (web) và 3 (GraphQL) chờ (spec và
+clarify 2026-11-01, 5 câu; plan 2026-11-01: research R1–R12, data-model, contracts, quickstart; D-203..D-206 duyệt
+2026-11-01, chủ dự án kiêm tech lead; checklist api-compat và analyze 2026-11-01, phát hiện đã sửa; tasks 41 task ba
+lượt)
 **Input**: User description: "Feature 028: filter so sánh hai field của cùng collection (field-compare-filter). Bối cảnh:
 filter của Directus 11.17.4 và Backoffice chỉ so field với giá trị cố định hoặc biến động ($NOW, $CURRENT_USER,
 $CURRENT_ROLE, $CURRENT_ROLES, $CURRENT_POLICIES); không có cách lọc item mà một field so với field khác của cùng item,
@@ -153,8 +153,9 @@ mở DrawerCollection, Settings > Policies, Insights.
   `$FIELD(...)` (`$FIELD`, `$FIELD(a` không đóng ngoặc, `$field(a)`) là giá trị thường.
 - `$FIELD(b)` trong `_in`, `_between`, `_contains`, `_starts_with`... : giá trị thường như hiện nay (chuỗi), không có
   nghĩa đặc biệt; UI không hiện nút chọn field ở các toán tử đó.
-- Field a kiểu `uuid` hay `boolean`: bảng toán tử của Directus cho kiểu đó chỉ có `_eq`, `_neq` (không `_gt`...), nên
-  với `$FIELD` cũng chỉ hai toán tử đó (400 như hiện nay cho toán tử khác; sửa khi plan 2026-11-01, research R2).
+- Field a kiểu `uuid`, `boolean` hay chuỗi (`string`, `text`): bảng toán tử của Directus cho kiểu đó chỉ có `_eq`,
+  `_neq` (không `_gt`...), nên với `$FIELD` cũng chỉ hai toán tử đó (400 như hiện nay cho toán tử khác, ở cả hai app;
+  sửa khi plan 2026-11-01, research R2; chuỗi thêm khi implement lượt 1, T002). Sáu toán tử đủ cho số và ngày giờ.
 - Field a là hàm (`year(published_at)`, `json(...)`) với `$FIELD`: 400 "chỉ trên field thường" (sửa khi plan
   2026-11-01, research R1).
 - `$FIELD(b)` ở `deep` (filter của field quan hệ trong `fields`): cùng cơ chế với filter lồng qua quan hệ của FR-005
@@ -163,9 +164,9 @@ mở DrawerCollection, Settings > Policies, Insights.
   thái lỗi, người dùng đổi field hoặc xóa dòng (clarify 2026-11-01 câu 5).
 - Permission đã có `$FIELD` ghi tay ở Directus (D-204 không chặn được): ở Backoffice điều kiện hàng chạy như so sánh hai
   field; ở Directus so với chuỗi nguyên văn. Như D-185 của 023.
-- Bookmark có `$FIELD` mở trên Directus app: Directus so field với chuỗi nguyên văn `'$FIELD(b)'`. [Unverified] cột
-  chuỗi ra 0 dòng; cột số/ngày: Directus ép kiểu giá trị theo field a (`Number('$FIELD(b)')` = NaN, ngày không parse
-  được) nên 400 hoặc 0 dòng tùy vendor và kiểu. Đo ở lượt 1 (T002 như 023) rồi ghi vào D-203.1.
+- Bookmark có `$FIELD` mở trên Directus app: Directus so field với chuỗi nguyên văn `'$FIELD(b)'`: cột chuỗi 0 dòng
+  (`_neq`: mọi dòng), cột số 400, cột timestamp/boolean/uuid 500 với thông điệp SQL của Postgres (T002 2026-11-01; SQLite
+  ở T009).
 - Response cache dùng chung với Directus (005): request có `$FIELD` có key riêng theo query; từ 026 request của người
   dùng chỉ tới domain Backoffice nên Directus không trả lại entry đó. [Inference]
 - Hiệu năng: so hai cột không dùng index B-tree của cột; collection lớn quét bảng. Không tạo index, không có ngưỡng
@@ -189,9 +190,10 @@ mở DrawerCollection, Settings > Policies, Insights.
   `boolean`, `uuid`; field m2o thuộc nhóm theo kiểu cột khóa ngoại của nó (m2o tới users là `uuid`) (clarify
   2026-11-01 câu 1). Khác nhóm, ngày giờ khác kiểu lưu, field b không có trong collection, field b có dấu chấm, hoặc một
   vế thuộc kiểu ngoài năm nhóm: 400 `INVALID_QUERY` với thông báo nêu hai field và lý do (sửa khi checklist
-  2026-11-01); không chạy query. User không phải admin:
-  field b không có hoặc không có quyền đọc cho 403 `FORBIDDEN` trước khi tới kiểm kiểu, vì bước kiểm quyền đường dẫn
-  chạy trước (FR-006; sửa khi plan 2026-11-01, research R3).
+  2026-11-01); không chạy query. Field b không có trong collection: 403 `FORBIDDEN` "...or it does not exist" cho mọi
+  user kể cả admin, như Directus trả cho filter key không tồn tại, vì bước kiểm đường dẫn chạy trước kiểm kiểu (FR-006;
+  sửa khi plan 2026-11-01, research R3; đo ở lượt 1: admin cũng 403). Tên sai dạng (rỗng, dấu chấm, khoảng trắng)
+  không vào bước kiểm đường dẫn nên vẫn 400 rõ lý do.
 - **FR-004**: So sánh là so sánh cột với cột của SQL chuẩn trên mọi vendor Directus hỗ trợ (Postgres, MySQL/MariaDB,
   SQLite, MSSQL, Oracle, CockroachDB, Redshift; sửa khi checklist 2026-11-01), không dùng hàm riêng dialect; một vế null thì không khớp với mọi toán tử trong
   sáu toán tử.
@@ -279,9 +281,9 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
-| D-203 | Giá trị `$FIELD(b)` ở vế phải của `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte` (`/items`, `SEARCH`, export; cùng engine nên cả endpoint collection hệ thống, aggregate và service gọi engine, parity chỉ đo `/items`: sửa khi checklist 2026-11-01) | Chuỗi thường: so với `'$FIELD(b)'` (0 dòng) hoặc 400 khi ép kiểu số/ngày [Unverified, đo ở lượt 1 trên Postgres và SQLite; ngày parse theo vendor, analyze I3] | So field a với field b của cùng item; khác nhóm kiểu, field không có, qua quan hệ: 400; chuỗi nguyên văn `$FIELD(...)` không còn lọc được như giá trị thường (như `$NOW`) | Yêu cầu chủ dự án 2026-11-01 | khác (duyệt 2026-11-01) | — |
-| D-203.1 | Bookmark/preset có `$FIELD` mở ở Directus app | Không có nút chọn field; gõ tay `$FIELD(b)` được ở field chuỗi, là chuỗi thường (analyze I4) | Lưu vào `directus_presets` dùng chung; Directus app mở bookmark đó cho kết quả của D-203 cột Directus | Chủ dự án 2026-11-01: chấp nhận | khác (duyệt 2026-11-01) | — |
-| D-204 | Permission có điều kiện hàng hoặc validation chứa `$FIELD` | Lưu được; request của role đó chạy với chuỗi thường | 400 khi lưu (REST, GraphQL, `/backoffice/permissions`); chỉ permission, không kiểm `/fields`, `/flows`, `/operations` | Như D-185: tránh một permission làm hỏng mọi request của role | khác (duyệt 2026-11-01) | — |
+| D-203 | Giá trị `$FIELD(b)` ở vế phải của `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte` (`/items`, `SEARCH`, export; cùng engine nên cả endpoint collection hệ thống, aggregate và service gọi engine, parity chỉ đo `/items`: sửa khi checklist 2026-11-01) | Chuỗi thường (T002, Postgres): field số 400 `INVALID_QUERY` "Invalid numeric value"; field chuỗi 200 so với chuỗi nguyên văn (`_eq` 0 dòng, `_neq` mọi dòng); field timestamp, boolean, uuid: Postgres 500 `INTERNAL_SERVER_ERROR` với thông điệp SQL; SQLite 200 so text (0 dòng, `_neq` mọi dòng); MySQL 8 timestamp 500, boolean và uuid 200; `/utils/export` 204 rồi job lỗi ngầm; vendor nightly chưa đo | So field a với field b của cùng item; khác nhóm kiểu, field không có, qua quan hệ: 400; chuỗi nguyên văn `$FIELD(...)` không còn lọc được như giá trị thường (như `$NOW`) | Yêu cầu chủ dự án 2026-11-01 | khác (duyệt 2026-11-01) | — |
+| D-203.1 | Bookmark/preset có `$FIELD` mở ở Directus app | Không có nút chọn field; gõ tay `$FIELD(b)` được ở field chuỗi, là chuỗi thường (analyze I4) | Lưu vào `directus_presets` dùng chung (T002: `POST /presets` 200 ở Directus); Directus app mở bookmark đó gửi cùng filter và nhận kết quả của D-203 cột Directus (400 với field số, 500 với ngày/boolean/uuid, 0 dòng với chuỗi) | Chủ dự án 2026-11-01: chấp nhận | khác (duyệt 2026-11-01) | — |
+| D-204 | Permission có điều kiện hàng hoặc validation chứa `$FIELD` | Lưu được (lượt 1: 200); request của role đó chạy với chuỗi thường | 400 `INVALID_PAYLOAD` khi lưu (REST, GraphQL, `/backoffice/permissions`); chỉ permission, không kiểm `/fields`, `/flows`, `/operations`; bộ đối chiếu: entry `http` D-185 (cùng endpoint và mã) nhận khác biệt, D-204 là `doc` | Như D-185: tránh một permission làm hỏng mọi request của role | khác (duyệt 2026-11-01) | — |
 | D-205 | GraphQL `/graphql` | Input `<collection>_filter` chỉ có `<field>` và `<field>_func` | Thêm `<field>_field: field_compare_operators` (sáu toán tử, giá trị `field_ref { field }` là key field b; sửa khi plan 2026-11-01) cho field số, ngày giờ, chuỗi, boolean, uuid, ánh xạ về `$FIELD(b)`; introspection và SDL khác ở các field `*_field` và hai type `field_compare_operators`, `field_ref`, bộ đối chiếu bỏ chúng như D-186 | Chủ dự án 2026-11-01: GraphQL cùng feature | khác (duyệt 2026-11-01) | — |
 | D-206 | Nút chọn field trong ô giá trị của dòng lọc | Không có | Chỉ ở bộ lọc của trang Content; DrawerCollection, permission, validation, flow, Insights, Presets, Files, Users, Activity không có | Chủ dự án 2026-11-01: chỉ trang Content | khác (duyệt 2026-11-01) | — |
 
@@ -303,6 +305,15 @@ component mới (FR-015, chủ dự án kiêm design owner).
 
 - D-203, D-203.1, D-204, D-205 (giá trị `field_ref`), D-206: duyệt hết. Collation theo cột, mẫu design-system ghép từ
   Q-7: chốt cùng lượt.
+
+### Kết quả T001, T002, T009 khi implement lượt 1 (2026-11-01)
+
+- T001: `knex.ref` ở vế phải của `where` in ra định danh, không binding (research R1).
+- T002: Directus với `$FIELD` theo vendor ở cột Directus của D-203 (Postgres, SQLite, MySQL 8 đo bằng script tạm).
+- Field b không có: 403 `FORBIDDEN` cho cả admin (FR-003, research R3); field m2o là cột khóa ngoại nên so được với
+  field cùng nhóm (`total _eq $FIELD(customer)` với FK integer, clarify câu 1).
+- Bộ đối chiếu: D-204 là `doc` vì entry `http` D-185 (cùng endpoint, cùng mã `INVALID_PAYLOAD`) khớp trước.
+- Parity xanh trên Postgres 16, SQLite, MySQL 8 (T009); MySQL so chuỗi không phân biệt hoa thường.
 
 ### Sửa khi `/speckit.analyze` (2026-11-01, chủ dự án: sửa hết, I1 theo cách a)
 

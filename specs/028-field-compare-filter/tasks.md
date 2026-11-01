@@ -54,11 +54,11 @@ liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify update .`).
 **Purpose**: chốt hai điểm chưa kiểm trước khi viết code; kết quả có thể đổi chi tiết SQL của R1 và cột Directus của
 D-203.
 
-- [ ] T001 Kiểm R1 bằng test tạm với `knex-mock-client` (`Client_PG`, `Client_SQLite3` của `aq/mock.ts`):
+- [X] T001 Kiểm R1 bằng test tạm với `knex-mock-client` (`Client_PG`, `Client_SQLite3` của `aq/mock.ts`):
       `qb.where(knex.ref('t.a'), '<>', knex.ref('t.b')).toSQL()` in `"t"."a" <> "t"."b"` không binding; nếu knex bind
       `Ref` làm giá trị thì đổi R1 sang `whereRaw('?? <> ??', [refA, refB])`. Ghi "Kết quả T001" vào
       `specs/028-field-compare-filter/research.md` (R1) và sửa `contracts/api.md` nếu đổi.
-- [ ] T002 Đo Directus 11.17.4 trên env parity Postgres (`pnpm nx run parity-tests:env-up --vendor=postgres`): tạo
+- [X] T002 Đo Directus (Postgres; SQLite ở T009) 11.17.4 trên env parity Postgres (`pnpm nx run parity-tests:env-up --vendor=postgres`): tạo
       collection tạm qua `/collections` của Directus với field số, chuỗi, `timestamp`, `boolean`, `uuid`; gửi
       `GET /items` với `$FIELD(b)` cho sáu toán tử trên từng nhóm, `SEARCH`, `?export=csv`; lưu bookmark vào
       `directus_presets` rồi gửi cùng filter (như Directus app); lặp lại các request trên env SQLite (`--vendor=sqlite3`,
@@ -74,7 +74,7 @@ D-203.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T003 [P] Tạo `aq/filter/field-compare.test.ts`: `parseFieldCompare` (`$FIELD(b)` → `b`; `$FIELD( b )` → `b`;
+- [X] T003 [P] Tạo `aq/filter/field-compare.test.ts`: `parseFieldCompare` (`$FIELD(b)` → `b`; `$FIELD( b )` → `b`;
       `$FIELD(a.b)` → `a.b`, `$FIELD()` → `''`, `$FIELD(b);--` → `b);--`; `$FIELD`, `$FIELD(b`, `$field(b)`, số, null,
       object → `null`); `assertFieldCompare` với tên sai dạng (`''`, `a.b`, `a b`, `b);--`) ném 400 "a field of the same
       collection is expected" (analyze I1); `fieldCompareGroup` theo bảng
@@ -82,7 +82,7 @@ D-203.
       geometry → `null`); `assertFieldCompare` với `SchemaOverview` giả (field không có, `alias: true`, khác nhóm, date
       với timestamp, integer với decimal qua, field b = field a qua) ném `InvalidQueryError` đúng câu chữ
       `contracts/api.md`; `hasFieldCompare` (lồng `_and`/`_or`/`_some`/object, `_in` với `$FIELD` → false). Chạy đỏ.
-- [ ] T004 [P] Thêm vào `aq/filter/operator.test.ts` (`Client_SQLite3` và `Client_PG`): sáu toán tử với `$FIELD(b)` trên
+- [X] T004 [P] Thêm vào `aq/filter/operator.test.ts` (`Client_SQLite3` và `Client_PG`): sáu toán tử với `$FIELD(b)` trên
       field integer → `"t"."a" = "t"."b"`, `<>`, `>`, `>=`, `<`, `<=` không binding, không gọi `castToNumber`; qua alias
       quan hệ (`table` = alias, `originalCollectionName` = collection đích) → `"alias"."b"`; `_contains` với `$FIELD(b)`
       → LIKE với binding `%$FIELD(b)%`; `year(x)` với `$FIELD(b)` → `InvalidQueryError` "only allowed on a plain field";
@@ -90,10 +90,10 @@ D-203.
 
 ### Implementation
 
-- [ ] T005 Tạo `aq/filter/field-compare.ts` theo `contracts/api.md` "field-compare.ts" và research R1, R2 (hằng
+- [X] T005 Tạo `aq/filter/field-compare.ts` theo `contracts/api.md` "field-compare.ts" và research R1, R2 (hằng
       `FIELD_COMPARE_OPERATORS`, `FIELD_COMPARE_SQL`, `parseFieldCompare`, `fieldCompareGroup`, `assertFieldCompare`,
       `hasFieldCompare`; header `// Backoffice (spec 028, D-203)`). T003 xanh.
-- [ ] T006 Sửa `aq/filter/operator.ts`: sau khi tách `column` và trước nhánh json, nhánh `$FIELD` (R1): kiểm field thường,
+- [X] T006 Sửa `aq/filter/operator.ts`: sau khi tách `column` và trước nhánh json, nhánh `$FIELD` (R1): kiểm field thường,
       `assertFieldCompare(schema, originalCollectionName || table, column, b)`, `dbQuery[logical].where(selectionRaw,
       FIELD_COMPARE_SQL[operator], getColumn(knex, table, b, false, schema, { originalCollectionName }))`, `return`;
       comment `// Backoffice (spec 028, D-203)`. T004 xanh; `aq/filter/index.test.ts`, `aq/sort.test.ts`,
@@ -110,7 +110,7 @@ không khớp, lồng qua quan hệ, trên Postgres, MySQL, SQLite; request khô
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T007 [P] [US1] Tạo `parity/items/field-compare.test.ts` theo `parity/items/json-path.test.ts` và research R8:
+- [X] T007 [P] [US1] Tạo `parity/items/field-compare.test.ts` theo `parity/items/json-path.test.ts` và research R8:
       collection `parity_field_compare_<run>` (fields `total`, `paid_amount` integer; `price` decimal; `published_at`,
       `updated_at` timestamp; `title`, `slug` string; `body` text; `active`, `featured` boolean; `owner`, `reviewer` uuid)
       và `parity_field_compare_orders_<run>` với m2o; hàng có null; case: sáu toán tử × nhóm số (kể cả `total` với
@@ -123,14 +123,14 @@ không khớp, lồng qua quan hệ, trên Postgres, MySQL, SQLite; request khô
       `INVALID_QUERY` đúng câu chữ, Directus theo T002; với mỗi request Backoffice kiểm tập id mong đợi; request
       Directus trả 200 khác body (chuỗi) so riêng từng app. Thêm file vào `parity/suite.ts` (`full` glob và `reduced`)
       và `parity/vendors.test.ts` (như spec 023/024/027). Chạy đỏ (phần Backoffice).
-- [ ] T008 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts`: D-203 `http` (`feature: '028'`, endpoints `GET
+- [X] T008 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts`: D-203 `http` (`feature: '028'`, endpoints `GET
       /items/parity_field_compare_*`, `SEARCH /items/parity_field_compare_*`, `when` theo T002), D-203.1 `doc`; `pnpm nx
       run parity-tests:guard-differences` (tên target kiểm trong `tests/parity/project.json`) đọc được D-203..D-206 từ
       bảng của spec.
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Chạy T007 trên Postgres (`TEST_DB=postgres`), SQLite (`TEST_DB=sqlite3`), MySQL (`TEST_DB=mysql`);
+- [X] T009 [US1] Chạy T007 trên Postgres (`TEST_DB=postgres`), SQLite (`TEST_DB=sqlite3`), MySQL (`TEST_DB=mysql`);
       sửa cho tới xanh; ghi kết quả vendor (collation MySQL với `title`/`body`) vào `research.md` R10 "Kết quả T009".
 
 **Checkpoint**: US1 chạy độc lập qua REST trên ba vendor của CI.
@@ -145,14 +145,14 @@ quyền và D-204 xanh.
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T010 [P] [US4] Thêm vào `perm/utils/flatten-filter.test.ts`: `{ total: { _gt: '$FIELD(paid_amount)' } }` → paths
+- [X] T010 [P] [US4] Thêm vào `perm/utils/flatten-filter.test.ts`: `{ total: { _gt: '$FIELD(paid_amount)' } }` → paths
       có `['total']` và `['paid_amount']`; lồng `{ order: { total: {...} } }` → `['order', 'paid_amount']`; trong
       `_and`/`_or`/`_some`; `_in: ['$FIELD(x)']` và `_contains: '$FIELD(x)'` không thêm; case hiện có xanh. Chạy đỏ.
-- [ ] T011 [P] [US4] Thêm vào `api/services/permissions.service.test.ts` và
+- [X] T011 [P] [US4] Thêm vào `api/services/permissions.service.test.ts` và
       `api/services/backoffice-permissions.service.test.ts`: `permissions` hoặc `validation` (object và chuỗi JSON) có
       `$FIELD` ở toán tử trong sáu, lồng `_and`/`_some` → `InvalidPayloadError` `Permission filters cannot compare two
       fields ($FIELD(...))` ở `createOne`, `updateMany`; `_contains: '$FIELD(x)'` qua; json path vẫn bị chặn. Chạy đỏ.
-- [ ] T012 [P] [US4] Thêm vào `parity/items/field-compare.test.ts`: user có policy chỉ đọc `total` (fixtures
+- [X] T012 [P] [US4] Thêm vào `parity/items/field-compare.test.ts`: user có policy chỉ đọc `total` (fixtures
       `createUser`, `createPolicy`, `attachPolicy` của `parity/permissions/fixtures.ts`) gửi `total _gt
       $FIELD(paid_amount)` → 403 `FORBIDDEN` cả hai app (`assertParity`); cùng user với field b không có → 403 cả hai;
       policy có điều kiện hàng + `$FIELD` → tập id giao; `POST /permissions` và `PATCH /permissions/:id` với `$FIELD`
@@ -164,13 +164,13 @@ quyền và D-204 xanh.
 
 ### Implementation for User Story 4
 
-- [ ] T013 [US4] Sửa `perm/utils/flatten-filter.ts` theo research R3: ở nhánh toán tử, khi `key` ∈
+- [X] T013 [US4] Sửa `perm/utils/flatten-filter.ts` theo research R3: ở nhánh toán tử, khi `key` ∈
       `FIELD_COMPARE_OPERATORS` và `parseFieldCompare(current[key])` trả `b`, đẩy thêm `[...parts.slice(0, -1), b]`;
       comment `// Backoffice (spec 028, D-203)`. T010 xanh; `perm/lib/extract-fields-from-query.test.ts` xanh.
-- [ ] T014 [US4] Sửa `api/services/permissions.service.ts`: `assertNoJsonPathFilter` → `assertNoBackofficeFilter`
+- [X] T014 [US4] Sửa `api/services/permissions.service.ts`: `assertNoJsonPathFilter` → `assertNoBackofficeFilter`
       (export; thêm `hasFieldCompare`, thông điệp D-204, comment ghi D-185 + D-204); sửa
       `api/services/backoffice-permissions.service.ts` gọi hàm đó ở `createOne` và `updateMany`. T011 xanh.
-- [ ] T015 [US4] Chạy T012 trên Postgres; sửa tới xanh; `guard-differences` xanh với D-204.
+- [X] T015 [US4] Chạy T012 trên Postgres; sửa tới xanh; `guard-differences` xanh với D-204.
 - [ ] T016 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `api:test` các file đã sửa và cả
       `aq/`, `perm/`, `api/services/permissions*`, `api/services/backoffice-permissions*` (coverage BE ≥ 80 %); parity
       Postgres (`field-compare`, `crud`, `export`, `permissions/backoffice-permissions`), SQLite và MySQL

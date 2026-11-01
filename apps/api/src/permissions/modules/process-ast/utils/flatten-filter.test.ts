@@ -197,3 +197,55 @@ test('Does not look into operators that might contain objects', () => {
 
 	expect(paths).toEqual([]);
 });
+
+// Backoffice (spec 028, D-203): `$FIELD(b)` reads field b of the same collection, so b joins the paths like a key.
+test('Adds the field of a $FIELD(b) value next to the key', () => {
+	const paths: FieldKey[][] = [];
+
+	flattenFilter(paths, { total: { _gt: '$FIELD(paid_amount)' } } as Filter);
+
+	expect(paths).toEqual([['total'], ['paid_amount']]);
+});
+
+test('Adds the field of a $FIELD(b) value in the collection of a nested key', () => {
+	const paths: FieldKey[][] = [];
+
+	flattenFilter(paths, {
+		_and: [
+			{ order: { total: { _lte: '$FIELD(paid_amount)' } } },
+			{ lines: { _some: { qty: { _neq: '$FIELD(shipped)' } } } },
+		],
+	} as Filter);
+
+	expect(paths).toEqual([
+		['lines', 'qty'],
+		['lines', 'shipped'],
+		['order', 'total'],
+		['order', 'paid_amount'],
+	]);
+});
+
+test('Leaves a malformed $FIELD name (relation, empty, spaces) to applyOperator', () => {
+	const paths: FieldKey[][] = [];
+
+	flattenFilter(paths, {
+		total: { _gt: '$FIELD(customer.credit)' },
+		price: { _eq: '$FIELD()' },
+		slug: { _neq: '$FIELD(a b)' },
+	} as Filter);
+
+	expect(paths).toEqual([['slug'], ['price'], ['total']]);
+});
+
+test('Keeps $FIELD(...) strings of other operators and plain strings out of the paths', () => {
+	const paths: FieldKey[][] = [];
+
+	flattenFilter(paths, {
+		title: { _contains: '$FIELD(slug)' },
+		tags: { _in: ['$FIELD(slug)'] },
+		owner: { _eq: '$CURRENT_USER' },
+		slug: { _eq: '$field(title)' },
+	} as Filter);
+
+	expect(paths).toEqual([['slug'], ['owner'], ['tags'], ['title']]);
+});

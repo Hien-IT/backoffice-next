@@ -9,7 +9,7 @@ Không có bảng, cột, migration, dòng `directus_*` hay dependency mới (Ng
 |------------|---------|-----------|
 | key (field a) | tên field thường của collection đích (sau quan hệ nếu có: `{ order: { total: {...} } }`) | không hàm (`year(...)`, `json(...)`): 400 |
 | toán tử | `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte` | phải nằm trong bảng toán tử DR của kiểu field a (`uuid`, `boolean`: chỉ `_eq`, `_neq`); toán tử khác với chuỗi `$FIELD(...)`: giá trị thường |
-| giá trị (field b) | chuỗi `$FIELD(<b>)`; `<b>` sau trim phải khớp `[^\s().,]+` (rỗng, dấu chấm, khoảng trắng: 400, analyze I1) | field b có trong collection của field a, `alias === false`, cùng nhóm kiểu (bảng dưới); khác: 400 `INVALID_QUERY` (admin) hoặc 403 `FORBIDDEN` trước đó khi user không có quyền đọc b hoặc b không tồn tại (kiểm quyền path chạy trước, research R3) |
+| giá trị (field b) | chuỗi `$FIELD(<b>)`; `<b>` sau trim phải khớp `[^\s().,]+` (rỗng, dấu chấm, khoảng trắng: 400, analyze I1) | field b có trong collection của field a, `alias === false`, cùng nhóm kiểu (bảng dưới); khác nhóm, alias, tên sai dạng: 400 `INVALID_QUERY`; b không tồn tại hoặc user không có quyền đọc b: 403 `FORBIDDEN` cho mọi user (kiểm đường dẫn chạy trước, research R3, lượt 1) |
 
 Nhóm kiểu (`fieldCompareGroup`, clarify 2026-11-01 câu 1):
 

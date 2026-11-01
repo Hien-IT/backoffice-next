@@ -155,3 +155,25 @@ describe('BackofficePermissionsService', () => {
 		expect(activity[0].user).toBe(USER);
 	});
 });
+
+// Backoffice (spec 028, D-204): the row filter and validation of backoffice_permissions refuse $FIELD like directus_permissions.
+describe('BackofficePermissionsService refuses $FIELD in filters', () => {
+	test.each([
+		['permissions', { total: { _gt: '$FIELD(paid_amount)' } }],
+		['validation', JSON.stringify({ _or: [{ updated_at: { _lte: '$FIELD(published_at)' } }] })],
+	])('a $FIELD value in %s is refused on create and update', async (key, value) => {
+		await expect(service().createOne({ ...ROW, [key]: value })).rejects.toMatchObject({
+			code: 'INVALID_PAYLOAD',
+			message: expect.stringContaining('cannot compare two fields'),
+		});
+
+		const id = await service().createOne(ROW);
+		await expect(service().updateOne(id, { [key]: value })).rejects.toMatchObject({ code: 'INVALID_PAYLOAD' });
+	});
+
+	test('a json path is refused too (D-185)', async () => {
+		await expect(
+			service().createOne({ ...ROW, permissions: { 'json(meta, a, number)': { _eq: 1 } } }),
+		).rejects.toMatchObject({ code: 'INVALID_PAYLOAD' });
+	});
+});

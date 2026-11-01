@@ -3,16 +3,17 @@
 ## Query (`GET`/`SEARCH /items/:collection`, `?export=`, `POST /utils/export/:collection`)
 
 Không path, query, response, status, header mới. Chỉ giá trị của `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte` nhận
-thêm dạng `$FIELD(<b>)` (FR-001..FR-007). Cột Directus ghi dự đoán [Unverified], T002 đo và sửa bảng này.
+thêm dạng `$FIELD(<b>)` (FR-001..FR-007). Cột Directus theo T002 (2026-11-01, Postgres); chuỗi, uuid, boolean chỉ có
+`_eq`/`_neq` trong bảng toán tử DR (`_gt` 400 ở cả hai app trước khi tới `$FIELD`).
 
 | Request (admin, trừ dòng ghi user) | Backoffice | Directus 11.17.4 |
 |------------------------------------|------------|------------------|
-| `GET /items/c?filter[total][_gt]=$FIELD(paid_amount)` | 200, item có `total > paid_amount` | 400 `INVALID_QUERY` "Invalid numeric value" [Unverified] |
-| `...?filter={"updated_at":{"_gt":"$FIELD(published_at)"}}` | 200 | lỗi parse ngày [Unverified: 400 hoặc 500] |
-| `...?filter[title][_eq]=$FIELD(slug)` | 200, item có `title = slug` | 200, 0 dòng (so với chuỗi) [Unverified] |
-| `...?filter[active][_neq]=$FIELD(featured)` | 200, không dòng nào có một vế null | 400 hoặc 200/0 dòng [Unverified] |
+| `GET /items/c?filter[total][_gt]=$FIELD(paid_amount)` | 200, item có `total > paid_amount` | 400 `INVALID_QUERY` "Invalid numeric value" (T002) |
+| `...?filter={"updated_at":{"_gt":"$FIELD(published_at)"}}` | 200 | Postgres và MySQL 500 `INTERNAL_SERVER_ERROR` (Postgres: `invalid input syntax for type timestamp with time zone: "$FIELD(published_at)"`); SQLite 200, 0 dòng (T002) |
+| `...?filter[title][_eq]=$FIELD(slug)` | 200, item có `title = slug` | 200, 0 dòng (so với chuỗi; `_neq`: mọi dòng) (T002) |
+| `...?filter[active][_neq]=$FIELD(featured)`, `owner _eq $FIELD(reviewer)` | 200, không dòng nào có một vế null | Postgres 500 `INTERNAL_SERVER_ERROR` `invalid input syntax for type boolean` / `uuid`; SQLite và MySQL 200 (`_eq` 0 dòng, `_neq` mọi dòng) (T002) |
 | `...?filter[total][_eq]=$FIELD(title)` | 400 `INVALID_QUERY` `"$FIELD(title)" must be a number field like "total" (got string)` | 400 "Invalid numeric value" |
-| `...?filter[total][_eq]=$FIELD(nope)` | 400 `INVALID_QUERY` `"$FIELD(nope)": unknown field "nope" in collection "c"` (admin); user thường: 403 `FORBIDDEN` (kiểm quyền path trước, research R3) | 400 "Invalid numeric value" |
+| `...?filter[total][_eq]=$FIELD(nope)` | 403 `FORBIDDEN` `You don't have permission to access field "nope" in collection "c" or it does not exist` cho mọi user kể cả admin (kiểm đường dẫn trước, như filter key lạ; lượt 1) | 400 "Invalid numeric value" |
 | `...?filter[total][_eq]=$FIELD(tags)` (o2m alias) | 400 `"$FIELD(tags)" must be a column field` | 400 |
 | `...?filter[total][_eq]=$FIELD(author.age)`, `$FIELD()`, `$FIELD(a b)` | 400 `INVALID_QUERY` `"$FIELD(author.age)": a field of the same collection is expected (no relation, no spaces)` (analyze I1) | 400 ép số (field số) / 200, 0 dòng (field chuỗi) |
 | `...?filter[title][_eq]=$field(slug)` hoặc `$FIELD(slug` | 200, chuỗi thường như Directus | 200 |
@@ -22,8 +23,9 @@ thêm dạng `$FIELD(<b>)` (FR-001..FR-007). Cột Directus ghi dự đoán [Unv
 | `...?filter[total][_in]=$FIELD(paid_amount)` | 200, `IN ('$FIELD(paid_amount)')` → 400 ép số, như Directus | 400 |
 | user không có quyền đọc `paid_amount`, `filter[total][_gt]=$FIELD(paid_amount)` | 403 `FORBIDDEN` như lọc thẳng `paid_amount` (FR-006) | 403 nếu không có quyền `total`; có quyền `total`: 400 ép số |
 | `{ order: { total: { _gt: "$FIELD(paid_amount)" } } }` (qua m2o, hai field của `orders`) | 200 | 400 |
-| `SEARCH /items/c` body `{ query: { filter: {...} } }`, `?export=csv`, `POST /utils/export/c` | như GET | như GET |
-| `GET /users?filter[first_name][_eq]=$FIELD(last_name)` (collection hệ thống, cùng engine; CHK002) | 200, so hai field; parity không đo, D-203 ghi | như `/items` (chuỗi: 0 dòng) [Unverified] |
+| `SEARCH /items/c` body `{ query: { filter: {...} } }`, `?export=csv` | như GET | như GET (T002) |
+| `POST /utils/export/c` với `$FIELD` | 204, file đúng | 204, job nền lỗi, không có file (T002) |
+| `GET /users?filter[first_name][_eq]=$FIELD(last_name)` (collection hệ thống, cùng engine; CHK002) | 200, so hai field; parity không đo, D-203 ghi | như `/items` (chuỗi: 0 dòng) |
 
 `meta=filter_count`: đếm theo cùng điều kiện. `_and`/`_or`: như mọi giá trị. Response cache: key theo query, không đổi.
 
@@ -48,8 +50,9 @@ export function hasFieldCompare(filter: unknown): boolean;               // cho 
 
 ### Quyền (`apps/api/src/permissions/modules/process-ast/utils/flatten-filter.ts`)
 
-Nhánh toán tử (:23-26): thêm `[...parts.slice(0, -1), b]` vào `paths` khi `key` ∈ sáu toán tử và giá trị là
-`$FIELD(b)`. Hệ quả: field b vào `readOnlyPaths` → kiểm tồn tại và quyền đọc như một filter key (403 `FORBIDDEN`).
+Nhánh toán tử (:23-26): thêm `[...parts.slice(0, -1), b]` vào `paths` khi `key` ∈ sáu toán tử, giá trị là `$FIELD(b)`
+và `b` là tên hợp lệ (`isFieldCompareName`; tên sai dạng để `applyOperator` trả 400). Hệ quả: field b vào
+`readOnlyPaths` → kiểm tồn tại và quyền đọc như một filter key (403 `FORBIDDEN`, admin cũng vậy khi field không có).
 
 ## Permission (`POST/PATCH /permissions`, GraphQL `create/update_directus_permissions_item(s)`, `/backoffice/permissions`)
 

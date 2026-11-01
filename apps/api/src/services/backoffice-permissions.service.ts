@@ -16,6 +16,7 @@ import type {
 import { clearSystemCache } from '../cache.js';
 import { validateAccess } from '../permissions/modules/validate-access/validate-access.js';
 import { ItemsService } from './items.service.js';
+import { assertNoBackofficeFilter } from './permissions.service.js';
 
 export const TABLE = 'backoffice_permissions';
 
@@ -40,6 +41,8 @@ export class BackofficePermissionsService extends ItemsService {
 	override async createOne(data: Partial<Item>, opts?: MutationOptions): Promise<PrimaryKey> {
 		await this.assertAccess('create');
 		assertAction(data);
+		// Backoffice (spec 028, D-204): no json path and no $FIELD in the row filter or validation, as directus_permissions.
+		assertNoBackofficeFilter(data);
 
 		const key = await super.createOne(data, opts);
 		await this.clearCaches(opts);
@@ -54,6 +57,7 @@ export class BackofficePermissionsService extends ItemsService {
 	override async updateMany(keys: PrimaryKey[], data: Partial<Item>, opts?: MutationOptions): Promise<PrimaryKey[]> {
 		await this.assertAccess('update');
 		if ('action' in data) assertAction(data);
+		assertNoBackofficeFilter(data);
 
 		const result = await super.updateMany(keys, data, opts);
 		await this.clearCaches(opts);

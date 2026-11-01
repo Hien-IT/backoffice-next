@@ -151,6 +151,35 @@ describe('PermissionsService', () => {
 		expect(await db('directus_permissions').where({ id }).first()).toMatchObject({ [key]: null });
 	});
 
+	// Backoffice (spec 028, D-204)
+	test.each([
+		['permissions', { total: { _gt: '$FIELD(paid_amount)' } }],
+		['validation', { _and: [{ title: { _nnull: true } }, { updated_at: { _gte: '$FIELD(published_at)' } }] }],
+		['permissions', JSON.stringify({ _or: [{ order: { total: { _neq: '$FIELD(paid_amount)' } } }] })],
+		['permissions', { lines: { _some: { qty: { _lt: '$FIELD(shipped)' } } } }],
+	])('a $FIELD value in %s is refused on create and update', async (key, value) => {
+		const message = 'Permission filters cannot compare two fields ($FIELD(...))';
+
+		await expect(
+			service().createOne({ collection: 'directus_users', action: 'read', policy: OTHER_POLICY, [key]: value }),
+		).rejects.toThrow(message);
+
+		const id = await service().createOne({ collection: 'directus_users', action: 'read', policy: OTHER_POLICY });
+		await expect(service().updateOne(id, { [key]: value })).rejects.toThrow(message);
+		expect(await db('directus_permissions').where({ id }).first()).toMatchObject({ [key]: null });
+	});
+
+	test('a $FIELD string outside the six comparison operators is saved as a plain value (spec 028)', async () => {
+		const id = await service().createOne({
+			collection: 'directus_users',
+			action: 'read',
+			policy: OTHER_POLICY,
+			permissions: { _and: [{ title: { _contains: '$FIELD(slug)' } }, { slug: { _in: ['$FIELD(title)'] } }] },
+		});
+
+		expect(id).toBeDefined();
+	});
+
 	test('filters without a json path are saved as before', async () => {
 		const id = await service().createOne({
 			collection: 'directus_users',

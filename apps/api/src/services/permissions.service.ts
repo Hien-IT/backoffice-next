@@ -19,6 +19,7 @@ import { fetchPolicies } from '../permissions/lib/fetch-policies.js';
 import { withAppMinimalPermissions } from '../permissions/lib/with-app-minimal-permissions.js';
 import type { ValidateAccessOptions } from '../permissions/modules/validate-access/validate-access.js';
 import { validateAccess } from '../permissions/modules/validate-access/validate-access.js';
+import { hasFieldCompare } from '../database/run-ast/lib/apply-query/filter/field-compare.js';
 import { flattenFilter } from '../permissions/modules/process-ast/utils/flatten-filter.js';
 import { ItemsService } from './items.service.js';
 
@@ -42,7 +43,7 @@ export class PermissionsService extends ItemsService {
 	}
 
 	override async createOne(data: Partial<Item>, opts?: MutationOptions) {
-		assertNoJsonPathFilter(data);
+		assertNoBackofficeFilter(data);
 
 		const res = await super.createOne(data, opts);
 
@@ -68,7 +69,7 @@ export class PermissionsService extends ItemsService {
 	}
 
 	override async updateMany(keys: PrimaryKey[], data: Partial<Item>, opts?: MutationOptions) {
-		assertNoJsonPathFilter(data);
+		assertNoBackofficeFilter(data);
 
 		const res = await super.updateMany(keys, data, opts);
 
@@ -199,9 +200,10 @@ export class PermissionsService extends ItemsService {
 /**
  * Backoffice (spec 023, D-185): a permission whose row filter or validation uses a json(field, path[, type]) key is
  * refused, as DR cannot run it and every request of the role would fail there. createMany, updateBatch, upsertMany and
- * nested writes from policies go through createOne and updateMany.
+ * nested writes from policies go through createOne and updateMany. Spec 028 (D-204): the same for a `$FIELD(b)` value
+ * (DR would compare with the string); BackofficePermissionsService calls it too.
  */
-function assertNoJsonPathFilter(data: Partial<Item>) {
+export function assertNoBackofficeFilter(data: Partial<Item>) {
 	for (const key of ['permissions', 'validation'] as const) {
 		const value = data[key];
 		if (value === undefined || value === null) continue;
@@ -212,6 +214,10 @@ function assertNoJsonPathFilter(data: Partial<Item>) {
 
 		if (paths.some((path) => path.some((part) => part.trim().startsWith('json(')))) {
 			throw new InvalidPayloadError({ reason: 'Permission filters cannot use a JSON path (json(...))' });
+		}
+
+		if (hasFieldCompare(filter)) {
+			throw new InvalidPayloadError({ reason: 'Permission filters cannot compare two fields ($FIELD(...))' });
 		}
 	}
 }

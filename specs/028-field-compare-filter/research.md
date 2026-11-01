@@ -44,6 +44,10 @@ Alias bảng: ở root `table` là `aliasMap[''].alias || collection` (`filter/i
 field a nên dùng lại đúng `table` đó. Hai vế không ghép chuỗi người dùng: tên b chỉ vào SQL qua `knex.ref` sau khi tra
 schema (FR-007).
 
+**Kết quả T001** (2026-11-01, script tạm với knex 3.1 của `apps/api`): `where(knex.ref('t.a'), '<>', knex.ref('t.b'))`
+sinh `"t"."a" <> "t"."b"` không binding trên `MockClient`, `pg`, `sqlite3` (backtick) và `mysql2`; `whereNot(ref, ref)`
+sinh `not "t"."a" = "t"."b"`, nên `_neq` dùng `where(..., '<>', ...)` như R1. Không cần `whereRaw`.
+
 **Rationale**: một chỗ, trước `cast`, không đụng bảng toán tử của DR; `getColumn` đã là cách vế trái vào SQL.
 
 Tên b (analyze I1, chủ dự án chọn cách a 2026-11-01): mọi chuỗi `$FIELD(...)` là giá trị động, nên `$FIELD()`,
@@ -83,6 +87,10 @@ field a, không nới).
 đường dẫn key vào `paths` khi gặp toán tử (`:23-26`), không nhìn giá trị; `extractPathsFromQuery` (:26) đưa chúng vào
 `readOnlyPaths` → `extractFieldsFromQuery` → `validatePathExistence`/kiểm quyền đọc theo field map. Không sửa thì user
 không có quyền đọc b vẫn dò được b qua `a = $FIELD(b)` (spec #5).
+
+**Kết quả lượt 1** (2026-11-01, parity Postgres): `validatePathExistence` chạy cho admin nữa, nên `$FIELD(nope)` là 403
+`FORBIDDEN` "...or it does not exist" cho mọi user (như Directus với filter key lạ); chỉ tên hợp lệ
+(`isFieldCompareName`) được đẩy vào `paths`, tên sai dạng (`$FIELD()`, `$FIELD(a.b)`) để `applyOperator` trả 400 rõ.
 
 **Decision**: trong nhánh toán tử của `flattenFilter`, nếu `key` ∈ `FIELD_COMPARE_OPERATORS` và
 `parseFieldCompare(current[key])` trả `b`: đẩy thêm `[...parts.slice(0, -1), b]` (cùng collection: thay phần cuối).
@@ -189,6 +197,19 @@ Date('$FIELD(b)')` không hợp lệ: Postgres helper trả chuỗi "Invalid Dat
 [Unverified]. T002 đo cả ba nhóm trên Postgres (profile chính) và ghi vào D-203/D-203.1 và contracts/api.md; E2E ở
 `proxy-directus` mong đúng hành vi đo được (SC-005).
 
+**Kết quả T002** (2026-11-01, Directus 11.17.4 trên env parity Postgres, script tạm, 2 dòng, admin): field số với
+`$FIELD(b)` (sáu toán tử, cũng `$FIELD(title)`, `$FIELD(nope)`, `$FIELD()`): 400 `INVALID_QUERY` "Invalid numeric
+value"; field chuỗi: `_eq` 200 với 0 dòng, `_neq` 200 với mọi dòng (so với chuỗi nguyên văn), `_gt` 400 (toán tử
+không có cho chuỗi, cũng ở Backoffice); field `timestamp`, `boolean`, `uuid`: 500 `INTERNAL_SERVER_ERROR` với thông
+điệp SQL của Postgres (`invalid input syntax for type timestamp with time zone: "$FIELD(published_at)"`); `_contains`
+200 với 0 dòng; `_null: '$FIELD(x)'` 400 "_null has to be a boolean"; `SEARCH` và `?export=csv` như `GET`;
+`POST /utils/export` 204 (job nền lỗi, không có file); bookmark lưu 200 vào `directus_presets`, mở lại là cùng request
+(400 với field số). **SQLite** (cùng script, env `sqlite3`): field số, chuỗi, `_contains`, `_null`, export, bookmark như
+Postgres; field `timestamp`, `boolean`, `uuid`: **200** (SQLite so text với text: `_eq`/`_gt` 0 dòng, `_neq` mọi dòng),
+không 500. **MySQL 8** (cùng script): số 400, chuỗi 200, `timestamp` 500 (MySQL từ chối chuỗi làm datetime), `boolean`
+và `uuid` 200 (so text, `_eq` 0 dòng, `_neq` mọi dòng). Bảng `DIRECTUS_STATUS` của `field-compare.test.ts` ghi ba vendor
+đã đo; vendor nightly để mở (200, 400 hoặc 500).
+
 ## R8. Parity: file mới, D-203 `http`, chỗ Directus trả 200 so riêng từng app
 
 `tests/parity/src/items/field-compare.test.ts` theo `json-path.test.ts`: collection `parity_field_compare_<run>` với
@@ -214,6 +235,10 @@ DrawerCollection không có nút (FR-013).
 `a <> b` với NULL không đúng → không khớp (clarify câu 4), giống `whereNot` của DR cho giá trị thường; không thêm `IS
 NULL`. Chuỗi so theo collation cột (MySQL mặc định không phân biệt hoa thường, Postgres/SQLite phân biệt): như `_eq`
 giá trị thường hôm nay, ghi Assumptions; unit test chỉ dùng chuỗi khác nhau rõ. MSSQL/Oracle/CockroachDB qua nightly.
+
+**Kết quả T009** (2026-11-01): `field-compare.test.ts` xanh trên Postgres 16, SQLite và MySQL 8 (29 case); MySQL so chuỗi
+không phân biệt hoa thường (`title _eq $FIELD(slug)` khớp cả `Beta`/`beta`, `Gamma`/`gamma`), Postgres và SQLite phân
+biệt; test ghi kỳ vọng theo vendor (`CASE_INSENSITIVE`). Vendor nightly chưa chạy (T040).
 
 ## R11. Hiệu năng
 

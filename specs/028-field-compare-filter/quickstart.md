@@ -27,8 +27,9 @@ await client.request(readItems('orders', { filter: { total: { _gt: '$FIELD(paid_
 | GraphQL | `filter: { total_field: { _gt: { field: "paid_amount" } } }` |
 
 Quy tắc: sáu toán tử `_eq _neq _gt _gte _lt _lte`; hai field cùng collection, cùng nhóm kiểu (số, chuỗi, boolean,
-uuid; `date`, `dateTime`, `timestamp` chỉ với cùng kiểu); `uuid` và `boolean` chỉ `_eq`/`_neq`; một vế null thì không
-khớp; khác nhóm hoặc field không có: 400; user không có quyền đọc field b: 403 như lọc thẳng field b. Toán tử khác
+uuid; `date`, `dateTime`, `timestamp` chỉ với cùng kiểu); chuỗi, `uuid` và `boolean` chỉ `_eq`/`_neq`; một vế null
+thì không khớp; khác nhóm, alias hay tên sai dạng: 400; field b không có hoặc không có quyền đọc: 403 như lọc thẳng
+field b. Toán tử khác
 (`_contains`, `_in`...) coi `$FIELD(...)` là chuỗi thường. Permission không nhận `$FIELD` (400 khi lưu).
 
 ## Trên app web

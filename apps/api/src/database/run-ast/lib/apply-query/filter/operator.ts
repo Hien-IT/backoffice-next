@@ -7,6 +7,7 @@ import { parseJsonFunction, splitWildcard } from '../../../../helpers/fn/json/pa
 import type { FnHelperOptions } from '../../../../helpers/fn/types.js';
 import { getFunctions, getHelpers } from '../../../../helpers/index.js';
 import { getColumn } from '../../../utils/get-column.js';
+import { assertFieldCompare, FIELD_COMPARE_SQL, isFieldCompareOperator, parseFieldCompare } from './field-compare.js';
 
 function castToNumber(value: any): any {
 	if (Array.isArray(value)) {
@@ -39,6 +40,27 @@ export function applyOperator(
 	const dot = key.indexOf('.');
 	const table = key.substring(0, dot);
 	const column = key.substring(dot + 1);
+
+	// Backoffice (spec 028, D-203): `$FIELD(b)` compares the column with field b of the same collection; the right side
+	// goes through getColumn like the left one and never through `cast` (research R1).
+	const compareOperator = isFieldCompareOperator(operator) ? operator : null;
+	const fieldB = compareOperator ? parseFieldCompare(compareValue) : null;
+
+	if (compareOperator && fieldB !== null) {
+		if (column.includes('(')) {
+			throw new InvalidQueryError({ reason: `"$FIELD(...)" is only allowed on a plain field` });
+		}
+
+		assertFieldCompare(schema, originalCollectionName || table, column, fieldB);
+
+		dbQuery[logical].where(
+			getColumn(knex, table, column, false, schema, { originalCollectionName }) as any,
+			FIELD_COMPARE_SQL[compareOperator],
+			getColumn(knex, table, fieldB, false, schema, { originalCollectionName }) as any,
+		);
+
+		return;
+	}
 
 	// Backoffice (spec 023, D-184): json(field, path[, type]) filters on the typed value at the path.
 	const json = column.startsWith('json(') ? parseJsonFunction(column, { filter: true }) : undefined;

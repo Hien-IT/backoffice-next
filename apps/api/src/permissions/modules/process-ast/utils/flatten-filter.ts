@@ -1,5 +1,10 @@
 // Ported from directus/api/src/permissions/modules/process-ast/utils/flatten-filter.ts
 import type { Query } from '@backoffice/types';
+import {
+	isFieldCompareName,
+	isFieldCompareOperator,
+	parseFieldCompare,
+} from '../../../../database/run-ast/lib/apply-query/filter/field-compare.js';
 import type { FieldKey } from '../types.js';
 
 export function flattenFilter(paths: FieldKey[][], filter: Query['filter']) {
@@ -26,6 +31,14 @@ export function flattenFilter(paths: FieldKey[][], filter: Query['filter']) {
 					// Ignore all operators and logical grouping in the field paths
 					const parts = path.filter((part) => part.startsWith('_') === false);
 					if (parts.length > 0) paths.push(parts);
+
+					// Backoffice (spec 028, D-203): `$FIELD(b)` reads field b of the same collection, so b is checked like a
+					// key of that collection (FR-006); a malformed name is left to applyOperator, which answers 400.
+					const fieldB = isFieldCompareOperator(key) ? parseFieldCompare(current[key]) : null;
+
+					if (fieldB !== null && isFieldCompareName(fieldB) && parts.length > 0) {
+						paths.push([...parts.slice(0, -1), fieldB]);
+					}
 				}
 			}
 		} else {
