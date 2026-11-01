@@ -144,9 +144,12 @@ test('the user page sends the item, policies, avatar and role requests, and no r
 	// - /access twice: list-m2m (use-relation-multiple) reads the page of policies and their count (aggregate);
 	// - /files/<avatar> twice: the `file` interface (use-relation-single) and the template data of its inactive
 	//   DrawerItem (use-template-data, directus_files display template);
-	// - /roles/<role> once: select-dropdown-m2o (use-relation-single) reads the role it shows; GET /roles is not sent.
+	// - /roles/<role> once: select-dropdown-m2o (use-relation-single) reads the role it shows; GET /roles is not sent;
+	// - Backoffice (spec 029): /backoffice/auth/passkey once, the passkey probe of the Passkeys card (the mock API has no
+	//   such route, so the card stays hidden and lists nothing).
 	const expected = [
 		`GET /users/${user['id']}`,
+		'GET /backoffice/auth/passkey',
 		'GET /access',
 		'GET /access',
 		'GET /files/bo-27',

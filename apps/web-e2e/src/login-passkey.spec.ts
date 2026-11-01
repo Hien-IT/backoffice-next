@@ -4,7 +4,7 @@
 // D-207.5); a cancelled dialog leaves the form as it was. At proxy-directus and cors there is no passkey button.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { CONTENT_URL, e2eConfig, passkeyWebUrl } from './helpers/config.js';
+import { e2eConfig, passkeyWebUrl } from './helpers/config.js';
 import { Fixtures, TFA_SECRET, type TestUser, totp } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
@@ -12,6 +12,9 @@ import { openOwnPage } from './helpers/users.js';
 import { addVirtualAuthenticator, type VirtualAuthenticator } from './helpers/webauthn.js';
 
 const LIVE = e2eConfig === 'proxy-api';
+// After a sign-in the app opens the last page of the user (last_page, like DR): Content, or the own user page where the
+// passkey was added when that page was saved as last_page before the sign-out (CI 41305198458).
+const SIGNED_IN = /\/admin\/(content|users)(\/[^/?#]+)?$/;
 
 /** Like login.spec.ts: the sign-out has finished once the login page shows reason=SIGN_OUT. */
 async function signOut(page: Page) {
@@ -30,8 +33,9 @@ test.beforeAll(async ({ playwright }) => {
 	fixtures = new Fixtures(api);
 });
 
+// Outside chromium every test is skipped and beforeAll does not run, but afterAll does (CI 41305198458).
 test.afterAll(async () => {
-	await fixtures.cleanup();
+	await fixtures?.cleanup();
 });
 
 const passkeyButton = (page: Page) => page.getByRole('button', { name: 'Sign in with a passkey' });
@@ -95,7 +99,7 @@ test.describe('proxy-api', () => {
 
 		await openLogin(page);
 		await passkeyButton(page).click();
-		await expect(page).toHaveURL(CONTENT_URL);
+		await expect(page).toHaveURL(SIGNED_IN);
 		await expect(page.getByLabel('One-Time Password', { exact: true })).toHaveCount(0);
 	});
 
@@ -113,9 +117,9 @@ test.describe('proxy-api', () => {
 
 		await openLogin(page);
 		await passkeyButton(page).click();
-		await expect(page).toHaveURL(CONTENT_URL);
+		await expect(page).toHaveURL(SIGNED_IN);
 		await page.reload();
-		await expect(page).toHaveURL(CONTENT_URL);
+		await expect(page).toHaveURL(SIGNED_IN);
 		await expect(page).not.toHaveURL(/tfa-setup/);
 
 		await signOut(page);

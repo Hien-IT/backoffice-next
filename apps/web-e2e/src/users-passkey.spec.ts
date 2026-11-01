@@ -36,8 +36,9 @@ test.beforeAll(async ({ playwright }) => {
 	sso = await fixtures.user('passkey-sso', { provider: 'openid', external_identifier: `passkey-sso-${Date.now()}` });
 });
 
+// Outside chromium every test is skipped and beforeAll does not run, but afterAll does (CI 41305198458).
 test.afterAll(async () => {
-	await fixtures.cleanup();
+	await fixtures?.cleanup();
 });
 
 async function signIn(page: Page, user: { email: string; password: string }) {
