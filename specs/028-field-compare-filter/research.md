@@ -249,7 +249,8 @@ không phân biệt hoa thường (`title _eq $FIELD(slug)` khớp cả `Beta`/`
 biệt; test ghi kỳ vọng theo vendor (`CASE_INSENSITIVE`). Nightly 41279396637 (T040, 2026-11-01, chủ dự án yêu cầu): `field-compare.test.ts` 29/29 trên sqlite3, maria, mysql,
 postgres10; mssql 28/29 (collation không phân biệt hoa thường như MySQL → `CASE_INSENSITIVE` thêm mssql); oracle 28/29
 (`title _eq $FIELD(body)`: `text` là CLOB, ORA-00932 như filter chuỗi thường → case bỏ ở Oracle); cockroachdb: `env-up`
-không lên, không đo. GraphQL `read.test.ts` xanh ở 5 vendor, Oracle hỏng ở setup chung của 011 (không phải 028). Các
+không lên, không đo. Nightly lần 2 41284677752 (sau sửa kỳ vọng 46180a4e): `field-compare` 29/29 trên cả sáu vendor
+mssql, oracle, sqlite3, maria, postgres10, mysql; cockroachdb vẫn không dựng được env. GraphQL `read.test.ts` xanh ở 5 vendor, Oracle hỏng ở setup chung của 011 (không phải 028). Các
 file đỏ khác của nightly là của những feature trước (nightly đang tắt lịch vì vậy).
 
 **Kết quả lượt 3** (2026-11-01): unit `replace-funcs` (gộp, `_field` thắng, bỏ qua field thật `x_field`), `schema/index`

@@ -150,7 +150,8 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   field chuỗi 200 so chuỗi nguyên văn; bảng `DIRECTUS_STATUS` trong file ghi vendor đã đo, vendor nightly để mở (D-203,
   `http` theo collection `parity_field_compare_*` với `when` 400 hoặc 500; Directus 200 thì so riêng từng app). MySQL,
   MariaDB, MSSQL so chuỗi không phân biệt hoa thường (`CASE_INSENSITIVE`); Oracle không so được field `text` (CLOB,
-  case bỏ ở vendor đó). Nightly 41279396637: xanh trên maria, mssql, oracle, postgres10, sqlite3, mysql. GraphQL `<f>_field: field_compare_operators` với
+  case bỏ ở vendor đó). Nightly 41284677752: 29/29 trên maria, mssql, oracle, postgres10, sqlite3, mysql; cockroachdb
+  không dựng được env. GraphQL `<f>_field: field_compare_operators` với
   `field_ref { field }` (D-205) ở `src/graphql/read.test.ts`, normalizer bỏ hai type và các field `*_field` khỏi
   introspection/SDL; D-206 là phần web.
 - `src/items/collection-toggles.test.ts` (spec 024, bộ `full` và `reduced` trên mọi vendor): `bo_show_search`,
