@@ -12,6 +12,7 @@ import qs from 'qs';
 import emitter from './emitter.js';
 import { createExpressLogger } from './logger/index.js';
 import checkCacheMiddleware from './middleware/cache.js';
+import passkeySessionCacheGuard from './middleware/passkey-session-cache-guard.js';
 import collectionTogglesGuard from './middleware/collection-toggles-guard.js';
 import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
@@ -167,6 +168,9 @@ export async function createExpressApp(options: ExpressAppOptions = {}): Promise
 
 	// Backoffice (spec 024, D-188): the bo_show_* toggles before the response cache shared with DR.
 	app.use(collectionTogglesGuard);
+
+	// Backoffice (spec 029, D-207.5): the globals of a passkey session never go through the shared cache.
+	app.use(passkeySessionCacheGuard);
 
 	app.use(checkCacheMiddleware);
 

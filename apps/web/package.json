@@ -48,6 +48,7 @@
 		"@mapbox/mapbox-gl-draw-static-mode": "catalog:",
 		"@mapbox/mapbox-gl-geocoder": "catalog:",
 		"@material-symbols/font-400": "catalog:",
+		"@simplewebauthn/browser": "catalog:",
 		"@sindresorhus/slugify": "catalog:",
 		"@tinymce/tinymce-vue": "catalog:",
 		"@turf/meta": "catalog:",

@@ -8,8 +8,10 @@ import {
 	readMe,
 	type RestCommand,
 } from '@directus/sdk';
+import { type PublicKeyCredentialRequestOptionsJSON, startAuthentication } from '@simplewebauthn/browser';
 import type { RouteLocationRaw } from 'vue-router';
-import { resumeQueue, sdk } from './api/sdk.ts';
+import { requestEndpoint, resumeQueue, sdk } from './api/sdk.ts';
+import { isPasskeyCancel } from './composables/use-passkeys.ts';
 import { DEFAULT_AUTH_PROVIDER, SDK_AUTH_REFRESH_BEFORE_EXPIRES } from './constants.ts';
 import { emitter, Events } from './events.ts';
 import { dehydrate, hydrate } from './hydrate.ts';
@@ -32,9 +34,6 @@ type LoginParams = {
 };
 
 export async function login({ credentials, provider, share }: LoginParams): Promise<void> {
-	const appStore = useAppStore();
-	const serverStore = useServerStore();
-
 	let response: AuthenticationData;
 
 	if (share) {
@@ -73,6 +72,13 @@ export async function login({ credentials, provider, share }: LoginParams): Prom
 		}
 	}
 
+	await completeLogin(response);
+}
+
+async function completeLogin(response: AuthenticationData): Promise<void> {
+	const appStore = useAppStore();
+	const serverStore = useServerStore();
+
 	appStore.accessTokenExpiry = Date.now() + (response.expires ?? 0);
 	appStore.authenticated = true;
 
@@ -80,6 +86,35 @@ export async function login({ credentials, provider, share }: LoginParams): Prom
 	serverStore.hydrate();
 
 	await hydrate();
+}
+
+/**
+ * Backoffice (spec 029, D-207.4, contracts/web.md): sign in with a passkey. The browser dialog picks the account
+ * (discoverable credential), the assertion goes to the API with mode session like the LDAP branch above, then the same
+ * end as login(). A cancelled dialog throws `{ code: 'PASSKEY_CANCELLED' }`, which the form ignores (FR-008).
+ */
+export async function loginWithPasskey(): Promise<void> {
+	const optionsJSON = await sdk.request(
+		requestEndpoint<PublicKeyCredentialRequestOptionsJSON>('/backoffice/auth/passkey/login/options', {
+			method: 'POST',
+		}),
+	);
+
+	let response: Awaited<ReturnType<typeof startAuthentication>>;
+
+	try {
+		response = await startAuthentication({ optionsJSON });
+	} catch (error) {
+		if (isPasskeyCancel(error)) throw { code: 'PASSKEY_CANCELLED' };
+		throw error;
+	}
+
+	await sdk.request(
+		requestEndpoint('/backoffice/auth/passkey/login', { method: 'POST', body: { response, mode: 'session' } }),
+	);
+
+	// To initialize auto-refresh
+	await completeLogin(await sdk.refresh());
 }
 
 let idle = false;

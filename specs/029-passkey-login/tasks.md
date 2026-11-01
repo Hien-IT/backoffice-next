@@ -336,49 +336,49 @@ hạn 10, ẩn với provider khác `default`.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T030 [P] [US2] Tạo `web/composables/use-passkey-support.test.ts`: không `PublicKeyCredential` → `false`; `GET
+- [X] T030 [P] [US2] Tạo `web/composables/use-passkey-support.test.ts`: không `PublicKeyCredential` → `false`; `GET
       /backoffice/auth/passkey` 404 → `false`; 200 với `rp_id` khác `location.hostname` → `false`; khớp → `true`; gọi hai
       lần chỉ một request; đổi `apiUrl` làm lại. Chạy đỏ.
-- [ ] T031 [P] [US2] Tạo `web/composables/use-passkeys.test.ts` (mock `sdk.request`, mock `startRegistration`): `load()`
+- [X] T031 [P] [US2] Tạo `web/composables/use-passkeys.test.ts` (mock `sdk.request`, mock `startRegistration`): `load()`
       `GET /backoffice/users/me/passkeys`; `add(password, name)`: `POST .../options` body `{ password }` → `startRegistration({
       optionsJSON })` → `POST .../passkeys` body `{ response, name }`; hủy (`NotAllowedError`) → không request thứ ba, không
       lỗi; mật khẩu sai → `error` là lỗi SDK; `rename(id, name)` PATCH; `remove(id)` DELETE; `loadForUser(pk)` GET
       `/backoffice/users/:pk/passkeys`; `removeForUser(pk, id)`; `atLimit` khi 10. Chạy đỏ.
-- [ ] T032 [P] [US2] Tạo `web/modules/users/components/UserPasskeys.browser.test.ts` (vitest browser, axe): ẩn khi
+- [X] T032 [P] [US2] Tạo `web/modules/users/components/UserPasskeys.browser.test.ts` (vitest browser, axe): ẩn khi
       `passkeyAvailable` false, `provider` khác `default`, hay không phải mình và không admin; trạng thái trống (`passkey_none`,
       nút thêm); bảng với 2 dòng (cột tên, ngày tạo, lần dùng cuối "Never used"); nút thêm `disabled` + mô tả khi 10;
       dialog thêm: bước mật khẩu (label "Password", `autocomplete=current-password`, submit `next`), lỗi `BoNotice
       role=alert`, bước tên với giá trị gợi ý, `save`; đổi tên; xóa với xác nhận (nút Cancel trước, Delete `danger`), focus
       về trigger sau khi đóng; admin xem người khác: không nút thêm/đổi tên, có nút xóa `aria-label`, câu
       `passkey_admin_delete_text`; axe không vi phạm serious/critical; mọi thao tác bằng bàn phím (Tab, Enter, Esc). Chạy đỏ.
-- [ ] T033 [P] [US2] Thêm vào `web/modules/users/routes/UserItemRoute.test.ts` (hoặc tạo nếu chưa có, mount với router
+- [X] T033 [P] [US2] Thêm vào `web/modules/users/routes/UserItemRoute.test.ts` (hoặc tạo nếu chưa có, mount với router
       và store giả): trang user mới (`+`) không render `UserPasskeys`; trang user có id render với `user-id`, `provider`,
       `is-current-user` đúng cho chính mình và cho user khác. Chạy đỏ.
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Thêm `@simplewebauthn/browser: 14.0.0` vào `catalog:` và `apps/web/package.json`; `pnpm install`;
+- [X] T034 [US2] Thêm `@simplewebauthn/browser: 14.0.0` vào `catalog:` và `apps/web/package.json`; `pnpm install`;
       `apps/web/vite.config.ts`: `API_PATHS` thêm `backoffice`, `optimizeDeps.include` thêm `@simplewebauthn/browser`.
-- [ ] T035 [P] [US2] Tạo `web/composables/use-passkey-support.ts` theo `cl/contracts/web.md` (promise theo module,
+- [X] T035 [P] [US2] Tạo `web/composables/use-passkey-support.ts` theo `cl/contracts/web.md` (promise theo module,
       `browserSupportsWebAuthn()`, `apiFetch('/backoffice/auth/passkey')`, so `rp_id` với `location.hostname`, làm lại khi
       `setApiUrl`). T030 xanh.
-- [ ] T036 [P] [US2] Tạo `web/composables/use-passkeys.ts` (`load`, `add`, `rename`, `remove`, `loadForUser`,
+- [X] T036 [P] [US2] Tạo `web/composables/use-passkeys.ts` (`load`, `add`, `rename`, `remove`, `loadForUser`,
       `removeForUser`, `loading`, `error`, `atLimit`; `requestEndpoint`; `startRegistration` của `@simplewebauthn/browser`;
       hủy → trả `false`, không lỗi). T031 xanh.
-- [ ] T037 [US2] Tạo `web/modules/users/components/UserPasskeys.vue` theo `cl/contracts/web.md` và research R8: card recipe,
+- [X] T037 [US2] Tạo `web/modules/users/components/UserPasskeys.vue` theo `cl/contracts/web.md` và research R8: card recipe,
       header với `BoIcon name="passkey"` + `h3` + mô tả + nút thêm, `BoTable` (`caption` sr-only, slot `item-append` BoMenu
       hoặc nút xóa, slot `empty`), `BoDialog` thêm hai bước (form id `${id}-password`, `${id}-name`, nút submit ngoài form
       qua `:form`, mẫu `SystemMfaSetup.vue:244-301`), dialog đổi tên, dialog xóa (thứ tự D-76, câu admin), `BoNotice` lỗi
       qua `translateAPIError`, tên gợi ý `passkey_default_name` với `navigator.userAgentData?.platform ||
       navigator.platform`; lần dùng cuối/ngày tạo hiện relative (dùng display datetime hiện có với `relative: true`); chỉ
       class token theme (`tools/check-raw-colors.mjs` qua). T032 xanh.
-- [ ] T038 [US2] Sửa `web/modules/users/routes/UserItemRoute.vue`: sau `<BoForm>` (:437) thêm `<UserPasskeys v-if="!isNew"
+- [X] T038 [US2] Sửa `web/modules/users/routes/UserItemRoute.vue`: sau `<BoForm>` (:437) thêm `<UserPasskeys v-if="!isNew"
       :user-id="primaryKey" :provider="item?.provider ?? null" :is-current-user="item?.id === currentUserId" />` trong cùng
       cột `gap-8`; không đổi `fieldsDenyList`. T033 xanh.
-- [ ] T039 [P] [US2] Thêm chuỗi `passkey_*` vào `web/lang/overlay/en-US.ts` và `web/lang/overlay/vi-VN.ts` theo bảng
+- [X] T039 [P] [US2] Thêm chuỗi `passkey_*` vào `web/lang/overlay/en-US.ts` và `web/lang/overlay/vi-VN.ts` theo bảng
       `cl/contracts/web.md` (nhóm comment `// Spec 029 (D-207.4)`), cùng `passkey_sign_in` cho US1. `web/lang/overlay.test.ts`
       xanh.
-- [ ] T040 [P] [US2] Danh sách request đóng: `web/test-utils/fetch.ts` `KNOWN_REQUESTS`, `e2e/helpers/allowed-paths.ts`
+- [X] T040 [P] [US2] Danh sách request đóng: `web/test-utils/fetch.ts` `KNOWN_REQUESTS`, `e2e/helpers/allowed-paths.ts`
       (id tiếp theo), `specs/012-backoffice-web-shell/contracts/api-calls.md` thêm 10 request của `cl/contracts/web.md`.
 
 **Checkpoint**: card Passkeys chạy với API thật ở dev (`PUBLIC_URL` dev trỏ đúng origin, quickstart "Cấu hình dev").
@@ -391,20 +391,20 @@ hạn 10, ẩn với provider khác `default`.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T041 [P] [US1] Thêm vào `web/auth.test.ts`: `loginWithPasskey()` gọi `POST /backoffice/auth/passkey/login/options`
+- [X] T041 [P] [US1] Thêm vào `web/auth.test.ts`: `loginWithPasskey()` gọi `POST /backoffice/auth/passkey/login/options`
       → `startAuthentication({ optionsJSON })` (mock) → `POST /backoffice/auth/passkey/login` body `{ response, mode:
       'session' }` → `sdk.refresh()` → `appStore.authenticated`, `serverStore.hydrate`, `hydrate()` như `login()`; hủy
       (`NotAllowedError`) → ném `{ code: 'PASSKEY_CANCELLED' }`, không request thứ hai; lỗi API ném nguyên. Chạy đỏ.
-- [ ] T042 [P] [US1] Thêm vào `web/routes/login/LoginForm.test.ts`: nút `passkey_sign_in` chỉ khi `passkeyAvailable`;
+- [X] T042 [P] [US1] Thêm vào `web/routes/login/LoginForm.test.ts`: nút `passkey_sign_in` chỉ khi `passkeyAvailable`;
       nằm ngoài `<form>` (Enter trong ô mật khẩu vẫn gửi form mật khẩu); bấm → `loginWithPasskey` → `router.push`
       (`redirect` query, `last_page`, `/content`); `PASSKEY_CANCELLED` → không `BoNotice`, focus về nút; lỗi
       `INVALID_CREDENTIALS` → `BoNotice` cùng chuỗi với sai mật khẩu; `loading` khóa cả hai nút. Chạy đỏ.
 
 ### Implementation for User Story 1
 
-- [ ] T043 [US1] Thêm `loginWithPasskey()` vào `web/auth.ts` (RestCommand như nhánh `identifier` :59-70, khối sau thành
+- [X] T043 [US1] Thêm `loginWithPasskey()` vào `web/auth.ts` (RestCommand như nhánh `identifier` :59-70, khối sau thành
       công :76-82 dùng chung; không ghi gì vào `localStorage`). T041 xanh.
-- [ ] T044 [US1] Sửa `web/routes/login/LoginForm.vue`: `usePasskeySupport()`, `BoButton variant="secondary" full-width
+- [X] T044 [US1] Sửa `web/routes/login/LoginForm.vue`: `usePasskeySupport()`, `BoButton variant="secondary" full-width
       icon="passkey"` dưới `<form>`, `loggingInWithPasskey`, xử lý hủy/lỗi/chuyển hướng theo `cl/contracts/web.md`. T042
       xanh; `web/router/guard.ts` không đổi (D-207.5 do API).
 
@@ -414,7 +414,7 @@ hạn 10, ẩn với provider khác `default`.
 
 **Goal**: nhánh admin của card (đã viết ở T037) được kiểm riêng.
 
-- [ ] T045 [US3] Rà nhánh admin trong `web/modules/users/components/UserPasskeys.vue` theo T032: chỉ danh sách + nút xóa với
+- [X] T045 [US3] Rà nhánh admin trong `web/modules/users/components/UserPasskeys.vue` theo T032: chỉ danh sách + nút xóa với
       `aria-label`, câu `passkey_admin_delete_text`, không dialog mật khẩu; user khác `provider` khác `default` → card ẩn
       (API trả `[]` nhưng card ẩn theo `provider` của item). T032 nhánh admin xanh.
 
@@ -426,34 +426,36 @@ hạn 10, ẩn với provider khác `default`.
 **Independent Test**: `E2E_CONFIG=proxy-api pnpm nx run web-e2e:e2e -- --project chromium-1280 passkey`, rồi
 `proxy-directus`, `cors` (không chạy hai cấu hình cùng lúc).
 
-- [ ] T046 [P] [US5] Helpers: `e2e/helpers/config.ts` thêm `passkeyWebUrl` (`proxy-api` → `http://localhost:8162`, khác →
+- [X] T046 [P] [US5] Helpers: `e2e/helpers/config.ts` thêm `passkeyWebUrl` (`proxy-api` → `http://localhost:8162`, khác →
       `webUrl`); `e2e/helpers/login.ts` `login(page, user, { baseUrl? })` và `resetLastPage` không đổi; helper mới
       `e2e/helpers/webauthn.ts`: `addVirtualAuthenticator(page)` (CDP `WebAuthn.enable` + `addVirtualAuthenticator` với
       option của T002, trả `authenticatorId`), `setUserVerified(page, id, bool)`, `removeVirtualAuthenticator`; skip chung
       `test.skip(browserName !== 'chromium', 'WebAuthn virtual authenticator is chromium only')`.
-- [ ] T047 [US2] Tạo `e2e/users-passkey.spec.ts` (gồm cả nhánh admin của US3): fixture user local (`fixtures.user`), đăng nhập mật khẩu tại
+- [X] T047 [US2] Tạo `e2e/users-passkey.spec.ts` (gồm cả nhánh admin của US3): fixture user local (`fixtures.user`), đăng nhập mật khẩu tại
       `passkeyWebUrl`, `openOwnPage`, card trống → thêm với mật khẩu sai (lỗi, không hộp thoại trình duyệt) → đúng → tên
       gợi ý → lưu → dòng hiện → `expect.poll(api GET /backoffice/users/:id/passkeys)` 1 dòng → đổi tên → xóa; user LDAP
       (`fixtures.user` với `provider: 'ldap'`): card ẩn; admin mở trang user khác: chỉ nút xóa, xóa được; axe trên card
       và dialog; ở `proxy-directus` và `cors`: `expect(card).toHaveCount(0)`, không lỗi console, không request lạ.
-- [ ] T048 [US1] Tạo `e2e/login-passkey.spec.ts`: trong `beforeAll` đăng ký passkey qua UI như T047 (cùng authenticator
+- [X] T048 [US1] Tạo `e2e/login-passkey.spec.ts`: trong `beforeAll` đăng ký passkey qua UI như T047 (cùng authenticator
       ảo của context, `test.describe.configure({ mode: 'serial' })`), đăng xuất → nút hiện →
       bấm → vào `/content`; user có TFA (`tfa_secret: TFA_SECRET`): không ô OTP; role `enforce_tfa` (policy) chưa có TFA:
       không tới `/tfa-setup`, tải lại trang vẫn không, xóa `localStorage` vẫn không; đăng xuất, đăng nhập mật khẩu → tới
       `/tfa-setup`; hủy (`setUserVerified(false)` hoặc Esc) → form nguyên; `proxy-directus`/`cors`: nút
       `toHaveCount(0)`.
-- [ ] T049 [US5] Thêm trang user có card Passkeys vào `e2e/a11y.spec.ts` (chromium, `proxy-api`); chạy ba cấu hình lần
+- [X] T049 [US5] Thêm trang user có card Passkeys vào `e2e/a11y.spec.ts` (chromium, `proxy-api`); chạy ba cấu hình lần
       lượt trên máy local (`env-up --profile web` với replica T026) và sửa flake; ghi thời gian job `e2e-web` để so ở CI.
 
 ## Phase 12: Polish & Cross-Cutting (lượt 2)
 
-- [ ] T050 [P] `design-system/docs/component-specs.md` thêm recipe "Q-xx Passkeys (spec 029)": card + BoTable + BoMenu +
+      Làm 2026-11-01: quét axe nằm trong `users-passkey.spec.ts` (card và dialog) và `UserPasskeys.browser.test.ts`;
+      trang `profile` của `a11y.spec.ts` chạy ở 127.0.0.1 nên card ẩn, không thêm vào đó.
+- [X] T050 [P] `design-system/docs/component-specs.md` thêm recipe "Q-xx Passkeys (spec 029)": card + BoTable + BoMenu +
       BoDialog hai bước, icon `passkey`, thời gian relative, trạng thái và a11y; `design-system/qa/handoff-checklist.md`
       không đổi.
-- [ ] T051 [P] Ghi chú "(029: ...)" ở `specs/012-backoffice-web-shell/spec.md` (login) và
+- [X] T051 [P] Ghi chú "(029: ...)" ở `specs/012-backoffice-web-shell/spec.md` (login) và
       `specs/015-files-users-modules/spec.md` (trang user); `CLAUDE.md` dòng 029 cập nhật (implemented, D-207..D-207.5);
       `SPECKIT-GUIDE.md` mục 029 trạng thái và lệnh implement đã chạy.
-- [ ] T052 Đóng spec: `cl/spec.md` Status "Implemented 2026-xx-xx, hai lượt trên main (commit ...), CI ..."; bảng D giữ
+- [X] T052 Đóng spec: `cl/spec.md` Status "Implemented 2026-xx-xx, hai lượt trên main (commit ...), CI ..."; bảng D giữ
       "duyệt 2026-11-01"; `cl/research.md` kết quả T001/T002; `cl/quickstart.md` lệnh test đúng tên target.
 - [ ] T053 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web,web-e2e`; `pnpm nx run web:test:unit`; `pnpm nx run
       web:test:browser -- passkey UserPasskeys`; E2E ba cấu hình (T049); `pnpm nx run web:build`; `git add` theo đường dẫn;

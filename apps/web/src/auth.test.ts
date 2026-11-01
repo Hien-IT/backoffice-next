@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { _resetState, login, logout, LogoutReason, refresh } from './auth.ts';
+import { startAuthentication } from '@simplewebauthn/browser';
+import { _resetState, login, loginWithPasskey, logout, LogoutReason, refresh } from './auth.ts';
 import { emitter, Events } from './events.ts';
 import { useAppStore } from './stores/app.ts';
 import { calls, json, mockApi } from './test-utils/fetch.ts';
@@ -15,6 +16,7 @@ const { hydrate, dehydrate, push, serverHydrate } = vi.hoisted(() => ({
 vi.mock('./hydrate.ts', () => ({ hydrate, dehydrate }));
 vi.mock('./router/index.ts', () => ({ router: { push } }));
 vi.mock('./stores/server.ts', () => ({ useServerStore: () => ({ hydrate: serverHydrate }) }));
+vi.mock('@simplewebauthn/browser', () => ({ startAuthentication: vi.fn() }));
 
 const session = { 'POST /auth/refresh': { expires: 900000 }, 'POST /auth/logout': null };
 
@@ -25,6 +27,41 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+// Spec 029 (T041): options, the browser dialog, the assertion with mode session, then the same end as login().
+describe('loginWithPasskey', () => {
+	test('POST options, startAuthentication, POST login with mode session, /auth/refresh, hydrate', async () => {
+		const fetch = mockApi({
+			'POST /backoffice/auth/passkey/login/options': { challenge: 'c', rpId: 'localhost' },
+			'POST /backoffice/auth/passkey/login': { expires: 900000 },
+			...session,
+		});
+
+		vi.mocked(startAuthentication).mockResolvedValueOnce({ id: 'cred' } as any);
+		const appStore = useAppStore();
+
+		await loginWithPasskey();
+
+		expect(startAuthentication).toHaveBeenCalledWith({ optionsJSON: { challenge: 'c', rpId: 'localhost' } });
+		expect(calls(fetch)).toEqual([
+			'POST /backoffice/auth/passkey/login/options',
+			'POST /backoffice/auth/passkey/login',
+			'POST /auth/refresh',
+		]);
+		expect(JSON.parse(fetch.mock.calls[1]![1]!.body as string)).toEqual({ response: { id: 'cred' }, mode: 'session' });
+		expect(appStore.authenticated).toBe(true);
+		expect(hydrate).toHaveBeenCalled();
+	});
+
+	test('a cancelled browser dialog throws PASSKEY_CANCELLED and sends nothing more', async () => {
+		const fetch = mockApi({ 'POST /backoffice/auth/passkey/login/options': { challenge: 'c' }, ...session });
+		vi.mocked(startAuthentication).mockRejectedValueOnce(Object.assign(new Error('x'), { name: 'NotAllowedError' }));
+
+		await expect(loginWithPasskey()).rejects.toEqual({ code: 'PASSKEY_CANCELLED' });
+		expect(calls(fetch)).toEqual(['POST /backoffice/auth/passkey/login/options']);
+		expect(hydrate).not.toHaveBeenCalled();
+	});
+});
 
 describe('login', () => {
 	test('local: POST /auth/login with mode session, then hydrate', async () => {

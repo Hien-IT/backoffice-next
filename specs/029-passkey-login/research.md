@@ -369,6 +369,11 @@ riêng thêm cột `bo_*` vào bảng `directus_*` (022: ba cột trên `directu
    → `enforce_tfa: false`. Chỉ thêm một truy vấn ở trường hợp policy bắt buộc TFA (hiếm, một lần mỗi hydrate). Comment
    `Backoffice (spec 029, D-207.5)`, giữ `Ported from`.
 4. Không đổi gì ở web; `auth.ts` không ghi dấu nào.
+5. Response cache dùng chung (`middleware/cache.ts`, khóa `getCacheKey` theo user, path, query; không theo phiên): phiên
+   passkey ghi `false` thì phiên mật khẩu cùng user đọc lại `false` (E2E lượt 2 bắt được). Middleware
+   `passkeySessionCacheGuard` (trước `checkCacheMiddleware`): khi token là token phiên và path là
+   `/policies/me/globals` hay document `/graphql/system` có `policies_me_globals`, tra `bo_passkey` của dòng phiên;
+   `true` → `skipCacheRead` và `cache = false`. Phiên mật khẩu, token JSON, static token giữ cache như DR.
 
 **Vì sao không có lỗ hổng**: dòng `bo_passkey = true` chỉ do `finishLogin({ passkey: true })` tạo, tức sau khi assertion
 được xác minh; user có mật khẩu không tạo được. Token `json`/`cookie` không có `session` → như Directus. Hook `authenticate`

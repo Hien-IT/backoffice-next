@@ -256,6 +256,21 @@ describe('TFA and sessions (US1, D-207.3, D-207.5, SC-007)', () => {
 
 		expect(password.status, password.text).toBe(200);
 		expect(await globals(B, cookieNamed(password, SESSION_COOKIE))).toBe(true);
+
+		// The shared response cache keys by user, not by session: with the cache in use (no `no-store`), the password
+		// session and the passkey session of the same user still get their own answer, in both orders.
+		const cachedGlobals = async (c: string) =>
+			(
+				data(
+					await capture(B, { path: '/policies/me/globals', headers: { cookie: c, 'cache-control': 'max-age=0' } }),
+				) as { enforce_tfa: boolean }
+			).enforce_tfa;
+
+		const passwordCookie = cookieNamed(password, SESSION_COOKIE);
+		const passkeyCookie = cookieNamed(refreshed, SESSION_COOKIE);
+		expect(await cachedGlobals(passwordCookie)).toBe(true);
+		expect(await cachedGlobals(passkeyCookie)).toBe(false);
+		expect(await cachedGlobals(passwordCookie)).toBe(true);
 	});
 
 	it('Directus refreshes, uses and ends a passkey session (SC-007)', async () => {

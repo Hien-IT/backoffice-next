@@ -261,6 +261,17 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 216, method: 'POST', path: /^\/backoffice\/permissions$/ },
 	{ id: 217, method: 'PATCH', path: /^\/backoffice\/permissions$/ },
 	{ id: 218, method: 'DELETE', path: /^\/backoffice\/permissions$/ },
+	// Spec 029 (specs/029-passkey-login/contracts/web.md, D-207): the passkey probe, login and the Passkeys card.
+	{ id: 219, method: 'GET', path: /^\/backoffice\/auth\/passkey$/ },
+	{ id: 220, method: 'POST', path: /^\/backoffice\/auth\/passkey\/login\/options$/ },
+	{ id: 221, method: 'POST', path: /^\/backoffice\/auth\/passkey\/login$/ },
+	{ id: 222, method: 'GET', path: /^\/backoffice\/users\/me\/passkeys$/ },
+	{ id: 223, method: 'POST', path: /^\/backoffice\/users\/me\/passkeys$/ },
+	{ id: 224, method: 'POST', path: /^\/backoffice\/users\/me\/passkeys\/options$/ },
+	{ id: 225, method: 'PATCH', path: new RegExp(`^/backoffice/users/me/passkeys/${ID}$`) },
+	{ id: 226, method: 'DELETE', path: new RegExp(`^/backoffice/users/me/passkeys/${ID}$`) },
+	{ id: 227, method: 'GET', path: new RegExp(`^/backoffice/users/${ID}/passkeys$`) },
+	{ id: 228, method: 'DELETE', path: new RegExp(`^/backoffice/users/${ID}/passkeys/${ID}$`) },
 ];
 
 /**

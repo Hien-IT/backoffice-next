@@ -11,7 +11,17 @@ import {
 } from '@simplewebauthn/server';
 import knex, { type Knex } from 'knex';
 import { createTracker, MockClient, type Tracker } from 'knex-mock-client';
-import { afterEach, beforeAll, beforeEach, describe, expect, test, vi, type MockedFunction } from 'vitest';
+import {
+	afterEach,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	test,
+	vi,
+	type MockedFunction,
+	type MockInstance,
+} from 'vitest';
 import { putChallenge, takeChallenge } from '../auth/passkey/challenge-store.js';
 import { getPasskeyRp } from '../auth/passkey/rp.js';
 import emitter from '../emitter.js';
@@ -298,8 +308,8 @@ describe('PasskeyService', () => {
 	});
 
 	describe('login (US1, US4)', () => {
-		let consume: ReturnType<typeof vi.spyOn>;
-		let finish: ReturnType<typeof vi.spyOn>;
+		let consume: MockInstance<AuthenticationService['consumeLoginAttempt']>;
+		let finish: MockInstance<AuthenticationService['finishLogin']>;
 
 		beforeEach(() => {
 			consume = vi.spyOn(AuthenticationService.prototype, 'consumeLoginAttempt').mockResolvedValue(5);

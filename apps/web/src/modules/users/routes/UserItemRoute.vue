@@ -31,6 +31,7 @@ import { getAssetUrl } from '../../../utils/get-asset-url.ts';
 import { userName } from '../../../utils/user-name.ts';
 import ContentNotFound from '../../content/routes/ContentNotFound.vue';
 import UserInfoSidebarDetail from '../components/UserInfoSidebarDetail.vue';
+import UserPasskeys from '../components/UserPasskeys.vue';
 import UsersNavigation from '../components/UsersNavigation.vue';
 
 type UserItem = User & {
@@ -434,6 +435,14 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 				:initial-values="user"
 				:primary-key="primaryKey"
 				:validation-errors="validationErrors"
+			/>
+
+			<!-- Backoffice (spec 029, D-207.4): passkeys, outside the form card (layout-patterns §8). -->
+			<UserPasskeys
+				v-if="isNew === false && item"
+				:user-id="String(primaryKey)"
+				:provider="item.provider ?? null"
+				:is-current-user="item.id === currentUserId"
 			/>
 		</div>
 

@@ -251,6 +251,8 @@ với Directus app.
    `backoffice-require_tfa_setup` = id rồi đăng xuất (thiết lập ở lần đăng nhập sau như 012), đang chờ thì có hộp hủy
    thiết lập; xem user khác: chỉ admin tắt được (`POST /users/:id/tfa/disable`, hộp `admin_disable_tfa_text`), ô bật
    khóa khi user đó chưa bật.
+   (029: card "Passkeys" sau form của trang user local: của mình thêm, đổi tên, xóa; admin xóa passkey của user khác;
+   D-207.4, specs/029-passkey-login.)
 4. **Given** field `token` (`system-token`) của user đã có, **When** bấm tạo, **Then** `GET /utils/random/string` rồi
    `PATCH /users/:id` `{ token }` ngay (không chờ lưu form), ô hiện token dạng text với nút chép và notice "đã lưu, chép
    ngay"; đã có token (`value` là `****`) thì nút "tạo lại" có hộp xác nhận, nút xóa có hộp xác nhận (`PATCH` `token:

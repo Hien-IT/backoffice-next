@@ -104,4 +104,27 @@ export default {
 	bo_formats: 'Định dạng',
 	bo_formats_hint: 'Không chọn định dạng nào nghĩa là mọi định dạng',
 	bo_toggle_off_hint: 'Đã tắt trong Data Model của collection này',
+	// Spec 029 (D-207.4): the passkey button of the login form and the Passkeys card of the user page.
+	passkey_sign_in: 'Đăng nhập bằng Passkey',
+	passkeys: 'Passkey',
+	passkeys_description:
+		'Đăng nhập không cần mật khẩu bằng Touch ID, Windows Hello, khóa bảo mật hoặc trình quản lý mật khẩu.',
+	passkey_add: 'Thêm passkey',
+	passkey_enter_password: 'Nhập mật khẩu để thêm passkey',
+	passkey_name: 'Tên',
+	passkey_name_title: 'Đặt tên cho passkey',
+	passkey_default_name: 'Passkey trên {platform}',
+	passkey_rename: 'Đổi tên',
+	passkey_delete: 'Xóa passkey',
+	passkey_delete_confirm: 'Xóa "{name}"? Bạn sẽ không đăng nhập được bằng passkey này nữa.',
+	passkey_admin_delete_text: 'Người dùng sẽ phải thêm passkey mới để đăng nhập không mật khẩu.',
+	passkey_none: 'Chưa có passkey',
+	passkey_none_hint:
+		'Thêm một passkey để đăng nhập bằng vân tay, khuôn mặt hoặc PIN. Nếu đã xóa passkey ở đây, hãy xóa cả trong thiết bị.',
+	passkey_limit: 'Tối đa 10 passkey.',
+	passkey_created: 'Ngày tạo',
+	passkey_last_used: 'Lần dùng cuối',
+	passkey_never_used: 'Chưa dùng',
+	passkey_actions: 'Thao tác với passkey',
+	passkey_already_registered: 'Thiết bị này đã có passkey cho tài khoản của bạn.',
 };

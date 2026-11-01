@@ -109,4 +109,27 @@ export default {
 	bo_formats: 'Formats',
 	bo_formats_hint: 'No format selected means every format',
 	bo_toggle_off_hint: 'Turned off in Data Model for this collection',
+	// Spec 029 (D-207.4): the passkey button of the login form and the Passkeys card of the user page.
+	passkey_sign_in: 'Sign in with a passkey',
+	passkeys: 'Passkeys',
+	passkeys_description:
+		'Sign in without a password using Touch ID, Windows Hello, a security key or your password manager.',
+	passkey_add: 'Add passkey',
+	passkey_enter_password: 'Enter your password to add a passkey',
+	passkey_name: 'Name',
+	passkey_name_title: 'Name this passkey',
+	passkey_default_name: 'Passkey on {platform}',
+	passkey_rename: 'Rename',
+	passkey_delete: 'Delete passkey',
+	passkey_delete_confirm: 'Delete "{name}"? You will no longer be able to sign in with it.',
+	passkey_admin_delete_text: 'The user will have to add a new passkey to sign in without a password again.',
+	passkey_none: 'No passkeys yet',
+	passkey_none_hint:
+		'Add one to sign in with your fingerprint, face or PIN. If a passkey was deleted here, also remove it from your device.',
+	passkey_limit: 'You can have up to 10 passkeys.',
+	passkey_created: 'Created',
+	passkey_last_used: 'Last used',
+	passkey_never_used: 'Never used',
+	passkey_actions: 'Passkey actions',
+	passkey_already_registered: 'This device already has a passkey for your account.',
 };

@@ -380,6 +380,8 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 - **FR-010**: Trang `/admin/login` PHẢI có: tiêu đề `sign_in`; ô chọn provider khi `providerOptions` có hơn một mục
   (local + LDAP); form email và mật khẩu cho driver `default`/`local`; form `identifier` và mật khẩu cho `ldap`; nút
   SSO cho driver `oauth2`, `openid` (và `saml` nếu API trả); link quên mật khẩu (từ 2026-10-29 không hiện, D-196);
+  (029: nút "Đăng nhập bằng Passkey" dưới form local khi API là Backoffice và host của trang là RP ID, D-207.4,
+  specs/029-passkey-login);
   khối "tiếp tục với tư cách" khi đã
   đăng nhập; notice `not_authenticated` / `authenticated` / `logoutReason.<reason>` như `login.vue` của Directus; link
   đăng ký chỉ khi `public_registration`, trỏ tới `/register` là trang public "chưa có sẵn" với link về đăng nhập

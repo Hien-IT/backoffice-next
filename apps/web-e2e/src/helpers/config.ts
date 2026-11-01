@@ -24,6 +24,13 @@ export const webUrl = process.env['BASE_URL'] ?? CONFIGS[e2eConfig];
 /** The API the app calls: same origin behind the proxies (and the Vite dev proxy), another site for `cors`. */
 export const apiUrl = isCors ? 'http://127.0.0.1:8163' : new URL(webUrl).origin;
 
+/**
+ * Spec 029 (research R10): the origin where passkey ceremonies run. At `proxy-api` the same proxy on the `localhost`
+ * host name, whose passkey routes go to the backoffice-api-passkey replica (PUBLIC_URL http://localhost:8162, RP ID
+ * localhost); elsewhere the usual web URL, where the app hides passkeys (Directus API, or another host than the RP ID).
+ */
+export const passkeyWebUrl = e2eConfig === 'proxy-api' ? 'http://localhost:8162' : webUrl;
+
 /** Directus 11.17.4 of the main parity pair. */
 export const directusUrl = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
 

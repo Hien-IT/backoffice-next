@@ -2028,6 +2028,33 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
   ring of the Input recipe); every other rule chains these like the Directus default theme. `.type-*` and `.form-grid`
   keep the Directus metrics.
 
+### Passkeys (Q-47; spec 029, D-207.4, no Directus counterpart)
+
+- Login button: under the login form (outside the `<form>`, so Enter sends the password form), BoButton `secondary`
+  `full-width` with icon `passkey`, text `passkey_sign_in`; only when the browser has WebAuthn, the API is Backoffice and
+  the page host is the RP ID; loading while the ceremony runs (the Sign In button disabled meanwhile, and the other way);
+  a cancelled browser dialog shows nothing and puts the focus back on the button; API errors in the danger BoNotice of
+  the form, worded like a wrong password.
+- Card (user page, after the form cards, same column; layout-patterns §8): the Card recipe (`rounded-2xl border
+  border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`); header `px-6 py-5` with BoIcon `passkey`
+  `text-gray-500 dark:text-gray-400`, an `h3` `text-base font-medium text-gray-800 dark:text-white/90`, the description
+  `mt-1 text-sm text-gray-500 dark:text-gray-400` and, on one's own page, BoButton `sm` `add` `passkey_add`; body
+  `border-t border-gray-100 p-4 sm:p-6 dark:border-gray-800`. A plain `div` (no landmark), like the D-150 form cards.
+- List: BoTable (`caption` sr-only `passkeys`) with Name, Created, Last used; dates relative with the exact date as
+  `title`; `passkey_never_used` when never used; empty slot with the `passkey` icon, `passkey_none` title and
+  `passkey_none_hint`. Row actions in `item-append`: own passkeys a ghost square `more_vert` BoMenu trigger named
+  "Passkey actions: <name>" with Rename and Delete (danger); another user's (admin) a ghost square `delete` button named
+  "Delete passkey: <name>".
+- Dialogs (BoDialog, Q-19 pattern): add in two steps, password (BoInput password, `current-password`, autofocus, `next`)
+  then name (BoInput, max 100, suggested "Passkey on <platform>", `save`), with the submit button outside the form via
+  `form`; rename (one BoInput, `save`); delete (`passkey_delete_confirm`, plus `passkey_admin_delete_text` for another
+  user; Cancel then danger Delete, D-76). Errors in a danger BoNotice inside the dialog; a cancelled browser dialog closes
+  the add dialog quietly; focus back on the trigger (D-197).
+- Limit: at 10 passkeys the add button is disabled with `aria-describedby` on the `passkey_limit` line
+  (`text-theme-xs text-gray-500 dark:text-gray-400`).
+- Built: `routes/login/LoginForm.vue`, `modules/users/components/UserPasskeys.vue`, `composables/use-passkeys.ts`,
+  `composables/use-passkey-support.ts`. No new component, no new color pair.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

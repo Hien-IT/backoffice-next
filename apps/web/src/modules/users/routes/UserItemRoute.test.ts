@@ -20,6 +20,23 @@ import { mountLayout } from '../../../test-utils/layout.ts';
 import { resetNavigationForTests } from '../composables/use-navigation.ts';
 import UserItemRoute from './UserItemRoute.vue';
 
+// Spec 029 (T033): the Passkeys card has its own browser test; here only where and with what it is mounted.
+vi.mock('../components/UserPasskeys.vue', async () => {
+	const { defineComponent, h } = await import('vue');
+	return {
+		default: defineComponent({
+			props: { userId: String, provider: String, isCurrentUser: Boolean },
+			setup: (props) => () =>
+				h('div', {
+					'data-testid': 'passkeys-stub',
+					'data-user': props.userId,
+					'data-provider': props.provider,
+					'data-current': String(props.isCurrentUser),
+				}),
+		}),
+	};
+});
+
 vi.mock('../../../auth.ts', async (original) => ({
 	...(await original<typeof import('../../../auth.ts')>()),
 	logout: vi.fn(),
@@ -115,7 +132,9 @@ describe('UserItemRoute', () => {
 		await flushPromises();
 		await flushPromises();
 
-		const patch = fetch.mock.calls.find(([url, init]) => String(url).includes(`/users/${user['id']}`) && init?.method === 'PATCH')!;
+		const patch = fetch.mock.calls.find(
+			([url, init]) => String(url).includes(`/users/${user['id']}`) && init?.method === 'PATCH',
+		)!;
 		expect(JSON.parse(patch[1]!.body as string)).toEqual({ title: 'Engineer' });
 		expect(router.currentRoute.value.fullPath).toBe('/users');
 	});
@@ -149,7 +168,9 @@ describe('UserItemRoute', () => {
 		await flushPromises();
 		await flushPromises();
 
-		const patch = fetch.mock.calls.find(([url, init]) => String(url).includes(`/users/${user['id']}`) && init?.method === 'PATCH')!;
+		const patch = fetch.mock.calls.find(
+			([url, init]) => String(url).includes(`/users/${user['id']}`) && init?.method === 'PATCH',
+		)!;
 		expect(JSON.parse(patch[1]!.body as string)).toEqual({ status: 'archived' });
 		expect(router.currentRoute.value.fullPath).toBe('/users');
 	});
@@ -179,6 +200,22 @@ describe('UserItemRoute', () => {
 			.find((b) => b.textContent?.trim() === 'Delete')!
 			.click();
 		await vi.waitFor(() => expect(logout).toHaveBeenCalled());
+	});
+
+	// Spec 029 (D-207.4): the Passkeys card follows the form, with the user, its provider and whether it is oneself.
+	test('the Passkeys card follows the form, with the user id, its provider and not oneself', async () => {
+		const other = userOf('bo-active@example.com');
+		await setup({ primaryKey: other['id'] });
+		const stub = document.querySelector<HTMLElement>('[data-testid="passkeys-stub"]')!;
+
+		expect(stub.dataset).toMatchObject({ user: other['id'], provider: 'default', current: 'false' });
+		// After the form cards, in the same column.
+		expect(stub.parentElement!.classList.contains('user-item')).toBe(true);
+	});
+
+	test('the provider of an SSO user is passed (the card hides itself for it)', async () => {
+		await setup({ primaryKey: userOf('bo-sso@example.com')['id'] });
+		expect(document.querySelector<HTMLElement>('[data-testid="passkeys-stub"]')!.dataset['provider']).toBe('oidc');
 	});
 
 	test('a missing user shows the module not-found page', async () => {

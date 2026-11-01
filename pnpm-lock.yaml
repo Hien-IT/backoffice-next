@@ -183,6 +183,9 @@ catalogs:
     '@shopify/semaphore':
       specifier: 3.1.0
       version: 3.1.0
+    '@simplewebauthn/browser':
+      specifier: 14.0.0
+      version: 14.0.0
     '@simplewebauthn/server':
       specifier: 14.0.3
       version: 14.0.3
@@ -1368,6 +1371,9 @@ importers:
       '@material-symbols/font-400':
         specifier: 'catalog:'
         version: 0.48.0
+      '@simplewebauthn/browser':
+        specifier: 'catalog:'
+        version: 14.0.0
       '@sindresorhus/slugify':
         specifier: 'catalog:'
         version: 2.2.1
@@ -5322,6 +5328,9 @@ packages:
     resolution: {integrity: sha512-LxonkiWEu12FbZhuOMhsdocpxCqm7By8C/2U9QgNuEoXUx2iMrlXjJv3p93RwfNC6TrdlNRo17gRer1z1309VQ==}
     engines: {node: '>=18.12.0'}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+
+  '@simplewebauthn/browser@14.0.0':
+    resolution: {integrity: sha512-1odWVqeEBTl7lJ9zMKLEsmTlnyrDO5iRcTvfMKKk1WThUnp/i8JJdffdj2icP+tty159s4PgwE3BiMoEW9NFow==}
 
   '@simplewebauthn/server@14.0.3':
     resolution: {integrity: sha512-D39/0fiDiYmGV+nraY9s63D1Ho2AX/waMLy22/9gUadTUuvbAnstfb4bpbHYbwZuV5ZLDYN1SmzDKuiHzKAA4Q==}
@@ -15103,6 +15112,8 @@ snapshots:
       ioredis: 5.8.2
 
   '@shopify/semaphore@3.1.0': {}
+
+  '@simplewebauthn/browser@14.0.0': {}
 
   '@simplewebauthn/server@14.0.3':
     dependencies:

@@ -2,19 +2,28 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, createRouter } from 'vue-router';
-import { login } from '../../auth.ts';
+import { ref } from 'vue';
+import { login, loginWithPasskey } from '../../auth.ts';
 import { i18n } from '../../lang/index.ts';
 import { useUserStore } from '../../stores/user.ts';
 import type { AppUser } from '../../types/user.ts';
 import LoginForm from './LoginForm.vue';
 
-vi.mock('../../auth.ts', () => ({ login: vi.fn() }));
+vi.mock('../../auth.ts', () => ({ login: vi.fn(), loginWithPasskey: vi.fn() }));
+
+// Spec 029: the passkey probe (use-passkey-support.test.ts covers it).
+const passkeys = ref(false);
+vi.mock('../../composables/use-passkey-support.ts', () => ({
+	usePasskeySupport: () => ({ passkeyAvailable: passkeys, ready: Promise.resolve(passkeys.value) }),
+}));
 
 const apiError = (code: string) => ({ errors: [{ message: code, extensions: { code } }] });
 
 beforeEach(() => {
 	setActivePinia(createPinia());
 	vi.mocked(login).mockReset();
+	vi.mocked(loginWithPasskey).mockReset();
+	passkeys.value = false;
 });
 
 async function mountForm(path = '/login', props: Record<string, unknown> = {}) {
@@ -164,5 +173,62 @@ describe('LoginForm', () => {
 		resolve();
 		await flushPromises();
 		wrapper.unmount();
+	});
+
+	// Spec 029 (T042, FR-001, FR-008, FR-009).
+	describe('passkey button', () => {
+		const passkeyButton = (wrapper: Awaited<ReturnType<typeof mountForm>>['wrapper']) =>
+			wrapper.findAll('button').find((b) => b.text().endsWith('Sign in with a passkey'));
+
+		test('only when passkeys are available; outside the form', async () => {
+			const { wrapper } = await mountForm();
+			expect(passkeyButton(wrapper)).toBeUndefined();
+
+			passkeys.value = true;
+			await flushPromises();
+			const button = passkeyButton(wrapper)!;
+			expect(button.attributes('type')).toBe('button');
+			expect(button.element.closest('form')).toBeNull();
+			wrapper.unmount();
+		});
+
+		test('signs in with a passkey, then goes to the redirect query', async () => {
+			passkeys.value = true;
+			const { wrapper, router } = await mountForm('/login?redirect=/settings/project');
+
+			await passkeyButton(wrapper)!.trigger('click');
+			await flushPromises();
+
+			expect(loginWithPasskey).toHaveBeenCalledOnce();
+			expect(login).not.toHaveBeenCalled();
+			expect(router.currentRoute.value.fullPath).toBe('/settings/project');
+			wrapper.unmount();
+		});
+
+		test('a cancelled dialog shows no error and focuses the button again', async () => {
+			passkeys.value = true;
+			vi.mocked(loginWithPasskey).mockRejectedValueOnce({ code: 'PASSKEY_CANCELLED' });
+			const { wrapper, router } = await mountForm();
+
+			await passkeyButton(wrapper)!.trigger('click');
+			await flushPromises();
+
+			expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+			expect(document.activeElement).toBe(passkeyButton(wrapper)!.element);
+			expect(router.currentRoute.value.path).toBe('/login');
+			wrapper.unmount();
+		});
+
+		test('an API error reads like a wrong password', async () => {
+			passkeys.value = true;
+			vi.mocked(loginWithPasskey).mockRejectedValueOnce(apiError('INVALID_CREDENTIALS'));
+			const { wrapper } = await mountForm();
+
+			await passkeyButton(wrapper)!.trigger('click');
+			await flushPromises();
+
+			expect(wrapper.get('[role="alert"]').text()).toContain('Wrong username or password');
+			wrapper.unmount();
+		});
 	});
 });

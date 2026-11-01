@@ -6,7 +6,7 @@ import { backofficeExtensions } from './vite-plugin-extensions.ts';
 
 // The API routes the app calls (specs/012-backoffice-web-shell/contracts/api-calls.md, 013 and 014 contracts).
 const API_PATHS =
-	'^/(auth|server|users|policies|roles|permissions|settings|collections|fields|relations|presets|translations|notifications|assets|shares|files|folders|utils|items|flows|revisions|versions|comments|activity|graphql|access|operations|dashboards|panels|extensions)([/?]|$)';
+	'^/(auth|server|users|policies|roles|permissions|settings|collections|fields|relations|presets|translations|notifications|assets|shares|files|folders|utils|items|flows|revisions|versions|comments|activity|graphql|access|operations|dashboards|panels|extensions|backoffice)([/?]|$)';
 
 // Served under /admin/ like the DR app. In dev, API paths go to PUBLIC_URL (like DR, default the local
 // API) on the same origin, so the session cookie works without CORS. Route components are imported lazily, which
@@ -22,6 +22,8 @@ export default defineConfig({
 	optimizeDeps: {
 		include: [
 			'@unhead/vue',
+			// Spec 029: the passkey ceremonies of the login form and the user page.
+			'@simplewebauthn/browser',
 			'mitt',
 			'vuedraggable',
 			'vue-virtual-scroller',
