@@ -1,7 +1,9 @@
 // Backoffice (spec 022, D-180): the Backoffice migrations, a static list so nothing is read from disk and the DR
 // migration runner (database/migrations/run.ts, a verbatim port) never sees them. A new migration is a file next to
 // this one and a line below, in version order (constitution II, 3.2.0: only backoffice_* tables, bo_* columns on
-// directus_* tables and their directus_fields rows; up only, re-runnable, Knex only).
+// directus_* tables and their directus_fields rows; up only, re-runnable, Knex only). Every new bo_* column also gets
+// its directus_fields row in the same migration (hidden and read-only when users must not edit it), or the Data Model
+// of both apps lists it as "Database Only" (owner 2026-11-01; see 20261026A, 20261101A).
 import type { Knex } from 'knex';
 import * as addCollectionUiToggles from './20261026A-add-collection-ui-toggles.js';
 import * as createBackofficePermissions from './20261028A-create-backoffice-permissions.js';
