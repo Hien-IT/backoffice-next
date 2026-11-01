@@ -51,7 +51,9 @@ checklist 2026-11-01").
 ## Rate limit, stall, không lộ user
 
 - [x] CHK011 Yêu cầu đếm attempt có nêu cùng bộ đếm, cùng ngưỡng, cùng chuyển `suspended`, cùng activity với mật khẩu, và
-  thành công đặt lại không? [Completeness, Spec §FR-006]. Đạt.
+  thành công đặt lại không? [Completeness, Spec §FR-006]. Đạt lúc checklist; **phát hiện khi analyze 2026-11-01 (H1)**:
+  FR-006 đếm cả user không `active`, khác login local (`authentication.service.ts:131` từ chối trước limiter). Sửa: FR-006
+  từ chối trước, không đếm.
 - [x] CHK012 Thời gian phản hồi của lần sai, credential lạ và user không hợp lệ có được yêu cầu bằng nhau và đo được không?
   [Measurability, Spec §FR-006, §SC-004]. Đạt: cùng `LOGIN_STALL_TIME`, chênh không quá 10 %.
 - [x] CHK013 Mọi nhánh lỗi của đăng nhập passkey có dùng một thông điệp và mã chung không? [Consistency, Spec §FR-005,

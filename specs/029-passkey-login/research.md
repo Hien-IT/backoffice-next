@@ -112,8 +112,8 @@ cache dùng chung (`middleware/respond.ts:45`; cache middleware áp lên mọi G
 Login: `PasskeyService.login(response, mode)` làm theo thứ tự: tìm challenge trong kho theo `clientDataJSON.challenge`
 (R4; không có hay hết hạn → lỗi chung) → giải mã `response.id` → đọc dòng `backoffice_passkeys` + user (`id, status,
 role, provider, tfa_secret, email, first_name, last_name`) → không có dòng, user không có (mồ côi), `status !== 'active'`
-hay `provider !== 'default'` → `emitStatus('fail')`, `stall`, `InvalidCredentialsError` (không đếm khi không có user;
-có user thì đếm trước: thứ tự dưới) → `consumeLoginAttempt(user)` → `verifyAuthenticationResponse` (R1); `verified ===
+hay `provider !== 'default'` → `emitStatus('fail')`, `stall`, `InvalidCredentialsError`, **không đếm** (như login local:
+`:131` chạy trước limiter `:143`; sửa khi analyze 2026-11-01, H1) → `consumeLoginAttempt(user)` → `verifyAuthenticationResponse` (R1); `verified ===
 false` hay ném → fail + stall + `InvalidCredentialsError` → cập nhật `counter`, `last_used` → `finishLogin(user,
 payload, { passkey: true, session: mode === 'session', ... })`. Controller viết cookie và payload y hệt `local.ts:88-100`
 (cùng `refreshCookieOptions()`, `sessionCookieOptions()` của `constants.ts:115-137`). Thời gian `stall` tính từ đầu
@@ -122,7 +122,7 @@ request như login local nên lần sai và credential lạ cùng độ trễ (S
 **Alternatives considered**: đặt dưới `/auth/passkey` (bác: D-189.6 quy ước `/backoffice/` cho endpoint chỉ Backoffice,
 và `/auth/login/:provider` của DR trùng dạng đường dẫn).
 
-## R4. Kho challenge: `createCache` của `@backoffice/memory`, key là chính challenge
+## R4. Kho challenge: Redis `GETDEL` hoặc `Map` trong process, key là chính challenge
 
 **Hiện trạng**: `Kv` không có TTL theo key (`libs/memory/src/kv/types/class.ts`); `CacheConfigRedis.ttl` có
 (`libs/memory/src/cache/types/config.ts:52`), `CacheConfigLocal.maxKeys` có (:21); `apps/api/src/utils/store.ts`
@@ -133,16 +133,16 @@ và `/auth/login/:provider` của DR trùng dạng đường dẫn).
 ```ts
 const TTL = 5 * 60 * 1000;
 type Pending = { purpose: 'login' | 'register'; user?: string; expires: number };
-const store = redisConfigAvailable()
-	? createCache({ type: 'redis', namespace: 'backoffice:passkey', redis: useRedis(), ttl: TTL })
-	: createCache({ type: 'local', maxKeys: 10_000 });
+const PREFIX = 'backoffice:passkey:';
+// Redis khi redisConfigAvailable(): useRedis().set(PREFIX + challenge, JSON, 'PX', TTL) / useRedis().getdel(PREFIX + challenge)
+// Không Redis (một instance): Map<string, Pending>, tối đa 10.000 khóa, xóa khóa cũ nhất khi đầy
 export async function putChallenge(challenge: string, pending: Omit<Pending, 'expires'>): Promise<void>;
 /** Lấy và xóa nguyên tử (một lần, kể cả hai request đồng thời); hết hạn theo `expires` → undefined. */
 export async function takeChallenge(challenge: string): Promise<Pending | undefined>;
 ```
 
-Lấy-và-xóa phải nguyên tử (FR-025, sửa khi checklist 2026-11-01): `Cache` của `@backoffice/memory` chỉ có `get` và
-`delete` riêng, nên `takeChallenge` dùng thẳng `useRedis().getdel('backoffice:passkey:' + challenge)` khi có Redis (giá
+Lấy-và-xóa phải nguyên tử (FR-025, sửa khi checklist 2026-11-01; khối code sửa khi analyze 2026-11-01, M1): `Cache`
+của `@backoffice/memory` chỉ có `get` và `delete` riêng, nên `takeChallenge` dùng thẳng `useRedis().getdel('backoffice:passkey:' + challenge)` khi có Redis (giá
 trị JSON, `set` bằng `useRedis().set(key, json, 'PX', TTL)`), và một `Map` trong process khi không (đọc rồi `delete`
 trong cùng một tick, không `await` ở giữa; giới hạn 10.000 khóa, xóa khóa cũ nhất khi đầy). Hai nhánh nằm trong
 `challenge-store.ts`, không qua `createCache`. Người gọi kiểm `purpose` (và `user` với đăng ký) sau khi lấy: sai thì lỗi
@@ -356,9 +356,11 @@ riêng thêm cột `bo_*` vào bảng `directus_*` (022: ba cột trên `directu
 được xác minh; user có mật khẩu không tạo được. Token `json`/`cookie` không có `session` → như Directus. Hook `authenticate`
 của extension bỏ `session` → như Directus (an toàn). Directus không đọc cột → Directus app vẫn bắt cài TFA (điểm 3 duyệt).
 
-**Parity**: D-207.5 entry `http` cho `GET /policies/me/globals` và `POST /graphql/system` với `when` = cookie của phiên
-passkey (parity gửi cùng cookie tới hai app: Backoffice `false`, Directus `true`); mọi phiên khác giống nhau (test có sẵn
-`auth/*` xanh nguyên). `GET /fields/directus_sessions` của hai app giống nhau (cùng đọc cột từ DB, như `bo_show_*` của
+**Parity**: D-207.5 là entry `doc` (sửa khi analyze 2026-11-01, H3: `AcceptedDifference.when` chỉ có `directusStatus`,
+`directusCode`, `backofficeCode`, `accepted-differences.ts:16`, `parity.ts:340-342`; một entry `http` chỉ theo jsonPointer
+sẽ chấp nhận khác biệt `enforce_tfa` của mọi phiên). `auth/passkey.test.ts` gửi cookie phiên passkey tới từng app bằng
+`appRequest`/`capture` và kiểm Backoffice `false`, Directus `true`; `parity()` của `GET /policies/me/globals` với phiên
+mật khẩu giữ so sánh chặt (test có sẵn `auth/*` xanh nguyên). `GET /fields/directus_sessions` của hai app giống nhau (cùng đọc cột từ DB, như `bo_show_*` của
 022); snapshot bỏ bảng hệ thống (`get-snapshot.ts:29`); dump `bootstrap` bỏ cột `bo_*` (`dump.ts`, D-180).
 
 **Alternatives considered**: dấu trong Redis theo token (mất khi xóa cache hay restart không persistence, phải chép khi

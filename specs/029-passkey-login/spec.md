@@ -3,8 +3,9 @@
 **Feature Branch**: `029-passkey-login` (làm trên `main` như 012–028, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=029-passkey-login`)
 **Created**: 2026-11-01
-**Status**: Draft (spec và clarify 2026-11-01, 4 câu; plan 2026-11-01: research R1–R12; checklist security và api-compat
-2026-11-01, phát hiện đã sửa; D-207..D-207.5, dependency, replica passkey và phương án E duyệt 2026-11-01)
+**Status**: Draft (spec và clarify 2026-11-01, 4 câu; plan 2026-11-01: research R1–R13; checklist security và api-compat
+2026-11-01, phát hiện đã sửa; D-207..D-207.5, dependency, replica passkey và phương án E duyệt 2026-11-01; tasks 53 task;
+analyze 2026-11-01, HIGH và MEDIUM đã sửa)
 **Input**: User description: "Feature 029: đăng nhập app Backoffice bằng passkey (WebAuthn, FIDO2) cho user local. Bối
 cảnh: Directus 11.17.4 và Backoffice chỉ có đăng nhập mật khẩu (+ OTP), LDAP, OAuth2, OpenID; Directus không có passkey,
 nên đây là tính năng chỉ của Backoffice (như 022, 025, 027), Directus app vẫn đăng nhập bằng mật khẩu. Mục tiêu: user
@@ -231,10 +232,13 @@ passkey không làm Directus hỏng.
   `GET /policies/me/globals` trả `enforce_tfa` như Directus; màn hình bắt cài TFA không tồn tại ở client đó (phương án E).
 - Hook `authenticate` của extension thay `accountability` và bỏ `session`: `enforce_tfa` tính như Directus (nghiêng về
   an toàn).
+- Phiên passkey được làm mới qua API Directus (cùng refresh token, ví dụ một client trỏ vào Directus): Directus tạo dòng
+  phiên mới không có `bo_passkey`, nên từ đó app Backoffice bắt cài TFA với user thuộc role bắt buộc; nghiêng về an toàn,
+  chấp nhận (sửa khi analyze 2026-11-01, M5).
 - Payload đăng ký hoặc xác minh sai dạng: 400 với lỗi validate như các endpoint khác, không đếm attempt.
 - Tên passkey: 1–100 ký tự, cắt khoảng trắng; trùng tên giữa các passkey của cùng user được phép.
-- Người dùng gọi passkey qua static token hay session của extension: các endpoint đăng ký/quản lý cần session của chính
-  user (như `/users/me/tfa/*`), không nhận static token (Assumptions).
+- Người dùng gọi các endpoint quản lý bằng static token hay token JSON: được nhận như `/users/me/tfa/*` (chỉ cần
+  `accountability.user`); thêm passkey vẫn cần mật khẩu và lễ của authenticator thật (sửa khi analyze 2026-11-01, H2).
 - Response cache dùng chung với Directus: endpoint passkey là POST/PATCH/DELETE hoặc GET theo user, không vào cache như
   `/users/me`.
 
@@ -252,7 +256,7 @@ passkey không làm Directus hỏng.
   đăng nhập: phản hồi đăng ký thiếu cờ xác minh bị từ chối (400), phản hồi đăng nhập thiếu cờ xác minh bị từ chối với lỗi
   chung và đếm attempt như chữ ký sai (sửa khi checklist 2026-11-01).
 - **FR-003**: Xác minh thành công PHẢI tạo session giống hệt đăng nhập local: cùng loại cookie và thời hạn, một dòng
-  phiên với cùng cột, activity `login`, `last_access`, sự kiện `auth.login` trạng thái `success` với `provider` =
+  phiên với cùng cột (trừ `bo_passkey = true`, D-207.5; sửa khi analyze 2026-11-01), activity `login`, `last_access`, sự kiện `auth.login` trạng thái `success` với `provider` =
   `default` (như `provider` của user, không có giá trị provider mới) và `payload.passkey = true` để flow phân biệt (cả
   khi `fail`); làm mới và đăng xuất không khác (clarify 2026-11-01 câu 3).
 - **FR-004**: Đăng nhập passkey KHÔNG hỏi OTP dù user có TFA, và KHÔNG gắn cờ bắt cài TFA vào token dù role có policy
@@ -265,10 +269,12 @@ passkey không làm Directus hỏng.
   2026-11-01).
 - **FR-005**: Chỉ user `provider = default` và `status = active` đăng nhập được bằng passkey; mọi trường hợp khác trả
   lỗi chung của login local ("Invalid user credentials"), cùng mã lỗi.
-- **FR-006**: Đăng nhập passkey thất bại vì credential của một user (chữ ký sai, bộ đếm lùi, user không hợp lệ) PHẢI đếm
-  vào cùng bộ đếm `auth_login_attempts` của user đó, cùng ngưỡng, cùng chuyển `suspended`, cùng activity, cùng thời gian
-  chờ chống dò; thành công PHẢI đặt lại bộ đếm như login local. Credential không thuộc user nào: lỗi chung, cùng thời
-  gian chờ, không đếm.
+- **FR-006**: Đăng nhập passkey thất bại vì credential của một user `active` và `provider = default` (chữ ký sai, bộ đếm
+  lùi, thiếu cờ xác minh người dùng) PHẢI đếm vào cùng bộ đếm `auth_login_attempts` của user đó, cùng ngưỡng, cùng chuyển
+  `suspended`, cùng activity, cùng thời gian chờ chống dò; thành công PHẢI đặt lại bộ đếm như login local. User không
+  `active` hay `provider` khác `default` bị từ chối **trước** bộ đếm, không đếm (như login local,
+  `authentication.service.ts:131` chạy trước limiter ở `:143`), để passkey không chuyển user `invited`/`draft` sang
+  `suspended`. Credential không thuộc user nào: lỗi chung, cùng thời gian chờ, không đếm (sửa khi analyze 2026-11-01, H1).
 - **FR-007**: Mọi lỗi của đăng nhập passkey trả về client PHẢI là lỗi chung, không phân biệt "không có passkey", "user
   không active", "chữ ký sai"; log server ghi lý do nhưng KHÔNG ghi challenge, phản hồi của authenticator hay khóa công
   khai (sửa khi checklist 2026-11-01).
@@ -298,8 +304,9 @@ passkey không làm Directus hỏng.
 - **FR-018**: Admin mở trang user khác PHẢI thấy danh sách passkey của người đó và xóa được từng passkey không cần mật
   khẩu (như tắt TFA của user khác); admin KHÔNG thêm và KHÔNG đổi tên hộ.
 - **FR-019**: Không có đăng ký passkey ở trang login, invite, setup, reset mật khẩu hay bất kỳ trang public nào.
-- **FR-020**: Các endpoint đăng ký và quản lý PHẢI cần session của chính user (hoặc admin với endpoint của người khác),
-  không nhận static token (Assumptions).
+- **FR-020**: Các endpoint đăng ký và quản lý PHẢI cần người gọi đã xác thực là chính user (bất kỳ loại token nào có
+  `accountability.user`, như `/users/me/tfa/*`), hoặc admin với endpoint của người khác (sửa khi analyze 2026-11-01, H2: bỏ câu "không
+  nhận static token" vì route TFA được dẫn làm mẫu nhận static token).
 
 **Dữ liệu và vòng đời**
 
@@ -402,7 +409,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 | D-207.2 | Xóa user | Chỉ các bảng Directus | Xóa thêm dòng `backoffice_passkeys` của user; Directus xóa user để lại dòng mồ côi, Backoffice bỏ qua | Không FK (Nguyên tắc II) | khác (duyệt 2026-11-01) | — |
 | D-207.3 | User chưa có TFA nhưng role bắt buộc TFA | Mọi đăng nhập bị bắt cài TFA | Đăng nhập bằng passkey không hỏi OTP; app Backoffice không đưa tới màn hình cài TFA khi phiên do passkey tạo (API trả `enforce_tfa: false`, D-207.5); Directus app dùng cùng session vẫn bắt cài TFA (API Directus không đọc dấu); đăng nhập bằng mật khẩu như Directus (sửa khi checklist 2026-11-01, phương án E) | Chủ dự án 2026-11-01: passkey thay cả mật khẩu lẫn OTP | khác (duyệt 2026-11-01) | — |
 | D-207.4 | Giao diện: nút "Đăng nhập bằng Passkey" trên trang login, card "Passkeys" trên trang user (của mình: quản lý; của người khác: admin xóa) | Không có | Có, chỉ khi API là Backoffice; không có dòng `directus_fields` mới | Cùng D-207 | khác (duyệt 2026-11-01) | — |
-| D-207.5 | `GET /policies/me/globals`, GraphQL `policies_me_globals` với phiên do passkey tạo; cột `bo_passkey` trên `directus_sessions` | `enforce_tfa: true` khi policy bắt buộc (không biết phiên passkey); không có cột | `enforce_tfa: false` khi dòng phiên của token có `bo_passkey = true`; cột boolean nullable `bo_passkey` thêm bằng migration riêng (Nguyên tắc II: cột `bo_*` trên `directus_*`, không dòng `directus_fields`), Directus ghi phiên để null; giữ qua làm mới; bộ đối chiếu: entry `http` có điều kiện phiên passkey (như D-189.1) | Phương án E chủ dự án chọn 2026-11-01: không có lỗ hổng ở trình duyệt | khác (duyệt 2026-11-01) | — |
+| D-207.5 | `GET /policies/me/globals`, GraphQL `policies_me_globals` với phiên do passkey tạo; cột `bo_passkey` trên `directus_sessions` | `enforce_tfa: true` khi policy bắt buộc (không biết phiên passkey); không có cột | `enforce_tfa: false` khi dòng phiên của token có `bo_passkey = true`; cột boolean nullable `bo_passkey` thêm bằng migration riêng (Nguyên tắc II: cột `bo_*` trên `directus_*`, không dòng `directus_fields`), Directus ghi phiên để null; giữ qua làm mới; bộ đối chiếu: entry `doc`, kiểm từng app với cookie phiên passkey vì `when` của `AcceptedDifference` không có điều kiện theo request; `parity()` của mọi phiên khác giữ so sánh chặt (sửa khi analyze 2026-11-01, H3) | Phương án E chủ dự án chọn 2026-11-01: không có lỗ hổng ở trình duyệt | khác (duyệt 2026-11-01) | — |
 
 **Cần xác nhận**:
 
@@ -437,6 +444,16 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   normalizer), SC-002, SC-007, D-207, D-207.1, Edge Cases (làm đầy kho, đồng thời, user không mật khẩu, xóa passkey không
   kết thúc session), Assumptions (attestation, session, gỡ tay).
 
+### Sửa khi `/speckit.analyze` (2026-11-01, chủ dự án: sửa HIGH và MEDIUM)
+
+- H1: FR-006 user không `active`/sai provider bị từ chối trước bộ đếm, không đếm (như login local).
+- H2: FR-020, Edge Cases, Assumptions bỏ "không nhận static token" (khớp `/users/me/tfa/*`).
+- H3: D-207.5 là entry `doc`, kiểm từng app; `when` không có điều kiện theo request.
+- H4: tasks T029 chạy `benchmark-auth` (Nguyên tắc X) vì `AuthenticationService.login` được tách.
+- M1: research R4, plan bỏ `createCache` cho kho challenge (Redis `GETDEL`, `Map`).
+- M2, M3: tasks T021 thêm `/items/backoffice_passkeys`, GraphQL và origin sai.
+- M4: FR-003 ghi ngoại lệ `bo_passkey`. M5: Edge Cases làm mới phiên passkey qua Directus. CQ1: checklist CHK011.
+
 ### Duyệt 2026-11-01 (chủ dự án kiêm tech lead và design owner, sau `/speckit.plan` và `/speckit.checklist`)
 
 1. D-207, D-207.1, D-207.2, D-207.3, D-207.4: duyệt.
@@ -456,8 +473,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   `backoffice:passkey` khi có Redis, bộ nhớ tiến trình khi chạy một instance không Redis); khóa là chính chuỗi challenge,
   không id riêng (plan R4).
 - Sự kiện `auth.login` không có action activity mới (vẫn `login`).
-- Endpoint đăng ký/quản lý chỉ nhận session (cookie hoặc bearer của session), không nhận static token, như
-  `/users/me/tfa/*`.
+- Endpoint đăng ký/quản lý nhận mọi token có `accountability.user` như `/users/me/tfa/*` (sửa khi analyze 2026-11-01).
 - HTTPS do trình duyệt bắt buộc, app không kiểm thêm.
 - Không kiểm attestation, không danh sách AAGUID: mọi authenticator đạt chuẩn WebAuthn được nhận (sửa khi checklist
   2026-11-01).

@@ -16,7 +16,7 @@ cùng DB dùng được. Dữ liệu ở bảng hệ thống mới `backoffice_p
 
 Cách làm (chi tiết ở [research.md](./research.md)): `@simplewebauthn/server` + `browser` 14 (R1); tách
 `consumeLoginAttempt`/`finishLogin` khỏi `AuthenticationService.login` và gọi lại (R2); `PasskeyService` + controller
-`backoffice` (R3); kho challenge `createCache` key = challenge (R4); `getPasskeyRp()` từ `PUBLIC_URL`, tắt = 404 (R5);
+`backoffice` (R3); kho challenge Redis `GETDEL`/`Map` key = challenge (R4); `getPasskeyRp()` từ `PUBLIC_URL`, tắt = 404 (R5);
 migration + collection hệ thống ẩn + cascade ở `UsersService.deleteMany` (R6); web: `use-passkey-support` dò
 `GET /backoffice/auth/passkey`, `loginWithPasskey` trong `auth.ts`, nút trong `LoginForm`, card `UserPasskeys` ngoài
 BoForm (R7, R8); parity với authenticator giả trong Node, D-207 `doc` (R9); E2E chromium CDP với replica Backoffice
@@ -30,7 +30,7 @@ swc build cho `apps/api` (không bundler, `node_modules` chép vào image); Vite
 **Primary Dependencies**: **mới** (chủ dự án duyệt 2026-11-01, ghim trong `catalog:`): `@simplewebauthn/server` 14.0.3
 (API; MIT; ESM + CJS; Node >= 20; phụ thuộc `@peculiar/asn1-*`, `@peculiar/x509`, `@levischuck/tiny-cbor`,
 `@hexagon/base64`, `reflect-metadata`, không native), `@simplewebauthn/browser` 14.0.0 (web; MIT; không phụ thuộc). Có
-sẵn: NestJS 12, Knex 3.1, Joi 18.3.1, jsonwebtoken 9.0.3, nanoid, `@backoffice/memory` (`createCache` Redis/local),
+sẵn: NestJS 12, Knex 3.1, Joi 18.3.1, jsonwebtoken 9.0.3, nanoid, `useRedis()` (`SET PX`, `GETDEL`),
 `@backoffice/errors`, otplib (không đụng); web: Vue 3.5, Reka UI 2.8.2, Tailwind CSS 4.3, `@directus/sdk` 21.3.0,
 BoTable/BoDialog/BoMenu/BoInput/BoNotice/BoIcon; test: Vitest 3.2.4, knex-mock-client, supertest, Playwright 1.64.0,
 `node:crypto` (authenticator giả).
@@ -87,7 +87,7 @@ Tracking.
   `directus_*`; session/activity/last_access ghi đúng dạng Directus; id v4.
 - [x] III. PASS với D-207 (route mới chỉ Backoffice, 404 ở Directus), D-207.1 (bảng `backoffice_*`, normalizer có sẵn),
   D-207.2 (xóa user xóa passkey), D-207.3 (passkey không `enforce_tfa`), D-207.5 (`/policies/me/globals` với phiên passkey,
-  entry `http` có điều kiện); mọi endpoint có sẵn không đổi (unit 003 + parity
+  entry `doc`, kiểm từng app); mọi endpoint có sẵn không đổi (unit 003 + parity
   `auth/*` xanh nguyên).
 - [x] IV. PASS: cùng `SECRET`, `jwt.sign` như login local, `directus_sessions` dùng chung; rate limiter Redis có sẵn;
   challenge trong Redis; không state trong process khi có Redis (local chỉ cho một instance, như `useStore`).

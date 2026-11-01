@@ -35,10 +35,10 @@ Passkey "bật" = `PUBLIC_URL` tuyệt đối và hostname không phải IP (res
 | Tác dụng phụ | như login local: dòng `directus_sessions`, activity `login`, `last_access`, `auth.login` filter pending + action success với `provider: "default"`, `payload: { passkey: true, mode }`; reset `auth_login_attempts`; thêm `counter`, `last_used` của passkey. Không OTP, không `enforce_tfa` trong token (D-207.3) |
 | 400 `INVALID_PAYLOAD` | body không có `response` đúng dạng, `mode` lạ (sau `stall`) |
 | 401 `INVALID_CREDENTIALS` | challenge không có/đã dùng/hết hạn/sai mục đích (challenge đăng ký); thiếu cờ xác minh người dùng (UV); `response.id` không có dòng; user không có (mồ côi), `status !== active`, `provider !== default`; chữ ký sai; counter lùi hoặc bằng khi đã lưu > 0; `verified === false`. Cùng thông điệp "Invalid user credentials.", cùng `LOGIN_STALL_TIME` cho mọi nhánh |
-| Đếm attempt | có user (dòng passkey trỏ tới user tồn tại): `consumeLoginAttempt` trước khi xác minh (như mật khẩu), hết lượt → `suspended` + activity/revision; không có user: không đếm |
+| Đếm attempt | user `active` và `provider = default`: `consumeLoginAttempt` trước khi xác minh (như mật khẩu), hết lượt → `suspended` + activity/revision; user không có, không `active` hay sai provider: từ chối trước, không đếm (như `authentication.service.ts:131`; sửa khi analyze 2026-11-01) |
 | 503 `SERVICE_UNAVAILABLE` | kho rate limiter không với tới (như login local), kho challenge không với tới |
 
-## Cần session (user của mình; `provider` phải là `default`, khác → 403 `FORBIDDEN`; không session → 401)
+## Cần xác thực (user của mình; mọi token có `accountability.user` như `/users/me/tfa/*`; `provider` phải là `default`, khác → 403 `FORBIDDEN`; không xác thực → 401)
 
 ### `GET /backoffice/users/me/passkeys`
 

@@ -2389,7 +2389,10 @@ api/web/tests, quickstart) và `/speckit.checklist` (security 25 mục, api-comp
 2026-11-01; chủ dự án duyệt 2026-11-01: D-207..D-207.5, hai dependency, replica `backoffice-api-passkey` của profile `web`
 (R10), xóa passkey không kết thúc session, Directus app vẫn bắt cài TFA với session passkey, icon và thời gian relative,
 và phương án E cho màn hình bắt cài TFA (cột `bo_passkey` trên `directus_sessions`, API trả `enforce_tfa: false` cho
-phiên passkey, D-207.5, research R13) thay cho dấu trong trình duyệt; tasks, analyze, implement chưa chạy. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("nếu thêm đăng nhập bằng Passkey cho Backoffice được không");
+phiên passkey, D-207.5, research R13) thay cho dấu trong trình duyệt; `/speckit.tasks` chạy 2026-11-01 (53 task, hai
+lượt: lượt 1 API T001–T029, lượt 2 web T030–T053); `/speckit.analyze` chạy 2026-11-01 (0 CRITICAL, 4 HIGH, 6 MEDIUM
+đã sửa: user không active không đếm attempt, bỏ chặn static token, D-207.5 là `doc`, T029 chạy `benchmark-auth`);
+implement chưa chạy. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("nếu thêm đăng nhập bằng Passkey cho Backoffice được không");
 sáu câu chốt ở bảng cuối mục, code đọc ngày 2026-11-01 ở phần "Ghi chú". Thư mục: `specs/029-passkey-login/`.
 Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại"; riêng lượt 1 (chạm
 `AuthenticationService.login` của 003) chạy `/speckit.implement` ở effort xhigh. Không sửa constitution: bảng
