@@ -38,7 +38,8 @@ BoTable/BoDialog/BoMenu/BoInput/BoNotice/BoIcon; test: Vitest 3.2.4, knex-mock-c
 **Storage**: bảng mới `backoffice_passkeys` (12 cột, index `user`, unique `credential_id`; [data-model.md](./data-model.md))
 qua migration riêng `20261101A` (up only, Knex, 7 vendor, chạy lại được, không FK), `backoffice_migrations` ghi dòng;
 không cột/dòng mới trên `directus_*`; Redis khóa `backoffice:passkey:<challenge>` (TTL 5 phút, lấy bằng `GETDEL`; `Map`
-local khi không Redis); `localStorage['backoffice-passkey-session']` ở trình duyệt (D-207.3); response cache dùng chung không nhận GET passkey (`res.locals.cache = false`).
+local khi không Redis); cột `bo_passkey` boolean nullable trên `directus_sessions` (cùng migration, D-207.5, phương án E);
+response cache dùng chung không nhận GET passkey (`res.locals.cache = false`).
 
 **Testing**: Vitest unit `apps/api` (migration, `rp`, `challenge-store`, `passkey.service` với `vi.mock('@simplewebauthn/
 server')`, `authentication.service` có sẵn xanh nguyên, `users.service`, controller supertest) và `apps/web`
@@ -81,11 +82,12 @@ Tracking.
 
 - [x] I. PASS: không sửa `directus/`; `authentication.service.ts`, `users.service.ts`, `local.ts` giữ `Ported from`;
   file mới ghi "Backoffice (spec 029)".
-- [x] II. PASS: bảng `backoffice_passkeys` qua migration riêng `20261101A` (up only, Knex, 7 vendor, `hasTable`, không
-  FK), ghi `backoffice_migrations`, chạy bởi `bootstrap`/`init`, kiểm ở `start` (có sẵn); không DDL/dòng mới trên
+- [x] II. PASS: bảng `backoffice_passkeys` và cột `bo_passkey` trên `directus_sessions` (cột `bo_*` được phép, như 022)
+  qua migration riêng `20261101A` (up only, Knex, 7 vendor, `hasTable`/`hasColumn`, không FK), ghi `backoffice_migrations`, chạy bởi `bootstrap`/`init`, kiểm ở `start` (có sẵn); không DDL/dòng mới trên
   `directus_*`; session/activity/last_access ghi đúng dạng Directus; id v4.
 - [x] III. PASS với D-207 (route mới chỉ Backoffice, 404 ở Directus), D-207.1 (bảng `backoffice_*`, normalizer có sẵn),
-  D-207.2 (xóa user xóa passkey), D-207.3 (passkey không `enforce_tfa`); mọi endpoint có sẵn không đổi (unit 003 + parity
+  D-207.2 (xóa user xóa passkey), D-207.3 (passkey không `enforce_tfa`), D-207.5 (`/policies/me/globals` với phiên passkey,
+  entry `http` có điều kiện); mọi endpoint có sẵn không đổi (unit 003 + parity
   `auth/*` xanh nguyên).
 - [x] IV. PASS: cùng `SECRET`, `jwt.sign` như login local, `directus_sessions` dùng chung; rate limiter Redis có sẵn;
   challenge trong Redis; không state trong process khi có Redis (local chỉ cho một instance, như `useStore`).
@@ -105,7 +107,8 @@ Tracking.
   theme, trạng thái đủ, bàn phím, nhãn liên kết; câu hỏi mở (icon `passkey`, thời gian relative) ở "Cần xác nhận" của
   spec, chốt ở analyze.
 
-**Re-check sau Phase 1**: không đổi; không vi phạm.
+**Re-check sau Phase 1 và sau checklist**: không đổi; không vi phạm. D-207..D-207.5, hai dependency, replica passkey và
+phương án E: chủ dự án duyệt 2026-11-01 (spec, mục "Duyệt 2026-11-01").
 
 ## Project Structure
 
@@ -135,7 +138,8 @@ apps/api/
     │   └── index.ts
     ├── services/
     │   ├── passkey.service.ts (+ .test.ts, mới)                 # options/verify đăng ký + đăng nhập, list/rename/delete, admin, limit 10 (R3)
-    │   ├── authentication.service.ts (+ .test.ts)              # tách consumeLoginAttempt(), finishLogin({ passkey }) (R2, D-207.3)
+    │   ├── authentication.service.ts (+ .test.ts)              # tách consumeLoginAttempt(), finishLogin({ passkey }) (R2, D-207.3); bo_passkey ở insert và refresh (R13)
+    ├── permissions/modules/fetch-accountability-policy-globals/ # enforce_tfa false cho phiên passkey (R13, D-207.5)
     │   ├── users.service.ts (+ .test.ts)                        # deleteMany: xóa backoffice_passkeys theo user (R6, D-207.2)
     │   └── index.ts                                             # export PasskeyService
     ├── controllers/
@@ -143,7 +147,7 @@ apps/api/
     │   └── ...
     ├── app.module.ts, providers.ts                              # đăng ký controller + service factory (như 025)
     ├── database/backoffice-migrations/
-    │   ├── 20261101A-create-backoffice-passkeys.ts (+ .test.ts, mới)
+    │   ├── 20261101A-create-backoffice-passkeys.ts (+ .test.ts, mới)  # bảng + cột directus_sessions.bo_passkey
     │   ├── 20261028A-create-backoffice-permissions.test.ts      # danh sách version
     │   └── index.ts                                             # BACKOFFICE_MIGRATIONS + createBackofficePasskeys
     ├── services/graphql/schema/index.ts                         # SYSTEM_DENY_LIST + backoffice_passkeys
@@ -152,8 +156,7 @@ libs/system-data/src/collections/collections.yaml                # backoffice_pa
 apps/web/
 ├── package.json, vite.config.ts                                 # + @simplewebauthn/browser; API_PATHS + backoffice; optimizeDeps
 └── src/
-    ├── auth.ts (+ .test.ts)                                     # loginWithPasskey(), dấu backoffice-passkey-session (R7)
-    ├── router/guard.ts (+ .test.ts)                             # bỏ chuyển /tfa-setup khi phiên do passkey tạo (D-207.3, R7)
+    ├── auth.ts (+ .test.ts)                                     # loginWithPasskey() (R7); router/guard.ts không đổi (R13)
     ├── composables/
     │   ├── use-passkey-support.ts (+ .test.ts, mới)             # browserSupportsWebAuthn && GET /backoffice/auth/passkey && rp_id === hostname
     │   └── use-passkeys.ts (+ .test.ts, mới)                    # list/add(options→startRegistration→save)/rename/remove/adminRemove
@@ -189,7 +192,7 @@ E2E trong `apps/web-e2e` như 014–028; replica passkey chỉ trong profile `we
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-Không có vi phạm. Hai điểm cần chủ dự án gật cùng lượt duyệt D-207..D-207.4 (sau plan):
+Không có vi phạm. Hai điểm chủ dự án đã gật cùng lượt duyệt D-207..D-207.5 (2026-11-01):
 
 | Điểm | Lý do | Cách đơn giản hơn bị bác |
 |------|-------|--------------------------|
@@ -198,8 +201,10 @@ Không có vi phạm. Hai điểm cần chủ dự án gật cùng lượt duy�
 
 ## Sửa sau `/speckit.checklist` (2026-11-01, checklists/security.md, checklists/api-compat.md)
 
-- R2/R7: bỏ cờ `enforce_tfa` trong token không đủ; app Backoffice dùng dấu `backoffice-passkey-session` trong
-  `localStorage` để `router/guard.ts` bỏ chuyển `/tfa-setup`; Directus app vẫn bắt cài TFA (D-207.3).
+- R2/R7/R13: bỏ cờ `enforce_tfa` trong token không đủ; sau khi chủ dự án bác dấu trong trình duyệt (user tự đặt được),
+  chọn phương án E (2026-11-01): cột `bo_passkey` trên `directus_sessions`, `refresh` giữ dấu,
+  `fetchAccountabilityPolicyGlobals` trả `enforce_tfa: false` cho phiên passkey (D-207.5); web không đổi; Directus app
+  vẫn bắt cài TFA (D-207.3).
 - R4: `takeChallenge` nguyên tử (Redis `GETDEL`, `Map` local), không qua `createCache`.
 - data-model: ràng buộc theo vendor; contracts: UV thiếu → 400/401, challenge sai mục đích, log không ghi dữ liệu khóa.
 

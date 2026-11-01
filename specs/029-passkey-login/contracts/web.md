@@ -18,13 +18,10 @@ export async function loginWithPasskey(): Promise<void>;
 /** Lỗi ném khi người dùng hủy hộp thoại (NotAllowedError): { code: 'PASSKEY_CANCELLED' }; form bỏ qua. */
 ```
 
-## Màn hình bắt cài TFA (`router/guard.ts`, D-207.3, FR-004)
+## Màn hình bắt cài TFA (D-207.3, FR-004, phương án E)
 
-| Thành phần | Hành vi |
-|------------|---------|
-| `auth.ts` | `loginWithPasskey` thành công: `localStorage['backoffice-passkey-session'] = userId`; `login()` và `logout()`: xóa khóa (try/catch, không lỗi khi bộ nhớ bị chặn) |
-| `router/guard.ts:81` | chuyển tới `/tfa-setup` chỉ khi `enforce_tfa && tfa_secret === null && readPasskeySession() !== currentUser.id` |
-| Directus app | không đổi: dùng cùng session vẫn bắt cài TFA |
+Không sửa web: `router/guard.ts` giữ nguyên, đọc `enforce_tfa` từ `GET /policies/me/globals`, mà API trả `false` cho
+phiên passkey (contracts/api.md, D-207.5). Directus app dùng cùng session vẫn bắt cài TFA.
 
 ## `LoginForm.vue`
 

@@ -1,8 +1,8 @@
 # Data Model: Đăng nhập bằng Passkey (WebAuthn) cho user local (029)
 
-Một bảng hệ thống mới `backoffice_passkeys` qua migration riêng của Backoffice (Nguyên tắc II từ 3.2.0); không cột
-mới trên `directus_*`, không dòng `directus_fields`, không FK. Challenge sống trong kho dùng chung (Redis), không có
-trong DB.
+Một bảng hệ thống mới `backoffice_passkeys` và một cột `bo_passkey` trên `directus_sessions`, cả hai qua migration riêng
+của Backoffice `20261101A` (Nguyên tắc II từ 3.2.0: bảng `backoffice_*`, cột `bo_*` trên `directus_*`); không dòng
+`directus_fields`, không FK. Challenge sống trong kho dùng chung (Redis), không có trong DB.
 
 ## Bảng `backoffice_passkeys` (migration `20261101A`, "Create Backoffice Passkeys")
 
@@ -41,6 +41,15 @@ Vendor (sửa khi checklist 2026-11-01):
 Số dòng: tối đa 10 một user (FR-014, kiểm ở service trước khi insert, không constraint DB). Xóa: theo `id` (của mình
 hoặc admin), theo `user` khi xóa user (`UsersService.deleteMany`, D-207.2).
 
+## Cột `directus_sessions.bo_passkey` (cùng migration `20261101A`, D-207.5, phương án E)
+
+| Cột | Knex | Null | Ghi chú |
+|-----|------|------|---------|
+| `bo_passkey` | `boolean` | có, không default | `true` chỉ do đăng nhập passkey của Backoffice ghi; `refresh` chép sang dòng phiên mới khi xoay token; Directus ghi phiên để null (= không phải passkey). `GET /policies/me/globals` của Backoffice trả `enforce_tfa: false` khi dòng phiên của token có `true`. Không dòng `directus_fields`, không hiện ở đâu; `GET /fields/directus_sessions` của hai app giống nhau (cùng DB) |
+
+Chạy lại được: `hasColumn` → `alterTable` trong try/catch (mẫu `20261026A`). Gỡ tay: `ALTER TABLE directus_sessions DROP
+COLUMN bo_passkey` (xem Assumptions của spec).
+
 ## Challenge (kho `backoffice:passkey`, không DB)
 
 | Khóa | Giá trị | Hạn |
@@ -52,10 +61,10 @@ hoặc admin), theo `user` khi xóa user (`UsersService.deleteMany`, D-207.2).
 | Bảng | Dùng |
 |------|------|
 | `directus_users` | đọc `id, status, role, provider, tfa_secret, email, first_name, last_name, password` (mật khẩu chỉ khi thêm passkey); ghi `last_access`, `status = 'suspended'` khi hết lượt (như login local) |
-| `directus_sessions` | insert một dòng như login local (`token, user, expires, ip, user_agent, origin`) |
+| `directus_sessions` | insert một dòng như login local (`token, user, expires, ip, user_agent, origin`) cộng `bo_passkey = true`; `refresh` giữ cột qua dòng mới; `/policies/me/globals` đọc cột theo `accountability.session` |
 | `directus_activity` (+ `directus_revisions` khi suspend) | `login` như login local; `update` khi suspend (như login local) |
 | `directus_settings` | `auth_login_attempts` (giới hạn), `project_name` (rpName) |
-| `directus_policies`/`directus_access` | `app_access`, `admin_access` của token như login local; `enforce_tfa` **không** đọc khi passkey (D-207.3) |
+| `directus_policies`/`directus_access` | `app_access`, `admin_access` của token như login local; `enforce_tfa` **không** đọc khi tạo token passkey (D-207.3) và trả `false` ở `/policies/me/globals` cho phiên passkey (D-207.5) |
 
 ## Trạng thái và chuyển trạng thái
 

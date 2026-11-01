@@ -65,11 +65,12 @@ async finishLogin(user, updatedPayload, options: {
 }): Promise<LoginResult>;
 ```
 
-Trong `finishLogin`, `passkey: true` bỏ hai khối OTP (:207-224) và khối `enforce_tfa` (:241-256); mọi dòng khác chạy
-như cũ. Bỏ cờ `enforce_tfa` trong token **không đủ** cho D-207.3 (sửa khi checklist 2026-11-01): router của app
-(`apps/web/src/router/guard.ts:81`, bản DR `directus/app/src/router.ts:191`) chuyển tới `/tfa-setup` theo
-`currentUser.enforce_tfa && tfa_secret === null` của `/users/me`, và `refresh` (:416-421) không đặt cờ vào token; phần
-web ở R7. `emitStatus` được tạo trong `login` và trong `PasskeyService.login` với cùng chữ ký (provider `default`, payload
+Trong `finishLogin`, `passkey: true` bỏ hai khối OTP (:207-224) và khối `enforce_tfa` (:241-256), và insert
+`directus_sessions` thêm `bo_passkey: true` (R13); mọi dòng khác chạy như cũ. Bỏ cờ `enforce_tfa` trong token **không
+đủ** cho D-207.3 (sửa khi checklist 2026-11-01): router của app (`apps/web/src/router/guard.ts:81`, bản DR
+`directus/app/src/router.ts:191`) chuyển tới `/tfa-setup` theo `enforce_tfa` của `GET /policies/me/globals`
+(`stores/user.ts:75`, DR `stores/user.ts:73`) và `tfa_secret === null` của `/users/me`, không đọc token; `refresh`
+(:416-421) cũng không đặt cờ. Cách giải: R13 (phương án E). `emitStatus` được tạo trong `login` và trong `PasskeyService.login` với cùng chữ ký (provider `default`, payload
 `{ passkey: true, mode }` theo clarify câu 3; `auth.login` filter pending cũng chạy cho passkey để flow chặn đăng nhập
 vẫn chặn được).
 
@@ -210,12 +211,9 @@ map lỗi `INVALID_PAYLOAD` → `INVALID_CREDENTIALS`.
 - `auth.ts` thêm `loginWithPasskey(): Promise<void>`: `POST .../login/options` → `startAuthentication({ optionsJSON })`
   → `POST .../login` body `{ response, mode: 'session' }` (RestCommand như nhánh `identifier`) → `sdk.refresh()` → cùng
   khối sau thành công (:76-82). Hủy (`NotAllowedError`) ném lỗi có `code: 'PASSKEY_CANCELLED'` để form bỏ qua.
-- Màn hình bắt cài TFA (D-207.3, FR-004; sửa khi checklist 2026-11-01): `loginWithPasskey` thành công ghi
-  `localStorage['backoffice-passkey-session'] = userId` (bọc try/catch như `backoffice-require_tfa_setup` của
-  `use-tfa-setup.ts:22`); `login()` (mật khẩu, LDAP, share) và `logout()` xóa khóa đó; `router/guard.ts:81` thêm điều
-  kiện `&& readPasskeySession() !== currentUser.id` trước khi chuyển tới `/tfa-setup`; `TfaSetupRoute.vue:83` không đổi
-  (người dùng vẫn tự mở được). Cùng mức tin cậy với cơ chế hiện có: bắt cài TFA chỉ ở app, API không chặn request nào
-  theo `enforce_tfa`. SSO (`openid.ts:584`, `oauth2.ts`) không đổi.
+- Màn hình bắt cài TFA (D-207.3, FR-004): **không sửa web**. `GET /policies/me/globals` trả `enforce_tfa: false` cho
+  phiên passkey (R13), nên `router/guard.ts:81` và `TfaSetupRoute.vue:83` giữ nguyên. (Phương án dấu `localStorage` ghi
+  khi checklist 2026-11-01 bị chủ dự án bác cùng ngày: user tự đặt dấu được.)
 - `LoginForm.vue`: dưới nút Sign In một `BoButton variant="secondary" full-width icon="passkey"` `v-if="passkeyAvailable"`
   (chuỗi `passkey_sign_in`), `loading` riêng; lỗi API hiện qua `BoNotice` như sai mật khẩu (API trả `INVALID_CREDENTIALS`
   nên không cần chuỗi mới); hủy → không gì. Nút nằm ngoài `<form>` để Enter vẫn gửi form mật khẩu.
@@ -327,6 +325,47 @@ nhưng origin khác cổng → xác minh 401. **Không cấu hình E2E hiện c�
 với Directus cho parity, lệch `/server/specs/oas` và redirect); E2E chỉ ở `dev` (bác: không có trong CI); nới origin
 theo cổng (bác: clarify câu 1).
 
+## R13. Phiên passkey nhớ ở server: cột `bo_passkey` trên `directus_sessions` (phương án E, chủ dự án chọn 2026-11-01)
+
+**Hiện trạng**: `fetchAccountabilityPolicyGlobals(accountability, ctx)` (`apps/api/src/permissions/modules/
+fetch-accountability-policy-globals/fetch-accountability-policy-globals.ts:6`) trả `enforce_tfa: !!result` từ một truy vấn
+`directus_policies.enforce_tfa` theo policy của accountability; hai chỗ gọi: `GET /policies/me/globals`
+(`controllers/policies.controller.ts:104`) và GraphQL `policies_me_globals` (`services/graphql/resolvers/system.ts:396`).
+Với token kiểu session (app web chỉ dùng chế độ này), `accountability.session` = `directus_sessions.token`
+(`utils/get-accountability-for-token.ts:28-30`), và `verifySessionJWT` đã đọc dòng đó mỗi request. `refresh` ở chế độ
+session tạo **dòng mới** khi xoay token (`updateStatefulSession`, `authentication.service.ts:535-543`, insert `token, user,
+share, expires, ip, user_agent, origin`); `select` của `refresh` liệt kê cột rõ (:339-345). `directus_sessions` không có
+cột trống dùng được (`token, user, expires, ip, user_agent, origin, share, next_token`). Hiến pháp II cho phép migration
+riêng thêm cột `bo_*` vào bảng `directus_*` (022: ba cột trên `directus_collections`, mẫu `20261026A`: `hasColumn` →
+`alterTable` trong try/catch).
+
+**Decision**:
+
+1. Migration `20261101A` (cùng file với bảng `backoffice_passkeys`) thêm `directus_sessions.bo_passkey` boolean nullable,
+   không default, không dòng `directus_fields` (không giao diện). Null = không phải passkey (dòng Directus tạo).
+2. `finishLogin({ passkey: true })` insert `bo_passkey: true`; `refresh` `select` thêm `session_bo_passkey: 's.bo_passkey'`
+   và `updateStatefulSession` insert thêm `bo_passkey: sessionRecord['session_bo_passkey'] ?? null` (dòng mới giữ dấu);
+   nhánh cập nhật tại chỗ (:429-433, chế độ không session) không đổi vì dòng giữ nguyên.
+3. `fetchAccountabilityPolicyGlobals`: `Pick` thêm `'session'`; sau khi tính `result`, nếu `result` và
+   `accountability.session` thì `knex('directus_sessions').select('bo_passkey').where({ token: session }).first()`; `true`
+   → `enforce_tfa: false`. Chỉ thêm một truy vấn ở trường hợp policy bắt buộc TFA (hiếm, một lần mỗi hydrate). Comment
+   `Backoffice (spec 029, D-207.5)`, giữ `Ported from`.
+4. Không đổi gì ở web; `auth.ts` không ghi dấu nào.
+
+**Vì sao không có lỗ hổng**: dòng `bo_passkey = true` chỉ do `finishLogin({ passkey: true })` tạo, tức sau khi assertion
+được xác minh; user có mật khẩu không tạo được. Token `json`/`cookie` không có `session` → như Directus. Hook `authenticate`
+của extension bỏ `session` → như Directus (an toàn). Directus không đọc cột → Directus app vẫn bắt cài TFA (điểm 3 duyệt).
+
+**Parity**: D-207.5 entry `http` cho `GET /policies/me/globals` và `POST /graphql/system` với `when` = cookie của phiên
+passkey (parity gửi cùng cookie tới hai app: Backoffice `false`, Directus `true`); mọi phiên khác giống nhau (test có sẵn
+`auth/*` xanh nguyên). `GET /fields/directus_sessions` của hai app giống nhau (cùng đọc cột từ DB, như `bo_show_*` của
+022); snapshot bỏ bảng hệ thống (`get-snapshot.ts:29`); dump `bootstrap` bỏ cột `bo_*` (`dump.ts`, D-180).
+
+**Alternatives considered**: dấu trong Redis theo token (mất khi xóa cache hay restart không persistence, phải chép khi
+xoay token ở hai chỗ); claim JWT (`refresh` dựng lại payload từ dòng phiên nên vẫn cần cột hay Redis); "có passkey là đạt
+TFA" (làm yếu đăng nhập mật khẩu); dấu `localStorage` (user tự đặt được, chủ dự án bác); bắt cài TFA một lần (bỏ phần
+D-207.3, chủ dự án không chọn).
+
 ## R11. Rủi ro và điểm kiểm sớm
 
 | # | Rủi ro | Kiểm ở |
@@ -335,6 +374,7 @@ theo cổng (bác: clarify câu 1).
 | 2 | Chrome từ chối RP ID là IP hoặc option CDP khác tên | T002: thử `WebAuthn.addVirtualAuthenticator` ở `dev` trước khi viết spec |
 | 3 | `nanoid`/`randomUUID` và `Uint8Array` `userID` trong Node 22 ESM | T001 |
 | 3b | Hai request cùng challenge (hai replica) cùng qua | `GETDEL` Redis (R4); parity gửi song song hai `login` cùng challenge, đúng một 200 |
+| 3c | `bo_passkey` mất khi xoay token hoặc `select` của `refresh` thiếu cột | Unit `authentication.service`: refresh session mode giữ `bo_passkey`; parity: tải lại trang sau làm mới vẫn `enforce_tfa: false` |
 | 4 | Cache response dùng chung ghi GET passkey | `res.locals['cache'] = false` ở mọi GET mới; unit test kiểm `respond` không gọi `setCacheValue` |
 | 5 | Không Redis ở nhiều replica → challenge lạc replica | Ghi ở README (như rate limiter memory); deploy suite 3 replica chạy với Redis |
 | 6 | Hai controller cùng tiền tố `backoffice` ở Nest | T003: test e2e Nest `supertest` route table |
@@ -343,7 +383,8 @@ theo cổng (bác: clarify câu 1).
 
 ## R12. Hai lượt
 
-- **Lượt 1 (API)**: catalog + gói, migration `20261101A` + test + ba danh sách, `collections.yaml`, GraphQL deny list,
+- **Lượt 1 (API)**: catalog + gói, migration `20261101A` (bảng + cột `bo_passkey`) + test + ba danh sách,
+  `fetchAccountabilityPolicyGlobals` + `refresh` giữ dấu (R13), `collections.yaml`, GraphQL deny list,
   normalizer regex, `rp.ts`, `challenge-store.ts`, `PasskeyService`, controller, tách `consumeLoginAttempt`/`finishLogin`,
   `UsersService.deleteMany`, unit test, `webauthn-fake.ts` + `auth/passkey.test.ts`, `accepted-differences` D-207..D-207.4,
   `supported-variables` (không đổi: `PUBLIC_URL` đã nhóm A), `deploy/README.md`, compose profile `web` (service + proxy

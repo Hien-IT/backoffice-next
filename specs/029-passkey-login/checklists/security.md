@@ -89,9 +89,10 @@ checklist 2026-11-01").
   và có nói hệ quả ở Directus app dùng chung session không? [Ambiguity, Spec §FR-004, D-207.3]. **Phát hiện**: router của
   app Backoffice (`apps/web/src/router/guard.ts:81`) và của Directus app (`directus/app/src/router.ts:191`) chuyển tới
   `/tfa-setup` khi `/users/me` có `enforce_tfa` và `tfa_secret === null`; không đọc token, và `refresh` cũng không đặt cờ
-  vào token. Bỏ cờ trong token (plan R2) không đủ. Sửa: FR-004 và D-207.3 ghi app Backoffice bỏ chuyển hướng khi phiên
-  hiện tại do passkey tạo (dấu theo user trong bộ nhớ trình duyệt, đặt khi đăng nhập passkey, xóa khi đăng xuất hay đăng
-  nhập cách khác); Directus app dùng cùng session vẫn bắt cài TFA; research R7 và contracts/web.md thêm guard.
+  vào token. Bỏ cờ trong token (plan R2) không đủ. Sửa lần 1: dấu theo user trong bộ nhớ trình duyệt (bị chủ dự án bác
+  cùng ngày: user tự đặt được). Sửa lần 2 (phương án E, chủ dự án chọn 2026-11-01): cột `bo_passkey` trên
+  `directus_sessions`, `refresh` giữ dấu, API trả `enforce_tfa: false` ở `GET /policies/me/globals` cho phiên đó
+  (D-207.5, FR-004, research R13); web không đổi; Directus app dùng cùng session vẫn bắt cài TFA.
 
 ## Vòng đời dữ liệu
 
@@ -106,6 +107,6 @@ checklist 2026-11-01").
 
 - 25 mục, 12 phát hiện (CHK002, CHK003, CHK004, CHK006, CHK007, CHK015, CHK016, CHK018, CHK019, CHK022, CHK023, CHK024),
   đã sửa vào spec, research.md, contracts/api.md, contracts/web.md, plan.md ngày 2026-11-01.
-- CHK019 (xóa passkey không kết thúc session) và CHK023 (Directus app vẫn bắt cài TFA với session passkey) là quyết định
-  mặc định cần chủ dự án xác nhận ở `/speckit.analyze`.
+- CHK019 (xóa passkey không kết thúc session) và CHK023 (Directus app vẫn bắt cài TFA với session passkey; phương án E)
+  được chủ dự án duyệt 2026-11-01 (spec, mục "Duyệt 2026-11-01").
 - Checklist này không thay thế test: contracts/tests.md giữ bộ unit, parity, E2E.

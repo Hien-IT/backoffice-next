@@ -92,7 +92,9 @@ quyết định ẩn theo `provider`).
 | `DELETE /users/:id`, `/users` (batch), GraphQL `delete_users_item(s)` | xóa thêm dòng `backoffice_passkeys` của user (D-207.2) | chỉ bảng DR |
 | `GET /collections`, `/fields/backoffice_passkeys`, OAS, GraphQL introspection/SDL | `backoffice_passkeys` là collection hệ thống ẩn, 403 `/items/backoffice_passkeys`, không type GraphQL | bảng chưa quản lý (normalizer `backoffice_*`, D-207.1) |
 | `GET /auth` | không đổi (passkey không phải provider) | như nhau |
-| `/auth/login`, `/auth/refresh`, `/auth/logout`, `/users/me` | không đổi; session do passkey tạo làm mới và đăng xuất như mọi session, cả ở Directus cùng DB | như nhau |
+| `/auth/login`, `/auth/refresh`, `/auth/logout`, `/users/me` | không đổi; session do passkey tạo làm mới và đăng xuất như mọi session, cả ở Directus cùng DB; `refresh` giữ `bo_passkey` trên dòng phiên mới | như nhau |
+| `GET /policies/me/globals`, GraphQL `policies_me_globals` (D-207.5) | `enforce_tfa: false` khi token là token phiên và dòng `directus_sessions` của nó có `bo_passkey = true`; mọi trường hợp khác (phiên mật khẩu/LDAP/SSO, token `json`/`cookie`, static token, share) như Directus | `enforce_tfa: true` khi policy bắt buộc, kể cả với cookie của phiên passkey (không đọc cột) |
+| `GET /fields/directus_sessions`, `/schema/snapshot` | cột `bo_passkey` hiện như mọi cột DB (meta null); snapshot bỏ bảng hệ thống | như nhau (cùng DB) |
 
 ## Sự kiện và log
 
