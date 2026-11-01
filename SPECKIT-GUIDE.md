@@ -2384,8 +2384,11 @@ Ghi chú đưa vào spec và plan 028 (đọc code ngày 2026-11-01, chưa chạ
 
 ### 029: Đăng nhập bằng Passkey (WebAuthn)
 
-Trạng thái: `/speckit.specify` và `/speckit.clarify` (4 câu) chạy 2026-11-01 (spec + checklists/requirements.md,
-D-207..D-207.4 chờ duyệt); plan và các bước sau chưa chạy. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("nếu thêm đăng nhập bằng Passkey cho Backoffice được không");
+Trạng thái: `/speckit.specify`, `/speckit.clarify` (4 câu) và `/speckit.plan` (research R1–R12, data-model, contracts
+api/web/tests, quickstart) và `/speckit.checklist` (security 25 mục, api-compat 19 mục, 23 phát hiện đã sửa) chạy
+2026-11-01; D-207..D-207.4, hai dependency, replica `backoffice-api-passkey` của profile `web` (R10) và hai mặc định mới
+(xóa passkey không kết thúc session; Directus app vẫn bắt cài TFA với session passkey) chờ chủ dự án duyệt; tasks,
+analyze, implement chưa chạy. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("nếu thêm đăng nhập bằng Passkey cho Backoffice được không");
 sáu câu chốt ở bảng cuối mục, code đọc ngày 2026-11-01 ở phần "Ghi chú". Thư mục: `specs/029-passkey-login/`.
 Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại"; riêng lượt 1 (chạm
 `AuthenticationService.login` của 003) chạy `/speckit.implement` ở effort xhigh. Không sửa constitution: bảng

@@ -3,7 +3,8 @@
 **Feature Branch**: `029-passkey-login` (làm trên `main` như 012–028, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=029-passkey-login`)
 **Created**: 2026-11-01
-**Status**: Draft (spec và clarify 2026-11-01, 4 câu)
+**Status**: Draft (spec và clarify 2026-11-01, 4 câu; plan 2026-11-01: research R1–R12; checklist security và api-compat
+2026-11-01, phát hiện đã sửa)
 **Input**: User description: "Feature 029: đăng nhập app Backoffice bằng passkey (WebAuthn, FIDO2) cho user local. Bối
 cảnh: Directus 11.17.4 và Backoffice chỉ có đăng nhập mật khẩu (+ OTP), LDAP, OAuth2, OpenID; Directus không có passkey,
 nên đây là tính năng chỉ của Backoffice (như 022, 025, 027), Directus app vẫn đăng nhập bằng mật khẩu. Mục tiêu: user
@@ -51,8 +52,10 @@ session.
    nhập bằng mật khẩu, trừ dữ liệu payload của sự kiện (ghi rõ đây là passkey).
 2. **Given** user có TFA đang bật (có mã bí mật OTP), **When** đăng nhập bằng passkey, **Then** vào app mà không bị hỏi
    OTP.
-3. **Given** user chưa bật TFA nhưng role có policy bắt buộc TFA, **When** đăng nhập bằng passkey, **Then** vào app mà
-   không bị đưa tới màn hình bắt cài TFA (D-207.3); đăng nhập bằng mật khẩu của user đó vẫn bị bắt cài TFA như trước.
+3. **Given** user chưa bật TFA nhưng role có policy bắt buộc TFA, **When** đăng nhập bằng passkey, **Then** vào app
+   Backoffice mà không bị đưa tới màn hình bắt cài TFA, cả sau khi tải lại trang hay làm mới session (D-207.3); đăng nhập
+   bằng mật khẩu của user đó vẫn bị bắt cài TFA như trước; Directus app mở bằng cùng session vẫn bắt cài TFA (sửa khi
+   checklist 2026-11-01).
 4. **Given** user có nhiều passkey trên nhiều thiết bị, **When** đăng nhập bằng một trong số đó, **Then** vào app và
    "lần dùng cuối" của đúng passkey đó được cập nhật.
 5. **Given** session do passkey tạo, **When** làm mới session, đăng xuất, hoặc mở Directus app trên cùng DB với cookie
@@ -213,6 +216,16 @@ passkey không làm Directus hỏng.
 - Đồng hồ lệch giữa replica: challenge có hạn theo đồng hồ của kho dùng chung, không theo từng replica.
 - Mất kết nối kho challenge dùng chung: đăng nhập passkey trả lỗi 503 như login local khi rate limiter không với tới
   được (giữ cách xử lý hiện có của `auth_login_attempts`), không mở cửa.
+- Làm đầy kho challenge qua endpoint công khai lấy challenge đăng nhập: route chịu `RATE_LIMITER_*` toàn cục khi bật như
+  mọi route công khai; kho local giữ tối đa 10.000 khóa (cũ nhất bị loại); mỗi khóa ở Redis hết hạn sau 5 phút (sửa khi
+  checklist 2026-11-01).
+- Hai request mang cùng một challenge tới cùng lúc (hai replica): đúng một request dùng được, request kia nhận lỗi chung
+  (FR-025).
+- User local không có mật khẩu (null, ví dụ tạo bởi admin chưa đặt): không thêm được passkey vì bước nhập lại mật khẩu
+  thất bại, như bật TFA; admin đặt mật khẩu trước (sửa khi checklist 2026-11-01).
+- User xóa passkey vì mất thiết bị: các session đang mở (kể cả session do passkey đó tạo) không bị kết thúc, vì session
+  không lưu passkey nào tạo ra nó; muốn thu hồi phiên thì đổi mật khẩu hoặc trạng thái user (cơ chế có sẵn xóa session)
+  (Assumptions; sửa khi checklist 2026-11-01).
 - Payload đăng ký hoặc xác minh sai dạng: 400 với lỗi validate như các endpoint khác, không đếm attempt.
 - Tên passkey: 1–100 ký tự, cắt khoảng trắng; trùng tên giữa các passkey của cùng user được phép.
 - Người dùng gọi passkey qua static token hay session của extension: các endpoint đăng ký/quản lý cần session của chính
@@ -230,13 +243,19 @@ passkey không làm Directus hỏng.
   trợ WebAuthn, API đang dùng là Backoffice và hostname của trang bằng RP ID mà API báo (hostname của `PUBLIC_URL`);
   API là Directus hoặc hostname khác (trang web ở origin khác API) thì ẩn (US5 kịch bản 3; clarify 2026-11-01 câu 1).
 - **FR-002**: Bấm nút PHẢI mở hộp thoại passkey của trình duyệt mà không hỏi email; passkey đăng ký bởi feature này PHẢI
-  là loại trình duyệt tự tìm theo domain (discoverable) và yêu cầu xác minh người dùng.
+  là loại trình duyệt tự tìm theo domain (discoverable). Xác minh người dùng (sinh trắc hoặc PIN) PHẢI có ở cả đăng ký lẫn
+  đăng nhập: phản hồi đăng ký thiếu cờ xác minh bị từ chối (400), phản hồi đăng nhập thiếu cờ xác minh bị từ chối với lỗi
+  chung và đếm attempt như chữ ký sai (sửa khi checklist 2026-11-01).
 - **FR-003**: Xác minh thành công PHẢI tạo session giống hệt đăng nhập local: cùng loại cookie và thời hạn, một dòng
   phiên với cùng cột, activity `login`, `last_access`, sự kiện `auth.login` trạng thái `success` với `provider` =
   `default` (như `provider` của user, không có giá trị provider mới) và `payload.passkey = true` để flow phân biệt (cả
   khi `fail`); làm mới và đăng xuất không khác (clarify 2026-11-01 câu 3).
-- **FR-004**: Đăng nhập passkey KHÔNG hỏi OTP dù user có TFA, và KHÔNG gắn cờ bắt cài TFA vào session dù role có policy
-  bắt buộc TFA (D-207.3); đăng nhập bằng mật khẩu không đổi.
+- **FR-004**: Đăng nhập passkey KHÔNG hỏi OTP dù user có TFA, và KHÔNG gắn cờ bắt cài TFA vào token dù role có policy
+  bắt buộc TFA. Vì app quyết định màn hình bắt cài TFA từ `/users/me` (`enforce_tfa` và `tfa_secret` rỗng), không từ
+  token, app Backoffice PHẢI bỏ chuyển hướng tới màn hình đó khi phiên hiện tại do passkey tạo: một dấu theo user trong
+  bộ nhớ trình duyệt, đặt khi đăng nhập passkey thành công, xóa khi đăng xuất hay đăng nhập bằng cách khác; dấu này cùng
+  mức tin cậy với cơ chế hiện có (bắt cài TFA chỉ nằm ở app, API không chặn). Directus app dùng cùng session vẫn bắt cài
+  TFA (D-207.3). Đăng nhập bằng mật khẩu không đổi (sửa khi checklist 2026-11-01).
 - **FR-005**: Chỉ user `provider = default` và `status = active` đăng nhập được bằng passkey; mọi trường hợp khác trả
   lỗi chung của login local ("Invalid user credentials"), cùng mã lỗi.
 - **FR-006**: Đăng nhập passkey thất bại vì credential của một user (chữ ký sai, bộ đếm lùi, user không hợp lệ) PHẢI đếm
@@ -244,7 +263,8 @@ passkey không làm Directus hỏng.
   chờ chống dò; thành công PHẢI đặt lại bộ đếm như login local. Credential không thuộc user nào: lỗi chung, cùng thời
   gian chờ, không đếm.
 - **FR-007**: Mọi lỗi của đăng nhập passkey trả về client PHẢI là lỗi chung, không phân biệt "không có passkey", "user
-  không active", "chữ ký sai"; log server được ghi lý do.
+  không active", "chữ ký sai"; log server ghi lý do nhưng KHÔNG ghi challenge, phản hồi của authenticator hay khóa công
+  khai (sửa khi checklist 2026-11-01).
 - **FR-008**: Hủy hộp thoại của trình duyệt PHẢI quay về form login không thông báo lỗi; lỗi xác minh hiện cùng thông
   báo với sai mật khẩu; trình duyệt không hỗ trợ: không nút.
 - **FR-009**: Sau đăng nhập passkey, chuyển hướng như login local (trang đích đã lưu, hoặc trang đầu).
@@ -264,7 +284,9 @@ passkey không làm Directus hỏng.
   lỗi rõ.
 - **FR-015**: Danh sách loại trừ khi đăng ký PHẢI gồm mọi credential hiện có của user để không tạo trùng trên cùng
   authenticator.
-- **FR-016**: Phần "Passkeys" KHÔNG hiện và API đăng ký/quản lý trả 403 cho user `provider` khác `default`.
+- **FR-016**: Phần "Passkeys" KHÔNG hiện cho user `provider` khác `default`; các route `users/me/*` của passkey trả 403
+  khi người gọi có `provider` khác `default`; route admin xem user khác trả danh sách rỗng khi user đích có `provider`
+  khác `default` (sửa khi checklist 2026-11-01).
 - **FR-017**: User thường KHÔNG xem, đổi tên, xóa được passkey của người khác (UI ẩn, API 403).
 - **FR-018**: Admin mở trang user khác PHẢI thấy danh sách passkey của người đó và xóa được từng passkey không cần mật
   khẩu (như tắt TFA của user khác); admin KHÔNG thêm và KHÔNG đổi tên hộ.
@@ -282,17 +304,22 @@ passkey không làm Directus hỏng.
 - **FR-022**: `backoffice_passkeys` là collection hệ thống ẩn của Backoffice như `backoffice_permissions`: 403 trên
   `/items`, không có trong GraphQL, ngoài Data Model, chỉ đọc ghi qua các endpoint passkey; Directus thấy bảng chưa quản
   lý.
-- **FR-023**: Xóa user ở Backoffice (một hay nhiều, REST, GraphQL, trang Users) PHẢI xóa passkey của user đó (D-207.2).
+- **FR-023**: Xóa user ở Backoffice (một hay nhiều, theo mọi đường qua dịch vụ users của Backoffice: REST, GraphQL, trang
+  Users, flow, service của extension) PHẢI xóa passkey của user đó (D-207.2; sửa khi checklist 2026-11-01).
   Dòng mồ côi (user bị Directus xóa) PHẢI bị bỏ qua: không đăng nhập được, không hiện ở đâu.
 - **FR-024**: Mỗi lần đăng nhập thành công PHẢI cập nhật bộ đếm chữ ký và lần dùng cuối của passkey đó; bộ đếm mới nhỏ
   hơn hoặc bằng bộ đếm đã lưu (chỉ kiểm khi bộ đếm đã lưu > 0, vì passkey đồng bộ luôn báo 0) PHẢI bị từ chối như chữ
   ký sai và đếm attempt; passkey không bị tự vô hiệu hay xóa (clarify 2026-11-01 câu 2).
-- **FR-025**: Challenge đăng ký và đăng nhập PHẢI ngẫu nhiên, dùng một lần, hết hạn sau 5 phút, lưu ở kho dùng chung giữa
-  các replica; xác minh xong (thành công hay không) challenge bị hủy.
+- **FR-025**: Challenge đăng ký và đăng nhập PHẢI ngẫu nhiên, dùng một lần (kể cả khi hai request mang cùng challenge tới
+  đồng thời), hết hạn sau 5 phút, lưu ở kho dùng chung giữa các replica; xác minh xong (thành công hay không) challenge bị
+  hủy. Challenge gắn với mục đích (đăng nhập hay đăng ký) và challenge đăng ký gắn với user đã nhập lại mật khẩu; dùng
+  challenge sai mục đích hay của user khác bị từ chối (sửa khi checklist 2026-11-01).
 
 **Domain và origin**
 
-- **FR-026**: RP ID PHẢI là hostname của `PUBLIC_URL` (không cổng, không đường dẫn); không có biến môi trường mới.
+- **FR-026**: RP ID PHẢI là hostname của `PUBLIC_URL` (không cổng, không đường dẫn); không có biến môi trường mới. Khi
+  `PUBLIC_URL` không tuyệt đối hoặc hostname là địa chỉ IP, passkey tắt: mọi route passkey trả 404 như Directus, app web
+  không hiện nút và card, log cảnh báo một lần lúc khởi động (sửa khi checklist 2026-11-01).
 - **FR-027**: Origin chấp nhận khi xác minh là origin của `PUBLIC_URL` và chỉ origin đó; request từ origin khác bị từ
   chối với lỗi chung. Triển khai trang web ở hostname khác API không có passkey (clarify 2026-11-01 câu 1; 026 đặt FE và
   BE chung domain).
@@ -301,15 +328,20 @@ passkey không làm Directus hỏng.
 
 **Song song với Directus và kiểm thử**
 
-- **FR-029**: Mọi endpoint mới nằm dưới tiền tố `/backoffice/` (D-189.6); Directus trả 404 ở đó (D-207). Không endpoint
-  hiện có nào đổi hành vi, kể cả `GET /auth`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/users/me`.
-- **FR-030**: Bộ đối chiếu có suite `auth/passkey`: Directus 404 trên endpoint mới (entry `http` D-207), login/refresh/
-  logout khác giống Directus, session do passkey tạo được Directus app cùng DB làm mới và dùng; dump schema của profile
-  `bootstrap` có `backoffice_passkeys` và dòng `backoffice_migrations` tương ứng; normalizer `backoffice_*` hiện có đủ
-  cho `/collections`, OAS, GraphQL (D-207.1).
+- **FR-029**: Mọi endpoint mới nằm dưới tiền tố `/backoffice/` (D-189.6), chỉ REST: không query hay mutation GraphQL, không
+  đường dẫn trong `/server/specs/oas`; Directus trả 404 ở đó (D-207). Không endpoint hiện có nào đổi hành vi (status, body,
+  header, cookie), kể cả `GET /auth`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/users/me`, `/server/info`; ngoại lệ
+  duy nhất là tác động DB của xóa user (D-207.2), response của xóa user không đổi (sửa khi checklist 2026-11-01).
+- **FR-030**: Bộ đối chiếu có suite `auth/passkey`: Directus 404 trên endpoint mới (D-207 là entry `doc`, test từng app
+  bằng `appRequest` như D-189.6; sửa khi plan 2026-11-01), login/refresh/logout khác giống Directus, session do passkey
+  tạo được Directus app cùng DB làm mới, dùng và đăng xuất; dump schema so với Directus của profile `bootstrap` không đổi
+  (chỉ bảng `directus_*`), bảng `backoffice_passkeys` và dòng `backoffice_migrations` kiểm ở test bootstrap và deploy;
+  bộ đối chiếu bỏ `backoffice_passkeys` ở mọi chỗ đang bỏ `backoffice_permissions` (`/collections`, `/fields`, OAS,
+  introspection, SDL) (D-207.1; sửa khi checklist 2026-11-01).
 - **FR-031**: E2E: luồng US1, US2, US3 với authenticator giả lập của trình duyệt, chỉ chromium (firefox, webkit bỏ qua
-  các spec passkey), ở `proxy-api`; ở `proxy-directus` (API là Directus) và `cors` (hostname khác RP ID) kiểm nút và
-  phần "Passkeys" ẩn; test a11y của trang login và phần "Passkeys" (bàn phím, nhãn, thông báo lỗi liên kết).
+  các spec passkey), ở `proxy-api` mở trang tại `http://localhost:8162` (RP ID `localhost` của replica passkey trong
+  profile `web`, plan R10; sửa khi plan 2026-11-01); ở `proxy-directus` (API là Directus) và `cors` (hostname khác RP ID)
+  kiểm nút và phần "Passkeys" ẩn; test a11y của trang login và phần "Passkeys" (bàn phím, nhãn, thông báo lỗi liên kết).
 - **FR-032**: Chuỗi mới en-US và vi-VN ở overlay của app web; không có chuỗi nào lấy từ Directus (Directus không có
   passkey).
 - **FR-033**: Mọi khác biệt với Directus ghi ở bảng "Khác biệt so với Directus" (D-207..D-207.4) theo dạng
@@ -355,16 +387,17 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
-| D-207 | Endpoint passkey dưới `/backoffice/` (lấy challenge và xác minh đăng nhập; liệt kê, thêm, đổi tên, xóa passkey của mình; liệt kê, xóa của user khác cho admin) | 404 | Có; session tạo ra giống login local; bộ đối chiếu: entry `http` (404 ở Directus) | Yêu cầu chủ dự án 2026-11-01: đăng nhập không mật khẩu, không OTP | khác (chờ duyệt) | — |
-| D-207.1 | Bảng `backoffice_passkeys` trong `GET /collections`, OAS, GraphQL introspection/SDL, Data Model | Bảng chưa quản lý | Collection hệ thống ẩn (403 `/items`, không GraphQL, ngoài Data Model); normalizer `backoffice_*` của 022/025 bỏ | Nguyên tắc II (migration riêng) | khác (chờ duyệt) | — |
+| D-207 | Endpoint passkey dưới `/backoffice/` (lấy challenge và xác minh đăng nhập; liệt kê, thêm, đổi tên, xóa passkey của mình; liệt kê, xóa của user khác cho admin) | 404 | Có; session tạo ra giống login local; sự kiện `auth.login` của đăng nhập passkey có `payload.passkey = true` (flow, extension thấy; sửa khi checklist 2026-11-01); bộ đối chiếu: entry `doc`, test từng app bằng `appRequest` (Directus 404; sửa khi plan 2026-11-01) | Yêu cầu chủ dự án 2026-11-01: đăng nhập không mật khẩu, không OTP | khác (chờ duyệt) | — |
+| D-207.1 | Bảng `backoffice_passkeys` trong `GET /collections`, OAS, GraphQL introspection/SDL, Data Model | Bảng chưa quản lý | Collection hệ thống ẩn (403 `/items`, không GraphQL, ngoài Data Model); bộ đối chiếu bỏ như `backoffice_permissions`; `schema snapshot`/`diff` của hai app không đổi (Directus bỏ bảng chưa quản lý, Backoffice bỏ collection hệ thống; sửa khi checklist 2026-11-01) | Nguyên tắc II (migration riêng) | khác (chờ duyệt) | — |
 | D-207.2 | Xóa user | Chỉ các bảng Directus | Xóa thêm dòng `backoffice_passkeys` của user; Directus xóa user để lại dòng mồ côi, Backoffice bỏ qua | Không FK (Nguyên tắc II) | khác (chờ duyệt) | — |
-| D-207.3 | User chưa có TFA nhưng role bắt buộc TFA | Mọi đăng nhập bị bắt cài TFA | Đăng nhập bằng passkey không bị bắt cài TFA và không hỏi OTP; đăng nhập bằng mật khẩu như Directus | Chủ dự án 2026-11-01: passkey thay cả mật khẩu lẫn OTP | khác (chờ duyệt) | — |
+| D-207.3 | User chưa có TFA nhưng role bắt buộc TFA | Mọi đăng nhập bị bắt cài TFA | Đăng nhập bằng passkey không hỏi OTP; app Backoffice không đưa tới màn hình cài TFA khi phiên do passkey tạo (dấu trong trình duyệt, FR-004); Directus app dùng cùng session vẫn bắt cài TFA (router DR đọc `enforce_tfa` của user, không đọc token); đăng nhập bằng mật khẩu như Directus (sửa khi checklist 2026-11-01) | Chủ dự án 2026-11-01: passkey thay cả mật khẩu lẫn OTP | khác (chờ duyệt) | — |
 | D-207.4 | Giao diện: nút "Đăng nhập bằng Passkey" trên trang login, card "Passkeys" trên trang user (của mình: quản lý; của người khác: admin xóa) | Không có | Có, chỉ khi API là Backoffice; không có dòng `directus_fields` mới | Cùng D-207 | khác (chờ duyệt) | — |
 
 **Cần xác nhận**:
 
-- Card "Passkeys" ghép từ card D-150, bảng/danh sách và BoDialog có sẵn; không component mới (chủ dự án kiêm design
-  owner, cùng lượt duyệt D-207).
+- Card "Passkeys" ghép từ card D-150, BoTable, BoMenu và BoDialog có sẵn; không component mới; icon `passkey` của
+  Material Symbols; "lần dùng cuối" hiện dạng relative như display datetime của Directus (chủ dự án kiêm design owner,
+  cùng lượt duyệt D-207; plan R8).
 
 ## Clarifications
 
@@ -380,15 +413,35 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - Q: Giới hạn và mật khẩu khi quản lý passkey của mình? → A: Tối đa 10 passkey; chỉ thêm mới cần nhập lại mật khẩu; đổi
   tên và xóa chỉ cần xác nhận (FR-013, FR-014).
 
+### Sửa câu chữ khi `/speckit.plan` (2026-11-01, research R4, R8, R9, R10)
+
+- FR-030, bảng D-207: entry `doc` thay vì `http`. FR-031: E2E `proxy-api` mở `http://localhost:8162`. "Cần xác nhận":
+  icon và thời gian relative. Assumptions: khóa challenge, namespace Redis.
+
+### Sửa khi `/speckit.checklist` (2026-11-01, checklists/security.md, checklists/api-compat.md)
+
+- FR-002 (xác minh người dùng ở cả hai lễ), FR-004 và D-207.3 (bỏ chuyển hướng cài TFA bằng dấu trong trình duyệt;
+  Directus app vẫn bắt), FR-007 (log), FR-016 (403 theo người gọi), FR-023 (mọi đường xóa), FR-025 (gắn mục đích và
+  user, một lần kể cả đồng thời), FR-026 (passkey tắt), FR-029 (chỉ REST, ngoại lệ D-207.2), FR-030 (đăng xuất, dump,
+  normalizer), SC-002, SC-007, D-207, D-207.1, Edge Cases (làm đầy kho, đồng thời, user không mật khẩu, xóa passkey không
+  kết thúc session), Assumptions (attestation, session, gỡ tay).
+
 ## Assumptions
 
 - Tên passkey 1–100 ký tự.
-- Challenge hết hạn sau 5 phút, dùng một lần, lưu ở kho dùng chung của các replica (Redis khi có, bộ nhớ tiến trình khi
-  chạy một instance không Redis).
+- Challenge hết hạn sau 5 phút, dùng một lần, lưu ở kho dùng chung của các replica (Redis namespace cố định
+  `backoffice:passkey` khi có Redis, bộ nhớ tiến trình khi chạy một instance không Redis); khóa là chính chuỗi challenge,
+  không id riêng (plan R4).
 - Sự kiện `auth.login` không có action activity mới (vẫn `login`).
 - Endpoint đăng ký/quản lý chỉ nhận session (cookie hoặc bearer của session), không nhận static token, như
   `/users/me/tfa/*`.
 - HTTPS do trình duyệt bắt buộc, app không kiểm thêm.
+- Không kiểm attestation, không danh sách AAGUID: mọi authenticator đạt chuẩn WebAuthn được nhận (sửa khi checklist
+  2026-11-01).
+- Xóa passkey không kết thúc session đang mở (session không lưu passkey nào tạo ra nó); thu hồi phiên bằng đổi mật khẩu
+  hoặc trạng thái user như hiện nay (sửa khi checklist 2026-11-01, chờ chủ dự án xác nhận ở analyze).
+- Không `down`: gỡ tay bằng xóa bảng `backoffice_passkeys` và dòng `20261101A` trong `backoffice_migrations` (Nguyên tắc
+  II); deploy/README ghi (sửa khi checklist 2026-11-01).
 - User `suspended` do dò passkey được mở lại đúng như sau khi dò mật khẩu (admin đổi status), passkey dùng lại được.
 - Không có "conditional UI" (gợi ý passkey trong ô email), không passkey cho user LDAP/SSO, không bắt buộc passkey theo
   policy, không nhập xuất, không đăng nhập passkey trên Directus app (Ngoài phạm vi).
@@ -401,7 +454,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - **SC-001**: Người dùng có passkey vào được app từ trang login bằng một lần bấm nút và một lần xác nhận của hệ điều
   hành, không gõ ký tự nào, trong dưới 15 giây.
 - **SC-002**: Người dùng thêm được passkey đầu tiên từ trang user của mình trong dưới 1 phút, bằng chuột và bằng bàn
-  phím; 100% kịch bản US2 đúng ở E2E chromium trên `proxy-api` và `cors`.
+  phím; 100% kịch bản US2 đúng ở E2E chromium trên `proxy-api` (`cors` không có passkey, clarify câu 1; sửa khi checklist
+  2026-11-01).
 - **SC-003**: 0 test đối chiếu, blackbox và E2E hiện có đổi kết quả; login, refresh, logout bằng mật khẩu giống Directus
   như trước (US5).
 - **SC-004**: Dò passkey sai đúng `auth_login_attempts` lần dẫn tới `suspended` trong 100% lần thử; thời gian phản hồi
@@ -410,6 +464,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   trong bộ kiểm thử triển khai 3 replica.
 - **SC-006**: `bootstrap` trên Postgres và SQLite tạo bảng và chạy lại không lỗi; `start` trên 7 vendor của CI/nightly
   không báo thiếu migration sau khi bảng có.
-- **SC-007**: Session do passkey tạo được Directus app cùng DB làm mới và dùng trong 100% lần thử của bộ đối chiếu.
+- **SC-007**: Session do passkey tạo được Directus app cùng DB làm mới, dùng và đăng xuất trong 100% lần thử của bộ đối
+  chiếu.
 - **SC-008**: Trang login và card "Passkeys" không có vi phạm axe mức serious trở lên ở E2E a11y; mọi thao tác làm được
   bằng bàn phím.
