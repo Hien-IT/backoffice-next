@@ -1,5 +1,5 @@
 // Backoffice (spec 029, D-207.4, FR-001, contracts/web.md): whether passkeys can be used here. True when the browser has
-// WebAuthn, the API is Backoffice (GET /backoffice/auth/passkey answers; Directus 404s) and the RP ID it gives is the host
+// WebAuthn, the API is Backoffice (GET /backoffice/auth/passkey answers; DR 404s) and the RP ID it gives is the host
 // name of this page (a web app on another host than the API cannot use them, clarify 2026-11-01 question 1).
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { type Ref, ref } from 'vue';

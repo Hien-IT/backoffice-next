@@ -1,7 +1,7 @@
 <!-- Backoffice (spec 029, D-207.4, contracts/web.md, design-system component-specs Q-47): the Passkeys card of the user
 page, after the form (layout-patterns §8: the form card holds the BoForm only). Own page: list, add (password, browser
 dialog, name), rename, delete. Another user's page (admin): list and delete. Hidden for non-local users, when the API is
-Directus or when this page is on another host than the RP ID. -->
+DR or when this page is on another host than the RP ID. -->
 <script setup lang="ts">
 import { computed, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

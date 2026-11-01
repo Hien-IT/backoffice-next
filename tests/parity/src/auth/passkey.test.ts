@@ -20,6 +20,7 @@ import {
 	type User,
 } from './fixtures.js';
 import { cookieNamed } from './flows.js';
+import { totp } from './tokens.js';
 import { createFakeAuthenticator } from './webauthn-fake.js';
 
 // PUBLIC_URL of env/<vendor>.env, shared by both apps of the main pair: the RP ID is "localhost" and this the origin.
@@ -249,9 +250,9 @@ describe('TFA and sessions (US1, D-207.3, D-207.5, SC-007)', () => {
 		expect(await globals(B, cookieNamed(refreshed, SESSION_COOKIE))).toBe(false);
 
 		// A password session of the same user (it has an OTP secret, so the OTP goes with it) keeps the DR answer.
-		const { authenticator } = await import('otplib');
+		// totp() waits for a code with time left in its step (CI 41310462752: a code made at the end of a step was refused).
 		const password = await call(B, 'POST', '/auth/login', {
-			body: { email: user.email, password: PASSWORD, mode: 'session', otp: authenticator.generate('JBSWY3DPEHPK3PXP') },
+			body: { email: user.email, password: PASSWORD, mode: 'session', otp: await totp('JBSWY3DPEHPK3PXP') },
 		});
 
 		expect(password.status, password.text).toBe(200);
