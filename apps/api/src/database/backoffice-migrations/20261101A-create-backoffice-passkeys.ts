@@ -2,7 +2,8 @@
 // - backoffice_passkeys: one WebAuthn credential per row (data-model.md). No foreign key, so DR sees no constraint on
 //   directus_users; rows of a user DR deleted are ignored when read. No directus_fields rows (hidden system collection).
 // - directus_sessions.bo_passkey: true on a session row a passkey login created, kept by refresh; GET /policies/me/globals
-//   answers enforce_tfa false for that session. Null (DR rows) means not a passkey. No directus_fields row.
+//   answers enforce_tfa false for that session. Null (DR rows) means not a passkey. Its directus_fields row (hidden,
+//   read-only, labelled) keeps the Data Model of both apps from listing it as "Database Only", like 022 does.
 // Re-runnable, and safe when two processes without a shared lock run it at once.
 import type { Knex } from 'knex';
 
@@ -45,5 +46,38 @@ export async function up(knex: Knex): Promise<void> {
 		} catch (error) {
 			if (!(await knex.schema.hasColumn('directus_sessions', 'bo_passkey'))) throw error;
 		}
+	}
+
+	const where = { collection: 'directus_sessions', field: 'bo_passkey' };
+
+	if ((await knex.select('id').from('directus_fields').where(where)).length === 0) {
+		await knex
+			.insert({
+				...where,
+				// MySQL and SQLite store booleans as numbers: cast-boolean gives true/false like the DR fields.
+				special: 'cast-boolean',
+				interface: 'boolean',
+				readonly: true,
+				hidden: true,
+				width: 'half',
+				// A string, not an object: every vendor's driver stores it as the JSON of the column.
+				translations: JSON.stringify([
+					{ language: 'en-US', translation: 'Passkey Session' },
+					{ language: 'vi-VN', translation: 'Phiên passkey' },
+				]),
+			})
+			.into('directus_fields');
+	}
+
+	// Two processes without a shared lock may both have inserted it: keep the first row.
+	const rows = await knex.select('id').from('directus_fields').where(where).orderBy('id');
+
+	if (rows.length > 1) {
+		await knex('directus_fields')
+			.whereIn(
+				'id',
+				rows.slice(1).map((r) => r.id),
+			)
+			.delete();
 	}
 }

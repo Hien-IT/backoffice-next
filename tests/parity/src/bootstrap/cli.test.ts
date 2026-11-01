@@ -193,8 +193,10 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 
 				expect(results.directus.code).toBe(0);
 				expect(results.backoffice.code).toBe(0);
-				// D-180: the Backoffice database also has the three bo_* fields of migration 20261026A.
+				// D-180: the Backoffice database also has the three bo_* fields of migration 20261026A and, spec 029
+				// (D-207.5), directus_sessions.bo_passkey of migration 20261101A.
 				expect(backoffice.fields.filter(isBackofficeField).map((f) => f.field).sort()).toEqual([
+					'bo_passkey',
 					'bo_show_export',
 					'bo_show_import',
 					'bo_show_search',

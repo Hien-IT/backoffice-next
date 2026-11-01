@@ -112,6 +112,38 @@ test('adds a nullable bo_passkey column without default to directus_sessions; ex
 	expect(await db.select('bo_passkey').from('directus_sessions')).toEqual([{ bo_passkey: null }]);
 });
 
+const sessionFieldRows = () =>
+	db
+		.select('field', 'special', 'interface', 'readonly', 'hidden', 'width', 'translations')
+		.from('directus_fields')
+		.where({ collection: 'directus_sessions' });
+
+test('adds one hidden, read-only directus_fields row for bo_passkey with en-US and vi-VN labels', async () => {
+	await up(db);
+
+	const rows = (await sessionFieldRows()).map((r) => ({
+		...r,
+		readonly: Boolean(r.readonly),
+		hidden: Boolean(r.hidden),
+		translations: JSON.parse(r.translations),
+	}));
+
+	expect(rows).toEqual([
+		{
+			field: 'bo_passkey',
+			special: 'cast-boolean',
+			interface: 'boolean',
+			readonly: true,
+			hidden: true,
+			width: 'half',
+			translations: [
+				{ language: 'en-US', translation: 'Passkey Session' },
+				{ language: 'vi-VN', translation: 'Phiên passkey' },
+			],
+		},
+	]);
+});
+
 test('runs again without error and keeps the rows and the column', async () => {
 	await up(db);
 	await db.insert(row()).into(TABLE);
@@ -120,6 +152,17 @@ test('runs again without error and keeps the rows and the column', async () => {
 
 	expect(await db.count('* as count').from(TABLE)).toEqual([{ count: 1 }]);
 	expect(await db.schema.hasColumn('directus_sessions', 'bo_passkey')).toBe(true);
+	expect(await sessionFieldRows()).toHaveLength(1);
+});
+
+test('a duplicate directus_fields row another process inserted is removed, the first one kept', async () => {
+	await up(db);
+	const [first] = await db.select('id').from('directus_fields').where({ field: 'bo_passkey' });
+	await db.insert({ collection: 'directus_sessions', field: 'bo_passkey' }).into('directus_fields');
+
+	await up(db);
+
+	expect(await db.select('id').from('directus_fields').where({ field: 'bo_passkey' })).toEqual([first]);
 });
 
 // CI 40298326039: two processes without a shared lock run up at once (no Redis).

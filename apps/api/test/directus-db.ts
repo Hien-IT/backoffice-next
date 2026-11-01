@@ -21,6 +21,12 @@ export async function createDirectusDb(): Promise<Knex> {
 		t.text('note');
 		t.json('validation');
 		t.boolean('searchable').defaultTo(true);
+		// The columns Backoffice migrations write (spec 029: the directus_sessions.bo_passkey row).
+		t.string('interface', 64);
+		t.boolean('readonly').defaultTo(false);
+		t.boolean('hidden').defaultTo(false);
+		t.string('width', 30);
+		t.json('translations');
 	});
 
 	await db.schema.createTable('directus_relations', (t) => {

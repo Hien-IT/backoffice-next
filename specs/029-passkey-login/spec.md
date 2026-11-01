@@ -315,7 +315,7 @@ passkey không làm Directus hỏng.
 - **FR-021**: Passkey lưu trong bảng hệ thống mới `backoffice_passkeys`, tạo bởi một migration riêng của Backoffice
   (Nguyên tắc II: chỉ `up`, chạy trên 7 vendor, chạy lại được, `hasTable` trước khi tạo, không FK tới `directus_users`),
   chạy bởi `bootstrap`/`init` và kiểm ở `start` như 022; cùng migration thêm cột boolean nullable `bo_passkey` vào
-  `directus_sessions` (D-207.5, không dòng `directus_fields`). Cột của bảng mới: khóa chính uuid (v4 như collection hệ
+  `directus_sessions` (D-207.5) với một dòng `directus_fields` ẩn, chỉ đọc, có nhãn (như 022 D-180). Cột của bảng mới: khóa chính uuid (v4 như collection hệ
   thống, 027), user,
   định danh credential (duy nhất), khóa công khai, bộ đếm chữ ký, kênh truyền (transports), tên, ngày tạo, lần dùng
   cuối, cờ discoverable (lưu để sau này cho phép loại khác), loại thiết bị và cờ sao lưu do trình duyệt báo.
@@ -410,8 +410,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 | D-207.1 | Bảng `backoffice_passkeys` trong `GET /collections`, OAS, GraphQL introspection/SDL, Data Model | Bảng chưa quản lý | Collection hệ thống ẩn (403 `/items`, không GraphQL, ngoài Data Model); bộ đối chiếu bỏ như `backoffice_permissions`; `schema snapshot`/`diff` của hai app không đổi (Directus bỏ bảng chưa quản lý, Backoffice bỏ collection hệ thống; sửa khi checklist 2026-11-01) | Nguyên tắc II (migration riêng) | khác (duyệt 2026-11-01) | — |
 | D-207.2 | Xóa user | Chỉ các bảng Directus | Xóa thêm dòng `backoffice_passkeys` của user; Directus xóa user để lại dòng mồ côi, Backoffice bỏ qua | Không FK (Nguyên tắc II) | khác (duyệt 2026-11-01) | — |
 | D-207.3 | User chưa có TFA nhưng role bắt buộc TFA | Mọi đăng nhập bị bắt cài TFA | Đăng nhập bằng passkey không hỏi OTP; app Backoffice không đưa tới màn hình cài TFA khi phiên do passkey tạo (API trả `enforce_tfa: false`, D-207.5); Directus app dùng cùng session vẫn bắt cài TFA (API Directus không đọc dấu); đăng nhập bằng mật khẩu như Directus (sửa khi checklist 2026-11-01, phương án E) | Chủ dự án 2026-11-01: passkey thay cả mật khẩu lẫn OTP | khác (duyệt 2026-11-01) | — |
-| D-207.4 | Giao diện: nút "Đăng nhập bằng Passkey" trên trang login, card "Passkeys" trên trang user (của mình: quản lý; của người khác: admin xóa) | Không có | Có, chỉ khi API là Backoffice; không có dòng `directus_fields` mới | Cùng D-207 | khác (duyệt 2026-11-01) | — |
-| D-207.5 | `GET /policies/me/globals`, GraphQL `policies_me_globals` với phiên do passkey tạo; cột `bo_passkey` trên `directus_sessions` | `enforce_tfa: true` khi policy bắt buộc (không biết phiên passkey); không có cột | `enforce_tfa: false` khi dòng phiên của token có `bo_passkey = true`; cột boolean nullable `bo_passkey` thêm bằng migration riêng (Nguyên tắc II: cột `bo_*` trên `directus_*`, không dòng `directus_fields`), Directus ghi phiên để null; giữ qua làm mới; response cache dùng chung (khóa theo user, không theo phiên) bị bỏ qua cả đọc lẫn ghi cho phiên passkey ở hai đường này, phiên mật khẩu vẫn cache như Directus (`passkeySessionCacheGuard`, phát hiện khi E2E lượt 2); bộ đối chiếu: entry `doc`, kiểm từng app với cookie phiên passkey vì `when` của `AcceptedDifference` không có điều kiện theo request; `parity()` của mọi phiên khác giữ so sánh chặt (sửa khi analyze 2026-11-01, H3) | Phương án E chủ dự án chọn 2026-11-01: không có lỗ hổng ở trình duyệt | khác (duyệt 2026-11-01) | — |
+| D-207.4 | Giao diện: nút "Đăng nhập bằng Passkey" trên trang login, card "Passkeys" trên trang user (của mình: quản lý; của người khác: admin xóa) | Không có | Có, chỉ khi API là Backoffice; card không có dòng `directus_fields` | Cùng D-207 | khác (duyệt 2026-11-01) | — |
+| D-207.5 | `GET /policies/me/globals`, GraphQL `policies_me_globals` với phiên do passkey tạo; cột `bo_passkey` trên `directus_sessions` | `enforce_tfa: true` khi policy bắt buộc (không biết phiên passkey); không có cột | `enforce_tfa: false` khi dòng phiên của token có `bo_passkey = true`; cột boolean nullable `bo_passkey` thêm bằng migration riêng (Nguyên tắc II: cột `bo_*` trên `directus_*` và dòng `directus_fields` của nó, ẩn, chỉ đọc), Directus ghi phiên để null; giữ qua làm mới; response cache dùng chung (khóa theo user, không theo phiên) bị bỏ qua cả đọc lẫn ghi cho phiên passkey ở hai đường này, phiên mật khẩu vẫn cache như Directus (`passkeySessionCacheGuard`, phát hiện khi E2E lượt 2); bộ đối chiếu: entry `doc`, kiểm từng app với cookie phiên passkey vì `when` của `AcceptedDifference` không có điều kiện theo request; `parity()` của mọi phiên khác giữ so sánh chặt (sửa khi analyze 2026-11-01, H3) | Phương án E chủ dự án chọn 2026-11-01: không có lỗ hổng ở trình duyệt | khác (duyệt 2026-11-01) | — |
 
 **Cần xác nhận**:
 
@@ -467,6 +467,10 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
    chọn **phương án E**: cột `bo_passkey` trên `directus_sessions`, API trả `enforce_tfa: false` cho phiên đó (D-207.5,
    FR-004). Các phương án khác đã xét: dấu trong Redis (mất khi xóa cache), claim JWT (vẫn cần nơi lưu qua làm mới),
    "có passkey là đạt TFA" (làm yếu đăng nhập mật khẩu), bắt cài TFA một lần rồi thôi (bỏ phần D-207.3).
+7. Sau lượt 2 (2026-11-01): Data Model của `directus_sessions` hiện `bo_passkey` là "Database Only"; chủ dự án duyệt
+   thêm dòng `directus_fields` (boolean, `cast-boolean`, ẩn, chỉ đọc, nhãn en-US/vi-VN) trong migration `20261101A`
+   như 022 (chưa push nên sửa thẳng migration); `GET /fields` hai app vẫn giống nhau (cùng DB), snapshot của Backoffice
+   có thêm field `bo_passkey` (bootstrap `cli.test.ts`).
 
 ## Assumptions
 

@@ -360,7 +360,7 @@ riêng thêm cột `bo_*` vào bảng `directus_*` (022: ba cột trên `directu
 **Decision**:
 
 1. Migration `20261101A` (cùng file với bảng `backoffice_passkeys`) thêm `directus_sessions.bo_passkey` boolean nullable,
-   không default, không dòng `directus_fields` (không giao diện). Null = không phải passkey (dòng Directus tạo).
+   không default, một dòng `directus_fields` ẩn và chỉ đọc (sửa 2026-11-01: Data Model hiện "Database Only" khi không có). Null = không phải passkey (dòng Directus tạo).
 2. `finishLogin({ passkey: true })` insert `bo_passkey: true`; `refresh` `select` thêm `session_bo_passkey: 's.bo_passkey'`
    và `updateStatefulSession` insert thêm `bo_passkey: sessionRecord['session_bo_passkey'] ?? null` (dòng mới giữ dấu);
    nhánh cập nhật tại chỗ (:429-433, chế độ không session) không đổi vì dòng giữ nguyên.

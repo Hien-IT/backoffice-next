@@ -493,7 +493,8 @@ Migration `20261028A` tạo bảng `backoffice_permissions` (`policy`, `collecti
 
 Migration `20261101A` tạo bảng `backoffice_passkeys` (một credential WebAuthn mỗi dòng: `user`, `credential_id` duy nhất,
 `public_key`, `counter`, `transports`, `name`, `device_type`, `backed_up`, `discoverable`, `date_created`, `last_used`;
-không khóa ngoại) và thêm cột boolean `bo_passkey` (null được) vào `directus_sessions`, không dòng `directus_fields`.
+không khóa ngoại) và thêm cột boolean `bo_passkey` (null được) vào `directus_sessions`
+cùng dòng `directus_fields` của nó (ẩn, chỉ đọc).
 
 - **Xóa user ở Backoffice** xóa luôn passkey của user; xóa ở Directus để lại dòng mồ côi, không đăng nhập được, xóa tay
   khi cần (`DELETE FROM backoffice_passkeys WHERE "user" NOT IN (SELECT id FROM directus_users);`).
@@ -502,6 +503,7 @@ không khóa ngoại) và thêm cột boolean `bo_passkey` (null được) vào 
   ```sql
   DROP TABLE backoffice_passkeys;
   ALTER TABLE directus_sessions DROP COLUMN bo_passkey;
+  DELETE FROM directus_fields WHERE collection = 'directus_sessions' AND field = 'bo_passkey';
   DELETE FROM backoffice_migrations WHERE version = '20261101A';
   ```
 

@@ -1,8 +1,8 @@
 # Data Model: Đăng nhập bằng Passkey (WebAuthn) cho user local (029)
 
 Một bảng hệ thống mới `backoffice_passkeys` và một cột `bo_passkey` trên `directus_sessions`, cả hai qua migration riêng
-của Backoffice `20261101A` (Nguyên tắc II từ 3.2.0: bảng `backoffice_*`, cột `bo_*` trên `directus_*`); không dòng
-`directus_fields`, không FK. Challenge sống trong kho dùng chung (Redis), không có trong DB.
+của Backoffice `20261101A` (Nguyên tắc II từ 3.2.0: bảng `backoffice_*`, cột `bo_*` trên `directus_*`); bảng không có dòng
+`directus_fields`, cột `bo_passkey` có một dòng ẩn, chỉ đọc; không FK. Challenge sống trong kho dùng chung (Redis), không có trong DB.
 
 ## Bảng `backoffice_passkeys` (migration `20261101A`, "Create Backoffice Passkeys")
 
@@ -45,7 +45,7 @@ hoặc admin), theo `user` khi xóa user (`UsersService.deleteMany`, D-207.2).
 
 | Cột | Knex | Null | Ghi chú |
 |-----|------|------|---------|
-| `bo_passkey` | `boolean` | có, không default | `true` chỉ do đăng nhập passkey của Backoffice ghi; `refresh` chép sang dòng phiên mới khi xoay token; Directus ghi phiên để null (= không phải passkey). `GET /policies/me/globals` của Backoffice trả `enforce_tfa: false` khi dòng phiên của token có `true`. Không dòng `directus_fields`, không hiện ở đâu; `GET /fields/directus_sessions` của hai app giống nhau (cùng DB) |
+| `bo_passkey` | `boolean` | có, không default | `true` chỉ do đăng nhập passkey của Backoffice ghi; `refresh` chép sang dòng phiên mới khi xoay token; Directus ghi phiên để null (= không phải passkey). `GET /policies/me/globals` của Backoffice trả `enforce_tfa: false` khi dòng phiên của token có `true`. Một dòng `directus_fields` (boolean, `cast-boolean`, ẩn, chỉ đọc, nhãn en-US/vi-VN) để Data Model không hiện "Database Only"; `GET /fields/directus_sessions` của hai app giống nhau (cùng DB) |
 
 Chạy lại được: `hasColumn` → `alterTable` trong try/catch (mẫu `20261026A`). Gỡ tay: `ALTER TABLE directus_sessions DROP
 COLUMN bo_passkey` (xem Assumptions của spec).
