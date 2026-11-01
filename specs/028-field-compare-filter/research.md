@@ -260,6 +260,9 @@ So hai cột không dùng index B-tree của một cột; không tạo index, kh
 hiện có; đường đi request không có `$FIELD` chỉ thêm một `parseFieldCompare` trên chuỗi, bỏ qua khi giá trị không
 phải chuỗi).
 
+**Kết quả T041** (2026-11-01): benchmark-items 41275639129 xanh, mọi scenario "ok" trong ngưỡng 10 % của Directus
+(SC-006); không có case riêng cho `$FIELD`.
+
 ## R12. Ba lượt và tài liệu
 
 Lượt 1 API REST (R1–R4, R8, T002 đo Directus) → lượt 2 web + E2E (R6, R9) → lượt 3 GraphQL (R5) + tài liệu: spec

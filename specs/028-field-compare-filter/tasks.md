@@ -171,7 +171,7 @@ quyền và D-204 xanh.
       (export; thêm `hasFieldCompare`, thông điệp D-204, comment ghi D-185 + D-204); sửa
       `api/services/backoffice-permissions.service.ts` gọi hàm đó ở `createOne` và `updateMany`. T011 xanh.
 - [X] T015 [US4] Chạy T012 trên Postgres; sửa tới xanh; `guard-differences` xanh với D-204.
-- [ ] T016 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `api:test` các file đã sửa và cả
+- [X] T016 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `api:test` các file đã sửa và cả
       `aq/`, `perm/`, `api/services/permissions*`, `api/services/backoffice-permissions*` (coverage BE ≥ 80 %); parity
       Postgres (`field-compare`, `crud`, `export`, `permissions/backoffice-permissions`), SQLite và MySQL
       (`field-compare`, `crud`) local xanh; `git add` theo đường dẫn (Phase 1–4, `research.md`, `spec.md`,
@@ -237,7 +237,7 @@ quyền và D-204 xanh.
       component mới, không màu mới.
 - [X] T029 [US2] Chạy T020 (browser project) và T022 ở ba cấu hình local (`E2E_CONFIG=proxy-api`, `cors`,
       `proxy-directus`, profile `web`); sửa tới xanh.
-- [ ] T030 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e`; `web:test` các file đã sửa (project `unit`
+- [X] T030 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web web-e2e`; `web:test` các file đã sửa (project `unit`
       và `browser`, coverage FE ≥ 60 %); `web:build`; E2E ba cấu hình xanh; `git add` theo đường dẫn; commit `feat(web):
       compare two fields in the Content filter (028, D-206)`; push theo quy tắc; CI `e2e-web` (chromium, firefox, webkit)
       xanh; `graphify update .`.
@@ -296,7 +296,7 @@ introspection/SDL (`graphql` suite) xanh.
       `checklists/requirements.md` ghi "Sau implement".
 - [X] T040 [P] (chưa chạy, chủ dự án quyết định; research R10) Vendor khác (MariaDB, MSSQL, Oracle, CockroachDB): chạy `nightly.yml` thủ công với `field-compare` hoặc
       để chủ dự án quyết định như T055 của 023; ghi kết quả (hoặc "chưa chạy") vào `research.md` R10.
-- [ ] T041 Đóng lượt 3: `pnpm nx run-many -t lint,typecheck -p api web parity-tests`; `api:test` `gql/`; parity
+- [X] T041 Đóng lượt 3: `pnpm nx run-many -t lint,typecheck -p api web parity-tests`; `api:test` `gql/`; parity
       Postgres `graphql` và bộ `full`; `git add` theo đường dẫn; commit `feat(graphql): field compare input and docs
       (028, D-205)`; push theo quy tắc; CI xanh (`parity`, `guard-differences`, `e2e-web`); chạy workflow
       `benchmark-items` thủ công (hoặc đọc run hàng tuần kế tiếp) và ghi kết quả SC-006 vào `research.md` R11 (analyze
