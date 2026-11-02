@@ -3,8 +3,9 @@
 **Feature Branch**: `029-passkey-login` (làm trên `main` như 012–028, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=029-passkey-login`)
 **Created**: 2026-11-01
-**Status**: Implemented locally 2026-11-01, hai lượt trên `main` (lượt 1 API c07f5318; lượt 2 web cùng middleware cache
-phiên passkey), chưa push, chưa CI, chưa benchmark-auth; local: unit API và web xanh, parity Postgres `auth/passkey` và
+**Status**: Implemented 2026-11-01, hai lượt trên `main` (lượt 1 API c07f5318; lượt 2 web cf5e7ece cùng middleware cache
+phiên passkey; dòng `directus_fields` của `bo_passkey` 594bf4ef; sửa test sau CI bf976a2f, d3c14262), push 2026-11-01,
+CI 41320560927 xanh, benchmark-auth 41325629474 xanh (login, refresh, tfa/generate); local: unit API và web xanh, parity Postgres `auth/passkey` và
 `auth/*` xanh, E2E passkey xanh ở `proxy-api`, `proxy-directus`, `cors` (chromium-1280) (spec và clarify 2026-11-01, 4 câu; plan 2026-11-01: research R1–R13; checklist security và api-compat
 2026-11-01, phát hiện đã sửa; D-207..D-207.5, dependency, replica passkey và phương án E duyệt 2026-11-01; tasks 53 task;
 analyze 2026-11-01, HIGH và MEDIUM đã sửa)

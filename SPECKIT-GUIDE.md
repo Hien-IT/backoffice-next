@@ -2440,8 +2440,8 @@ và phương án E cho màn hình bắt cài TFA (cột `bo_passkey` trên `dire
 phiên passkey, D-207.5, research R13) thay cho dấu trong trình duyệt; `/speckit.tasks` chạy 2026-11-01 (53 task, hai
 lượt: lượt 1 API T001–T029, lượt 2 web T030–T053); `/speckit.analyze` chạy 2026-11-01 (0 CRITICAL, 4 HIGH, 6 MEDIUM
 đã sửa: user không active không đếm attempt, bỏ chặn static token, D-207.5 là `doc`, T029 chạy `benchmark-auth`);
-`/speckit.implement` hai lượt chạy 2026-11-01, commit local (lượt 1 c07f5318, lượt 2 web), chưa push, chưa CI và
-benchmark-auth (T029, T053 còn mở); E2E lượt 2 phát hiện response cache theo user trả lẫn `enforce_tfa` giữa phiên
+`/speckit.implement` hai lượt chạy 2026-11-01 (lượt 1 c07f5318, lượt 2 cf5e7ece), push 2026-11-01, CI 41320560927 xanh,
+benchmark-auth 41325629474 xanh, T029 và T053 đóng; chủ dự án giữ `/tfa-setup` chỉ có OTP (không chọn passkey thay OTP); E2E lượt 2 phát hiện response cache theo user trả lẫn `enforce_tfa` giữa phiên
 passkey và phiên mật khẩu, sửa bằng `passkeySessionCacheGuard`. Soạn 2026-11-01 từ câu hỏi của chủ dự án ("nếu thêm đăng nhập bằng Passkey cho Backoffice được không");
 sáu câu chốt ở bảng cuối mục, code đọc ngày 2026-11-01 ở phần "Ghi chú". Thư mục: `specs/029-passkey-login/`.
 Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại"; riêng lượt 1 (chạm

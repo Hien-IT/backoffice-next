@@ -313,7 +313,7 @@ xanh.
 - [X] T028 [P] [US5] Thêm `parity/deploy/passkey.test.ts` vào bộ deploy (3 replica + 1 Directus qua lb): đăng ký passkey
       (authenticator giả, `webauthn-fake`) gọi thẳng replica A, lấy challenge đăng nhập ở A, xác minh ở replica B → 200
       (challenge trong Redis dùng chung); cookie dùng được qua lb và qua Directus. Thêm vào danh sách của suite deploy.
-- [ ] T029 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api,system-data,parity-tests`; `pnpm nx run api:test`;
+- [x] T029 Đóng lượt 1 (xong 2026-11-01: CI 41320560927, benchmark-auth 41325629474): `pnpm nx run-many -t lint,typecheck -p api,system-data,parity-tests`; `pnpm nx run api:test`;
       `pnpm nx run system-data:test`; `TEST_DB=postgres pnpm nx run parity-tests:parity -- auth/passkey auth/login
       auth/refresh auth/logout auth/tfa auth/login-attempts permissions/backoffice-permissions`; bộ `reduced` trên MySQL và
       SQLite; `pnpm nx run parity-tests:bootstrap` (profile `bootstrap`: migration chạy, chạy lại, dump không đổi) và
@@ -457,7 +457,7 @@ hạn 10, ẩn với provider khác `default`.
       `SPECKIT-GUIDE.md` mục 029 trạng thái và lệnh implement đã chạy.
 - [X] T052 Đóng spec: `cl/spec.md` Status "Implemented 2026-xx-xx, hai lượt trên main (commit ...), CI ..."; bảng D giữ
       "duyệt 2026-11-01"; `cl/research.md` kết quả T001/T002; `cl/quickstart.md` lệnh test đúng tên target.
-- [ ] T053 Đóng lượt 2: `pnpm nx run-many -t lint,typecheck -p web,web-e2e`; `pnpm nx run web:test:unit`; `pnpm nx run
+- [x] T053 Đóng lượt 2 (xong 2026-11-01: CI 41320560927; sửa test sau CI đỏ 41305198458, 41310462752): `pnpm nx run-many -t lint,typecheck -p web,web-e2e`; `pnpm nx run web:test:unit`; `pnpm nx run
       web:test:browser -- passkey UserPasskeys`; E2E ba cấu hình (T049); `pnpm nx run web:build`; `git add` theo đường dẫn;
       commit `feat(web): passkey sign-in button and Passkeys card (spec 029, lượt 2)` + commit docs nếu tách; push khi
       `main` rảnh; CI (`quality`, `e2e-web` ba cấu hình × trình duyệt, `parity`) xanh, sửa đỏ; `graphify update .`.
