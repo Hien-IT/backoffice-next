@@ -3,7 +3,7 @@
 # the environment (docker/40-config.sh), so one image serves every environment (Principle VII).
 # Build context: repository root.
 
-ARG NODE_VERSION=22.23.3-alpine3.24
+ARG NODE_VERSION=22.23.4-alpine3.24
 
 FROM node:${NODE_VERSION} AS builder
 

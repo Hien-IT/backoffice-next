@@ -2,7 +2,7 @@
 # Follows directus/Dockerfile (research R20), without `bootstrap` and PM2: one Node process per container.
 # Build context: repository root.
 
-ARG NODE_VERSION=22.23.3-alpine3.24
+ARG NODE_VERSION=22.23.4-alpine3.24
 
 ####################################################################################################
 ## Build
