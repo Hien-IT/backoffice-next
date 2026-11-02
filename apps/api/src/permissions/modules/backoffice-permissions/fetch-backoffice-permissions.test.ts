@@ -7,6 +7,7 @@ import { clearCache } from '../../cache.js';
 import {
 	_fetchBackofficePermissions,
 	fetchBackofficePermissions,
+	fetchPoliciesWithRows,
 	toPermission,
 } from './fetch-backoffice-permissions.js';
 
@@ -99,4 +100,27 @@ test('cached: a second call does not query until the permissions cache is cleare
 
 	await clearCache();
 	expect(await fetchBackofficePermissions(options, { knex: db } as never)).toHaveLength(0);
+});
+
+test('policies without rows: no query per policy list, only the cached list of policies with rows', async () => {
+	expect(await fetchPoliciesWithRows({ knex: db })).toEqual(expect.arrayContaining(['p1', 'p2', 'p3']));
+
+	const select = vi.spyOn(db, 'select');
+	expect(await fetchBackofficePermissions({ policies: ['p9', 'p8'] }, { knex: db })).toEqual([]);
+	expect(select).not.toHaveBeenCalled();
+});
+
+test('a mixed policy list asks for its policies with rows only, in the given order', async () => {
+	const rows = await fetchBackofficePermissions({ policies: ['p9', 'p2', 'p1'], action: 'export' }, { knex: db });
+	expect(rows.map((r) => `${r.policy}:${r.collection}`)).toEqual(['p2:articles', 'p1:articles', 'p1:pages']);
+});
+
+test('a policy that gets its first row is seen once the permissions cache is cleared', async () => {
+	expect(await fetchBackofficePermissions({ policies: ['p9'] }, { knex: db })).toEqual([]);
+
+	await db.insert({ policy: 'p9', collection: 'articles', action: 'export' }).into('backoffice_permissions');
+	expect(await fetchBackofficePermissions({ policies: ['p9'] }, { knex: db })).toEqual([]);
+
+	await clearCache();
+	expect(await fetchBackofficePermissions({ policies: ['p9'] }, { knex: db })).toHaveLength(1);
 });
