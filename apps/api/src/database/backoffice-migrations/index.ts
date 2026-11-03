@@ -8,6 +8,7 @@ import type { Knex } from 'knex';
 import * as addCollectionUiToggles from './20261026A-add-collection-ui-toggles.js';
 import * as createBackofficePermissions from './20261028A-create-backoffice-permissions.js';
 import * as createBackofficePasskeys from './20261101A-create-backoffice-passkeys.js';
+import * as createBackofficeIndexes from './20261103A-create-backoffice-indexes.js';
 
 export interface BackofficeMigration {
 	/** `YYYYMMDD` + a letter, like the DR migrations; the primary key of backoffice_migrations. */
@@ -20,6 +21,7 @@ export const BACKOFFICE_MIGRATIONS: readonly BackofficeMigration[] = [
 	addCollectionUiToggles,
 	createBackofficePermissions,
 	createBackofficePasskeys,
+	createBackofficeIndexes,
 ];
 
 export const TABLE = 'backoffice_migrations';

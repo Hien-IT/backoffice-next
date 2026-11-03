@@ -113,8 +113,8 @@ export function isBackofficeInputType(name: unknown): boolean {
 	return name === JSON_PATH_TYPE || FIELD_COMPARE_TYPES.includes(String(name));
 }
 
-/** Spec 022 D-181, spec 025 D-189.5, spec 029 D-207.1: the Backoffice system tables Directus sees as plain tables. */
-export const BACKOFFICE_TABLE = /backoffice_(?:migrations|permissions|passkeys)/;
+/** Spec 022 D-181, spec 025 D-189.5, spec 029 D-207.1, spec 030 D-210.2: the Backoffice system tables Directus sees as plain tables. */
+export const BACKOFFICE_TABLE = /backoffice_(?:migrations|permissions|passkeys|indexes)/;
 
 /**
  * Spec 022 D-181: an introspection result without the backoffice_migrations types and the root fields named after it
@@ -281,10 +281,10 @@ export function withoutBackofficeSdl(sdl: string): string {
 	return (
 		sdl
 			.replace(
-				/^(?:"""[^\n]*"""\n)?(?:type|input|enum|interface) \w*backoffice_(?:migrations|permissions|passkeys)\w* \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm,
+				/^(?:"""[^\n]*"""\n)?(?:type|input|enum|interface) \w*backoffice_(?:migrations|permissions|passkeys|indexes)\w* \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm,
 				'',
 			)
-			.replace(/^ {2}\w*backoffice_(?:migrations|permissions|passkeys)\w*[(:][^\n]*\n/gm, '')
+			.replace(/^ {2}\w*backoffice_(?:migrations|permissions|passkeys|indexes)\w*[(:][^\n]*\n/gm, '')
 			.replace(/^input json_path_filter_operators \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm, '')
 			.replace(/^ {2}\w+_json: json_path_filter_operators\n/gm, '')
 			// Spec 028 D-205: the two inputs and the `<f>_field` lines.

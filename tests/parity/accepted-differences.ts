@@ -619,4 +619,55 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		location: { header: 'etag' },
 		reason: 'The body of a wildcard read differs (D-209), so does its ETag.',
 	},
+	// Spec 030 (D-210..D-210.4): composite and trigram indexes of user collections, backoffice_indexes.
+	{
+		id: 'D-210',
+		feature: '030',
+		kind: 'doc',
+		reason:
+			'GET/POST/DELETE /backoffice/collections/:collection/indexes exist at Backoffice only (Directus 404); POST answers 202 and an in-process job builds the index (creating → ready | failed).',
+	},
+	{
+		id: 'D-210.1',
+		feature: '030',
+		kind: 'doc',
+		reason:
+			'GET /fields keeps is_unique and is_indexed false for the columns of a composite index at both apps (one-column introspection); composite indexes show only in the Indexes card and the D-210 endpoint.',
+	},
+	{
+		id: 'D-210.2',
+		feature: '030',
+		kind: 'doc',
+		reason:
+			'backoffice_indexes is a hidden system collection at Backoffice and an unmanaged table at Directus; the backoffice_* normalizers leave it out of /collections, OAS and GraphQL.',
+	},
+	{
+		id: 'D-210.3',
+		feature: '030',
+		kind: 'doc',
+		reason:
+			'Deleting a field or a collection at Backoffice drops the Backoffice indexes with that field first (MySQL and SQLite would keep them on the remaining columns) and removes their rows; Directus leaves the rows, which GET lists as missing.',
+	},
+	// A composite unique violation: Directus answers one RECORD_NOT_UNIQUE whose field is "a, b" (Postgres, SQLite) or a
+	// guess from the index name (MySQL); Backoffice answers one error per field of the index. Only the collections of
+	// src/schema/indexes.test.ts.
+	{
+		id: 'D-210.4',
+		feature: '030',
+		kind: 'http',
+		endpoints: ['POST /items/parity_idx_*', 'PATCH /items/parity_idx_*'],
+		location: { jsonPointer: /^\/errors(\/.*)?$/ },
+		when: { directusStatus: 400 },
+		reason:
+			'A composite unique violation answers one RECORD_NOT_UNIQUE per field of the index at Backoffice; Directus answers a single error (spec 030 D-210.4).',
+	},
+	{
+		id: 'D-210.4',
+		feature: '030',
+		kind: 'http',
+		endpoints: ['POST /items/parity_idx_*', 'PATCH /items/parity_idx_*'],
+		location: { header: 'etag' },
+		when: { directusStatus: 400 },
+		reason: 'The body of a composite unique violation differs (D-210.4), so does its ETag.',
+	},
 ];

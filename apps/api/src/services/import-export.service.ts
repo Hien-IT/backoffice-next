@@ -117,6 +117,12 @@ export function createErrorTracker() {
 	}
 
 	function addCapturedError(err: any, rowNumber: number) {
+		// Backoffice (spec 030, D-210.4): an array (one error per field of a composite unique index) counts one by one.
+		if (Array.isArray(err)) {
+			for (const one of err) addCapturedError(one, rowNumber);
+			return;
+		}
+
 		const field = err.extensions?.field;
 
 		if (field) {

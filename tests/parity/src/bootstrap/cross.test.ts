@@ -253,6 +253,8 @@ describe.skipIf(!pair)('profile bootstrap: installed database and shared migrati
 			'20261026A Add Collection UI Toggles',
 			'20261028A Create Backoffice Permissions',
 			'20261101A Create Backoffice Passkeys',
+			// Spec 030 (D-210.2): 20261103A creates backoffice_indexes.
+			'20261103A Create Backoffice Indexes',
 		];
 		const boVersions = async (db: Knex) =>
 			(await db.select('version', 'name').from('backoffice_migrations').orderBy('version')).map(
@@ -270,6 +272,8 @@ describe.skipIf(!pair)('profile bootstrap: installed database and shared migrati
 			expect(await createInspector(dbs.backoffice).hasTable('backoffice_permissions')).toBe(true);
 			expect(await createInspector(dbs.directus).hasTable('backoffice_passkeys')).toBe(false);
 			expect(await createInspector(dbs.backoffice).hasTable('backoffice_passkeys')).toBe(true);
+			expect(await createInspector(dbs.directus).hasTable('backoffice_indexes')).toBe(false);
+			expect(await createInspector(dbs.backoffice).hasTable('backoffice_indexes')).toBe(true);
 			const sessionColumns = async (db: Knex) =>
 				(await createInspector(db).columnInfo('directus_sessions')).map((c) => c.name);
 			expect(await sessionColumns(dbs.backoffice)).toContain('bo_passkey');

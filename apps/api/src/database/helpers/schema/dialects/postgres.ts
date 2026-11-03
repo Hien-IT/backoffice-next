@@ -1,13 +1,15 @@
 // Ported from directus/api/src/database/helpers/schema/dialects/postgres.ts
 import { useEnv } from '@backoffice/env';
+import { InvalidPayloadError } from '@backoffice/errors';
+import { toArray } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { getDefaultIndexName } from '../../../../utils/get-default-index-name.js';
-import { type CreateIndexOptions, SchemaHelper, type SortRecord } from '../types.js';
+import { type CreateIndexOptions, type IndexNameType, SchemaHelper, type SortRecord } from '../types.js';
 
 
 export class SchemaHelperPostgres extends SchemaHelper {
 	override generateIndexName(
-		type: 'unique' | 'foreign' | 'index',
+		type: IndexNameType,
 		collection: string,
 		fields: string | string[],
 	): string {
@@ -58,21 +60,39 @@ export class SchemaHelperPostgres extends SchemaHelper {
 
 	override async createIndex(
 		collection: string,
-		field: string,
+		field: string | string[],
 		options: CreateIndexOptions = {},
 	): Promise<Knex.SchemaBuilder> {
+		// Backoffice (spec 030, D-210): several columns in order; `trigram` = GIN on lower(column) with pg_trgm, the
+		// expression the search of the items engine uses (run-ast/lib/apply-query/search.ts), one column, never unique.
+		const columns = this.indexColumns(field);
+		const fields = toArray(field);
 		const isUnique = Boolean(options.unique);
+
+		if (options.type === 'trigram') {
+			if (fields.length !== 1 || isUnique) {
+				throw new InvalidPayloadError({ reason: 'A trigram index has one field and is not unique' });
+			}
+
+			const trgmName = this.generateIndexName('trgm', collection, field);
+
+			return this.knex.raw(
+				`CREATE INDEX ${options.attemptConcurrentIndex ? 'CONCURRENTLY ' : ''}?? ON ?? USING gin (lower(??) gin_trgm_ops)`,
+				[trgmName, collection, fields[0]!],
+			);
+		}
+
 		const constraintName = this.generateIndexName(isUnique ? 'unique' : 'index', collection, field);
 
 		// https://www.postgresql.org/docs/current/sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY
 		if (options.attemptConcurrentIndex) {
-			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX CONCURRENTLY ?? ON ?? (??)`, [
+			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX CONCURRENTLY ?? ON ?? (${columns})`, [
 				constraintName,
 				collection,
-				field,
+				...fields,
 			]);
 		}
 
-		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??)`, [constraintName, collection, field]);
+		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns})`, [constraintName, collection, ...fields]);
 	}
 }

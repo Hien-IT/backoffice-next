@@ -94,21 +94,25 @@ export class SchemaHelperCockroachDb extends SchemaHelper {
 
 	override async createIndex(
 		collection: string,
-		field: string,
+		field: string | string[],
 		options: CreateIndexOptions = {},
 	): Promise<Knex.SchemaBuilder> {
+		// Backoffice (spec 030, D-210): several columns in order; the trigram kind is PostgreSQL only.
+		this.assertNoTrigram(options);
+		const columns = this.indexColumns(field);
+		const fields = toArray(field);
 		const isUnique = Boolean(options.unique);
 		const constraintName = this.generateIndexName(isUnique ? 'unique' : 'index', collection, field);
 
 		// https://www.cockroachlabs.com/docs/stable/create-index
 		if (options.attemptConcurrentIndex) {
-			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX CONCURRENTLY ?? ON ?? (??)`, [
+			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX CONCURRENTLY ?? ON ?? (${columns})`, [
 				constraintName,
 				collection,
-				field,
+				...fields,
 			]);
 		}
 
-		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??)`, [constraintName, collection, field]);
+		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns})`, [constraintName, collection, ...fields]);
 	}
 }

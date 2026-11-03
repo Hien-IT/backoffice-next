@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import type { KNEX_TYPES } from '@backoffice/constants';
 import type { Column } from '@backoffice/schema';
 import type { DatabaseClient, Field, RawField, Relation, Type } from '@backoffice/types';
+import { InvalidPayloadError } from '@backoffice/errors';
 import { toArray } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { getDefaultIndexName } from '../../../utils/get-default-index-name.js';
@@ -21,9 +22,13 @@ export type SortRecord = {
 	column: Knex.Raw;
 };
 
+export type IndexNameType = 'unique' | 'foreign' | 'index' | 'trgm';
+
 export type CreateIndexOptions = {
 	attemptConcurrentIndex?: boolean;
 	unique?: boolean;
+	/** Backoffice (spec 030, D-210): `trigram` = a GIN index on lower(column) with pg_trgm, PostgreSQL only. */
+	type?: 'btree' | 'trigram';
 };
 
 export abstract class SchemaHelper extends DatabaseHelper {
@@ -41,7 +46,7 @@ export abstract class SchemaHelper extends DatabaseHelper {
 		});
 	}
 
-	generateIndexName(type: 'unique' | 'foreign' | 'index', collection: string, fields: string | string[]): string {
+	generateIndexName(type: IndexNameType, collection: string, fields: string | string[]): string {
 		return getDefaultIndexName(type, collection, fields);
 	}
 
@@ -213,12 +218,40 @@ export abstract class SchemaHelper extends DatabaseHelper {
 		return 64;
 	}
 
-	async createIndex(collection: string, field: string, options: CreateIndexOptions = {}): Promise<Knex.SchemaBuilder> {
+	// Backoffice (spec 030, D-210): `field` may be several columns (listed in order); `options.type` adds the trigram
+	// kind, which only the PostgreSQL helper knows. Callers passing one string get the SQL they always got.
+	async createIndex(
+		collection: string,
+		field: string | string[],
+		options: CreateIndexOptions = {},
+	): Promise<Knex.SchemaBuilder> {
+		this.assertNoTrigram(options);
 		// fall back to concurrent index creation
 		const isUnique = Boolean(options.unique);
 		const constraintName = this.generateIndexName(isUnique ? 'unique' : 'index', collection, field);
 
-		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??)`, [constraintName, collection, field]);
+		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${this.indexColumns(field)})`, [
+			constraintName,
+			collection,
+			...toArray(field),
+		]);
+	}
+
+	/** Backoffice (spec 030, D-210): drop an index by name (checked on Postgres, MySQL and SQLite, research T001). */
+	async dropIndex(collection: string, name: string): Promise<void> {
+		await this.knex.schema.alterTable(collection, (table) => {
+			table.dropIndex([], name);
+		});
+	}
+
+	protected indexColumns(field: string | string[]): string {
+		return toArray(field)
+			.map(() => '??')
+			.join(', ');
+	}
+
+	protected assertNoTrigram(options: CreateIndexOptions): void {
+		if (options.type === 'trigram') throw new InvalidPayloadError({ reason: 'Trigram indexes need PostgreSQL' });
 	}
 
 	async parseCollectionName(collection: string): Promise<string> {

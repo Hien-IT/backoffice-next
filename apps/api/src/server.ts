@@ -15,6 +15,7 @@ import getDatabase from './database/index.js';
 import emitter from './emitter.js';
 import { useLogger } from './logger/index.js';
 import { _cache as redisCache } from './redis/lib/use-redis.js';
+import { failRunningIndexJobs } from './services/backoffice-indexes/jobs.js';
 import { runShutdownTasks } from './shutdown.js';
 import { getAddress } from './utils/get-address.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
@@ -118,6 +119,8 @@ export async function createServer(): Promise<http.Server> {
 	}
 
 	async function onSignal() {
+		// Backoffice (spec 030, D-210): the index builds of this replica are marked failed while the pool is still open.
+		await failRunningIndexJobs();
 		const database = getDatabase();
 		await database.destroy();
 

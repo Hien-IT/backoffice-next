@@ -15,7 +15,8 @@ export type GetDefaultIndexNameOptions = {
  * https://github.com/knex/knex/blob/fff6eb15d7088d4198650a2c6e673dedaf3b8f36/lib/schema/tablecompiler.js#L282-L297
  */
 export function getDefaultIndexName(
-	type: 'unique' | 'foreign' | 'index',
+	// Backoffice (spec 030, D-210): `trgm` for the trigram indexes of a collection.
+	type: 'unique' | 'foreign' | 'index' | 'trgm',
 	collection: string,
 	fields: string | string[],
 	options?: GetDefaultIndexNameOptions,

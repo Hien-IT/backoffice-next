@@ -12,12 +12,22 @@ import type { SQLiteError } from './types.js';
 // - Sqlite doesn't have varchar with length support, so no ValueTooLongError
 // - Sqlite doesn't have a max range for numbers, so no ValueOutOfRangeError
 
-export function extractError(error: SQLiteError, data: Partial<Item>): SQLiteError | Error {
+export function extractError(error: SQLiteError, data: Partial<Item>): SQLiteError | Error | Error[] {
 	if (error.message.includes('SQLITE_CONSTRAINT: NOT NULL')) {
 		return notNullConstraint(error);
 	}
 
 	if (error.message.includes('SQLITE_CONSTRAINT: UNIQUE')) {
+		// Backoffice (spec 030, D-210.4): `failed: t.a, t.b` of a composite unique index: one error per field.
+		const columns = error.message.split('UNIQUE constraint failed: ')[1];
+
+		if (columns?.includes(', ')) {
+			return columns.split(', ').map((part) => {
+				const [table, field] = part.trim().split('.') as [string, string];
+				return new RecordNotUniqueError({ collection: table, field, value: data[field] ?? null });
+			});
+		}
+
 		const errorParts = error.message.split(' ');
 		const [table, field] = errorParts[errorParts.length - 1]!.split('.');
 

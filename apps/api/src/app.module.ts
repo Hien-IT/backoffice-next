@@ -13,6 +13,7 @@ import { FoldersController } from './controllers/folders.controller.js';
 import { GraphqlController } from './controllers/graphql.controller.js';
 import { ItemsController } from './controllers/items.controller.js';
 import { OperationsController } from './controllers/operations.controller.js';
+import { BackofficeIndexesController } from './controllers/backoffice-indexes.controller.js';
 import { BackofficePasskeysController } from './controllers/backoffice-passkeys.controller.js';
 import { BackofficePermissionsController } from './controllers/backoffice-permissions.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
@@ -68,6 +69,8 @@ export class TusModule implements NestModule {
 		BackofficePermissionsController,
 		// Backoffice (spec 029, D-207): passkey login and management.
 		BackofficePasskeysController,
+		// Backoffice (spec 030, D-210): the indexes of a user collection.
+		BackofficeIndexesController,
 		PoliciesController,
 		RelationsController,
 		RevisionsController,
@@ -106,6 +109,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_operations')).forRoutes(OperationsController);
 		consumer.apply(useCollection('directus_permissions')).forRoutes(PermissionsController);
 		consumer.apply(useCollection('backoffice_permissions')).forRoutes(BackofficePermissionsController);
+		consumer.apply(useCollection('backoffice_indexes')).forRoutes(BackofficeIndexesController);
 		consumer.apply(useCollection('directus_policies')).forRoutes(PoliciesController);
 		consumer.apply(useCollection('directus_relations')).forRoutes(RelationsController);
 		consumer.apply(useCollection('directus_revisions')).forRoutes(RevisionsController);

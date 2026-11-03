@@ -31,7 +31,7 @@ const row = (over: Record<string, unknown> = {}) => ({
 test('version and name; listed after 20261028A', () => {
 	expect(version).toBe('20261101A');
 	expect(name).toBe('Create Backoffice Passkeys');
-	expect(BACKOFFICE_MIGRATIONS.map((m) => m.version)).toEqual(['20261026A', '20261028A', '20261101A']);
+	expect(BACKOFFICE_MIGRATIONS.map((m) => m.version)).toEqual(['20261026A', '20261028A', '20261101A', '20261103A']);
 });
 
 test('creates backoffice_passkeys with the columns and nullability of the data model', async () => {

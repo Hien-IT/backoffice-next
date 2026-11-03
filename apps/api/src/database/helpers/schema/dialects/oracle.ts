@@ -3,15 +3,16 @@ import crypto from 'node:crypto';
 import type { KNEX_TYPES } from '@backoffice/constants';
 import type { Column } from '@backoffice/schema';
 import type { Field, RawField, Relation, Type } from '@backoffice/types';
+import { toArray } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { getDefaultIndexName } from '../../../../utils/get-default-index-name.js';
-import type { CreateIndexOptions, Options, SortRecord, Sql } from '../types.js';
+import type { CreateIndexOptions, IndexNameType, Options, SortRecord, Sql } from '../types.js';
 import { SchemaHelper } from '../types.js';
 import { prepQueryParams } from '../utils/prep-query-params.js';
 
 export class SchemaHelperOracle extends SchemaHelper {
 	override generateIndexName(
-		type: 'unique' | 'foreign' | 'index',
+		type: IndexNameType,
 		collection: string,
 		fields: string | string[],
 	): string {
@@ -139,21 +140,25 @@ export class SchemaHelperOracle extends SchemaHelper {
 
 	override async createIndex(
 		collection: string,
-		field: string,
+		field: string | string[],
 		options: CreateIndexOptions = {},
 	): Promise<Knex.SchemaBuilder> {
+		// Backoffice (spec 030, D-210): several columns in order; the trigram kind is PostgreSQL only.
+		this.assertNoTrigram(options);
+		const columns = this.indexColumns(field);
+		const fields = toArray(field);
 		const isUnique = Boolean(options.unique);
 		const constraintName = this.generateIndexName(isUnique ? 'unique' : 'index', collection, field);
 
 		if (options.attemptConcurrentIndex) {
 			// https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/CREATE-INDEX.html#GUID-1F89BBC0-825F-4215-AF71-7588E31D8BFE__GUID-041E5429-065B-43D5-AC7F-66810140842C
-			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??) ONLINE`, [
+			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns}) ONLINE`, [
 				constraintName,
 				collection,
-				field,
+				...fields,
 			]);
 		}
 
-		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??)`, [constraintName, collection, field]);
+		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns})`, [constraintName, collection, ...fields]);
 	}
 }

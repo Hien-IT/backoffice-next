@@ -262,13 +262,20 @@ describe('migrationsValid', () => {
 test('the real list: a database with only 20261026A misses 20261028A', async () => {
 	const result = await checkMigrations(db(all, ['20261026A']));
 
-	expect(result.boRequired).toEqual(['20261026A', '20261028A', '20261101A']);
-	expect(result.boMissing).toEqual(['20261028A', '20261101A']);
+	expect(result.boRequired).toEqual(['20261026A', '20261028A', '20261101A', '20261103A']);
+	expect(result.boMissing).toEqual(['20261028A', '20261101A', '20261103A']);
 });
 
 // Spec 029 (D-207.1, D-207.5): a database migrated before 029 lacks 20261101A, so start stops until bootstrap runs it.
 test('the real list: a database migrated up to 025 misses 20261101A', async () => {
 	const result = await checkMigrations(db(all, ['20261026A', '20261028A']));
 
-	expect(result.boMissing).toEqual(['20261101A']);
+	expect(result.boMissing).toEqual(['20261101A', '20261103A']);
+});
+
+// Spec 030 (D-210.2): a database migrated before 030 lacks 20261103A.
+test('the real list: a database migrated up to 029 misses 20261103A', async () => {
+	const result = await checkMigrations(db(all, ['20261026A', '20261028A', '20261101A']));
+
+	expect(result.boMissing).toEqual(['20261103A']);
 });

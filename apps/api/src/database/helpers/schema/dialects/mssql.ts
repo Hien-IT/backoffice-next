@@ -1,12 +1,13 @@
 // Ported from directus/api/src/database/helpers/schema/dialects/mssql.ts
+import { toArray } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { getDefaultIndexName } from '../../../../utils/get-default-index-name.js';
-import { type CreateIndexOptions, SchemaHelper, type SortRecord, type Sql } from '../types.js';
+import { type CreateIndexOptions, type IndexNameType, SchemaHelper, type SortRecord, type Sql } from '../types.js';
 import { prepQueryParams } from '../utils/prep-query-params.js';
 
 export class SchemaHelperMSSQL extends SchemaHelper {
 	override generateIndexName(
-		type: 'unique' | 'foreign' | 'index',
+		type: IndexNameType,
 		collection: string,
 		fields: string | string[],
 	): string {
@@ -82,9 +83,13 @@ export class SchemaHelperMSSQL extends SchemaHelper {
 
 	override async createIndex(
 		collection: string,
-		field: string,
+		field: string | string[],
 		options: CreateIndexOptions = {},
 	): Promise<Knex.SchemaBuilder> {
+		// Backoffice (spec 030, D-210): several columns in order; the trigram kind is PostgreSQL only.
+		this.assertNoTrigram(options);
+		const columns = this.indexColumns(field);
+		const fields = toArray(field);
 		const isUnique = Boolean(options.unique);
 		const constraintName = this.generateIndexName(isUnique ? 'unique' : 'index', collection, field);
 
@@ -100,14 +105,14 @@ export class SchemaHelperMSSQL extends SchemaHelper {
 
 		if (options.attemptConcurrentIndex && typeof edition === 'string' && edition.startsWith('Enterprise')) {
 			// https://learn.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver16#online---on--off-
-			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??) WITH (ONLINE = ON)`, [
+			return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns}) WITH (ONLINE = ON)`, [
 				constraintName,
 				collection,
-				field,
+				...fields,
 			]);
 		}
 
 		// Fall back to blocking index creation for non-enterprise editions
-		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??)`, [constraintName, collection, field]);
+		return this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns})`, [constraintName, collection, ...fields]);
 	}
 }

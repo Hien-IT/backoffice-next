@@ -69,6 +69,9 @@ describe('createServer', () => {
 		await mod.createServer();
 		const order: string[] = [];
 		destroy.mockImplementation(async () => order.push('knex.destroy'));
+		// Spec 030 (D-210): the index jobs are marked failed before the pool closes.
+		const jobs = await import('./services/backoffice-indexes/jobs.js');
+		vi.spyOn(jobs, 'failRunningIndexJobs').mockImplementation(async () => void order.push('indexes.fail'));
 		const { onServerShutdown } = await import('./shutdown.js');
 		onServerShutdown(() => order.push('metrics.stop'));
 		// Same module instance as server.ts (modules are reset per test).
@@ -81,7 +84,7 @@ describe('createServer', () => {
 		expect(logger.info).toHaveBeenCalledWith('Shutting down...');
 
 		await terminusOptions().onSignal();
-		expect(order).toEqual(['knex.destroy', 'redis.disconnect', 'metrics.stop']);
+		expect(order).toEqual(['indexes.fail', 'knex.destroy', 'redis.disconnect', 'metrics.stop']);
 		expect(logger.info).toHaveBeenCalledWith('Database connections destroyed');
 
 		await terminusOptions().onShutdown();

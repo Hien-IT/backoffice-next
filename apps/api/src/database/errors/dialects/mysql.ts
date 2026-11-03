@@ -8,6 +8,7 @@ import {
 	ValueTooLongError,
 } from '@backoffice/errors';
 import type { Item } from '@backoffice/types';
+import type { Knex } from 'knex';
 import type { MySQLError } from './types.js';
 
 enum MySQLErrorCodes {
@@ -20,7 +21,13 @@ enum MySQLErrorCodes {
 	WARN_DATA_TRUNCATED = 'WARN_DATA_TRUNCATED',
 }
 
-export function extractError(error: MySQLError, data: Partial<Item>): MySQLError | Error {
+// Backoffice (spec 030, D-210.4): `knex` looks a composite key up in backoffice_indexes, since MySQL only names the
+// index; without it (or when the name is not a Backoffice index) the DR guess from the name stays.
+export async function extractError(
+	error: MySQLError,
+	data: Partial<Item>,
+	knex?: Knex,
+): Promise<MySQLError | Error | Error[]> {
 	switch (error.code) {
 		case MySQLErrorCodes.UNIQUE_VIOLATION:
 			return uniqueViolation();
@@ -40,7 +47,7 @@ export function extractError(error: MySQLError, data: Partial<Item>): MySQLError
 
 	return error;
 
-	function uniqueViolation() {
+	async function uniqueViolation() {
 		const betweenQuotes = /'([^']+)'/g;
 		const matches = error.sqlMessage.match(betweenQuotes);
 
@@ -75,6 +82,12 @@ export function extractError(error: MySQLError, data: Partial<Item>): MySQLError
 
 		if (collection !== null && indexName.startsWith(`${collection}_`) && indexName.endsWith('_unique')) {
 			field = indexName?.slice(collection.length + 1, -7);
+		}
+
+		const fields = await backofficeIndexFields(knex, indexName);
+
+		if (fields && fields.length > 1) {
+			return fields.map((name) => new RecordNotUniqueError({ collection, field: name, value: data[name] ?? null }));
 		}
 
 		return new RecordNotUniqueError({
@@ -173,5 +186,24 @@ export function extractError(error: MySQLError, data: Partial<Item>): MySQLError
 		const field = tickMatches[1]!.slice(1, -1)!;
 
 		return new ContainsNullValuesError({ collection, field });
+	}
+}
+
+let backofficeIndexesTable: boolean | undefined;
+
+/** The fields of a Backoffice index (spec 030) by its name; undefined when there is none or no knex was given. */
+async function backofficeIndexFields(knex: Knex | undefined, indexName: string): Promise<string[] | undefined> {
+	if (!knex) return undefined;
+
+	try {
+		backofficeIndexesTable ??= await knex.schema.hasTable('backoffice_indexes');
+		if (!backofficeIndexesTable) return undefined;
+
+		const row = await knex('backoffice_indexes').select('fields').where({ name: indexName }).first();
+		if (!row) return undefined;
+
+		return typeof row.fields === 'string' ? JSON.parse(row.fields) : row.fields;
+	} catch {
+		return undefined;
 	}
 }

@@ -72,6 +72,41 @@ describe('SchemaHelperPostgres', () => {
 		]);
 	});
 
+	// Backoffice (spec 030, D-210): several columns and the trigram kind.
+	test('createIndex with several fields lists them in order (spec 030)', async () => {
+		const { helper, mockKnex } = createHelper();
+		await helper.createIndex('t', ['provider', 'provider_subject'], { unique: true, attemptConcurrentIndex: true });
+
+		expect(mockKnex.raw).toHaveBeenCalledWith('CREATE UNIQUE INDEX CONCURRENTLY ?? ON ?? (??, ??)', [
+			't_provider_provider_subject_unique',
+			't',
+			'provider',
+			'provider_subject',
+		]);
+	});
+
+	test('createIndex trigram is a GIN index on lower(column) with gin_trgm_ops (spec 030)', async () => {
+		const { helper, mockKnex } = createHelper();
+		await helper.createIndex('t', 'name', { type: 'trigram' });
+		expect(mockKnex.raw).toHaveBeenCalledWith('CREATE INDEX ?? ON ?? USING gin (lower(??) gin_trgm_ops)', [
+			't_name_trgm',
+			't',
+			'name',
+		]);
+
+		await helper.createIndex('t', ['name'], { type: 'trigram', attemptConcurrentIndex: true });
+		expect(mockKnex.raw).toHaveBeenCalledWith(
+			'CREATE INDEX CONCURRENTLY ?? ON ?? USING gin (lower(??) gin_trgm_ops)',
+			['t_name_trgm', 't', 'name'],
+		);
+	});
+
+	test('createIndex trigram refuses several fields or unique (spec 030)', async () => {
+		const { helper } = createHelper();
+		await expect(helper.createIndex('t', ['a', 'b'], { type: 'trigram' })).rejects.toThrow();
+		await expect(helper.createIndex('t', 'a', { type: 'trigram', unique: true })).rejects.toThrow();
+	});
+
 	test('createIndex handles empty options object', async () => {
 		const { helper, mockKnex } = createHelper();
 		await helper.createIndex('categories', 'name', {});

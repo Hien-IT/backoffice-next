@@ -4,13 +4,13 @@ import { useEnv } from '@backoffice/env';
 import { toArray } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { getDefaultIndexName } from '../../../../utils/get-default-index-name.js';
-import { type CreateIndexOptions, SchemaHelper, type SortRecord } from '../types.js';
+import { type CreateIndexOptions, type IndexNameType, SchemaHelper, type SortRecord } from '../types.js';
 
 let lowerCaseTableNames: number | undefined;
 
 export class SchemaHelperMySQL extends SchemaHelper {
 	override generateIndexName(
-		type: 'unique' | 'foreign' | 'index',
+		type: IndexNameType,
 		collection: string,
 		fields: string | string[],
 	): string {
@@ -93,16 +93,20 @@ export class SchemaHelperMySQL extends SchemaHelper {
 
 	override async createIndex(
 		collection: string,
-		field: string,
+		field: string | string[],
 		options: CreateIndexOptions = {},
 	): Promise<Knex.SchemaBuilder> {
+		// Backoffice (spec 030, D-210): several columns in order; the trigram kind is PostgreSQL only.
+		this.assertNoTrigram(options);
+		const columns = this.indexColumns(field);
+		const fields = toArray(field);
 		const isUnique = Boolean(options.unique);
 		const constraintName = this.generateIndexName(isUnique ? 'unique' : 'index', collection, field);
 
-		const blockingQuery = this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??)`, [
+		const blockingQuery = this.knex.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns})`, [
 			constraintName,
 			collection,
-			field,
+			...fields,
 		]);
 
 		if (options.attemptConcurrentIndex) {
@@ -113,10 +117,10 @@ export class SchemaHelperMySQL extends SchemaHelper {
 			https://dev.mysql.com/doc/refman/8.4/en/create-index.html#:~:text=engine%20is%20changed.-,Table%20Copying%20and%20Locking%20Options,-ALGORITHM%20and%20LOCK
 			*/
 			return this.knex
-				.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (??) ALGORITHM=INPLACE LOCK=NONE`, [
+				.raw(`CREATE ${isUnique ? 'UNIQUE ' : ''}INDEX ?? ON ?? (${columns}) ALGORITHM=INPLACE LOCK=NONE`, [
 					constraintName,
 					collection,
-					field,
+					...fields,
 				])
 				.catch(() => blockingQuery);
 		}

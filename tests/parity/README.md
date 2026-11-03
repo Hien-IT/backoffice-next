@@ -191,6 +191,12 @@ pnpm nx run parity-tests:env-down --vendor=postgres
 - `cross-use.test.ts` dựng mô hình đầy đủ của 002 (`schema/fixture.ts`, nay nhận app) ở app này rồi dùng ở app kia;
   `sync-api.test.ts` (profile `multi`) đo thời gian app kia thấy thay đổi qua API (SC-005); `schema.test.ts` so snapshot
   từng byte, diff, apply.
+- `src/schema/indexes.test.ts` (spec 030, mọi vendor; bộ `reduced` cũng chạy): index ghép qua
+  `/backoffice/collections/:c/indexes` (Directus 404, D-210), 202 rồi poll tới `ready`, `/fields` hai app bằng nhau
+  (D-210.1), ghi trùng unique ghép: Directus một mục, Backoffice một mục mỗi field (D-210.4 `http`), xóa field ở
+  Backoffice gỡ index trước, Directus xóa cột để lại dòng `missing` (D-210.3); trigram và `EXPLAIN` chỉ Postgres
+  (`pg_trgm`). Dòng `creating` chèn thẳng qua Knex nên bỏ qua trên SQLite (file của container). Deploy:
+  `src/deploy/indexes.test.ts` (3 replica, ghi qua lb trong lúc tạo < 2 s, SIGTERM → `failed`).
 - D-32: `DELETE /collections/<collection hệ thống>` không bao giờ gửi tới Directus (Directus xóa bảng của database dùng
   chung); `crud.test.ts` chỉ kiểm `403` của app mới.
 - Blackbox: thêm `routes/collections`, `routes/fields`, `routes/schema`, `schema/timezone` và phần data model của

@@ -536,6 +536,22 @@ test('introspection and SDL without the backoffice_permissions types and root fi
 	expect(withoutBackofficeSdl(sdl)).toBe(['type Query {', '  articles: [articles]', '}', ''].join('\n'));
 });
 
+// Spec 030 (D-210.2): backoffice_indexes is left out like backoffice_passkeys.
+test('introspection, SDL and /collections without backoffice_indexes', () => {
+	expect(
+		withoutBackofficeIntrospection({
+			data: { __schema: { types: [{ name: 'backoffice_indexes' }, { name: 'Query', fields: [{ name: 'a' }] }] } },
+		}),
+	).toEqual({ data: { __schema: { types: [{ name: 'Query', fields: [{ name: 'a' }] }] } } });
+
+	const sdl = ['type Query {', '  backoffice_indexes: [backoffice_indexes]', '}', '', 'type backoffice_indexes {', '  id: ID!', '}', ''];
+	expect(withoutBackofficeSdl(sdl.join('\n'))).toBe(['type Query {', '}', ''].join('\n'));
+
+	expect(
+		normalizeBody('/collections', { data: [{ collection: 'backoffice_indexes', meta: null }, { collection: 'a' }] }),
+	).toEqual({ data: [{ collection: 'a' }] });
+});
+
 // Spec 029 (D-207.1): backoffice_passkeys is left out like backoffice_permissions.
 test('introspection, SDL and /collections without backoffice_passkeys', () => {
 	expect(

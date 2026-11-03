@@ -24,6 +24,14 @@ vi.mock('@backoffice/schema', async () => {
 	return mockSchema();
 });
 
+const indexesMock = vi.hoisted(() => ({ deleteForCollection: vi.fn().mockResolvedValue(undefined) }));
+
+vi.mock('./backoffice-indexes.service.js', () => ({
+	BackofficeIndexesService: class {
+		deleteForCollection = indexesMock.deleteForCollection;
+	},
+}));
+
 vi.mock('../cache.js', async () => {
 	const { mockCache } = await import('../test-utils/cache.js');
 	return mockCache();
@@ -660,6 +668,19 @@ describe('Integration Tests', () => {
 						(query) => query.sql.includes('backoffice_permissions') && query.bindings.includes('test_collection'),
 					),
 				).toBe(true);
+			});
+
+			// Spec 030 (D-210.3): the index rows of the collection go in the same transaction.
+			test('should delete the backoffice_indexes rows of the collection', async () => {
+				indexesMock.deleteForCollection.mockClear();
+				const service = new CollectionsService({ knex: db, schema, accountability: null });
+				vi.spyOn(service, 'readByQuery').mockResolvedValue([
+					{ collection: 'test_collection', schema: { name: 'test_collection' }, meta: { collection: 'test_collection' } } as any,
+				]);
+
+				await service.deleteOne('test_collection');
+
+				expect(indexesMock.deleteForCollection).toHaveBeenCalledWith('test_collection');
 			});
 
 			test('should delete collection meta', async () => {

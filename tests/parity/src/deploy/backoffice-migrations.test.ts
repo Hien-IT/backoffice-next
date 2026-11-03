@@ -31,6 +31,7 @@ describe('Backoffice migrations on several replicas (spec 022)', () => {
 			'20261026A',
 			'20261028A',
 			'20261101A',
+			'20261103A',
 		]);
 		// Spec 025 (D-189.5): the table of migration 20261028A.
 		expect(psql("select count(*) from information_schema.tables where table_name = 'backoffice_permissions'")).toEqual([

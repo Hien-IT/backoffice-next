@@ -267,14 +267,17 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 					primaryKey = primaryKey ?? returnedKey;
 				}
 			} catch (err: any) {
-				const dbError = await translateDatabaseError(err, data);
+				// Backoffice (spec 030, D-210.4): an array = one error per field of a composite unique index.
+				const dbError = await translateDatabaseError(err, data, this.knex);
 
-				if (isBackofficeError(dbError, ErrorCode.RecordNotUnique) && dbError.extensions.primaryKey) {
-					// This is a MySQL specific thing we need to handle here, since MySQL does not return the field name
-					// if the unique constraint is the primary key
-					dbError.extensions.field = pkField?.field ?? null;
+				for (const one of Array.isArray(dbError) ? dbError : [dbError]) {
+					if (isBackofficeError(one, ErrorCode.RecordNotUnique) && one.extensions.primaryKey) {
+						// This is a MySQL specific thing we need to handle here, since MySQL does not return the field name
+						// if the unique constraint is the primary key
+						one.extensions.field = pkField?.field ?? null;
 
-					delete dbError.extensions.primaryKey;
+						delete one.extensions.primaryKey;
+					}
 				}
 
 				throw dbError;
@@ -818,7 +821,7 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				try {
 					await trx(this.collection).update(payloadWithTypeCasting).whereIn(primaryKeyField, keys);
 				} catch (err: any) {
-					throw await translateDatabaseError(err, data);
+					throw await translateDatabaseError(err, data, this.knex);
 				}
 			}
 

@@ -30,6 +30,7 @@ import { z } from 'zod';
 import { clearSystemCache, getCache, getCacheValue, setCacheValue } from '../cache.js';
 import { ALIAS_TYPES, ALLOWED_DB_DEFAULT_FUNCTIONS } from '../constants.js';
 import { translateDatabaseError } from '../database/errors/translate.js';
+import { BackofficeIndexesService } from './backoffice-indexes.service.js';
 import type { Helpers } from '../database/helpers/index.js';
 import { getHelpers } from '../database/helpers/index.js';
 import getDatabase, { getSchemaInspector } from '../database/index.js';
@@ -582,7 +583,7 @@ export class FieldsService {
 							});
 						}
 					} catch (err: any) {
-						throw await translateDatabaseError(err, field);
+						throw await translateDatabaseError(err, field, this.knex);
 					}
 				}
 			}
@@ -718,6 +719,14 @@ export class FieldsService {
 					},
 				);
 			}
+
+			// Backoffice (spec 030, D-210.3): the composite and trigram indexes with this field go before the column (MySQL and
+			// SQLite would keep them on the remaining columns); a row still building refuses the delete.
+			await new BackofficeIndexesService({
+				knex: this.knex,
+				schema: this.schema,
+				accountability: this.accountability,
+			}).dropForField(collection, field);
 
 			await transaction(this.knex, async (trx) => {
 				const relations = getRelations(this.schema.relations, collection, field);

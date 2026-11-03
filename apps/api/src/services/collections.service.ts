@@ -36,6 +36,7 @@ import { getCollectionMetaUpdates } from './fields/get-collection-meta-updates.j
 import { getCollectionRelationList } from './fields/get-collection-relation-list.js';
 import { FieldsService } from './fields.service.js';
 import { ItemsService } from './items.service.js';
+import { BackofficeIndexesService } from './backoffice-indexes.service.js';
 
 export class CollectionsService {
 	knex: Knex;
@@ -714,6 +715,12 @@ export class CollectionsService {
 					if (await trx.schema.hasTable('backoffice_permissions')) {
 						await trx('backoffice_permissions').delete().where('collection', '=', collectionKey);
 					}
+					// Backoffice (spec 030, D-210.3): the index rows of the collection (the indexes go with the table).
+					await new BackofficeIndexesService({
+						knex: trx,
+						schema: this.schema,
+						accountability: this.accountability,
+					}).deleteForCollection(collectionKey);
 					await trx('directus_relations').delete().where({ many_collection: collectionKey });
 
 					const { collectionRelationTree, fieldToCollectionList } = await buildCollectionAndFieldRelations(

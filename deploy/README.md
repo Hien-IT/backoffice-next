@@ -507,6 +507,34 @@ cùng dòng `directus_fields` của nó (ẩn, chỉ đọc).
   DELETE FROM backoffice_migrations WHERE version = '20261101A';
   ```
 
+### Index của collection (spec 030)
+
+Migration `20261103A` tạo bảng `backoffice_indexes`: một dòng cho mỗi index Backoffice tạo trên collection người dùng
+(`collection`, `name` duy nhất, `fields`, `type` btree|trigram, `unique`, `status` creating|ready|failed, `error`,
+`date_created`; không khóa ngoại). Index thật nằm trên bảng của collection: Directus tôn trọng nó như mọi ràng buộc.
+
+- **Tạo** qua Settings > Data Model > collection > card "Indexes" hoặc `POST /backoffice/collections/<c>/indexes`
+  (`{ "fields": [...], "type": "btree" | "trigram", "unique": true }`): API trả 202, replica nhận request tạo index
+  trong tiến trình (mặc định không khóa bảng: Postgres `CONCURRENTLY`, MySQL `ALGORITHM=INPLACE LOCK=NONE` rồi tự rơi
+  về cách thường; SQLite luôn khóa; tắt bằng `?concurrentIndexCreation=false`). Theo dõi bằng `GET` cùng đường.
+- **Trigram** (`?search=` nhanh hơn, chỉ Postgres; `?search=` nối OR mọi cột chuỗi tìm được của collection, nên tạo
+  index trigram cho **từng** cột chuỗi đó, nếu không planner vẫn quét bảng): cần phần mở rộng `pg_trgm`; Backoffice chạy
+  `CREATE EXTENSION IF NOT EXISTS pg_trgm` trước index trigram đầu tiên (Postgres ≥ 13: chủ DB đủ quyền). Không có
+  quyền thì dòng thành `failed` với lời nhắc; DBA chạy `CREATE EXTENSION pg_trgm;` một lần rồi tạo lại.
+- **SIGTERM** trong lúc tạo: dòng thành `failed` "Server shutdown" (Postgres để lại index INVALID, xóa dòng dọn nó).
+  Replica chết không SIGTERM: dòng `creating` quá 1 giờ mà không có build đang chạy được liệt kê là `failed`.
+- **Xóa field** ở Backoffice gỡ các index có field đó trước khi xóa cột (MySQL và SQLite giữ index trên cột còn lại nếu
+  không). Xóa cột bằng Directus app: dòng hiện "missing", xóa dòng được. Nên xóa field có index từ Backoffice.
+- Mỗi job giữ một kết nối của pool DB (`DB_POOL__MAX`, mặc định 10) trong lúc tạo.
+- Index này **không** nằm trong snapshot/`schema/apply`: sync schema giữa môi trường không mang nó theo.
+- **Gỡ tay** (Postgres), rồi `node cli.js cache clear --system`:
+
+  ```sql
+  DROP INDEX <name>;            -- cho từng dòng của backoffice_indexes (MySQL: ALTER TABLE <t> DROP INDEX <name>)
+  DROP TABLE backoffice_indexes;
+  DELETE FROM backoffice_migrations WHERE version = '20261103A';
+  ```
+
 ## Lệnh CLI
 
 Image Backoffice có CLI của Directus 11.17.4 (021): cùng lệnh, option, log và mã thoát, tên chương trình `backoffice`

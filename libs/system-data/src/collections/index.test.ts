@@ -69,6 +69,16 @@ describe('systemCollectionRows', () => {
 		expect(isSystemCollection('backoffice_passkeys')).toBe(true);
 	});
 
+	test('backoffice_indexes is a hidden system collection (spec 030, D-210.2)', () => {
+		expect(systemCollectionRows.find((row) => row.collection === 'backoffice_indexes')).toMatchObject({
+			collection: 'backoffice_indexes',
+			hidden: true,
+			system: true,
+			note: null,
+		});
+		expect(isSystemCollection('backoffice_indexes')).toBe(true);
+	});
+
 	test('should have unique collection names', () => {
 		const collectionNames = systemCollectionRows.map((row) => row.collection);
 		const uniqueNames = new Set(collectionNames);

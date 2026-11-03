@@ -1,10 +1,10 @@
 // Ported from directus/api/src/database/helpers/schema/dialects/sqlite.ts
 import { getDefaultIndexName } from '../../../../utils/get-default-index-name.js';
-import { SchemaHelper } from '../types.js';
+import { type IndexNameType, SchemaHelper } from '../types.js';
 
 export class SchemaHelperSQLite extends SchemaHelper {
 	override generateIndexName(
-		type: 'unique' | 'foreign' | 'index',
+		type: IndexNameType,
 		collection: string,
 		fields: string | string[],
 	): string {

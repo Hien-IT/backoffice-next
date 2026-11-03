@@ -25,6 +25,25 @@ describe('SchemaHelperMySQL', () => {
 		expect(mockRaw).toHaveBeenCalledWith('CREATE INDEX ?? ON ?? (??)', ['users_email_index', 'users', 'email']);
 	});
 
+	// Backoffice (spec 030, D-210): several columns in both the inplace and the fallback statement.
+	test('createIndex with several fields (spec 030)', async () => {
+		const { helper, mockRaw } = createHelper();
+		await helper.createIndex('t', ['a', 'b'], { unique: true, attemptConcurrentIndex: true });
+
+		expect(mockRaw).toHaveBeenCalledWith('CREATE UNIQUE INDEX ?? ON ?? (??, ??)', ['t_a_b_unique', 't', 'a', 'b']);
+		expect(mockRaw).toHaveBeenCalledWith('CREATE UNIQUE INDEX ?? ON ?? (??, ??) ALGORITHM=INPLACE LOCK=NONE', [
+			't_a_b_unique',
+			't',
+			'a',
+			'b',
+		]);
+	});
+
+	test('createIndex trigram needs PostgreSQL (spec 030)', async () => {
+		const { helper } = createHelper();
+		await expect(helper.createIndex('t', 'a', { type: 'trigram' })).rejects.toThrow(/PostgreSQL/);
+	});
+
 	test('createIndex creates a unique index when unique option is true', async () => {
 		const { helper, mockRaw } = createHelper();
 		await helper.createIndex('users', 'email', { unique: true });

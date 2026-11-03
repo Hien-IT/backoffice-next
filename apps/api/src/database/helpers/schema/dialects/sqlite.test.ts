@@ -22,6 +22,30 @@ describe('SchemaHelperSQLite', () => {
 		expect(mockKnex.raw).toHaveBeenCalledWith('CREATE INDEX ?? ON ?? (??)', ['users_email_index', 'users', 'email']);
 	});
 
+	// Backoffice (spec 030, D-210): the base helper takes several columns and drops an index by name.
+	test('createIndex with several fields (spec 030)', async () => {
+		const { helper, mockKnex } = createHelper();
+		await helper.createIndex('t', ['a', 'b']);
+
+		expect(mockKnex.raw).toHaveBeenCalledWith('CREATE INDEX ?? ON ?? (??, ??)', ['t_a_b_index', 't', 'a', 'b']);
+	});
+
+	test('createIndex trigram needs PostgreSQL (spec 030)', async () => {
+		const { helper } = createHelper();
+		await expect(helper.createIndex('t', 'a', { type: 'trigram' })).rejects.toThrow(/PostgreSQL/);
+	});
+
+	test('dropIndex drops by name through the schema builder (spec 030)', async () => {
+		const dropIndex = vi.fn();
+		const alterTable = vi.fn(async (_t: string, cb: (b: { dropIndex: typeof dropIndex }) => void) => cb({ dropIndex }));
+		const helper = new SchemaHelperSQLite({ raw: vi.fn(), schema: { alterTable } } as unknown as Knex);
+
+		await helper.dropIndex('t', 't_a_b_unique');
+
+		expect(alterTable).toHaveBeenCalledWith('t', expect.any(Function));
+		expect(dropIndex).toHaveBeenCalledWith([], 't_a_b_unique');
+	});
+
 	test('createIndex creates a unique index when unique option is true', async () => {
 		const { helper, mockKnex } = createHelper();
 

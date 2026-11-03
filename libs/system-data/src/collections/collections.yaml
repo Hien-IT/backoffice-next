@@ -138,3 +138,8 @@ data:
   # (403 on /items, not in GraphQL); written through /backoffice/users/*/passkeys only.
   - collection: backoffice_passkeys
     hidden: true
+
+  # Backoffice (spec 030, D-210.2): the indexes Backoffice created on user collections, a hidden system collection
+  # like backoffice_passkeys (403 on /items, not in GraphQL); written through /backoffice/collections/:c/indexes only.
+  - collection: backoffice_indexes
+    hidden: true

@@ -18,7 +18,7 @@ enum PostgresErrorCodes {
 	VALUE_LIMIT_VIOLATION = '22001',
 }
 
-export function extractError(error: PostgresError, data: Partial<Item>): PostgresError | Error {
+export function extractError(error: PostgresError, data: Partial<Item>): PostgresError | Error | Error[] {
 	switch (error.code) {
 		case PostgresErrorCodes.UNIQUE_VIOLATION:
 			return uniqueViolation();
@@ -44,6 +44,13 @@ export function extractError(error: PostgresError, data: Partial<Item>): Postgre
 
 		const collection = table;
 		const field = matches[0].slice(1, -1);
+
+		// Backoffice (spec 030, D-210.4): `Key (a, b)=(1, 2)` of a composite unique index: one error per field.
+		if (field.includes(', ')) {
+			return field.split(', ').map(
+				(name) => new RecordNotUniqueError({ collection, field: name, value: data[name] ?? null }),
+			);
+		}
 
 		return new RecordNotUniqueError({
 			collection,

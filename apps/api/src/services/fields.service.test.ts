@@ -42,6 +42,14 @@ vi.mock('../emitter.js', async () => {
 	return mockEmitter();
 });
 
+const indexesMock = vi.hoisted(() => ({ dropForField: vi.fn().mockResolvedValue(undefined) }));
+
+vi.mock('./backoffice-indexes.service.js', () => ({
+	BackofficeIndexesService: class {
+		dropForField = indexesMock.dropForField;
+	},
+}));
+
 vi.mock('./items.service.js', async () => {
 	const { mockItemsService } = await import('../test-utils/services/items-service.js');
 	return mockItemsService();
@@ -757,6 +765,23 @@ describe('Integration Tests', () => {
 				await service.deleteField('test_collection', 'name');
 
 				expect(deleteByQuerySpy).toHaveBeenCalled();
+			});
+
+			// Spec 030 (D-210.3): the indexes with the field are dropped before the column, outside the transaction.
+			test('should drop the Backoffice indexes of the field before the column', async () => {
+				indexesMock.dropForField.mockClear();
+				const service = new FieldsService({ knex: db, schema, accountability: null });
+				tracker.on.select('directus_fields').response([{ collection: 'test_collection', field: 'name' }]);
+				tracker.on.any(/alter table/i).response([]);
+				const deleteByQuerySpy = vi.spyOn(ItemsService.prototype, 'deleteByQuery').mockResolvedValue([]);
+				db.schema.table = mockSchemaTable() as any;
+
+				await service.deleteField('test_collection', 'name');
+
+				expect(indexesMock.dropForField).toHaveBeenCalledWith('test_collection', 'name');
+				expect(indexesMock.dropForField.mock.invocationCallOrder[0]!).toBeLessThan(
+					deleteByQuerySpy.mock.invocationCallOrder[0]!,
+				);
 			});
 
 			test('should clear cache after deletion', async () => {
