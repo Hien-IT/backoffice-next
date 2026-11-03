@@ -26,8 +26,9 @@ Tên index: `passenger_auth_identities_provider_provider_subject_unique` (tự s
 
 ## Tăng tốc tìm kiếm (Postgres)
 
-Cùng card → "Add index" → một field chuỗi (ví dụ `name`) → type "Trigram (search, PostgreSQL)" → Create. `?search=` với
-từ khóa từ 3 ký tự dùng index; câu tìm kiếm và kết quả không đổi.
+Cùng card → "Add index" → một field chuỗi (ví dụ `name`) → type "Trigram (contains, PostgreSQL)" → Create. Filter
+`?filter[name][_icontains]=...` với từ khóa từ 3 ký tự dùng index. `?search=` thì không chắc: nó nối OR mọi cột chuỗi và
+sắp theo khóa chính, nên ở bảng lớn planner vẫn có thể quét (FR-024: 10M dòng không nhanh hơn, 2M dòng dùng index).
 
 ## Tạo trên bảng lớn
 

@@ -139,7 +139,7 @@ export default {
 	index_fields_add: 'Add a field…',
 	index_type: 'Index type',
 	index_type_btree: 'B-tree',
-	index_type_trigram: 'Trigram (search, PostgreSQL)',
+	index_type_trigram: 'Trigram (contains, PostgreSQL)',
 	index_unique_label: 'Unique: reject duplicate combinations',
 	index_concurrent: 'Create without locking the table',
 	index_status_creating: 'Creating…',
@@ -156,7 +156,7 @@ export default {
 	index_help_intro: 'An index makes the database find rows by these fields faster and, when unique, rejects duplicates.',
 	index_help_fields: 'Fields: add them in the order queries filter by them (the first field matters most); drag or use the row menu to reorder.',
 	index_help_unique: 'Unique: the combination of all fields must not repeat across rows; rows that already repeat it make the index fail.',
-	index_help_trigram: 'Trigram (PostgreSQL): one text field, speeds up the search box for words of 3 characters or more; add one per searchable field.',
+	index_help_trigram: 'Trigram (PostgreSQL): one text field, speeds up "contains" filters on it (case-insensitive, 3 characters or more). The search box checks every text field and sorts by ID, so on large tables it may still scan.',
 	index_help_concurrent: 'Create without locking the table: the database keeps accepting writes while the index builds (slower on big tables).',
 	index_help_status: 'The index builds in the background: the row shows Creating, then Ready or Failed with the reason. Deleting a field drops its indexes.',
 };

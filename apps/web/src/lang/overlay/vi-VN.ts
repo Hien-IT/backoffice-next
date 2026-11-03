@@ -134,7 +134,7 @@ export default {
 	index_fields_add: 'Thêm field…',
 	index_type: 'Loại index',
 	index_type_btree: 'B-tree',
-	index_type_trigram: 'Trigram (tìm kiếm, PostgreSQL)',
+	index_type_trigram: 'Trigram (contains, PostgreSQL)',
 	index_unique_label: 'Unique: từ chối tổ hợp trùng',
 	index_concurrent: 'Tạo không khóa bảng',
 	index_status_creating: 'Đang tạo…',
@@ -151,7 +151,7 @@ export default {
 	index_help_intro: 'Index giúp DB tìm bản ghi theo các field này nhanh hơn; nếu unique thì từ chối bản ghi trùng.',
 	index_help_fields: 'Fields: thêm theo thứ tự câu truy vấn hay lọc (field đầu quan trọng nhất); kéo hoặc dùng menu dòng để đổi thứ tự.',
 	index_help_unique: 'Unique: tổ hợp tất cả field không được lặp giữa các bản ghi; dữ liệu đang trùng làm index thất bại.',
-	index_help_trigram: 'Trigram (PostgreSQL): một field chữ, tăng tốc ô tìm kiếm với từ khóa từ 3 ký tự; mỗi field tìm kiếm cần một index.',
+	index_help_trigram: 'Trigram (PostgreSQL): một field chữ, tăng tốc filter "contains" trên field đó (không phân biệt hoa thường, từ 3 ký tự). Ô tìm kiếm dò mọi field chữ và sắp theo ID nên trên bảng lớn vẫn có thể quét bảng.',
 	index_help_concurrent: 'Tạo không khóa bảng: DB vẫn nhận ghi trong lúc tạo index (chậm hơn trên bảng lớn).',
 	index_help_status: 'Index tạo ở nền: dòng hiện Đang tạo, rồi Sẵn sàng hoặc Thất bại kèm lý do. Xóa field sẽ gỡ các index của nó.',
 };

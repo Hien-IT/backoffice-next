@@ -517,8 +517,10 @@ Migration `20261103A` tạo bảng `backoffice_indexes`: một dòng cho mỗi i
   (`{ "fields": [...], "type": "btree" | "trigram", "unique": true }`): API trả 202, replica nhận request tạo index
   trong tiến trình (mặc định không khóa bảng: Postgres `CONCURRENTLY`, MySQL `ALGORITHM=INPLACE LOCK=NONE` rồi tự rơi
   về cách thường; SQLite luôn khóa; tắt bằng `?concurrentIndexCreation=false`). Theo dõi bằng `GET` cùng đường.
-- **Trigram** (`?search=` nhanh hơn, chỉ Postgres; `?search=` nối OR mọi cột chuỗi tìm được của collection, nên tạo
-  index trigram cho **từng** cột chuỗi đó, nếu không planner vẫn quét bảng): cần phần mở rộng `pg_trgm`; Backoffice chạy
+- **Trigram** (chỉ Postgres): tăng tốc filter `_icontains` trên một cột (`LOWER(col) LIKE '%x%'`, từ 3 ký tự). Với
+  `?search=` thì không chắc: câu nối OR mọi cột chuỗi và sắp theo khóa chính với `LIMIT`, nên ở bảng lớn (đo 10M dòng,
+  benchmark-items 41664889475) planner vẫn quét theo khóa chính dù có index cho mọi cột; ở bảng vừa (2M dòng) có dùng
+  index. Index cần phần mở rộng `pg_trgm`; Backoffice chạy
   `CREATE EXTENSION IF NOT EXISTS pg_trgm` trước index trigram đầu tiên (Postgres ≥ 13: chủ DB đủ quyền). Không có
   quyền thì dòng thành `failed` với lời nhắc; DBA chạy `CREATE EXTENSION pg_trgm;` một lần rồi tạo lại.
 - **SIGTERM** trong lúc tạo: dòng thành `failed` "Server shutdown" (Postgres để lại index INVALID, xóa dòng dọn nó).

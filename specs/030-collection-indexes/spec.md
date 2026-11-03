@@ -271,8 +271,10 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
 - **FR-011**: Trước index trigram đầu tiên, Backoffice PHẢI cài phần mở rộng `pg_trgm` nếu chưa có (lệnh idempotent);
   không có quyền thì dòng chuyển `failed` với thông điệp nêu lệnh để DBA chạy (job nền; sửa khi plan 2026-11-03), không
   tạo index.
-- **FR-012**: Index trigram PHẢI đặt trên đúng biểu thức mà tìm kiếm của Backoffice/Directus dùng (chữ thường của cột),
-  để `?search=` dùng được index; câu tìm kiếm và kết quả không đổi.
+- **FR-012**: Index trigram PHẢI đặt trên đúng biểu thức mà tìm kiếm và filter `_icontains` của Backoffice/Directus dùng
+  (chữ thường của cột), để chúng dùng được index; câu tìm kiếm và kết quả không đổi. Planner có dùng hay không do Postgres
+  quyết định: với `?search=` ở bảng lớn thì không (FR-024), nên nhãn và hướng dẫn trong dialog nói "contains" (chủ dự
+  án 2026-11-03 sau benchmark).
 
 **Xóa và cascade**
 
@@ -336,6 +338,12 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
   ở mọi dòng (`icl`, `cle`), 50 kết nối đều timeout. Thử trên 2M dòng cùng câu của app (`ORDER BY id LIMIT 25`): từ khóa
   chọn lọc (`1999999`) dùng BitmapOr trên ba index, 852 ms → 4 ms. Bài học: trigram chỉ giúp khi từ khóa có trigram hiếm;
   benchmark đổi sang `4242424`, EXPLAIN theo câu thật, tải theo plan (đo lần 2 ghi bên dưới).
+  Đo lần 2 (benchmark-items 41664889475, 047862ee, 10M dòng, từ khóa `4242424`, 1 kết nối): không index 0,3 req/s, p95
+  3770 ms; có index trigram trên ba cột 0,3 req/s, p95 3805 ms; cả hai plan là quét theo khóa chính (`ORDER BY id LIMIT
+  25`, planner ước lượng ~2000 dòng khớp nên không chọn BitmapOr). Kết luận: ở 10M dòng index trigram không tăng tốc
+  `?search=` của engine (OR mọi cột chuỗi + sort khóa chính); có lợi với filter `_icontains` một cột (Bitmap Index Scan
+  khi thử) và với bảng nhỏ hơn (2M dòng: 4 ms). Cùng run: gate CPU `PATCH update (user)` +14,7 % (lần 1 +5 %), các hàng
+  khác đạt.
 - **FR-025**: deploy/README ghi: `pg_trgm` và quyền cài, gỡ tay (xóa bảng và dòng migration), timeout của reverse proxy
   khi tạo index lâu, index không nằm trong snapshot.
 - **FR-101**: Bảng "Khác biệt so với Directus" có cột `Mã` đầu, `Gỡ ở` cuối để `tests/parity/src/spec-differences.ts`
