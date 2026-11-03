@@ -31,15 +31,30 @@ beforeEach(() => {
 test('hidden fields of user collections, true or 1, cached; system collections and shown fields left out', async () => {
 	tracker.on.select('directus_fields').response([
 		{ collection: 'articles', field: 'secret', hidden: true },
-		{ collection: 'articles', field: 'sort', hidden: 1 },
+		{ collection: 'articles', field: 'note', hidden: 1 },
 		{ collection: 'articles', field: 'title', hidden: false },
 		{ collection: 'articles', field: 'body', hidden: null },
 		{ collection: 'directus_users', field: 'tfa_secret', hidden: true },
 	]);
+	tracker.on.select('directus_collections').response([{ collection: 'articles', archive_field: null, sort_field: null }]);
 
-	expect(await getHiddenFields()).toEqual({ articles: ['secret', 'sort'] });
-	expect(await getHiddenFields()).toEqual({ articles: ['secret', 'sort'] });
-	expect(tracker.history.select).toHaveLength(1);
+	expect(await getHiddenFields()).toEqual({ articles: ['secret', 'note'] });
+	expect(await getHiddenFields()).toEqual({ articles: ['secret', 'note'] });
+	expect(tracker.history.select).toHaveLength(2);
+});
+
+// Owner 2026-11-03: status (archive field) and sort (sort field) stay in a wildcard when hidden, like at DR.
+test('the archive and sort fields of a collection are never listed as hidden', async () => {
+	tracker.on.select('directus_fields').response([
+		{ collection: 'articles', field: 'secret', hidden: true },
+		{ collection: 'articles', field: 'status', hidden: true },
+		{ collection: 'articles', field: 'sort', hidden: true },
+	]);
+	tracker.on.select('directus_collections').response([
+		{ collection: 'articles', archive_field: 'status', sort_field: 'sort' },
+	]);
+
+	expect(await getHiddenFields()).toEqual({ articles: ['secret'] });
 });
 
 test('a failing database means no hidden field', async () => {

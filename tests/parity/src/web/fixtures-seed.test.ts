@@ -68,5 +68,6 @@ it('exports the same fixture set from Directus and from the new API (SC-009)', a
 
 	const differences: Difference[] = [];
 	diffJson(directus, backoffice, '', differences);
-	expect(differences).toEqual([]);
+	// Spec 005 (D-209): `input_hidden` of bo_std is a hidden, non-relational field, left out of the export at Backoffice.
+	expect(differences.filter((d) => !/^\/items\.bo_std\.json\/\d+\/input_hidden$/.test(d.location))).toEqual([]);
 }, 600_000);

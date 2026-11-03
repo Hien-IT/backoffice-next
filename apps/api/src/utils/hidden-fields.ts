@@ -22,20 +22,28 @@ export async function getHiddenFields(knex: Knex = getDatabase()): Promise<Hidde
 	if (cached) return cached as HiddenFields;
 
 	let rows: Record<string, any>[];
+	let collections: Record<string, any>[];
 
 	try {
 		rows = await knex.select('collection', 'field', 'hidden').from('directus_fields');
+		collections = await knex.select('collection', 'archive_field', 'sort_field').from('directus_collections');
 	} catch {
 		// A failing database: the request reports it itself (like collection-toggles).
 		return {};
 	}
 
+	// Owner 2026-11-03: the archive field (status) and the sort field of a collection stay in a wildcard like at DR,
+	// hidden or not (DR creates `sort` hidden).
+	const setup = new Set(
+		collections.flatMap((c) => [c['archive_field'], c['sort_field']].filter(Boolean).map((f) => `${c['collection']}.${f}`)),
+	);
 	const hidden: HiddenFields = {};
 
 	for (const row of rows) {
 		// vendors without a boolean type return 1
 		if (row['hidden'] !== true && row['hidden'] !== 1) continue;
 		if (isSystemCollection(row['collection'])) continue;
+		if (setup.has(`${row['collection']}.${row['field']}`)) continue;
 		(hidden[row['collection']] ??= []).push(row['field']);
 	}
 

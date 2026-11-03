@@ -301,12 +301,13 @@ test('requests: the collection page and the policy page', async () => {
 	});
 	const page = await mountLayout(shell, { path: '/settings/data-model/bo_perf', routes, beforeMount: dataModelSetup });
 	await flushPromises();
-	// Two GET /fields as DR: the route guard and fields-management.vue onBeforeMount both hydrate the store.
+	// Two GET /fields as DR: the route guard and fields-management.vue onBeforeMount both hydrate the store. Spec 030: the
+	// Indexes card (404 here, as at DR) reads its list once for the card and the field list.
 	expect(
 		calls(collectionFetch)
 			.map((call) => call.split('?')[0])
 			.sort(),
-	).toEqual(['GET /collections/bo_perf', 'GET /fields', 'GET /fields']);
+	).toEqual(['GET /backoffice/collections/bo_perf/indexes', 'GET /collections/bo_perf', 'GET /fields', 'GET /fields']);
 	page.wrapper.unmount();
 
 	const { permissions, setup } = matrixSetup(5);

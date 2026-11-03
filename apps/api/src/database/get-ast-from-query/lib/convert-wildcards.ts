@@ -37,10 +37,16 @@ function keptHiddenFields(collection: string, schema: SchemaOverview): Set<strin
 		if (relation.collection === collection) {
 			kept.add(relation.field);
 			if (relation.meta?.one_collection_field) kept.add(relation.meta.one_collection_field);
+			// The manual sort of an o2m / m2m (on the many side or the junction).
+			if (relation.meta?.sort_field) kept.add(relation.meta.sort_field);
 		}
 
 		if (relation.related_collection === collection && relation.meta?.one_field) kept.add(relation.meta.one_field);
 	}
+
+	// The sort field of the collection (status and sort of directus_collections are also left out by getHiddenFields).
+	const sortField = schema.collections[collection]?.sortField;
+	if (sortField) kept.add(sortField);
 
 	for (const [name, field] of Object.entries(schema.collections[collection]?.fields ?? {})) {
 		if (field.special?.some((special) => SYSTEM_SPECIALS.includes(special))) kept.add(name);
@@ -58,7 +64,9 @@ export async function convertWildcards(options: ConvertWildcardsOptions, context
 	const hidden = (await getHiddenFields(context.knex))[options.collection] ?? [];
 	const primary = context.schema.collections[options.collection]!.primary;
 	const kept = hidden.length > 0 ? keptHiddenFields(options.collection, context.schema) : new Set<string>();
-	const shown = (name: string) => name === primary || kept.has(name) || !hidden.includes(name);
+	// A hidden field also named in `fields` is expanded in its column place, like DR (`*,secret`).
+	const named = new Set(fields);
+	const shown = (name: string) => name === primary || kept.has(name) || named.has(name) || !hidden.includes(name);
 
 	const allFieldsInCollection = Object.keys(context.schema.collections[options.collection]!.fields);
 	const fieldsInCollection = allFieldsInCollection.filter(shown);

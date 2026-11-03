@@ -280,7 +280,7 @@ test('backlink set to false', async () => {
 });
 
 // Backoffice (spec 005, D-209): hidden fields of the collection and wildcards.
-test('D-209: * leaves out the hidden fields but the primary key; a named hidden field stays', async () => {
+test('D-209: * leaves out the hidden fields but the primary key; a named hidden field stays in its column place', async () => {
 	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['id', 'date'] });
 
 	const result = await convertWildcards(
@@ -288,7 +288,7 @@ test('D-209: * leaves out the hidden fields but the primary key; a named hidden 
 		{ knex: db, schema },
 	);
 
-	expect(result).toEqual(['id', 'title', 'when', 'date']);
+	expect(result).toEqual(['id', 'title', 'date', 'when', 'date']);
 });
 
 test('D-209: * of a user with explicit fields leaves out the hidden ones; an alias of a hidden field stays', async () => {
@@ -338,6 +338,25 @@ test('D-209 C: hidden m2a junction fields and system fields stay in *; other hid
 	expect(inShapes).not.toContain('secret');
 });
 
+test('D-209: the sort field of the collection stays in * when hidden', async () => {
+	const sorted = new SchemaBuilder()
+		.collection('articles', (c) => {
+			c.field('id').id();
+			c.field('sort').integer();
+			c.field('secret').string();
+		})
+		.build();
+	sorted.collections['articles']!.sortField = 'sort';
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['sort', 'secret'] });
+
+	const result = await convertWildcards(
+		{ collection: 'articles', fields: ['*'], alias: {}, accountability: null, backlink: true },
+		{ knex: db, schema: sorted },
+	);
+
+	expect(result).toEqual(['id', 'sort']);
+});
+
 test('D-209 C: hidden m2o (o2o) keys and o2m aliases stay in * and *.*', async () => {
 	const rel = new SchemaBuilder()
 		.collection('posts', (c) => {
@@ -373,10 +392,19 @@ test('D-209: a user allowed hidden fields only gets nothing from *, the named fi
 	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['date'] });
 	fetchAllowedFieldsMock.mockResolvedValueOnce(['date']);
 
+	const alone = await convertWildcards(
+		{ collection: 'articles', fields: ['*'], alias: {}, accountability, backlink: true },
+		{ knex: db, schema },
+	);
+	expect(alone).toEqual([]);
+
+	// Named too: `*` expands it in its column place, then the name repeats it, as DR does without hidden fields.
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['date'] });
+	fetchAllowedFieldsMock.mockResolvedValueOnce(['date']);
 	const result = await convertWildcards(
 		{ collection: 'articles', fields: ['*', 'date'], alias: {}, accountability, backlink: true },
 		{ knex: db, schema },
 	);
 
-	expect(result).toEqual(['date']);
+	expect(result).toEqual(['date', 'date']);
 });
