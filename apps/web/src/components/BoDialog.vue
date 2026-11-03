@@ -43,8 +43,9 @@ function onCloseAutoFocus(event: Event) {
 				@interact-outside="persistent && $event.preventDefault()"
 				@close-auto-focus="onCloseAutoFocus"
 			>
-				<DialogTitle class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ title }}</DialogTitle>
-				<DialogDescription v-if="description" class="mb-6 text-sm text-gray-500 lg:mb-7 dark:text-gray-400">
+				<!-- wrap-anywhere: a long unbroken name (an index, a URL) wraps instead of leaving the card (owner 2026-11-04). -->
+				<DialogTitle class="mb-2 text-2xl font-semibold wrap-anywhere text-gray-800 dark:text-white/90">{{ title }}</DialogTitle>
+				<DialogDescription v-if="description" class="mb-6 text-sm wrap-anywhere text-gray-500 lg:mb-7 dark:text-gray-400">
 					{{ description }}
 				</DialogDescription>
 				<div v-if="$slots['default']" class="custom-scrollbar overflow-y-auto p-2"><slot /></div>

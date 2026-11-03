@@ -40,7 +40,7 @@ từ `FieldsRoute.vue`). Đặt sau `<BoForm>` trong `FieldsRoute.vue` (research
 | – unique | `BoSwitch :label="$t('index_unique_label')"` | |
 | – concurrent | `BoSwitch :label="$t('index_concurrent')"` bật sẵn, chỉ khi `meta.concurrent` | |
 | – actions | Cancel; `BoButton variant="primary" :loading :disabled="fields.length === 0"` `$t('create')` | lỗi 400 hiện `BoNotice` trong dialog |
-| Dialog xóa | `BoDialog :title="$t('index_delete_confirm', { name })"` Cancel / `variant="danger"` `$t('delete_label')` | |
+| Dialog xóa | `BoDialog :title="$t('index_delete_title')"`, thân `index_delete_text` + tên trong `code` (`wrap-anywhere`); Cancel / `variant="danger"` `$t('delete_label')` | |
 
 ## `FieldsManagement.vue` (hộp thoại xóa field, FR-019a)
 
@@ -66,7 +66,8 @@ Trong `<BoDialog v-model:open="deleteOpen" :title="$t('delete_field_are_you_sure
 | `index_status_ready` | Ready | Sẵn sàng |
 | `index_status_failed` | Failed | Thất bại |
 | `index_missing` | Missing on the database | Không còn trên DB |
-| `index_delete_confirm` | Delete index "{name}"? | Xóa index "{name}"? |
+| `index_delete_title` | Delete index? | Xóa index? |
+| `index_delete_text` | The index is dropped from the database; the rows stay as they are. | Index bị gỡ khỏi DB; dữ liệu các dòng giữ nguyên. |
 | `index_created_notice` | Index "{name}" is being created | Đang tạo index "{name}" |
 | `index_ready_notice` | Index "{name}" is ready | Index "{name}" đã sẵn sàng |
 | `index_failed_notice` | Index "{name}" failed: {error} | Index "{name}" thất bại: {error} |

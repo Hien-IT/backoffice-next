@@ -2076,7 +2076,9 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
   the API reports it; choosing it keeps one string field and turns unique off); BoSwitch `index_unique_label`; BoSwitch
   `index_concurrent` on by default when the API reports it. Create submits the form via `form`; API errors in a danger
   BoNotice inside the dialog showing the API's reason; focus back on the trigger (D-197).
-- Delete dialog: `index_delete_confirm` with the name; Cancel then danger Delete (D-76).
+- Delete dialog: title `index_delete_title`, body `index_delete_text` and the name as a `code` block with `wrap-anywhere`
+  (long names wrap, owner 2026-11-04); Cancel then danger Delete (D-76). BoDialog titles and NoticeStack toasts also
+  carry `wrap-anywhere`.
 - Delete-field dialog of the field list: one line `indexes_dropped_with_field` naming the indexes with that field.
 - Built: `modules/settings/routes/data-model/components/CollectionIndexes.vue`,
   `composables/use-collection-indexes.ts`, `fields/FieldsManagement.vue`. No new component, no new color pair.

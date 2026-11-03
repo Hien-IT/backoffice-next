@@ -82,8 +82,9 @@ function errorMessage(error: unknown): string | null {
 					:class="TOAST_TYPES[notice.type ?? 'success'].color"
 				/>
 				<div class="min-w-0 flex-1 py-0.5 text-sm text-gray-500 dark:text-gray-400">
-					<p class="m-0 font-medium text-gray-800 dark:text-white/90">{{ notice.title }}</p>
-					<p v-if="notice.text" class="m-0 mt-1">{{ notice.text }}</p>
+					<!-- wrap-anywhere: a long unbroken name wraps inside the toast (owner 2026-11-04). -->
+					<p class="m-0 font-medium wrap-anywhere text-gray-800 dark:text-white/90">{{ notice.title }}</p>
+					<p v-if="notice.text" class="m-0 mt-1 wrap-anywhere">{{ notice.text }}</p>
 				</div>
 				<BoButton
 					v-if="notice.dismissText"

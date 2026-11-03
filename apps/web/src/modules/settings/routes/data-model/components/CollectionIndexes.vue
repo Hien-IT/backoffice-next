@@ -287,9 +287,11 @@ const errorText = (err: unknown) => {
 
 		<BoDialog
 			:open="deleting !== null"
-			:title="$t('index_delete_confirm', { name: deleting?.name ?? '' })"
+			:title="$t('index_delete_title')"
 			@update:open="!$event && (deleting = null)"
 		>
+			<p class="text-sm text-gray-700 dark:text-gray-400">{{ $t('index_delete_text') }}</p>
+			<code class="mt-2 block text-theme-sm wrap-anywhere text-gray-800 dark:text-white/90">{{ deleting?.name }}</code>
 			<BoNotice v-if="deleteError" type="danger" class="mt-4">{{ errorText(deleteError) }}</BoNotice>
 			<template #actions>
 				<BoButton variant="secondary" @click="deleting = null">{{ $t('cancel') }}</BoButton>

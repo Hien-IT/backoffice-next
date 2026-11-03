@@ -290,7 +290,7 @@ describe('add', () => {
 
 describe('delete', () => {
 	test('the confirmation names the index, Cancel first; Delete removes it and focus returns to the row button', async () => {
-		state.rows = [index({ fields: ['provider', 'provider_subject'] })];
+		state.rows = [index({ fields: ['provider', 'provider_subject'], name: 'bo_art_provider_provider_subject_unique'.repeat(3) })];
 		mountCard();
 		await flushPromises();
 
@@ -298,12 +298,16 @@ describe('delete', () => {
 		await userEvent.click(trigger);
 		await vi.waitFor(() => expect(dialog()).not.toBeNull());
 		expect(dialog()!.textContent).toContain('bo_art_provider_provider_subject_unique');
+		// Owner 2026-11-04: a long name wraps inside the dialog instead of leaving it.
+		const name = dialog()!.querySelector('code')!;
+		expect(getComputedStyle(name).overflowWrap).toBe('anywhere');
+		expect(name.scrollWidth).toBeLessThanOrEqual(dialog()!.clientWidth);
 		const buttons = [...dialog()!.querySelectorAll('button')].map((b) => b.textContent!.trim());
 		expect(buttons.indexOf('Cancel')).toBeLessThan(buttons.indexOf('Delete'));
 
 		await userEvent.click(buttonIn(dialog(), 'Delete')!);
 		await vi.waitFor(() => expect(dialog()).toBeNull());
-		expect(state.remove).toHaveBeenCalledWith('bo_art_provider_provider_subject_unique');
+		expect(state.remove).toHaveBeenCalledWith('bo_art_provider_provider_subject_unique'.repeat(3));
 		expect(card()!.textContent).toContain('No indexes yet');
 	});
 });
