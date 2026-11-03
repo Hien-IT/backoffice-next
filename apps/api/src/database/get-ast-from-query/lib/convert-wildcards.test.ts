@@ -303,6 +303,72 @@ test('D-209: * of a user with explicit fields leaves out the hidden ones; an ali
 	expect(result).toEqual(['title', 'when']);
 });
 
+// Owner 2026-11-03 (option C widened): relational fields and the four system fields stay in a wildcard.
+test('D-209 C: hidden m2a junction fields and system fields stay in *; other hidden fields go', async () => {
+	const m2a = new SchemaBuilder()
+		.collection('shapes', (c) => {
+			c.field('id').id();
+			c.field('children').m2a(['circles']);
+			c.field('user_created').uuid().options({ special: ['user-created'] });
+			c.field('date_updated').timestamp().options({ special: ['date-updated'] });
+			c.field('secret').string();
+		})
+		.collection('circles', (c) => {
+			c.field('id').id();
+		})
+		.build();
+	const junction = m2a.relations.find((r) => r.meta?.one_collection_field)!;
+	const junctionName = junction.collection;
+	const junctionFields = Object.keys(m2a.collections[junctionName]!.fields).filter((f) => f !== 'id');
+
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ [junctionName]: junctionFields });
+	const inJunction = await convertWildcards(
+		{ collection: junctionName, fields: ['*'], alias: {}, accountability: null, backlink: true },
+		{ knex: db, schema: m2a },
+	);
+	expect(inJunction.sort()).toEqual(['id', ...junctionFields].sort());
+
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ shapes: ['user_created', 'date_updated', 'secret'] });
+	const inShapes = await convertWildcards(
+		{ collection: 'shapes', fields: ['*'], alias: {}, accountability: null, backlink: true },
+		{ knex: db, schema: m2a },
+	);
+	expect(inShapes).toContain('user_created');
+	expect(inShapes).toContain('date_updated');
+	expect(inShapes).not.toContain('secret');
+});
+
+test('D-209 C: hidden m2o (o2o) keys and o2m aliases stay in * and *.*', async () => {
+	const rel = new SchemaBuilder()
+		.collection('posts', (c) => {
+			c.field('id').id();
+			c.field('author').m2o('authors');
+			c.field('note').string();
+		})
+		.collection('authors', (c) => {
+			c.field('id').id();
+			c.field('posts').o2m('posts', 'author');
+			c.field('token').string();
+		})
+		.build();
+
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ posts: ['author', 'note'] });
+	const posts = await convertWildcards(
+		{ collection: 'posts', fields: ['*'], alias: {}, accountability: null, backlink: true },
+		{ knex: db, schema: rel },
+	);
+	expect(posts).toContain('author');
+	expect(posts).not.toContain('note');
+
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ authors: ['posts', 'token'] });
+	const authors = await convertWildcards(
+		{ collection: 'authors', fields: ['*.*'], alias: {}, accountability: null, backlink: true },
+		{ knex: db, schema: rel },
+	);
+	expect(authors).toContain('posts.*');
+	expect(authors).not.toContain('token');
+});
+
 test('D-209: a user allowed hidden fields only gets nothing from *, the named field stays', async () => {
 	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['date'] });
 	fetchAllowedFieldsMock.mockResolvedValueOnce(['date']);

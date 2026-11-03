@@ -21,14 +21,44 @@ export interface ConvertWildCardsContext {
 	parentRelation?: Relation;
 }
 
+/** The specials of the system fields DR creates hidden (Created/Updated By/On): they stay in a wildcard (D-209 C). */
+const SYSTEM_SPECIALS = ['user-created', 'date-created', 'user-updated', 'date-updated'];
+
+/**
+ * Backoffice (spec 005, D-209, owner 2026-11-03: option C widened to every relation): hidden fields a wildcard still
+ * returns, like DR, so related data never goes missing. Every field of a relation of the collection: the key of an m2o
+ * (o2o, the keys of an m2m or m2a junction), the a2o field and its `collection` column, the o2m / m2m / m2a / translations
+ * alias of the other side; and the system fields of SYSTEM_SPECIALS.
+ */
+function keptHiddenFields(collection: string, schema: SchemaOverview): Set<string> {
+	const kept = new Set<string>();
+
+	for (const relation of schema.relations) {
+		if (relation.collection === collection) {
+			kept.add(relation.field);
+			if (relation.meta?.one_collection_field) kept.add(relation.meta.one_collection_field);
+		}
+
+		if (relation.related_collection === collection && relation.meta?.one_field) kept.add(relation.meta.one_field);
+	}
+
+	for (const [name, field] of Object.entries(schema.collections[collection]?.fields ?? {})) {
+		if (field.special?.some((special) => SYSTEM_SPECIALS.includes(special))) kept.add(name);
+	}
+
+	return kept;
+}
+
 export async function convertWildcards(options: ConvertWildcardsOptions, context: ConvertWildCardsContext) {
 	const fields = cloneDeep(options.fields);
 
 	// Backoffice (spec 005, D-209): a wildcard leaves out the hidden fields of a user collection, except the primary
-	// key; a field named in `fields` (or an alias) is not a wildcard and stays.
+	// key, the relational fields and the four system fields (owner 2026-11-03: option C widened to every relation); a
+	// field named in `fields` (or an alias) is not a wildcard and stays.
 	const hidden = (await getHiddenFields(context.knex))[options.collection] ?? [];
 	const primary = context.schema.collections[options.collection]!.primary;
-	const shown = (name: string) => name === primary || !hidden.includes(name);
+	const kept = hidden.length > 0 ? keptHiddenFields(options.collection, context.schema) : new Set<string>();
+	const shown = (name: string) => name === primary || kept.has(name) || !hidden.includes(name);
 
 	const allFieldsInCollection = Object.keys(context.schema.collections[options.collection]!.fields);
 	const fieldsInCollection = allFieldsInCollection.filter(shown);

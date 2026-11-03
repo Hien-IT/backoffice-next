@@ -1,7 +1,9 @@
 // Spec 005 (D-209): a field hidden in the data model (directus_fields.hidden) of a user collection is left out of a
 // wildcard read at Backoffice (`*`, `*.*`, no `fields`, export); Directus 11.17.4 returns it. Named in `fields` (or an
 // alias) it is returned at both. The primary key stays, system collections keep the Directus answer. Reads of the
-// shared DB go to both apps at once (parity()); the difference is accepted as D-209.
+// shared DB go to both apps at once (parity()); the difference is accepted as D-209. Hidden relational fields and the
+// four system fields stay in a wildcard like at Directus (owner 2026-11-03: option C widened), so related data never
+// goes missing.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { adminToken, appRequest } from '../directus-api.js';
 import { assertParity, type ParityRequest, parity } from '../parity.js';
@@ -44,7 +46,9 @@ beforeAll(async () => {
 
 	await createUserCollection(PARENT, [
 		{ field: 'name', type: 'string' },
-		{ field: 'child', type: 'integer' },
+		// Hidden, but an m2o key: kept in a wildcard (D-209 C).
+		{ field: 'child', type: 'integer', meta: { hidden: true } },
+		{ field: 'user_created', type: 'uuid', meta: { special: ['user-created'], hidden: true } },
 	]);
 
 	await appRequest('directus', 'POST', '/relations', { collection: PARENT, field: 'child', related_collection: ITEMS });
@@ -97,6 +101,13 @@ describe.each([
 		const { directus, backoffice } = await read(token(), `/items/${ITEMS}?fields=*&alias[s]=secret`);
 		expect(backoffice.data).toEqual([{ id: expect.anything(), title: 'one', s: 'kept' }]);
 		expect(directus.data[0]).toMatchObject({ s: 'kept', secret: 'kept' });
+	});
+
+	it('a hidden m2o key and a hidden system field stay in * at both apps (D-209 C)', async () => {
+		const { directus, backoffice, result } = await read(token(), `/items/${PARENT}?fields=*`);
+		expect(Object.keys(backoffice.data[0]).sort()).toEqual(['child', 'id', 'name', 'user_created']);
+		expect(backoffice.data).toEqual(directus.data);
+		expect(result.accepted.map((d) => d.id)).not.toContain('D-209');
 	});
 
 	it('*.* leaves the hidden field out of the related item', async () => {
