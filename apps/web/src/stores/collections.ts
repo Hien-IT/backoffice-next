@@ -34,6 +34,8 @@ const COLLECTIONS_DENY_LIST = [
 	'backoffice_permissions',
 	// Backoffice (spec 029, D-207.1): the passkeys, written through /backoffice/users/*/passkeys only.
 	'backoffice_passkeys',
+	// Backoffice (spec 030, D-210.2): the index rows, written through /backoffice/collections/:c/indexes only.
+	'backoffice_indexes',
 	'directus_relations',
 	'directus_revisions',
 	'directus_sessions',

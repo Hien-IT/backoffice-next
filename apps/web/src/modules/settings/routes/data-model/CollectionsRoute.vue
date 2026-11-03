@@ -87,14 +87,17 @@ const tableCollections = computed(
 
 // Backoffice (spec 022, D-181, owner 2026-10-26): backoffice_migrations is left out, its D-118 key would repeat the
 // one shown for directus_migrations; spec 025 (D-189.5): backoffice_permissions too (directus_permissions); spec 029
-// (D-207.1): backoffice_passkeys too (no D-118 key of its own).
+// (D-207.1): backoffice_passkeys too (no D-118 key of its own); spec 030 (D-210.2): backoffice_indexes too (it showed
+// as "directus_indexes" in the parity-ui E2E, CI 41644613500).
 const systemCollections = computed(
 	() =>
 		translate(
 			collectionsStore.systemCollections
 				.filter(
 					({ collection }) =>
-						!['backoffice_migrations', 'backoffice_permissions', 'backoffice_passkeys'].includes(collection),
+						!['backoffice_migrations', 'backoffice_permissions', 'backoffice_passkeys', 'backoffice_indexes'].includes(
+							collection,
+						),
 				)
 				.map((collection) => ({ ...collection, icon: 'settings' })),
 		) as Collection[],
