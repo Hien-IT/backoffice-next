@@ -12,7 +12,11 @@ import { createDefaultAccountability } from '../permissions/utils/create-default
 import { getDatabaseSchema } from '../schema/get-database-schema.js';
 import { UsersService } from './users.service.js';
 
-vi.mock('../cache.js', () => ({ getCache: () => ({ cache: null }), clearSystemCache: vi.fn() }));
+// localSchemaCache: the hidden-fields map of D-209 is read on every wildcard read.
+vi.mock('../cache.js', () => ({
+	getCache: () => ({ cache: null, localSchemaCache: { get: async () => undefined, set: async () => undefined } }),
+	clearSystemCache: vi.fn(),
+}));
 const logger = vi.hoisted(() => ({ warn: vi.fn(), trace: vi.fn() }));
 vi.mock('../logger/index.js', () => ({ useLogger: () => logger }));
 

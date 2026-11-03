@@ -415,9 +415,9 @@ là Directus; strings en-US/vi-VN.
 - [x] T071 [P] `CLAUDE.md` dòng 030 → "implemented", `SPECKIT-GUIDE.md` mục 030 trạng thái + bảng quyết định, bài học CI.
 - [ ] T072 Đóng spec: `specs/030-collection-indexes/spec.md` Status "Implemented 2026-11-xx, hai lượt (commit, CI)",
       số đo SC-004/FR-024, D-210..D-210.4 "duyệt"; `checklists/requirements.md` ghi chú.
-- [ ] T073 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test:unit`, `web:test:browser`, `web:build`, E2E ba cấu
+- [x] T073 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test:unit`, `web:test:browser`, `web:build`, E2E ba cấu
       hình; sửa tới xanh.
-- [ ] T074 Đóng lượt 2: `git add` theo đường dẫn (web, web-e2e, benchmark, design-system, specs, CLAUDE.md,
+- [x] T074 Đóng lượt 2: `git add` theo đường dẫn (web, web-e2e, benchmark, design-system, specs, CLAUDE.md,
       SPECKIT-GUIDE.md), commit `feat(web): Indexes card on the Data Model collection page (spec 030, D-210.4)` với dòng
       `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`; push khi `main` rảnh; theo dõi CI (web, e2e-web, parity,
       deploy), sửa job đỏ; `graphify update .`; ghi mã commit và run CI vào spec Status.

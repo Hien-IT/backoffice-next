@@ -26,7 +26,9 @@ const env = vi.hoisted(() => ({
 
 vi.mock('@backoffice/env', () => ({ useEnv: () => env }));
 vi.mock('../logger/index.js', () => ({ useLogger: () => logger }));
-vi.mock('../cache.js', () => ({ getCache: () => ({ cache: undefined }) }));
+vi.mock('../cache.js', () => ({
+	getCache: () => ({ cache: undefined, localSchemaCache: { get: async () => undefined, set: async () => undefined } }),
+}));
 vi.mock('../permissions/cache.js', () => ({ clearCache: vi.fn() }));
 vi.mock('../permissions/modules/validate-access/validate-access.js', () => ({ validateAccess: vi.fn() }));
 vi.mock('./users.service.js', () => ({ UsersService: vi.fn() }));

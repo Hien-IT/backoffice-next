@@ -15,7 +15,8 @@ import { PoliciesService } from './policies.service.js';
 const dataCache = { clear: vi.fn() };
 
 vi.mock('../cache.js', () => ({
-	getCache: () => ({ cache: dataCache }),
+	// localSchemaCache: the hidden-fields map of D-209 is read on every wildcard read.
+	getCache: () => ({ cache: dataCache, localSchemaCache: { get: async () => undefined, set: async () => undefined } }),
 	clearSystemCache: vi.fn(),
 	getCacheValue: vi.fn(),
 	setCacheValue: vi.fn(),

@@ -3,6 +3,7 @@
 // key stays (convert-wildcards). System collections keep the DR answer. The map lives in the in-process schema cache
 // like the 024 toggles, so clearSystemCache and the schemaChanged bus message clear it on every replica.
 import { isSystemCollection } from '@backoffice/system-data';
+import type { Knex } from 'knex';
 import { getCache } from '../cache.js';
 import getDatabase from '../database/index.js';
 
@@ -11,7 +12,11 @@ export type HiddenFields = Record<string, string[]>;
 
 const CACHE_KEY = 'hidden-fields';
 
-export async function getHiddenFields(): Promise<HiddenFields> {
+/**
+ * `knex`: the connection of the request (a transaction while an item is written). The read must not go to the shared
+ * pool while that transaction holds its only connection: SQLite (pool of one) then waits forever (spec 030 fix).
+ */
+export async function getHiddenFields(knex: Knex = getDatabase()): Promise<HiddenFields> {
 	const { localSchemaCache } = getCache();
 	const cached = await localSchemaCache.get(CACHE_KEY);
 	if (cached) return cached as HiddenFields;
@@ -19,7 +24,7 @@ export async function getHiddenFields(): Promise<HiddenFields> {
 	let rows: Record<string, any>[];
 
 	try {
-		rows = await getDatabase().select('collection', 'field', 'hidden').from('directus_fields');
+		rows = await knex.select('collection', 'field', 'hidden').from('directus_fields');
 	} catch {
 		// A failing database: the request reports it itself (like collection-toggles).
 		return {};

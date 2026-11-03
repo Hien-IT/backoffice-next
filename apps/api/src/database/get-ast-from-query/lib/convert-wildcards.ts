@@ -26,7 +26,7 @@ export async function convertWildcards(options: ConvertWildcardsOptions, context
 
 	// Backoffice (spec 005, D-209): a wildcard leaves out the hidden fields of a user collection, except the primary
 	// key; a field named in `fields` (or an alias) is not a wildcard and stays.
-	const hidden = (await getHiddenFields())[options.collection] ?? [];
+	const hidden = (await getHiddenFields(context.knex))[options.collection] ?? [];
 	const primary = context.schema.collections[options.collection]!.primary;
 	const shown = (name: string) => name === primary || !hidden.includes(name);
 

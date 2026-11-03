@@ -6,7 +6,9 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ItemsService } from './items.service.js';
 import { TranslationsService } from './translations.service.js';
 
-vi.mock('../cache.js', () => ({ getCache: () => ({ cache: undefined }) }));
+vi.mock('../cache.js', () => ({
+	getCache: () => ({ cache: undefined, localSchemaCache: { get: async () => undefined, set: async () => undefined } }),
+}));
 
 const schema = new SchemaBuilder()
 	.collection('directus_translations', (c) => {
