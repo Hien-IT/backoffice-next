@@ -331,6 +331,11 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
   kịch bản 1).
 - **FR-024**: Benchmark thêm một dòng `?search=` trên seed 10M dòng có và không có index trigram, đo Backoffice-only như
   023; số đo ghi vào spec, không là success criteria.
+  Đo lần 1 (benchmark-items 41649731384, 2026-11-03, 10M dòng, từ khóa `icle 4242`): không index 0,5 req/s, p95 2439 ms
+  (1 kết nối, seq scan); có index trigram trên `title`, `status`, `body`: planner vẫn seq scan vì từ khóa chứa trigram có
+  ở mọi dòng (`icl`, `cle`), 50 kết nối đều timeout. Thử trên 2M dòng cùng câu của app (`ORDER BY id LIMIT 25`): từ khóa
+  chọn lọc (`1999999`) dùng BitmapOr trên ba index, 852 ms → 4 ms. Bài học: trigram chỉ giúp khi từ khóa có trigram hiếm;
+  benchmark đổi sang `4242424`, EXPLAIN theo câu thật, tải theo plan (đo lần 2 ghi bên dưới).
 - **FR-025**: deploy/README ghi: `pg_trgm` và quyền cài, gỡ tay (xóa bảng và dòng migration), timeout của reverse proxy
   khi tạo index lâu, index không nằm trong snapshot.
 - **FR-101**: Bảng "Khác biệt so với Directus" có cột `Mã` đầu, `Gỡ ở` cuối để `tests/parity/src/spec-differences.ts`

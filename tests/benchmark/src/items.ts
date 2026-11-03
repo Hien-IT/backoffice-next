@@ -171,11 +171,14 @@ interface JsonPathResult {
 
 // Spec 030 (FR-024): ?search= at Backoffice only, without and with trigram GIN indexes on lower(<column>) of every
 // searchable string column (title, status, body): the search ORs one LIKE per column, so the planner only leaves the
-// sequential scan when every arm has an index. Reported, gated on errors only, like the json path case.
-const SEARCH_TERM = 'icle 4242';
+// sequential scan when every arm has an index. Reported, gated on errors only, like the json path case. The term must
+// be selective for the planner: "icle 4242" (run 41649731384) holds trigrams of every title ("icl", "cle"), so Postgres
+// kept a primary key scan with the indexes; a run of digits ("4242424") makes it pick the BitmapOr over the three
+// indexes (checked on 2M rows: 852 ms → 4 ms). ORDER BY id is the default sort the items engine adds.
+const SEARCH_TERM = '4242424';
 const SEARCH_LIST = `/items/${ARTICLES}?search=${encodeURIComponent(SEARCH_TERM)}&limit=25&fields=id,title`;
 const SEARCH_COLUMNS = ['title', 'status', 'body'];
-const SEARCH_SQL = `SELECT id, title FROM ${ARTICLES} WHERE ${SEARCH_COLUMNS.map((c) => `LOWER("${c}") LIKE ?`).join(' OR ')} LIMIT 25`;
+const SEARCH_SQL = `SELECT id, title FROM ${ARTICLES} WHERE ${SEARCH_COLUMNS.map((c) => `LOWER("${c}") LIKE ?`).join(' OR ')} ORDER BY id LIMIT 25`;
 
 async function searchRun(seeded: ItemsSeed, index: boolean): Promise<JsonPathResult> {
 	if (index) {
@@ -189,7 +192,8 @@ async function searchRun(seeded: ItemsSeed, index: boolean): Promise<JsonPathRes
 	const explain = await db.raw(`EXPLAIN ${SEARCH_SQL}`, SEARCH_COLUMNS.map(() => `%${SEARCH_TERM}%`));
 	const plan = explain.rows.map((row: Record<string, string>) => row['QUERY PLAN']).join('\n');
 	const s: Scenario = { name: 'search', method: 'GET', path: () => SEARCH_LIST, user: 'admin', fresh: true };
-	const load = index ? undefined : JSON_PATH_SCAN;
+	// The load follows the plan, not the index flag: a scan at 50 connections only times out (run 41649731384).
+	const load = /Bitmap Index Scan|Index Scan using \w+_trgm/.test(plan) ? undefined : JSON_PATH_SCAN;
 	await measure(seeded, s, 'backoffice', WARMUP, undefined, load && { ...load, amount: 1 });
 	const rounds: Round[] = [];
 	for (let i = 0; i < ROUNDS; i++) rounds.push(await measure(seeded, s, 'backoffice', DURATION, undefined, load));
