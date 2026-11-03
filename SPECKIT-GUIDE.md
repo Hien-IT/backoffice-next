@@ -2592,7 +2592,9 @@ D-210..D-210.3 `doc`); chủ dự án duyệt D-210..D-210.4, hai điểm Comple
 gộp mảng lỗi (giữ, GraphQL trả field đầu), `?search=` OR mọi cột chuỗi nên cần trigram cho từng cột, MySQL/Knex SQLite
 giữ index thiếu cột khi xóa cột (catalog so cột), hook SIGTERM trước `database.destroy()`, env `web` phải `env-up` lại
 sau khi sửa web; `main` đỏ sẵn từ c42f4173 (D-209: mock `getCache` thiếu `localSchemaCache`, unit items.controller
-timeout, parity/e2e đỏ); `/speckit.analyze` chạy
+timeout, parity/e2e đỏ, sửa trong phiên này: deadlock SQLite + phương án C mở rộng giữ field quan hệ, hệ thống, status, sort);
+đóng 2026-11-04 (CI 41664812576, 41676339727 xanh; benchmark-items 3 lần: trigram không nhanh hơn `?search=` ở 10M dòng, chữ
+hướng dẫn đổi sang "contains"); `/speckit.analyze` chạy
 2026-11-03 (0 CRITICAL, 1 HIGH: quy tắc 1 giờ phải kiểm `pg_stat_progress_create_index` vì index đang build CONCURRENTLY cũng
 INVALID; 4 MEDIUM: FR-016 gồm SQLite, assert activity, case import, 400 khi xóa collection đang creating; đã sửa cùng 4 LOW).
 Thư mục: `specs/030-collection-indexes/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".

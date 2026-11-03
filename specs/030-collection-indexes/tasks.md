@@ -221,7 +221,7 @@ dấu `failed` trước khi pool đóng; dòng `creating` quá 1 giờ đọc nh
       `Backoffice (spec 030, D-210)`, giữ `Ported from`); T029 xanh.
 - [x] T034 [US3] Service: quy tắc 1 giờ trong `list` với `building(name)` ở `bi/catalog.ts` (Postgres
       `pg_stat_progress_create_index`, vendor khác false; research R5); bắt vi phạm unique `name` ở insert → 400; T030 xanh.
-- [ ] T035 [US3] Chạy T031 trên env deploy local (`pnpm nx run parity-tests:deploy -- indexes`), sửa tới xanh; ghi thời
+- [x] T035 [US3] Chạy T031 trên env deploy local (`pnpm nx run parity-tests:deploy -- indexes`), sửa tới xanh; ghi thời
       gian ghi đo được vào `specs/030-collection-indexes/spec.md` (US3 kịch bản 1, SC-004).
 
 **Checkpoint**: job nền chịu lỗi, SIGTERM, replica chết; deploy suite xanh.
@@ -298,7 +298,7 @@ hai app bằng nhau; Directus xóa cột → `missing`).
 **Independent Test**: parity `items/*`, `schema-management/*`, blackbox hiện có xanh nguyên trên ba vendor; `bootstrap`
 profile xanh.
 
-- [ ] T047 [P] [US5] `parity/bootstrap/cross.test.ts` chạy xanh với `backoffice_indexes` (profile `bootstrap`:
+- [x] T047 [P] [US5] `parity/bootstrap/cross.test.ts` chạy xanh với `backoffice_indexes` (profile `bootstrap`:
       `pnpm nx run parity-tests:bootstrap`); `tests/parity/README.md` mục 030 (suite `schema/indexes`, deploy `indexes`,
       D-210..D-210.4).
 - [x] T048 [P] [US5] `deploy/README.md` mục "Index của collection (spec 030)": `pg_trgm` và quyền (Postgres ≥ 13 chủ DB
@@ -307,7 +307,7 @@ profile xanh.
 - [x] T049 [US5] Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`), `system-data:test`,
       `parity-tests:test`; parity `TEST_DB=postgres|sqlite|mysql pnpm nx run parity-tests:parity -- schema/indexes
       items/ schema-management/`; blackbox liên quan; sửa tới xanh.
-- [ ] T050 [US5] Đóng lượt 1: `git add` theo đường dẫn (API, libs, tests, deploy/README, specs/030, SPECKIT-GUIDE.md,
+- [x] T050 [US5] Đóng lượt 1: `git add` theo đường dẫn (API, libs, tests, deploy/README, specs/030, SPECKIT-GUIDE.md,
       CLAUDE.md), commit `feat(api): collection indexes: composite, trigram, non-blocking creation (spec 030, D-210)` với
       dòng `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`; push khi `main` rảnh; theo dõi CI (`gh run watch`),
       sửa job đỏ; `graphify update .`; ghi mã commit và run CI vào `specs/030-collection-indexes/spec.md` Status.
@@ -413,7 +413,7 @@ là Directus; strings en-US/vi-VN.
       đổi; index ghép qua 030; xóa field gỡ index 030 trước) và `specs/016-settings-module/spec.md` (card Indexes cuối
       trang collection; hộp thoại xóa field).
 - [x] T071 [P] `CLAUDE.md` dòng 030 → "implemented", `SPECKIT-GUIDE.md` mục 030 trạng thái + bảng quyết định, bài học CI.
-- [ ] T072 Đóng spec: `specs/030-collection-indexes/spec.md` Status "Implemented 2026-11-xx, hai lượt (commit, CI)",
+- [x] T072 Đóng spec: `specs/030-collection-indexes/spec.md` Status "Implemented 2026-11-xx, hai lượt (commit, CI)",
       số đo SC-004/FR-024, D-210..D-210.4 "duyệt"; `checklists/requirements.md` ghi chú.
 - [x] T073 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test:unit`, `web:test:browser`, `web:build`, E2E ba cấu
       hình; sửa tới xanh.

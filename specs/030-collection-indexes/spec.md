@@ -3,12 +3,13 @@
 **Feature Branch**: `030-collection-indexes` (làm trên `main` như 012–029, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=030-collection-indexes`)
 **Created**: 2026-11-03
-**Status**: Implemented 2026-11-03, hai lượt trong cùng phiên (lượt 1 API, lượt 2 web; commit và CI ghi sau khi push);
-local: unit API (các suite của 030 và các suite bị chạm) và unit web toàn bộ xanh, parity `schema/indexes` xanh trên
-Postgres, SQLite, MySQL cùng `items/crud` và `schema-management/crud`, E2E `settings-data-model-indexes` xanh ở
-`proxy-api`, `cors`, `proxy-directus` (chromium); deploy `indexes.test.ts` và `bootstrap` để CI chạy (T035, T047); SC-004
-và FR-024 đo ở CI (spec, clarify 5 câu, plan 2026-11-03; D-210..D-210.4 duyệt 2026-11-03; `main` đỏ sẵn từ c42f4173 D-209
-khi push)
+**Status**: Done 2026-11-04. Implemented 2026-11-03 in two waves on `main` (lượt 1 API ec580989, lượt 2 web 6fff21c3;
+fixes 8a2d35ae deadlock D-209, bb454653 Data Model list, de3e57b4 benchmark, 70745ac2 + 047862ee D-209 option C; owner UI
+changes 8f2c180e card above Collection Setup + collapsible guidance, 60b1b5b7 trigram wording, e616067c long names wrap);
+CI 41664812576 and 41676339727 green (quality, parity postgres/sqlite/mysql, blackbox, e2e three configurations, deploy
+`indexes.test.ts` on 3 replicas with SIGTERM, bootstrap); benchmark-items 41649731384, 41664889475, 41676382806 (FR-024
+below; gate `PATCH update (user)` flaky: CPU +14,7 % on run 2, equal on run 3 with p95 noise on both apps). (spec,
+clarify 5 câu, plan 2026-11-03; D-210..D-210.4 duyệt 2026-11-03)
 **Input**: User description: "Feature 030: admin tạo và xóa index của một collection người dùng trong Backoffice: index
 B-tree ghép nhiều cột (unique hoặc không) trên Postgres, SQLite, MySQL; index trigram GIN cho tìm kiếm trên Postgres;
 tạo không khóa bảng khi vendor cho phép. Bối cảnh: Directus 11.17.4 và Backoffice chỉ tạo index trên một cột qua
@@ -343,7 +344,8 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
   25`, planner ước lượng ~2000 dòng khớp nên không chọn BitmapOr). Kết luận: ở 10M dòng index trigram không tăng tốc
   `?search=` của engine (OR mọi cột chuỗi + sort khóa chính); có lợi với filter `_icontains` một cột (Bitmap Index Scan
   khi thử) và với bảng nhỏ hơn (2M dòng: 4 ms). Cùng run: gate CPU `PATCH update (user)` +14,7 % (lần 1 +5 %), các hàng
-  khác đạt.
+  khác đạt. Đo lần 3 (41676382806, 60b1b5b7): 3801 ms không index, 3832 ms có index, cùng plan; gate `PATCH update (user)`
+  CPU 6,558 so với 6,582 ms (bằng nhau), p95 76,6 so với 42,1 ms (Directus cũng 117,7 ms ở `DELETE (user)`): nhiễu runner.
 - **FR-025**: deploy/README ghi: `pg_trgm` và quyền cài, gỡ tay (xóa bảng và dòng migration), timeout của reverse proxy
   khi tạo index lâu, index không nằm trong snapshot.
 - **FR-101**: Bảng "Khác biệt so với Directus" có cột `Mã` đầu, `Gỡ ở` cuối để `tests/parity/src/spec-differences.ts`
