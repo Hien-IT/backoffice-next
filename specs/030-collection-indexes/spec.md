@@ -8,7 +8,8 @@ fixes 8a2d35ae deadlock D-209, bb454653 Data Model list, de3e57b4 benchmark, 707
 changes 8f2c180e card above Collection Setup + collapsible guidance, 60b1b5b7 trigram wording, e616067c long names wrap);
 CI 41664812576 and 41676339727 green (quality, parity postgres/sqlite/mysql, blackbox, e2e three configurations, deploy
 `indexes.test.ts` on 3 replicas with SIGTERM, bootstrap); benchmark-items 41649731384, 41664889475, 41676382806 (FR-024
-below; gate `PATCH update (user)` flaky: CPU +14,7 % on run 2, equal on run 3 with p95 noise on both apps). (spec,
+below; gate `PATCH update (user)` flaky: CPU +14,7 % on run 2, equal on run 3 with p95 noise on both apps; run 4
+41698545792 green). (spec,
 clarify 5 câu, plan 2026-11-03; D-210..D-210.4 duyệt 2026-11-03)
 **Input**: User description: "Feature 030: admin tạo và xóa index của một collection người dùng trong Backoffice: index
 B-tree ghép nhiều cột (unique hoặc không) trên Postgres, SQLite, MySQL; index trigram GIN cho tìm kiếm trên Postgres;
@@ -346,6 +347,7 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
   khi thử) và với bảng nhỏ hơn (2M dòng: 4 ms). Cùng run: gate CPU `PATCH update (user)` +14,7 % (lần 1 +5 %), các hàng
   khác đạt. Đo lần 3 (41676382806, 60b1b5b7): 3801 ms không index, 3832 ms có index, cùng plan; gate `PATCH update (user)`
   CPU 6,558 so với 6,582 ms (bằng nhau), p95 76,6 so với 42,1 ms (Directus cũng 117,7 ms ở `DELETE (user)`): nhiễu runner.
+  Lần 4 (41698545792, 205e3b5e) xanh toàn bộ: `PATCH update (user)` CPU 8,99 so với 9,16 ms, p95 11,9 so với 11,5 ms.
 - **FR-025**: deploy/README ghi: `pg_trgm` và quyền cài, gỡ tay (xóa bảng và dòng migration), timeout của reverse proxy
   khi tạo index lâu, index không nằm trong snapshot.
 - **FR-101**: Bảng "Khác biệt so với Directus" có cột `Mã` đầu, `Gỡ ở` cuối để `tests/parity/src/spec-differences.ts`
