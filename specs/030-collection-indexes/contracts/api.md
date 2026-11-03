@@ -45,8 +45,8 @@ chung). Admin = `accountability.admin === true` (kiểm ở controller như `bac
 
 ## Lỗi ghi trùng (D-210.4)
 
-`POST/PATCH /items/:collection`, GraphQL `create_*_item(s)`, `/utils/import`: vi phạm unique ghép → 400 với **một mục
-`RECORD_NOT_UNIQUE` mỗi field** của index (`extensions: { collection, field, value }`), thứ tự như trong index; Postgres và
+`POST/PATCH /items/:collection`, `/utils/import`: vi phạm unique ghép → 400 với **một mục `RECORD_NOT_UNIQUE` mỗi
+field** của index (GraphQL `create_*_item(s)`: mục đầu với field thứ nhất, vì `formatError` của Directus gộp mọi mảng lỗi) (`extensions: { collection, field, value }`), thứ tự như trong index; Postgres và
 SQLite từ thông điệp của vendor; MySQL qua tra `backoffice_indexes` theo tên index (không tra được → như Directus: một mục
 với `field` suy từ tên). Unique một cột không đổi.
 

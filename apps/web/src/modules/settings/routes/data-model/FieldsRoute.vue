@@ -21,6 +21,7 @@ import PrivateView from '../../../../layout/PrivateView.vue';
 import { useCollectionsStore } from '../../../../stores/collections.ts';
 import { useFieldsStore } from '../../../../stores/fields.ts';
 import SettingsNavigation from '../../components/SettingsNavigation.vue';
+import CollectionIndexes from './components/CollectionIndexes.vue';
 import FieldsManagement from './fields/FieldsManagement.vue';
 
 const props = defineProps<{
@@ -188,6 +189,9 @@ const formFields = computed<Field[]>(() => {
 				:primary-key="collection"
 				:disabled="isSystem"
 			/>
+
+			<!-- Backoffice (spec 030, D-210.4): the Indexes card, after the form cards (research R8). -->
+			<CollectionIndexes v-if="!isSystem" :collection="collection" />
 		</div>
 
 		<BoDialog v-model:open="confirmDelete" :title="$t('delete_are_you_sure')">

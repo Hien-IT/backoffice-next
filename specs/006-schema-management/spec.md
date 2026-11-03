@@ -95,6 +95,8 @@ cùng tên (FR-060); so status, body, header, cấu trúc bảng (kiểu cột, 
 2. **Given** payload có `fields` với mọi kiểu dữ liệu và các tùy chọn `schema.*`, **When** tạo ở mỗi app trên cùng
    vendor, **Then** kiểu cột, độ dài, precision, scale, default (kể cả `now()`, `CURRENT_TIMESTAMP`, `gen_random_uuid()`),
    nullable, unique, index và tên index trong DB giống Directus; `sort` của field theo thứ tự và theo `group` như Directus.
+   (030: index ghép nhiều cột và index trigram đi qua `/backoffice/collections/:c/indexes`, ngoài `/fields` và snapshot;
+   xóa field ở Backoffice gỡ các index đó trước khi xóa cột, D-210.3.)
 3. **Given** `POST /collections` với `schema: null` và `meta`, **When** tạo, **Then** chỉ có dòng `directus_collections`
    (folder), không có bảng; collection khác đặt `meta.group` vào folder đó được.
 4. **Given** field `title` có sẵn, **When** `PATCH /fields/articles/title` đổi kiểu, độ dài, nullable, default, unique

@@ -272,6 +272,10 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 226, method: 'DELETE', path: new RegExp(`^/backoffice/users/me/passkeys/${ID}$`) },
 	{ id: 227, method: 'GET', path: new RegExp(`^/backoffice/users/${ID}/passkeys$`) },
 	{ id: 228, method: 'DELETE', path: new RegExp(`^/backoffice/users/${ID}/passkeys/${ID}$`) },
+	// Spec 030 (specs/030-collection-indexes/contracts/web.md, D-210): the Indexes card of the collection page.
+	{ id: 229, method: 'GET', path: new RegExp(`^/backoffice/collections/${ID}/indexes$`) },
+	{ id: 230, method: 'POST', path: new RegExp(`^/backoffice/collections/${ID}/indexes$`) },
+	{ id: 231, method: 'DELETE', path: new RegExp(`^/backoffice/collections/${ID}/indexes/${ID}$`) },
 ];
 
 /**

@@ -8,6 +8,7 @@ import { replaceQueue } from '../../../../../api/sdk.ts';
 import { resetNotices, useNotices } from '../../../../../composables/use-notices.ts';
 import { i18n } from '../../../../../lang/index.ts';
 import { useCollectionsStore } from '../../../../../stores/collections.ts';
+import { _resetCollectionIndexes } from '../../../../../composables/use-collection-indexes.ts';
 import { calls, json, mockApi } from '../../../../../test-utils/fetch.ts';
 import { mountLayout } from '../../../../../test-utils/layout.ts';
 import FieldsManagement from './FieldsManagement.vue';
@@ -72,6 +73,7 @@ const routes = [
 ];
 
 async function mountGrid(answers: Record<string, unknown> = {}) {
+	_resetCollectionIndexes();
 	const fetch = mockApi({ 'GET /fields': FIELDS, 'GET /collections': [], ...answers });
 	const mounted = await mountLayout(FieldsManagement, {
 		routes,
@@ -229,6 +231,38 @@ test('delete: the confirm dialog, then DELETE /fields/:c/:f', async () => {
 
 	expect(calls(fetch)).toContain('DELETE /fields/bo_art/body');
 	expect(keys()).not.toContain('body');
+});
+
+// Spec 030 (FR-019a): the delete dialog names the Backoffice indexes that go with the field; nothing at DR (404).
+test('delete: the dialog lists the indexes dropped with the field when the API has them', async () => {
+	const row = {
+		id: 'i1',
+		collection: 'bo_art',
+		name: 'bo_art_body_index',
+		fields: ['body'],
+		type: 'btree',
+		unique: false,
+		status: 'ready',
+		error: null,
+		date_created: '2026-11-03T00:00:00.000Z',
+		missing: false,
+	};
+	await mountGrid({
+		'GET /backoffice/collections/bo_art/indexes': () => json({ data: [row], meta: { trigram: false, concurrent: false } }),
+		'DELETE /fields/bo_art/body': () => new Response(null, { status: 204 }),
+	});
+	await flushPromises();
+
+	await select(await openRowMenu('body'), t('delete_field'));
+	const dialog = document.querySelector('[role="dialog"]')!;
+	expect(dialog.textContent).toContain(t('indexes_dropped_with_field'));
+	expect(dialog.textContent).toContain('bo_art_body_index');
+	[...dialog.querySelectorAll('button')].find((b) => b.textContent?.trim() === t('cancel'))!.click();
+	await flushPromises();
+
+	// A field outside every index: no line.
+	await select(await openRowMenu('title'), t('delete_field'));
+	expect(document.querySelector('[role="dialog"]')!.textContent).not.toContain(t('indexes_dropped_with_field'));
 });
 
 test('a field without meta gets its special before the drawer opens; the create links', async () => {

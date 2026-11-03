@@ -169,6 +169,34 @@ interface JsonPathResult {
 	plan: string;
 }
 
+// Spec 030 (FR-024): ?search= at Backoffice only, without and with trigram GIN indexes on lower(<column>) of every
+// searchable string column (title, status, body): the search ORs one LIKE per column, so the planner only leaves the
+// sequential scan when every arm has an index. Reported, gated on errors only, like the json path case.
+const SEARCH_TERM = 'icle 4242';
+const SEARCH_LIST = `/items/${ARTICLES}?search=${encodeURIComponent(SEARCH_TERM)}&limit=25&fields=id,title`;
+const SEARCH_COLUMNS = ['title', 'status', 'body'];
+const SEARCH_SQL = `SELECT id, title FROM ${ARTICLES} WHERE ${SEARCH_COLUMNS.map((c) => `LOWER("${c}") LIKE ?`).join(' OR ')} LIMIT 25`;
+
+async function searchRun(seeded: ItemsSeed, index: boolean): Promise<JsonPathResult> {
+	if (index) {
+		await db.raw('CREATE EXTENSION IF NOT EXISTS pg_trgm');
+		for (const column of SEARCH_COLUMNS) {
+			await db.raw(`CREATE INDEX ${ARTICLES}_${column}_trgm ON ${ARTICLES} USING gin (lower(${column}) gin_trgm_ops)`);
+		}
+		await db.raw(`ANALYZE ${ARTICLES}`);
+	}
+
+	const explain = await db.raw(`EXPLAIN ${SEARCH_SQL}`, SEARCH_COLUMNS.map(() => `%${SEARCH_TERM}%`));
+	const plan = explain.rows.map((row: Record<string, string>) => row['QUERY PLAN']).join('\n');
+	const s: Scenario = { name: 'search', method: 'GET', path: () => SEARCH_LIST, user: 'admin', fresh: true };
+	const load = index ? undefined : JSON_PATH_SCAN;
+	await measure(seeded, s, 'backoffice', WARMUP, undefined, load && { ...load, amount: 1 });
+	const rounds: Round[] = [];
+	for (let i = 0; i < ROUNDS; i++) rounds.push(await measure(seeded, s, 'backoffice', DURATION, undefined, load));
+
+	return { index, connections: load?.connections ?? CONNECTIONS, rounds, plan };
+}
+
 async function jsonPathRun(seeded: ItemsSeed, index: boolean): Promise<JsonPathResult> {
 	if (index) {
 		await db.raw(
@@ -210,6 +238,7 @@ process.stdout.write(
 );
 const verdicts: Verdict[] = [];
 const jsonPath: JsonPathResult[] = [];
+const search: JsonPathResult[] = [];
 
 try {
 	for (const s of scenarios(seeded)) {
@@ -246,8 +275,10 @@ try {
 	}
 
 	for (const index of [false, true]) jsonPath.push(await jsonPathRun(seeded, index));
+	for (const index of [false, true]) search.push(await searchRun(seeded, index));
 } finally {
 	await db.raw(`DROP INDEX IF EXISTS ${JSON_PATH_INDEX}`);
+	for (const column of SEARCH_COLUMNS) await db.raw(`DROP INDEX IF EXISTS ${ARTICLES}_${column}_trgm`);
 	await cleanup(seeded);
 	await redis.quit();
 }
@@ -258,11 +289,15 @@ const jsonPathReport = jsonPathTable(jsonPath);
 process.stdout.write(`\njson path filter (Backoffice only, admin, no-store):\n${jsonPathReport}\n`);
 for (const { index, plan } of jsonPath)
 	process.stdout.write(`\nEXPLAIN ${index ? 'with' : 'without'} index:\n${plan}\n`);
+const searchReport = jsonPathTable(search);
+process.stdout.write(`\nsearch with trigram indexes (spec 030, Backoffice only, admin, no-store):\n${searchReport}\n`);
+for (const { index, plan } of search)
+	process.stdout.write(`\nEXPLAIN search ${index ? 'with' : 'without'} trigram indexes:\n${plan}\n`);
 if (process.env['GITHUB_STEP_SUMMARY'])
 	appendFileSync(
 		process.env['GITHUB_STEP_SUMMARY'],
-		`## Benchmark items\n\nSeed: ${seeded.seconds} s, ${(seeded.bytes / 1024 ** 3).toFixed(2)} GiB.\n\n${report}\n\n### json path filter (spec 023, Backoffice only, reported)\n\n${jsonPathReport}\n`,
+		`## Benchmark items\n\nSeed: ${seeded.seconds} s, ${(seeded.bytes / 1024 ** 3).toFixed(2)} GiB.\n\n${report}\n\n### json path filter (spec 023, Backoffice only, reported)\n\n${jsonPathReport}\n\n### search with trigram indexes (spec 030, Backoffice only, reported)\n\n${searchReport}\n`,
 	);
 
-const jsonPathErrors = jsonPath.some(({ rounds }) => rounds.some((r) => r.errors > 0));
+const jsonPathErrors = [...jsonPath, ...search].some(({ rounds }) => rounds.some((r) => r.errors > 0));
 process.exit(gatePasses(verdicts) && !jsonPathErrors ? 0 : 1);

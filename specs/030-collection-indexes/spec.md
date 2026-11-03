@@ -3,7 +3,12 @@
 **Feature Branch**: `030-collection-indexes` (làm trên `main` như 012–029, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=030-collection-indexes`)
 **Created**: 2026-11-03
-**Status**: Draft (spec, clarify 5 câu, plan 2026-11-03; D-210..D-210.4 duyệt 2026-11-03)
+**Status**: Implemented 2026-11-03, hai lượt trong cùng phiên (lượt 1 API, lượt 2 web; commit và CI ghi sau khi push);
+local: unit API (các suite của 030 và các suite bị chạm) và unit web toàn bộ xanh, parity `schema/indexes` xanh trên
+Postgres, SQLite, MySQL cùng `items/crud` và `schema-management/crud`, E2E `settings-data-model-indexes` xanh ở
+`proxy-api`, `cors`, `proxy-directus` (chromium); deploy `indexes.test.ts` và `bootstrap` để CI chạy (T035, T047); SC-004
+và FR-024 đo ở CI (spec, clarify 5 câu, plan 2026-11-03; D-210..D-210.4 duyệt 2026-11-03; `main` đỏ sẵn từ c42f4173 D-209
+khi push)
 **Input**: User description: "Feature 030: admin tạo và xóa index của một collection người dùng trong Backoffice: index
 B-tree ghép nhiều cột (unique hoặc không) trên Postgres, SQLite, MySQL; index trigram GIN cho tìm kiếm trên Postgres;
 tạo không khóa bảng khi vendor cho phép. Bối cảnh: Directus 11.17.4 và Backoffice chỉ tạo index trên một cột qua
@@ -280,9 +285,10 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
 
 **Lỗi trùng**
 
-- **FR-016**: Ghi vi phạm unique ghép qua Backoffice (REST, GraphQL, import) PHẢI trả `RECORD_NOT_UNIQUE` với từng field
-  của index (mỗi field một mục lỗi, như Directus trả cho unique một cột); lỗi unique một cột không đổi; trên Postgres,
-  SQLite và MySQL (sửa khi analyze 2026-11-03, I1).
+- **FR-016**: Ghi vi phạm unique ghép qua Backoffice (REST, import) PHẢI trả `RECORD_NOT_UNIQUE` với từng field của
+  index (mỗi field một mục lỗi, như Directus trả cho unique một cột); GraphQL trả mục đầu (field thứ nhất) vì
+  `formatError` của Directus gộp mọi mảng lỗi thành một, kể cả lỗi validate (giữ nguyên văn; sửa khi implement
+  2026-11-03); lỗi unique một cột không đổi; trên Postgres, SQLite và MySQL (sửa khi analyze 2026-11-03, I1).
 
 **Dữ liệu**
 
@@ -374,7 +380,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 | D-210.1 | `GET /fields` với cột nằm trong index ghép | `is_unique: false`, `is_indexed: false` (introspection một cột) | Giữ nguyên như Directus; index ghép chỉ hiện ở card Indexes và endpoint D-210; entry `doc` | Không đổi introspection để hai app giống nhau | khác (duyệt 2026-11-03) | — |
 | D-210.2 | Bảng `backoffice_indexes` trong `GET /collections`, OAS, GraphQL introspection/SDL, Data Model | Bảng chưa quản lý | Collection hệ thống ẩn (403 `/items`, không GraphQL, ngoài Data Model); bộ đối chiếu bỏ `backoffice_*` như 022, 025, 029 | Nguyên tắc II (migration riêng) | khác (duyệt 2026-11-03) | — |
 | D-210.3 | Xóa field hay collection | Chỉ DDL của field/collection; cột trong index ghép do DB xử lý | Gỡ mọi index có field đó và xóa dòng `backoffice_indexes` trước (hộp thoại xóa field của Data Model nêu tên index, clarify 2026-11-03); Directus xóa để lại dòng mồ côi, Backoffice liệt kê `missing: true`; entry `doc` | Không FK (Nguyên tắc II); MySQL giữ index thiếu cột nếu không gỡ trước | khác (duyệt 2026-11-03) | — |
-| D-210.4 | Lỗi ghi trùng trên unique ghép (REST, GraphQL, import) | Postgres: một mục `RECORD_NOT_UNIQUE` với `field` là chuỗi "a, b"; SQLite: "a, b" tương tự; MySQL: field suy từ tên index | Một mục `RECORD_NOT_UNIQUE` cho từng field của index; unique một cột không đổi; bộ đối chiếu: entry `http` | Lỗi của Directus không đọc được bằng máy với unique ghép | khác (duyệt 2026-11-03) | — |
+| D-210.4 | Lỗi ghi trùng trên unique ghép (REST, import; GraphQL trả mục đầu ở cả hai app như `formatError` của Directus) | Postgres: một mục `RECORD_NOT_UNIQUE` với `field` là chuỗi "a, b"; SQLite: "a, b" tương tự; MySQL: field suy từ tên index | Một mục `RECORD_NOT_UNIQUE` cho từng field của index ở REST và import; GraphQL mục đầu với field thứ nhất; unique một cột không đổi; bộ đối chiếu: entry `http` | Lỗi của Directus không đọc được bằng máy với unique ghép | khác (duyệt 2026-11-03) | — |
 
 **Cần xác nhận** (chủ dự án kiêm tech lead và design owner, cùng lượt duyệt D-210):
 
@@ -429,7 +435,9 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 - Tối đa 8 field một index; tên cắt theo quy tắc của helper hiện có (Postgres 63, MySQL 64 ký tự).
 - Trigram không unique, một field `string`/`text`; từ khóa dưới 3 ký tự có thể không dùng index (hành vi của Postgres),
-  kết quả không đổi.
+  kết quả không đổi. `?search=` nối OR một `LIKE` cho mỗi cột chuỗi tìm được của collection, nên planner chỉ bỏ quét
+  bảng khi **mọi** cột chuỗi đó có index trigram (một index chỉ giúp câu lọc trên đúng cột ấy); benchmark FR-024 tạo
+  index trên cả ba cột chuỗi của seed (ghi khi implement 2026-11-03).
 - MySQL: `string` dài vượt giới hạn khóa của engine → lỗi vendor thành 400 (job `failed` với thông điệp của vendor).
 - Tạo index là job nền trên replica nhận request (clarify 2026-11-03): 202 ngay, không hàng đợi dùng chung, không
   chạy lại tự động khi replica dừng; ngưỡng coi dòng `creating` là bỏ dở: 1 giờ. Xóa index (DROP) vẫn đồng bộ (nhanh

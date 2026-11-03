@@ -2586,7 +2586,13 @@ nêu index sẽ gỡ); `/speckit.plan` chạy 2026-11-03 (research R1–R14 vớ
 data-model, contracts api/web/tests, quickstart; 7 sửa câu chữ spec: unique `name` thay khóa Redis, SIGTERM đánh dấu
 `failed` trước khi pool đóng, `pg_trgm` lỗi → `failed`, 409 → 400, card cuối trang sau BoForm, `missing: null` MSSQL/Oracle,
 D-210..D-210.3 `doc`); chủ dự án duyệt D-210..D-210.4, hai điểm Complexity Tracking và card cuối trang 2026-11-03; `/speckit.tasks` chạy
-2026-11-03 (74 task, hai lượt: lượt 1 API T001–T050, lượt 2 web T051–T074); `/speckit.analyze` chạy
+2026-11-03 (74 task, hai lượt: lượt 1 API T001–T050, lượt 2 web T051–T074); `/speckit.implement` hai lượt chạy
+2026-11-03 trong cùng phiên (chủ dự án chọn "làm ở đây" cho lượt 2 trong lúc chờ parity): local unit API/web, parity
+`schema/indexes` xanh trên Postgres, SQLite, MySQL, E2E `proxy-api` chromium; bài học: `formatError` GraphQL của Directus
+gộp mảng lỗi (giữ, GraphQL trả field đầu), `?search=` OR mọi cột chuỗi nên cần trigram cho từng cột, MySQL/Knex SQLite
+giữ index thiếu cột khi xóa cột (catalog so cột), hook SIGTERM trước `database.destroy()`, env `web` phải `env-up` lại
+sau khi sửa web; `main` đỏ sẵn từ c42f4173 (D-209: mock `getCache` thiếu `localSchemaCache`, unit items.controller
+timeout, parity/e2e đỏ); `/speckit.analyze` chạy
 2026-11-03 (0 CRITICAL, 1 HIGH: quy tắc 1 giờ phải kiểm `pg_stat_progress_create_index` vì index đang build CONCURRENTLY cũng
 INVALID; 4 MEDIUM: FR-016 gồm SQLite, assert activity, case import, 400 khi xóa collection đang creating; đã sửa cùng 4 LOW).
 Thư mục: `specs/030-collection-indexes/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".

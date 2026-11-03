@@ -44,6 +44,12 @@ sở: `knex.schema.alterTable(collection, t => t.dropIndex([], name))` ([Unverif
 **Alternatives**: helper mới `createCompositeIndex` (lặp logic concurrent của 6 dialect); Knex `table.index([a, b], name)`
 (không có `CONCURRENTLY`/`INPLACE`, không GIN).
 
+**Kết quả T001** (2026-11-03, Postgres 13.16, MySQL 8.4.13, SQLite 3 qua Knex 3.1): `knex.schema.alterTable(t, b =>
+b.dropIndex([], name))` gỡ được index đặt tên trên cả ba vendor (SQL: Postgres/SQLite `drop index "x"`, MySQL `alter
+table t drop index x`); ba câu catalog của R5 trả đúng tên (Postgres qua `pg_index` ⋈ `pg_class` ⋈ `pg_namespace` với
+`current_schema()`, có `indisvalid`; MySQL `information_schema.statistics`; SQLite `PRAGMA index_list`); SQLite lỗi
+unique ghép: `SQLITE_CONSTRAINT: UNIQUE constraint failed: t.a, t.b`.
+
 ## R2. Trigram: index phải đặt trên `lower(col)` và `pg_trgm` cài được bởi chủ DB
 
 [Verified 2026-11-03, Postgres 13.16, user `app` là owner của DB, không superuser]:
@@ -156,6 +162,9 @@ suy `field` từ `<collection>_<field>_unique` (`mysql.ts:43-86`); SQLite tách 
   `name` (cần `knex`; `hasTable` một lần, cache module) → `fields` → mảng lỗi; không tra được → như cũ (D-210.4 ghi
   giới hạn).
 - `items.service.ts:270-280` xử lý `primaryKey` trên từng phần tử của mảng rồi `throw` mảng; `:821` throw thẳng.
+- GraphQL [Verified khi implement]: `services/graphql/errors/format.ts` (port nguyên văn) gộp một mảng lỗi thành mục đầu
+  cho mọi resolver, kể cả FAILED_VALIDATION; giữ nguyên để không thêm khác biệt với Directus: GraphQL trả field thứ
+  nhất. `ImportService.createErrorTracker().addCapturedError` nhận mảng và đếm từng phần tử (`/utils/import` đủ field).
 
 ## R8. Web: card độc lập sau BoForm, không chèn giữa các card
 

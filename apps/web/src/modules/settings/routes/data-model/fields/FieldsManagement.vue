@@ -22,6 +22,7 @@ import BoInput from '../../../../../components/BoInput.vue';
 import type { BoMenuItem } from '../../../../../components/BoMenu.vue';
 import BoMenu from '../../../../../components/BoMenu.vue';
 import BoSortableList from '../../../../../components/BoSortableList.vue';
+import { useCollectionIndexes } from '../../../../../composables/use-collection-indexes.ts';
 import { useSchemaOverview } from '../../../../../composables/use-schema.ts';
 import { notify, showUnexpectedError as unexpectedError } from '../../../../../composables/use-notices.ts';
 import InterfaceSystemCollection from '../../../../../interfaces/_system/system-collection/SystemCollection.vue';
@@ -223,6 +224,15 @@ provide(FIELD_GRID, {
 const deleteTarget = ref<Field | null>(null);
 const deleting = ref(false);
 
+// Backoffice (spec 030, FR-019a): the Backoffice indexes dropped with the field (none when the API is DR).
+const collectionIndexes = useCollectionIndexes(() => props.collection);
+onBeforeMount(() => void collectionIndexes.loadOnce());
+const droppedIndexes = computed(() =>
+	deleteTarget.value && collectionIndexes.available.value
+		? collectionIndexes.indexesOf(deleteTarget.value.field).map((row) => row.name)
+		: [],
+);
+
 const deleteOpen = computed({
 	get: () => deleteTarget.value !== null,
 	set: (value) => {
@@ -237,6 +247,8 @@ async function deleteField() {
 	await fieldsStore.deleteField(deleteTarget.value.collection, deleteTarget.value.field);
 	deleting.value = false;
 	deleteTarget.value = null;
+	// Spec 030 (D-210.3): the API dropped the indexes with that field; the card reads them again.
+	if (collectionIndexes.available.value) void collectionIndexes.load();
 }
 
 /* ---------------------------------------------------------------------------------------- duplicate (FieldSelect) */
@@ -395,6 +407,9 @@ const LABEL = 'mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/
 		</BoDialog>
 
 		<BoDialog v-model:open="deleteOpen" :title="$t('delete_field_are_you_sure', { field: deleteTarget?.field ?? '' })">
+			<p v-if="droppedIndexes.length > 0" class="text-sm text-gray-700 dark:text-gray-400">
+				{{ $t('indexes_dropped_with_field') }} <code class="text-theme-xs">{{ droppedIndexes.join(', ') }}</code>
+			</p>
 			<template #actions>
 				<BoButton variant="secondary" autofocus @click="deleteOpen = false">{{ $t('cancel') }}</BoButton>
 				<BoButton variant="danger" :loading="deleting" @click="deleteField">{{ $t('delete_label') }}</BoButton>

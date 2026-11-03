@@ -39,5 +39,7 @@
   202, khóa giữa replica, unique trên dữ liệu đang trùng, kiểu cột MySQL không index được, `schemaChanged`, cách chọn
   field trong hộp thoại (clarify 2026-11-03 chốt 5 câu; plan chốt unique `name` thay khóa; analyze 2026-11-03: 0
   CRITICAL, 1 HIGH + 4 MEDIUM đã sửa).
-- Hai mục [Unverified] (xóa cột có index ghép theo vendor; `pg_trgm` trusted extension) phải kiểm ở research của plan
-  trước khi viết code.
+- Hai mục [Unverified] (xóa cột có index ghép theo vendor; `pg_trgm` trusted extension) đã kiểm khi plan (chạy thử
+  Postgres 13.16, MySQL 8.4.13, Knex SQLite) và ghi ở research R2/R3.
+- Implement 2026-11-03: FR-016 sửa (GraphQL trả mục đầu như `formatError` của Directus); Assumptions thêm "mọi cột chuỗi
+  cần trigram riêng"; T035 (deploy local) và T047 (bootstrap local) để CI `deploy`/`parity bootstrap` chạy.

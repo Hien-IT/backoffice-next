@@ -2055,6 +2055,29 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
 - Built: `routes/login/LoginForm.vue`, `modules/users/components/UserPasskeys.vue`, `composables/use-passkeys.ts`,
   `composables/use-passkey-support.ts`. No new component, no new color pair.
 
+### Collection indexes (Q-48; spec 030, D-210.4, no Directus counterpart)
+
+- Card (collection page of Data Model, after the form cards, same column; layout-patterns §8): the Card recipe of Q-47
+  with BoIcon `database`, `h3` `indexes`, description `indexes_description`, BoButton `sm` `add` `add_index`; a
+  `role="region"` labelled by the title, `data-testid="collection-indexes"`. Only when the API answers the indexes
+  route (hidden at Directus, 404) and the collection is not a system one.
+- List: BoTable (`caption` sr-only `indexes`) with Index (name as `code`), Fields (BoChip per field, in column order),
+  Index type (`index_type_btree` / `index_type_trigram`), Unique (`check` icon or an em dash), Status:
+  `index_status_creating` with the `progress_activity` icon `animate-spin motion-reduce:animate-none text-brand-500`,
+  `index_status_ready`, `index_status_failed` in `text-error-500` with the message, a BoChip `index_missing` when the
+  database lost the index. Row action in `item-append`: a ghost square `delete` button named "Delete: <name>", disabled
+  while creating. Empty slot with the `database` icon and `indexes_empty`. The card polls every 5 s while a row is
+  creating and toasts `index_ready_notice` / `index_failed_notice` (D-172).
+- Add dialog (BoDialog, Q-19 pattern): a BoSelect `index_fields_add` whose choice goes into a BoSortableList of the
+  chosen fields (drag, or the row menu Move up / Move down / Remove, D-60); a BoSelect `index_type` (trigram only when
+  the API reports it; choosing it keeps one string field and turns unique off); BoSwitch `index_unique_label`; BoSwitch
+  `index_concurrent` on by default when the API reports it. Create submits the form via `form`; API errors in a danger
+  BoNotice inside the dialog showing the API's reason; focus back on the trigger (D-197).
+- Delete dialog: `index_delete_confirm` with the name; Cancel then danger Delete (D-76).
+- Delete-field dialog of the field list: one line `indexes_dropped_with_field` naming the indexes with that field.
+- Built: `modules/settings/routes/data-model/components/CollectionIndexes.vue`,
+  `composables/use-collection-indexes.ts`, `fields/FieldsManagement.vue`. No new component, no new color pair.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

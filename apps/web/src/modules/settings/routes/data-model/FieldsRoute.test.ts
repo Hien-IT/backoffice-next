@@ -115,6 +115,8 @@ test(
 		expect(fields).not.toContain('group');
 		expect(fields).not.toContain('collapse');
 		expect(document.body.textContent).not.toContain(t('collection_content_toggles'));
+		// Spec 030: no Indexes card on a system collection (and none at DR, whose GET answers 404).
+		expect(document.querySelector('[data-testid="collection-indexes"]')).toBeNull();
 	},
 	SLOW,
 );

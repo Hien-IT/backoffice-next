@@ -238,7 +238,8 @@ Directus app.
 5. **Given** nhân bản field, **When** chọn collection đích (`system-collection`, mặc định hiện tại) và tên (mặc định
    `<field>_copy`), **Then** `POST /fields/:đích` với bản sao bỏ `meta.id`, `meta.sort`, `meta.group`,
    `schema.comment`, `name`, đổi tên field trong khóa `validation` cùng collection; notice `field_create_success`.
-6. **Given** xóa field, **When** xác nhận `delete_field_are_you_sure`, **Then** `DELETE /fields/:c/:f`, nạp lại
+6. **Given** xóa field, **When** xác nhận `delete_field_are_you_sure` (030: hộp thoại nêu các index của Backoffice có
+   field đó sẽ bị gỡ), **Then** `DELETE /fields/:c/:f`, nạp lại
    collections, gỡ field và relation ở store ngay (hoàn tác khi lỗi).
 7. **Given** nút `create_field` và menu `create_in_advanced_field_creation_mode`, **When** bấm, **Then** tới
    `/settings/data-model/:c/+` (đơn giản) hoặc `+?type=<standard|presentation|group|file|files|m2o|o2m|m2m|m2a|
