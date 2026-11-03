@@ -152,4 +152,11 @@ export default {
 	index_failed_notice: 'Index "{name}" failed: {error}',
 	indexes_dropped_with_field: 'These indexes will be dropped:',
 	indexes_empty: 'No indexes yet',
+	index_help_title: 'How indexes work',
+	index_help_intro: 'An index makes the database find rows by these fields faster and, when unique, rejects duplicates.',
+	index_help_fields: 'Fields: add them in the order queries filter by them (the first field matters most); drag or use the row menu to reorder.',
+	index_help_unique: 'Unique: the combination of all fields must not repeat across rows; rows that already repeat it make the index fail.',
+	index_help_trigram: 'Trigram (PostgreSQL): one text field, speeds up the search box for words of 3 characters or more; add one per searchable field.',
+	index_help_concurrent: 'Create without locking the table: the database keeps accepting writes while the index builds (slower on big tables).',
+	index_help_status: 'The index builds in the background: the row shows Creating, then Ready or Failed with the reason. Deleting a field drops its indexes.',
 };

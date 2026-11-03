@@ -179,6 +179,9 @@ const formFields = computed<Field[]>(() => {
 
 			<RouterView name="field" :collection="collection" :field="field" :type="type" />
 
+			<!-- Backoffice (spec 030, D-210.4): the Indexes card between the field list and Collection Setup (owner 2026-11-03). -->
+			<CollectionIndexes v-if="!isSystem" :collection="collection" />
+
 			<BoForm
 				ref="form"
 				v-model="meta"
@@ -189,9 +192,6 @@ const formFields = computed<Field[]>(() => {
 				:primary-key="collection"
 				:disabled="isSystem"
 			/>
-
-			<!-- Backoffice (spec 030, D-210.4): the Indexes card, after the form cards (research R8). -->
-			<CollectionIndexes v-if="!isSystem" :collection="collection" />
 		</div>
 
 		<BoDialog v-model:open="confirmDelete" :title="$t('delete_are_you_sure')">

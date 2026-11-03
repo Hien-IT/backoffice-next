@@ -109,7 +109,8 @@ function mountCard() {
 const card = () => document.querySelector<HTMLElement>('[data-testid="collection-indexes"]');
 const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
 const buttonIn = (root: ParentNode | null, text: string) =>
-	[...(root?.querySelectorAll('button') ?? [])].find((el) => el.textContent?.trim().endsWith(text));
+	// Icon buttons start (and a BoDetail trigger ends) with a Material Symbols ligature: match anywhere.
+	[...(root?.querySelectorAll('button') ?? [])].find((el) => el.textContent?.includes(text));
 const listbox = () => document.querySelector<HTMLElement>('[role="listbox"]');
 const options = () => [...document.querySelectorAll<HTMLElement>('[role="option"]')];
 
@@ -167,8 +168,15 @@ describe('add', () => {
 		await flushPromises();
 		await userEvent.click(buttonIn(card(), 'Add index')!);
 		await vi.waitFor(() => expect(dialog()).not.toBeNull());
+		// The guidance note (owner 2026-11-03): collapsed until its trigger is used.
+		expect(dialog()!.textContent).not.toContain('An index makes the database find rows');
+		await userEvent.click(buttonIn(dialog(), 'How indexes work')!);
+		await vi.waitFor(() => expect(dialog()!.textContent).toContain('An index makes the database find rows'));
+		expect(dialog()!.textContent).toContain('Trigram (PostgreSQL)');
+		await userEvent.click(buttonIn(dialog(), 'How indexes work')!);
+		await vi.waitFor(() => expect(dialog()!.textContent).not.toContain('An index makes the database find rows'));
 
-		// Real columns only: no alias, no json for a btree? (json is refused by the API, offered here), no picked ones.
+		// Real columns only: no alias, no picked ones.
 		await pickField('Provider_subject');
 		await pickField('Provider');
 		expect([...dialog()!.querySelectorAll('[data-row-key]')].map((r) => r.getAttribute('data-row-key'))).toEqual([

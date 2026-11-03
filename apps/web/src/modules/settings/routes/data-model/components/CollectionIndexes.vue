@@ -8,6 +8,7 @@ import { computed, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoButton from '../../../../../components/BoButton.vue';
 import BoChip from '../../../../../components/BoChip.vue';
+import BoDetail from '../../../../../components/BoDetail.vue';
 import BoDialog from '../../../../../components/BoDialog.vue';
 import BoIcon from '../../../../../components/BoIcon.vue';
 import BoNotice from '../../../../../components/BoNotice.vue';
@@ -236,6 +237,19 @@ const errorText = (err: unknown) => {
 		</div>
 
 		<BoDialog v-model:open="adding" :title="$t('add_index')">
+			<!-- Owner 2026-11-03: what an index does and how to fill the dialog; collapsed by default (BoDetail). -->
+			<BoDetail :title="$t('index_help_title')" icon="help" class="mb-4">
+				<BoNotice type="info">
+					<p>{{ $t('index_help_intro') }}</p>
+					<ul class="mt-2 list-disc space-y-1 pl-5">
+						<li>{{ $t('index_help_fields') }}</li>
+						<li>{{ $t('index_help_unique') }}</li>
+						<li v-if="meta.trigram">{{ $t('index_help_trigram') }}</li>
+						<li v-if="meta.concurrent">{{ $t('index_help_concurrent') }}</li>
+						<li>{{ $t('index_help_status') }}</li>
+					</ul>
+				</BoNotice>
+			</BoDetail>
 			<form :id="`${id}-add`" class="flex flex-col gap-4" @submit.prevent="submit">
 				<div>
 					<BoSelect

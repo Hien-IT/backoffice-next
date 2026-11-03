@@ -147,4 +147,11 @@ export default {
 	index_failed_notice: 'Index "{name}" thất bại: {error}',
 	indexes_dropped_with_field: 'Các index sau sẽ bị gỡ:',
 	indexes_empty: 'Chưa có index',
+	index_help_title: 'Index hoạt động thế nào',
+	index_help_intro: 'Index giúp DB tìm bản ghi theo các field này nhanh hơn; nếu unique thì từ chối bản ghi trùng.',
+	index_help_fields: 'Fields: thêm theo thứ tự câu truy vấn hay lọc (field đầu quan trọng nhất); kéo hoặc dùng menu dòng để đổi thứ tự.',
+	index_help_unique: 'Unique: tổ hợp tất cả field không được lặp giữa các bản ghi; dữ liệu đang trùng làm index thất bại.',
+	index_help_trigram: 'Trigram (PostgreSQL): một field chữ, tăng tốc ô tìm kiếm với từ khóa từ 3 ký tự; mỗi field tìm kiếm cần một index.',
+	index_help_concurrent: 'Tạo không khóa bảng: DB vẫn nhận ghi trong lúc tạo index (chậm hơn trên bảng lớn).',
+	index_help_status: 'Index tạo ở nền: dòng hiện Đang tạo, rồi Sẵn sàng hoặc Thất bại kèm lý do. Xóa field sẽ gỡ các index của nó.',
 };

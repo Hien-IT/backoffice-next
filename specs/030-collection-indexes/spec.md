@@ -303,15 +303,16 @@ tạo index ghép: giống nhau trừ các mã D-210.x.
 
 **Giao diện**
 
-- **FR-018**: Trang collection của Settings > Data Model có card "Indexes" là card độc lập đặt sau các card cài đặt của
-  collection (cuối trang, sau Duplication; card D-182 nằm trong form không chèn được, sửa khi plan 2026-11-03): bảng tên / fields / loại / unique / trạng thái (`creating` với vòng xoay, `ready`, `failed` với thông điệp lỗi) và
+- **FR-018**: Trang collection của Settings > Data Model có card "Indexes" là card độc lập đặt giữa danh sách field và
+  các card Collection Setup (chủ dự án 2026-11-03 sau khi xem UI; card D-182 nằm trong form không chèn được): bảng tên / fields / loại / unique / trạng thái (`creating` với vòng xoay, `ready`, `failed` với thông điệp lỗi) và
   cờ `missing`, nút thêm, nút xóa từng dòng với xác nhận; khi có dòng `creating` card poll liệt kê mỗi 5 giây tới khi
   không còn (dừng khi rời trang);
   card chỉ ở web (không dòng `directus_fields`), ẩn khi API là Directus (liệt kê trả 404).
 - **FR-019**: Hộp thoại thêm: một ô chọn thêm field (chỉ cột thật của collection chưa có trong danh sách) vào một danh
   sách sắp xếp được (kéo thả bằng chuột, menu dòng "Move up"/"Move down" và xóa dòng cho bàn phím, thông báo vị trí mới
   cho screen reader; clarify 2026-11-03); thứ tự danh sách là thứ tự cột; loại (trigram chỉ hiện khi API báo hỗ trợ; chọn trigram thì chỉ một field và tắt unique), công tắc unique,
-  công tắc "không khóa bảng" bật sẵn khi API báo hỗ trợ; lỗi của API hiện trong hộp thoại; 202 thì đóng, dòng `creating` hiện
+  công tắc "không khóa bảng" bật sẵn khi API báo hỗ trợ; một mục đóng mở (BoDetail, đóng sẵn) đầu hộp thoại chứa ghi chú giải
+  thích index, thứ tự field, unique, trigram, không khóa bảng và trạng thái nền (chủ dự án 2026-11-03); lỗi của API hiện trong hộp thoại; 202 thì đóng, dòng `creating` hiện
   trong danh sách, toast "đang tạo" (D-172); chuyển `ready`/`failed` thì toast tương ứng khi trang còn mở.
 - **FR-019a**: Hộp thoại xác nhận xóa field của Data Model (016) PHẢI liệt kê tên các index của feature này có field đó
   (một dòng "Các index sau sẽ bị gỡ: …"), chỉ khi API là Backoffice và danh sách khác rỗng; không chặn xóa (clarify
@@ -420,7 +421,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 ### Duyệt 2026-11-03 (chủ dự án kiêm tech lead và design owner, sau `/speckit.plan`)
 
 - D-210..D-210.4 duyệt; hai điểm Complexity Tracking (sửa `server.ts` `onSignal`, chữ ký `translateDatabaseError`) duyệt;
-  7 sửa câu chữ spec khi plan chấp nhận; card Indexes cuối trang sau Duplication và icon `database` chấp nhận.
+  7 sửa câu chữ spec khi plan chấp nhận; icon `database` chấp nhận. Sau khi xem UI (2026-11-03): card Indexes đặt giữa
+  danh sách field và Collection Setup (thay vì cuối trang), hộp thoại Add index có ghi chú giải thích và hướng dẫn.
 
 ### Sửa khi `/speckit.analyze` (2026-11-03, chủ dự án: sửa HIGH và MEDIUM)
 
