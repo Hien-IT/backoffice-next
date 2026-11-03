@@ -597,4 +597,26 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'The web filter of the Content page offers a field of the same type group as the value of the six comparison operators (picker and chip, stored as $FIELD(b)); the Directus app, the item drawer and the other Backoffice filters do not.',
 	},
+	// Spec 005 (D-209): a field hidden in the data model of a user collection is left out of a wildcard read at
+	// Backoffice (`*`, `*.*`, no `fields`, export); Directus returns it. Only the collections of
+	// src/items/hidden-fields.test.ts, whose hidden field is `secret`.
+	{
+		id: 'D-209',
+		feature: '005',
+		kind: 'http',
+		endpoints: ['GET /items/parity_hidden_*', 'SEARCH /items/parity_hidden_*'],
+		location: { jsonPointer: /\/secret$/ },
+		directus: { any: true },
+		backoffice: { absent: true },
+		reason:
+			'A wildcard leaves out the hidden fields of a user collection at Backoffice (the primary key stays); a field named in `fields` or an alias is returned at both (spec 005 D-209).',
+	},
+	{
+		id: 'D-209',
+		feature: '005',
+		kind: 'http',
+		endpoints: ['GET /items/parity_hidden_*', 'SEARCH /items/parity_hidden_*'],
+		location: { header: 'etag' },
+		reason: 'The body of a wildcard read differs (D-209), so does its ETag.',
+	},
 ];

@@ -4,6 +4,7 @@ import { getRelation } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { cloneDeep } from 'lodash-es';
 import { fetchAllowedFields } from '../../../permissions/modules/fetch-allowed-fields/fetch-allowed-fields.js';
+import { getHiddenFields } from '../../../utils/hidden-fields.js';
 import { parseFilterKey } from '../../../utils/parse-filter-key.js';
 
 export interface ConvertWildcardsOptions {
@@ -23,11 +24,16 @@ export interface ConvertWildCardsContext {
 export async function convertWildcards(options: ConvertWildcardsOptions, context: ConvertWildCardsContext) {
 	const fields = cloneDeep(options.fields);
 
-	const fieldsInCollection = Object.entries(context.schema.collections[options.collection]!.fields).map(
-		([name]) => name,
-	);
+	// Backoffice (spec 005, D-209): a wildcard leaves out the hidden fields of a user collection, except the primary
+	// key; a field named in `fields` (or an alias) is not a wildcard and stays.
+	const hidden = (await getHiddenFields())[options.collection] ?? [];
+	const primary = context.schema.collections[options.collection]!.primary;
+	const shown = (name: string) => name === primary || !hidden.includes(name);
 
-	let allowedFields: string[] | null = fieldsInCollection;
+	const allFieldsInCollection = Object.keys(context.schema.collections[options.collection]!.fields);
+	const fieldsInCollection = allFieldsInCollection.filter(shown);
+
+	let allowedFields: string[] | null = allFieldsInCollection;
 
 	if (options.accountability && options.accountability.admin === false) {
 		allowedFields = await fetchAllowedFields(
@@ -43,7 +49,11 @@ export async function convertWildcards(options: ConvertWildcardsOptions, context
 	if (!allowedFields || allowedFields.length === 0) return [];
 
 	// In case of full read permissions
-	if (allowedFields[0] === '*') allowedFields = fieldsInCollection;
+	if (allowedFields[0] === '*') allowedFields = allFieldsInCollection;
+
+	// an alias names its field, so it may read a hidden one
+	const readableFields = allowedFields;
+	allowedFields = allowedFields.filter(shown);
 
 	for (let index = 0; index < fields.length; index++) {
 		const fieldKey = fields[index]!;
@@ -61,7 +71,7 @@ export async function convertWildcards(options: ConvertWildcardsOptions, context
 				const allowedAliases = aliases.filter((fieldKey) => {
 					// Backoffice (spec 023, checklist CHK009): keep the DR field name of json() aliases here.
 					const { fieldName } = parseFilterKey(options.alias![fieldKey]!, { jsonBaseField: false });
-					return allowedFields!.includes(fieldName);
+					return readableFields.includes(fieldName);
 				});
 
 				fields.splice(index, 1, ...allowedFields, ...allowedAliases);

@@ -6,9 +6,12 @@ import knex from 'knex';
 import { expect, test, vi } from 'vitest';
 import { fetchAllowedFields } from '../../../permissions/modules/fetch-allowed-fields/fetch-allowed-fields.js';
 import { Client_SQLite3 } from '../../run-ast/lib/apply-query/mock.js';
+import { getHiddenFields } from '../../../utils/hidden-fields.js';
 import { convertWildcards } from './convert-wildcards.js';
 
 vi.mock('../../../permissions/modules/fetch-allowed-fields/fetch-allowed-fields.js');
+// Backoffice (spec 005, D-209): no hidden field unless a test says so.
+vi.mock('../../../utils/hidden-fields.js', () => ({ getHiddenFields: vi.fn(async () => ({})) }));
 
 const fetchAllowedFieldsMock = vi.mocked(fetchAllowedFields);
 
@@ -274,4 +277,40 @@ test('backlink set to false', async () => {
 	);
 
 	expect(result).toEqual(['tags_id.*', 'id', 'articles_id']);
+});
+
+// Backoffice (spec 005, D-209): hidden fields of the collection and wildcards.
+test('D-209: * leaves out the hidden fields but the primary key; a named hidden field stays', async () => {
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['id', 'date'] });
+
+	const result = await convertWildcards(
+		{ collection: 'articles', fields: ['*', 'date'], alias: { when: 'date' }, accountability: null, backlink: true },
+		{ knex: db, schema },
+	);
+
+	expect(result).toEqual(['id', 'title', 'when', 'date']);
+});
+
+test('D-209: * of a user with explicit fields leaves out the hidden ones; an alias of a hidden field stays', async () => {
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['date'] });
+	fetchAllowedFieldsMock.mockResolvedValueOnce(['title', 'date']);
+
+	const result = await convertWildcards(
+		{ collection: 'articles', fields: ['*'], alias: { when: 'date' }, accountability, backlink: true },
+		{ knex: db, schema },
+	);
+
+	expect(result).toEqual(['title', 'when']);
+});
+
+test('D-209: a user allowed hidden fields only gets nothing from *, the named field stays', async () => {
+	vi.mocked(getHiddenFields).mockResolvedValueOnce({ articles: ['date'] });
+	fetchAllowedFieldsMock.mockResolvedValueOnce(['date']);
+
+	const result = await convertWildcards(
+		{ collection: 'articles', fields: ['*', 'date'], alias: {}, accountability, backlink: true },
+		{ knex: db, schema },
+	);
+
+	expect(result).toEqual(['date']);
 });

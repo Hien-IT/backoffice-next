@@ -23,6 +23,8 @@ export const REDUCED_FILES = [
 	'src/items/uuid-v7.test.ts',
 	// Spec 028: $FIELD(b) compares two fields of the same collection on every vendor (plain SQL, D-203).
 	'src/items/field-compare.test.ts',
+	// Spec 005 D-209: hidden fields of user collections left out of wildcard reads on every vendor (boolean column).
+	'src/items/hidden-fields.test.ts',
 	// Feature 006: the HTTP contract of /collections, /fields, /relations (DDL differs per vendor, research R5).
 	'src/schema-management/crud.test.ts',
 	'src/schema-management/relations.test.ts',
@@ -50,7 +52,7 @@ export const FULL_FILES = [
 	'src/{server,startup,observability,schema,auth,permissions}/**/*.test.ts',
 	'src/{db-unchanged,readonly-account,redis-down}.test.ts',
 	// Feature 005: /items and export on the main pair.
-	'src/items/{crud,export,json-path,collection-toggles,uuid-v7,field-compare}.test.ts',
+	'src/items/{crud,export,json-path,collection-toggles,uuid-v7,field-compare,hidden-fields}.test.ts',
 	// Feature 006: data model routes, DDL compared in sequence on the shared DB, cross use (research R5, R6).
 	'src/schema-management/**/*.test.ts',
 	// Feature 007: files, folders, assets, import, TUS on both storage locations (research R8).

@@ -381,7 +381,7 @@ chạy proxy trỏ mọi route về Directus.
   `read` vẫn kiểm; `validate-batch.ts:14`), nên body object của `PATCH /:collection` không bị `400`; `POST /:collection`
   và `PATCH /:collection/:pk` → `404 ROUTE_NOT_FOUND` với `path`; các route khác không có nhánh riêng.
 - **FR-004**: Query và payload trên `/items` PHẢI hỗ trợ đủ như FR-040 của 004 (engine dùng chung, không port lại):
-  `fields` (wildcard, lồng m2o, o2m, m2m, m2a, alias, hàm), `filter` (mọi toán tử, `_some`, `_none`, hàm ngày giờ, qua
+  `fields` (wildcard, lồng m2o, o2m, m2m, m2a, alias, hàm; từ 2026-11-03 wildcard bỏ field ẩn của collection người dùng, D-209), `filter` (mọi toán tử, `_some`, `_none`, hàm ngày giờ, qua
   quan hệ, biến động), `search`, `sort`, `limit`, `offset`, `page`, `meta`, `aggregate`, `groupBy`, `deep`, `alias`,
   `backlink`, `export` (FR-020); ghi lồng mọi loại quan hệ; special field. Query `version`, `versionRaw` giữ D-09.6 tới
   008: Directus chỉ dùng `version` khác `main` ở `readOne` (`GET /:collection/:pk`) và `readSingleton`
@@ -631,7 +631,7 @@ Khác biệt mới:
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
-| Không có | | | | | | |
+| D-209 | Field ẩn (`directus_fields.hidden`) của collection người dùng khi đọc bằng wildcard | `*`, `*.*` và không truyền `fields` trả về cả field ẩn | Wildcard bỏ field ẩn, trừ khóa chính; field ghi đích danh trong `fields` (hoặc qua `alias`) vẫn trả về; áp cho `/items`, `SEARCH`, export, quan hệ lồng (`*.*`), mọi caller kể cả admin (quyền với field cụ thể cũng bị lọc khi mở rộng `*`); collection hệ thống như Directus; GraphQL không có wildcard nên không đổi; `get-ast-from-query/lib/convert-wildcards.ts` + `utils/hidden-fields.ts` (cache `hidden-fields` trong `localSchemaCache`, xóa theo `schemaChanged`); parity `items/hidden-fields.test.ts` | Owner 2026-11-03: field ẩn ở Data Model (vd. token mã hóa) không được trả về khi client không chọn đích danh | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
