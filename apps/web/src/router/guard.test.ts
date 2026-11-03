@@ -76,6 +76,19 @@ describe('onBeforeEach', () => {
 		expect(useAppStore().error).toBe(error);
 	});
 
+	// Owner 2026-11-04: a failing /server/info keeps the URL (DR would go to /setup behind the error screen).
+	test('a failing server info keeps the asked URL, no /setup, no hydrate', async () => {
+		const server = useServerStore();
+		server.info.project = null;
+		server.info.setupCompleted = false;
+		vi.spyOn(server, 'hydrate').mockRejectedValue(new Error('down'));
+		signIn(user({}));
+
+		expect(await go('/content/a')).toBe('/content/a');
+		expect(hydrate).not.toHaveBeenCalled();
+		expect(useAppStore().error).toBeInstanceOf(Error);
+	});
+
 	test('setup not completed: every route goes to /setup', async () => {
 		useServerStore().info.setupCompleted = false;
 

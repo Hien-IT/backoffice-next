@@ -41,6 +41,10 @@ export const onBeforeEach: NavigationGuard = async (to) => {
 			await serverStore.hydrate();
 		} catch (error: any) {
 			appStore.error = error;
+			// Backoffice (owner 2026-11-04): the server info could not be read, so setupCompleted is only its default.
+			// DR sends every route to /setup behind the error screen; stay on the asked URL so a reload after the API
+			// is back opens that page.
+			return;
 		}
 	}
 
