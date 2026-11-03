@@ -228,9 +228,12 @@ test('"+" adds a column from the field list', async () => {
 
 	await userEvent.click(document.querySelector<HTMLElement>(`[aria-label="${i18n.global.t('add_field')}"]`)!);
 	await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')).not.toBeNull());
-	const tags = [
+	const entries = [
 		...document.querySelectorAll<HTMLElement>('[role="dialog"] [role="treeitem"], [role="dialog"] button'),
-	].find((el) => el.textContent?.trim() === 'Tags')!;
+	];
+	// a hidden field (bo_content.sort) is not offered
+	expect(entries.find((el) => el.textContent?.trim() === 'Sort')).toBeUndefined();
+	const tags = entries.find((el) => el.textContent?.trim() === 'Tags')!;
 	await userEvent.click(tags);
 	await vi.waitFor(() =>
 		expect(layoutQuery.value.fields).toEqual(['body', 'date_published', 'status', 'title', 'tags']),

@@ -120,7 +120,7 @@ test('layout state auto-save: cards, table, calendar, kanban, map (SC-005)', asy
 			});
 			await saved(page, async () => {
 				await main.getByRole('button', { name: 'add', exact: true }).click();
-				await chooseInMenu(page, 'ID');
+				await chooseInMenu(page, 'Tags');
 			});
 			await saved(page, () => layoutOption(page, 'Spacing', 'Compact'));
 
@@ -152,9 +152,10 @@ test('layout state auto-save: cards, table, calendar, kanban, map (SC-005)', asy
 				await table.getByRole('button', { name: 'Title', exact: true }).click();
 				await page.getByRole('menuitemradio', { name: 'Sort Descending' }).click();
 			});
+			// a field the "+" menu offers: id and sort of bo_content are hidden, Backoffice leaves them out (D-208 of 014)
 			await saved(page, async () => {
 				await table.getByRole('button', { name: 'Add Field' }).click();
-				await page.getByRole('dialog', { name: 'Add Field' }).getByRole('treeitem', { name: 'ID' }).click();
+				await page.getByRole('dialog', { name: 'Add Field' }).getByRole('treeitem', { name: 'Tags' }).click();
 			});
 			await saved(page, () => option('Spacing', 'Compact'));
 

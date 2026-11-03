@@ -348,6 +348,7 @@ const POPOVER =
 									:collection="collection"
 									:disabled-fields="fields"
 									:allow-select-all="false"
+									:field-filter="(field) => !field.meta?.hidden"
 									@add="addField($event[0]!)"
 								/>
 							</PopoverContent>
