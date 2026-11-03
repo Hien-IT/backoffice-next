@@ -45,6 +45,7 @@ Thêm mục mới (ví dụ spec 030) thì thêm một dòng ở đây, anchor l
   - [027: Khóa chính uuid tự sinh dùng UUID v7](#027-khóa-chính-uuid-tự-sinh-dùng-uuid-v7)
   - [028: Filter so sánh hai field của cùng collection](#028-filter-so-sánh-hai-field-của-cùng-collection)
   - [029: Đăng nhập bằng Passkey (WebAuthn)](#029-đăng-nhập-bằng-passkey-webauthn)
+  - [030: Index ghép, index trigram và tạo index không khóa bảng](#030-index-ghép-index-trigram-và-tạo-index-không-khóa-bảng)
 - [7. Phần chung của `/speckit.plan`](#7-phần-chung-của-speckitplan)
 - [8. Chọn model cho từng bước](#8-chọn-model-cho-từng-bước)
 - [9. Mẹo khi chạy](#9-mẹo-khi-chạy)
@@ -2569,6 +2570,149 @@ Ghi chú đưa vào spec và plan 029 (đọc code ngày 2026-11-01, chưa chạ
   2026-11-01: server 14.0.3 (engines node >= 20, MIT), browser 14.0.0 (MIT). Thử ở R1 của plan trước khi viết code.
 - [Inference] Nhiều passkey cùng user và chọn tài khoản ở hộp thoại trình duyệt đều do discoverable credential lo; API
   chỉ cần tra credential id → user; không cần endpoint "tìm user theo email" nên không lộ user tồn tại.
+
+---
+
+### 030: Index ghép, index trigram và tạo index không khóa bảng
+
+Trạng thái: soạn 2026-11-03 từ câu hỏi của chủ dự án ("backoffice có thể tạo index như
+`CREATE UNIQUE INDEX ... ON passenger_auth_identities (provider, provider_subject)` không"); `/speckit.specify` chạy
+2026-11-03 (spec.md: US1–US5, FR-001..FR-025 + FR-101, D-210..D-210.4 chờ duyệt, checklists/requirements.md đạt, không
+marker clarify; 9 điểm chốt theo đề xuất của bảng dưới); `/speckit.clarify` chạy 2026-11-03 (5 câu: tạo index là
+job nền với 202 và trạng thái `creating`/`ready`/`failed` (khác đề xuất "chờ"), activity như `backoffice_permissions`,
+danh sách field kéo thả BoSortableList (khác đề xuất BoSelect), MySQL `text`/`json`/`geometry` 400, hộp thoại xóa field
+nêu index sẽ gỡ); `/speckit.plan` chạy 2026-11-03 (research R1–R14 với thử thật trên Postgres 13.16 và MySQL 8.4.13:
+`pg_trgm` trusted, GIN trên `lower(col)` được dùng từ 3 ký tự, MySQL và Knex SQLite giữ index thiếu cột khi xóa cột;
+data-model, contracts api/web/tests, quickstart; 7 sửa câu chữ spec: unique `name` thay khóa Redis, SIGTERM đánh dấu
+`failed` trước khi pool đóng, `pg_trgm` lỗi → `failed`, 409 → 400, card cuối trang sau BoForm, `missing: null` MSSQL/Oracle,
+D-210..D-210.3 `doc`); chủ dự án duyệt D-210..D-210.4, hai điểm Complexity Tracking và card cuối trang 2026-11-03; `/speckit.tasks` chạy
+2026-11-03 (74 task, hai lượt: lượt 1 API T001–T050, lượt 2 web T051–T074); `/speckit.analyze` chạy
+2026-11-03 (0 CRITICAL, 1 HIGH: quy tắc 1 giờ phải kiểm `pg_stat_progress_create_index` vì index đang build CONCURRENTLY cũng
+INVALID; 4 MEDIUM: FR-016 gồm SQLite, assert activity, case import, 400 khi xóa collection đang creating; đã sửa cùng 4 LOW).
+Thư mục: `specs/030-collection-indexes/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+Không sửa constitution: bảng `backoffice_indexes` đi qua migration riêng (Nguyên tắc II từ 3.2.0), khác biệt API ghi
+theo Nguyên tắc X từ D-210 (D-209 đã dùng ở spec 005). Không dependency mới, không biến môi trường mới. Vendor: Postgres,
+SQLite, MySQL (ba vendor của ma trận `parity` trong CI); index trigram chỉ Postgres; vendor khác trả 400 như 023 (D-145).
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Vì sao cần** (đọc code 2026-11-03): Backoffice và Directus 11.17.4 chỉ tạo index trên một cột qua
+`schema.is_unique` / `schema.is_indexed` của field (`apps/api/src/services/fields.service.ts:1001`), tên cố định
+`<collection>_<field>_unique|index`; snapshot, `/schema/apply` và form Data Model không có chỗ cho index hai cột hay
+index kiểu khác. Tìm kiếm `?search=` của cả hai app là `LOWER(col) LIKE '%x%'` trên mọi cột chuỗi
+(`apps/api/src/database/run-ast/lib/apply-query/search.ts:80`), nên B-tree không giúp; trên Postgres chỉ index GIN
+trigram trên biểu thức `lower(col)` (`pg_trgm`, `gin_trgm_ops`) mới dùng được cho câu này.
+
+**Ảnh hưởng tới Directus** (không sửa code, cấu hình hay DB của Directus):
+
+- Directus không biết các index này; nó vẫn đọc, ghi, xóa field và collection như cũ. Khi Directus xóa một cột nằm
+  trong index ghép thì DB tự xử lý (Postgres bỏ index; MySQL bỏ cột khỏi index, giữ phần còn lại; SQLite dựng lại bảng
+  qua Knex) và dòng `backoffice_indexes` thành mồ côi: Backoffice phải chịu được (xem câu hỏi 4).
+- `/fields` của hai app vẫn trả `is_unique: false`, `is_indexed: false` cho các cột trong index ghép, vì introspection
+  chỉ nhận ràng buộc một cột; đây là chỗ khác biệt phải ghi (D-210.1).
+- Directus chỉ thấy thêm bảng `backoffice_indexes` (bảng chưa quản lý trong Data Model, như `backoffice_passkeys`);
+  normalizer parity đã bỏ `backoffice_*` ở `/collections`, `/fields`, OAS, GraphQL (022, 025).
+- Lỗi trùng unique ghép: Postgres trả 23505 với `detail` "Key (a, b)=(..) already exists" và extractor hiện lấy cả
+  chuỗi "a, b" làm một field (`apps/api/src/database/errors/dialects/postgres.ts:40`); MySQL extractor suy field từ tên
+  index nên tên `t_a_b_unique` sẽ ra field "a_b". Spec phải nói API trả `RECORD_NOT_UNIQUE` với đủ các field.
+
+**Code port từ Directus bị sửa** (mỗi chỗ ghi comment `Backoffice (spec 030, D-210)` theo Nguyên tắc IX, giữ dòng
+`Ported from`): `database/helpers/schema/types.ts` (`CreateIndexOptions`, chữ ký `createIndex`),
+`database/helpers/schema/dialects/{postgres,mysql,sqlite}.ts` (nhiều cột, kiểu trigram, tên),
+`database/errors/dialects/{postgres,mysql}.ts` (nhiều field), `services/fields.service.ts` và
+`services/collections.service.ts` (xóa index và dòng `backoffice_indexes` trước khi xóa cột hay bảng),
+`libs/system-data/src/collections/collections.yaml` (collection hệ thống ẩn), web
+`modules/settings/routes/data-model/FieldsRoute.vue` (card Indexes). Không chạm: snapshot/diff/apply, `/fields` DDL một
+cột, search SQL, GraphQL, flows, extensions, Directus app.
+
+**Câu hỏi cần chủ dự án chốt trước `/speckit.specify`** (đề xuất lười nhất ở cột Chốt; sửa prompt bên dưới theo câu trả lời):
+
+| # | Câu hỏi | Đề xuất |
+| - | ------- | ------- |
+| 1 | Lưu định nghĩa ở đâu | Bảng `backoffice_indexes` (migration 20261103A): trigram và biểu thức `lower()` không đọc lại sạch từ catalog; chỉ liệt kê index do Backoffice tạo, index tạo tay không hiện |
+| 2 | Tên index | Tự sinh bằng `generateIndexName` hiện có: `<collection>_<f1>_<f2>_unique|index`, trigram `<collection>_<f>_trgm`; đã cắt độ dài theo dialect; không nhận tên tùy ý (ví dụ `_uq` của chủ dự án không giữ được) |
+| 3 | Vào snapshot/`schema/apply` không | Không (ngoài phạm vi); sync schema giữa môi trường không mang index; ghi vào Assumptions |
+| 4 | Dòng mồ côi (Directus xóa cột/bảng, hoặc xóa index tay) | `GET` đối chiếu catalog và trả thêm `missing: true`, nút xóa chỉ xóa dòng; không tự tạo lại |
+| 5 | `pg_trgm` chưa cài | API chạy `CREATE EXTENSION IF NOT EXISTS pg_trgm` trước index trigram đầu tiên; thất bại (không quyền) thì 400 với thông báo nêu lệnh để DBA chạy. [Unverified] Từ Postgres 13 `pg_trgm` là trusted extension nên chủ DB không cần superuser; kiểm ở research |
+| 6 | Trigram trên nhiều cột | Không: một index trigram = một cột chuỗi (`text`, `string`); nhiều cột thì tạo nhiều index |
+| 7 | Concurrently | Mặc định bật: Postgres `CREATE INDEX CONCURRENTLY`, MySQL `ALGORITHM=INPLACE LOCK=NONE` rồi fallback khóa bảng như helper hiện có, SQLite luôn khóa; tắt bằng `?concurrentIndexCreation=false` như `/fields` (`fields.controller.ts:50`) |
+| 8 | Ai được tạo | Chỉ admin, như DDL của `/fields` và `/collections` |
+| 9 | Web biết vendor cách nào | `GET` trả `meta: { trigram: boolean, concurrent: boolean }`; card ẩn lựa chọn trigram khi `false` |
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/030-collection-indexes và đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. Feature 030: admin tạo và xóa index của một collection người dùng trong Backoffice: index B-tree ghép nhiều cột (unique hoặc không) trên Postgres, SQLite, MySQL; index trigram GIN cho tìm kiếm trên Postgres; tạo không khóa bảng khi vendor cho phép. Bối cảnh: Directus 11.17.4 và Backoffice chỉ tạo index trên một cột qua schema.is_unique / schema.is_indexed của field, không có index nhiều cột, không có index kiểu khác, không có chỗ nào trong snapshot hay Data Model cho việc này; tìm kiếm ?search= của hai app là LOWER(col) LIKE '%x%' trên mọi cột chuỗi nên B-tree không giúp, chỉ index GIN trigram trên lower(col) (pg_trgm) của Postgres mới dùng được. Đây là tính năng chỉ của Backoffice (như 022, 025, 029): Directus không thấy, không sửa, không bị ảnh hưởng. Phạm vi đã chốt (chủ dự án 2026-11-03): 1. Hai loại index: btree (một hoặc nhiều field, tùy chọn unique) và trigram (đúng một field kiểu string hoặc text, index GIN trên lower(field) với gin_trgm_ops, chỉ Postgres; vendor khác trả 400 INVALID_PAYLOAD nêu rõ chỉ Postgres). 2. Field phải là cột thật của collection (không alias, không o2m/m2m/m2a/presentation), tối đa 8 field một index, không trùng field; không index trên collection hệ thống directus_* và backoffice_*. 3. Tên index tự sinh theo quy tắc hiện có của Backoffice (<collection>_<field1>_<field2>_unique hoặc _index, trigram <collection>_<field>_trgm), cắt theo giới hạn tên của vendor; không nhận tên tùy ý; hai index cùng tập field, cùng loại, cùng unique trong một collection là trùng → 400. 4. Định nghĩa lưu ở bảng hệ thống mới backoffice_indexes qua migration riêng của Backoffice (Nguyên tắc II: chỉ bảng tiền tố backoffice_, chỉ up, chạy trên 7 vendor, chạy lại được, không FK): id uuid v4 (collection hệ thống, 027), collection, name, fields (JSON mảng tên field theo thứ tự), type (btree|trigram), unique (boolean), date_created; collection hệ thống ẩn (403 trên /items, ngoài GraphQL, ngoài Data Model) như backoffice_passkeys. Chỉ index do Backoffice tạo mới được liệt kê; index tạo tay ngoài hệ thống không hiện. 5. Tạo index không khóa bảng theo mặc định: Postgres CREATE INDEX CONCURRENTLY (ngoài transaction), MySQL ALGORITHM=INPLACE LOCK=NONE và tự quay về tạo thường khi vendor từ chối (như helper createIndex hiện có), SQLite luôn tạo thường; tắt bằng ?concurrentIndexCreation=false như POST /fields. Tạo concurrently thất bại giữa chừng trên Postgres để lại index INVALID: API xóa index đó rồi mới trả lỗi. 6. pg_trgm: trước index trigram đầu tiên API chạy CREATE EXTENSION IF NOT EXISTS pg_trgm; không có quyền thì 400 với thông báo nêu lệnh để DBA chạy, không tạo gì. 7. Xóa index: Backoffice drop index rồi xóa dòng. Xóa field ở Backoffice: mọi index có field đó bị drop và xóa dòng trước khi xóa cột (trên mọi vendor, để MySQL không giữ lại index thiếu cột); xóa collection ở Backoffice xóa cả dòng. Directus xóa field hay collection, hoặc DBA xóa index tay: dòng backoffice_indexes thành mồ côi, GET đối chiếu catalog của vendor và trả missing: true cho dòng đó, xóa dòng được, không tự tạo lại. 8. Chỉ admin được tạo và xóa (như DDL của /fields); user khác 403. 9. Lỗi trùng trên unique ghép trả RECORD_NOT_UNIQUE với từng field của index (hiện Postgres gộp "a, b" thành một field, MySQL suy sai từ tên index): sửa extractor của hai dialect, lỗi unique một cột không đổi. 10. Web: trang collection trong Settings > Data Model có card "Indexes" ngay sau card "Content: Search, Import, Export" (D-182): bảng tên / fields / loại / unique / trạng thái (missing), nút thêm mở hộp thoại chọn fields (chỉ cột thật, giữ thứ tự chọn), loại (trigram chỉ hiện khi API báo vendor hỗ trợ), unique, công tắc "không khóa bảng" bật sẵn khi API báo hỗ trợ; nút xóa với xác nhận; card ẩn khi API là Directus (probe như passkey: GET trả 404). Chuỗi en-US, vi-VN ở overlay. Ngoài phạm vi: index vào snapshot, diff và schema/apply; đổi tên index; index biểu thức tùy ý, partial index (WHERE), hash, BRIN, INCLUDE, thứ tự DESC/NULLS; trigram trên MySQL/SQLite (không có); đổi câu SQL của ?search=; index trên collection hệ thống; MSSQL, Oracle, CockroachDB, MariaDB (400 hoặc chưa đo, ghi Assumptions); tự gợi ý index. Khác biệt với Directus ghi từ D-210, chủ dự án duyệt theo Nguyên tắc X (bảng "Khác biệt so với Directus" theo FR-101 để tests/parity/src/spec-differences.ts đọc được): D-210 Backoffice có endpoint GET/POST/DELETE /backoffice/collections/:collection/indexes dưới tiền tố /backoffice/ (D-189.6), Directus trả 404; D-210.1 cột trong index ghép vẫn is_unique: false, is_indexed: false ở /fields của cả hai app (giữ như Directus, không đổi introspection); D-210.2 GET /collections, OAS, introspection khác ở backoffice_indexes (đã có normalizer backoffice_*); D-210.3 xóa field hay collection ở Backoffice xóa thêm index và dòng backoffice_indexes; D-210.4 RECORD_NOT_UNIQUE của unique ghép liệt kê từng field. Parity: suite tests/parity/src/schema/indexes.test.ts (Directus 404 trên endpoint mới; mọi request /fields, /collections, /items, ?search= khác vẫn giống Directus; sau khi tạo index ghép thì đọc, ghi, lỗi trùng ở hai app cùng DB giống nhau trừ D-210.4) chạy trên Postgres, SQLite, MySQL; trigram chỉ chạy trên Postgres; dump bảng ở profile bootstrap có backoffice_indexes. E2E: settings-data-model-indexes.spec.ts ba cấu hình (proxy-directus: card ẩn; proxy-api và cors: tạo index ghép unique, tạo bản ghi trùng thấy lỗi, xóa index), a11y axe như 016. Benchmark: thêm một dòng ?search= trên seed 10M dòng có và không có index trigram, đo Backoffice-only như 023 đo json path; số đo ghi vào spec, không phải success criteria.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. Bỏ qua được: 9 điểm đã chốt 2026-11-03 (bảng backoffice_indexes, tên tự sinh, ngoài snapshot, dòng mồ côi missing: true, pg_trgm tự cài hoặc 400, trigram một cột, concurrently mặc định, admin only, meta vendor). Hỏi nếu spec chưa rõ: POST đang tạo concurrently trên Postgres mất lâu thì request chờ hay trả 202 (đề xuất chờ, như POST /fields hiện nay, timeout của lb ghi ở deploy/README); hai request tạo cùng index trên hai replica cùng lúc (đề xuất khóa Redis useLock theo collection như backoffice-migrations, request sau 400 trùng); unique ghép mà dữ liệu đang trùng (đề xuất 400 với mã lỗi của vendor chuyển thành RECORD_NOT_UNIQUE, không tạo gì); field kiểu json/geometry/text trên MySQL trong index btree (đề xuất 400 cho json, geometry, text không có prefix: MySQL cần độ dài prefix, Backoffice không hỗ trợ); schema cache sau khi tạo index (đề xuất không emit schemaChanged vì SchemaOverview không chứa index); trường fields trong card chọn bằng BoSelect nhiều giá trị hay danh sách kéo thả để sắp thứ tự (đề xuất BoSelect nhiều giá trị, thứ tự chọn là thứ tự cột, hiện chip). Ghi "Clarifications" vào spec; D-210.x cập nhật theo câu trả lời.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-210+)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. Phần chung BE/FE như mục 7. Đọc trước: apps/api/src/database/helpers/schema/types.ts (CreateIndexOptions, createIndex(collection, field, options)), apps/api/src/database/helpers/schema/dialects/postgres.ts (generateIndexName với giới hạn 63 ký tự, createIndex CONCURRENTLY dòng 68), mysql.ts (ALGORITHM=INPLACE LOCK=NONE và fallback, dòng 108), sqlite.ts (createIndex dòng 216), apps/api/src/database/migrations/20251028A-add-retention-indexes.ts (cách gọi createIndex với attemptConcurrentIndex ngoài transaction), apps/api/src/controllers/fields.controller.ts (concurrentIndexCreation dòng 50, kiểm admin), apps/api/src/services/fields.service.ts (deleteField: chỗ chèn drop index trước dropColumn; is_unique/is_indexed dòng 1001), apps/api/src/services/collections.service.ts (deleteOne), apps/api/src/database/errors/dialects/postgres.ts (uniqueViolation dòng 37–45: tách detail "Key (a, b)=(...)" thành nhiều field) và mysql.ts (suy field từ tên index), apps/api/src/database/run-ast/lib/apply-query/search.ts (LOWER(col) LIKE: biểu thức của index trigram phải là lower(col) đúng như câu này), apps/api/src/services/backoffice-permissions.service.ts và controller /backoffice/permissions (D-189.6, mẫu service bảng backoffice_*), apps/api/src/database/backoffice-migrations/20261101A-create-backoffice-passkeys.ts (mẫu migration riêng, hasTable + try/catch), libs/system-data/src/collections/collections.yaml (collection hệ thống ẩn), apps/api/src/lock/lib/use-lock.ts (khóa Redis cho tạo index trên nhiều replica), web: apps/web/src/modules/settings/routes/data-model/FieldsRoute.vue (card D-182, chỗ đặt card Indexes), apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedSchema.vue (unique/indexed một cột, không đổi), apps/web/src/composables/use-passkey-support.ts (mẫu probe 404 để ẩn card khi API là Directus), apps/web-e2e/src/settings-data-model*.spec.ts. Quyết định kỹ thuật cần ghi ở plan: 1. Mở rộng CreateIndexOptions thêm type: 'btree' | 'trigram' và createIndex nhận field: string | string[]; mọi caller cũ truyền một chuỗi và không đổi hành vi (test 006 và parity schema phải xanh nguyên); generateIndexName nhận mảng field nối bằng "_". 2. SQL trigram Postgres: CREATE INDEX [CONCURRENTLY] <name> ON <table> USING gin (lower(<col>) gin_trgm_ops); kiểm bằng EXPLAIN trong parity rằng ?search= dùng index (Bitmap Index Scan) trên bảng đủ lớn hoặc với enable_seqlock off. 3. Liệt kê và đối chiếu catalog: Postgres pg_indexes (indexname theo tablename), SQLite PRAGMA index_list, MySQL information_schema.statistics; chỉ kiểm tồn tại theo tên, không parse định nghĩa. 4. Endpoint: GET /backoffice/collections/:collection/indexes (admin; data: dòng backoffice_indexes của collection + missing; meta: { trigram, concurrent } theo vendor), POST (body { fields, type, unique }, ?concurrentIndexCreation), DELETE /:name; service BackofficeIndexesService extends ItemsService trên backoffice_indexes với accountability admin như BackofficePermissionsService; DDL qua helpers.schema, không qua transaction khi concurrently. 5. Khóa useLock().usingLock(`backoffice-indexes:${collection}`) quanh kiểm trùng + DDL + insert. 6. Cascade: FieldsService.deleteField và CollectionsService.deleteOne gọi service xóa index theo field/collection trước DDL của chúng (theo mẫu 025 xóa backoffice_permissions theo policy). 7. Extractor: Postgres tách mọi tên trong ngoặc đầu của detail bằng ", "; MySQL tra tên index trong backoffice_indexes trước khi suy từ tên (hoặc chấp nhận field = tên index khi không tra được, ghi ở D-210.4). 8. Web: card "Indexes" trong FieldsRoute.vue theo mẫu card D-150/D-182, BoTable, BoDialog thêm với BoSelect nhiều giá trị cho fields (lọc field có schema và không alias), BoSelect loại, BoToggle unique và "không khóa bảng"; strings overlay en-US/vi-VN; card ẩn khi GET trả 404. 9. Parity tests/parity/src/schema/indexes.test.ts với mục http D-210 (Directus 404), kiểm /fields hai app giống nhau sau khi tạo index (D-210.1), lỗi trùng hai app (D-210.4 http), dump profile bootstrap; trigram chỉ khi TEST_DB=postgres. 10. Rủi ro ghi ở plan: CREATE INDEX CONCURRENTLY không chạy được trong transaction và trong cùng kết nối đang mở transaction (Knex pool: dùng knex.raw ngoài trx như migration 20251028A); index INVALID sau lỗi phải drop; MySQL không có index trên cột text/json không prefix; SQLite ALTER qua Knex dựng lại bảng và có thể bỏ index (kiểm ở research, nếu mất thì Backoffice tạo lại sau DDL của field trên SQLite); giới hạn tên 63 (Postgres) / 64 (MySQL) ký tự khi nối nhiều field. Kết quả: research.md R1–R?, data-model.md (backoffice_indexes), contracts (OpenAPI của /backoffice/collections/:collection/indexes), quickstart.md.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. api-compat: mọi endpoint ngoài /backoffice/ giống Directus, /fields không đổi sau khi tạo index (D-210.1), D-210.x ghi đủ trong bảng FR-101, normalizer backoffice_* đủ cho bảng mới, migration chạy lại được trên 7 vendor, caller cũ của createIndex không đổi. security: chỉ admin, tên collection và field đi qua ?? của Knex (không nối chuỗi), không index trên directus_*/backoffice_*, 403 cho /items/backoffice_indexes. data-safety: xóa field drop index trước trên mọi vendor, index INVALID được dọn, dòng mồ côi không gây lỗi khi đọc collection, tạo concurrently không khóa ghi (đo trong deploy suite 3 replica: ghi item trong lúc tạo index trên bảng seed).
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. Chia hai lượt: lượt 1 API (migration backoffice_indexes + test chạy lại, collection hệ thống ẩn, mở rộng createIndex/generateIndexName ba dialect, service + controller /backoffice/collections/:collection/indexes, khóa Redis, cascade ở fields/collections service, extractor Postgres/MySQL, unit test, parity indexes.test.ts trên ba vendor, dump bootstrap, deploy/README mục pg_trgm và timeout); lượt 2 web (card Indexes, hộp thoại thêm, xóa, probe 404, strings, E2E ba cấu hình, a11y, dòng benchmark ?search=). Mỗi lượt kết thúc bằng lint, unit, parity liên quan và commit thẳng main sau khi CI của commit trước xanh (không stage apps/api/project.json, apps/web/project.json).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. Lượt 1: API (migration, collection hệ thống, createIndex nhiều cột và trigram ở ba dialect, endpoint /backoffice/collections/:collection/indexes, khóa, cascade, extractor, parity trên postgres/sqlite/mysql với TEST_DB=<vendor>, README). Comment theo Nguyên tắc IX ("DR"), mỗi chỗ sửa code port ghi `Backoffice (spec 030, D-210)`. Chạy lint, unit API, parity schema và indexes trước khi commit; commit thẳng main khi CI của commit trước xanh; không stage apps/api/project.json, apps/web/project.json.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=030-collection-indexes khi chạy script .specify. Lượt 2: Web (card Indexes ở FieldsRoute.vue, hộp thoại thêm/xóa, probe 404, overlay en-US/vi-VN) với E2E ba cấu hình và a11y; dòng benchmark ?search= có/không trigram; cập nhật spec 006/016 ghi chú "(030: ...)" ở index một cột và trang collection; đóng spec (Status, D-210.x duyệt). Commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Ghi chú đưa vào spec và plan 030 (đọc code ngày 2026-11-03, chưa chạy thử):
+
+- Helper index đã có sẵn theo dialect: `createIndex(collection, field, { unique, attemptConcurrentIndex })`
+  (`types.ts:24`, Postgres `postgres.ts:60`–`:78`, MySQL `mysql.ts:100`–`:120`, SQLite `sqlite.ts:216`); hai
+  migration `20251028A`, `20260113A` gọi với `attemptConcurrentIndex: true`. Spec 030 chỉ mở rộng chữ ký, không viết
+  helper mới.
+- `generateIndexName('unique' | 'index', collection, field)` của Postgres (`postgres.ts:9`) cắt tên theo giới hạn;
+  tên của 030 đi qua hàm này với mảng field.
+- `?search=` là `LOWER(??) LIKE ?` với `%x%` (`search.ts:80`) cho `string`/`text`; index trigram phải trên `lower(col)`
+  (index trên `col` thường không được dùng vì biểu thức khác). [Inference] `LIKE '%x%'` dùng được GIN trigram khi
+  chuỗi tìm từ 3 ký tự; ngắn hơn Postgres quét bảng; ghi ở Assumptions.
+- `fields.service.ts:1001`–`:1016`: unique/index một cột dùng `column.unique`/`column.index` với tên từ
+  `generateIndexName`; 030 không đổi đoạn này (D-210.1 giữ `is_unique`/`is_indexed` như Directus).
+- Extractor Postgres (`errors/dialects/postgres.ts:37`–`:45`) lấy nhóm ngoặc đầu của `detail` làm `field`; với unique
+  ghép ra `"provider, provider_subject"`. Sửa thành tách bằng `, ` và trả `RecordNotUniqueError` cho từng field (hoặc
+  một lỗi với mảng field, tùy mẫu lỗi hiện có; plan chọn).
+- Migration riêng mẫu `20261101A` (`hasTable` rồi `createTable` trong try/catch); collection hệ thống ẩn khai báo ở
+  `collections.yaml` cạnh `backoffice_passkeys`.
+- [Unverified] MySQL khi `DROP COLUMN` cột nằm trong index nhiều cột thì bỏ cột khỏi index và giữ index còn lại; SQLite
+  `DROP COLUMN` qua Knex dựng lại bảng. Vì vậy cascade của mục 7 drop index trước trên mọi vendor; kiểm ở research.
+- [Unverified] `CREATE EXTENSION pg_trgm` không cần superuser từ Postgres 13 (trusted extension) khi user là chủ DB;
+  trên DB managed (RDS, Cloud SQL) thường cho phép. Kiểm ở research; thất bại thì 400 với lệnh cho DBA.
+- Parity chạy trên ba vendor của ma trận `parity` (postgres, sqlite, mysql); với `--` lọc file cần `TEST_DB=<vendor>`
+  (bài học 027). Benchmark `?search=` đo Backoffice-only như 023 vì Directus không có index này.
 
 ---
 
