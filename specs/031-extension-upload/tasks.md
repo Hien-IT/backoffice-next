@@ -394,7 +394,7 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
       D-212..D-212.3 "duyệt", "Đánh giá hiện trạng" dòng 4–6 [Verified] với số liệu T031; `checklists/requirements.md` ghi chú.
 - [x] T055 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test:unit`, `web:test:browser`, `web:build`, E2E ba cấu
       hình; sửa tới xanh.
-- [ ] T056 Đóng lượt 2: `git add` theo đường dẫn (`apps/web`, `apps/web-e2e`, `design-system`, `specs`, `CLAUDE.md`,
+- [x] T056 Đóng lượt 2: `git add` theo đường dẫn (`apps/web`, `apps/web-e2e`, `design-system`, `specs`, `CLAUDE.md`,
       `SPECKIT-GUIDE.md`), commit `feat(web): upload an extension package on Settings > Extensions (spec 031, D-212)` với
       dòng `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`; push khi `main` rảnh; theo dõi CI (web, e2e-web,
       parity, deploy), sửa job đỏ; `graphify update .`; ghi mã commit và run CI vào spec Status.
