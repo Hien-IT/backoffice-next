@@ -25,6 +25,9 @@ export type InstalledSource = 'registry' | 'upload';
 
 const SOURCE_FOLDER: Record<InstalledSource, string> = { registry: '.registry', upload: '.upload' };
 
+/** Backoffice (spec 031): the hidden local folder of an upload before its row exists (the scan skips dot folders). */
+const stagedName = (folder: string) => `.${folder}`;
+
 /** Backoffice (spec 031): checks of an uploaded package, run on its manifest before anything leaves the temp folder. */
 export type ManifestCheck = (manifest: ExtensionManifest) => void | Promise<void>;
 
@@ -206,10 +209,18 @@ export class InstallationManager {
 		}
 
 		// move to regular local extensions folder
-		const dest = join(this.extensionPath, subfolder, folder);
+		// Backoffice (spec 031, race found on MySQL): an upload is staged in the hidden `.upload/.<folder>` until its row
+		// exists (activateUpload); a reload of this node in between would otherwise load it as a folder without a row.
+		const dest = join(this.extensionPath, subfolder, upload ? stagedName(folder) : folder);
 		await move(join(tempDir, extractedPath), dest, { overwrite: true });
 
 		return extensionManifest;
+	}
+
+	/** Backoffice (spec 031): makes a staged upload visible to the scan of this node, once its row is written. */
+	async activateUpload(folder: string) {
+		const base = join(this.extensionPath, SOURCE_FOLDER.upload);
+		await move(join(base, stagedName(folder)), join(base, folder), { overwrite: true });
 	}
 
 	async uninstall(folder: string, source: InstalledSource = 'registry') {
@@ -232,6 +243,8 @@ export class InstallationManager {
 
 		const path = join(this.extensionPath, subfolder, folder);
 		await remove(path);
+		// Backoffice (spec 031): an upload removed before its activation is still staged.
+		if (source === 'upload') await remove(join(this.extensionPath, subfolder, stagedName(folder)));
 	}
 
 	/**

@@ -22,7 +22,7 @@ function run(req: Partial<Request>) {
 	return res.locals;
 }
 
-const SKIP = { skipCacheRead: true, cache: false };
+const SKIP = { skipCacheRead: true, skipCacheWrite: true };
 
 test('an uploaded package loaded: GET /extensions, GET /extensions/:pk, GraphQL system extensions skip the cache', () => {
 	hasUploadedExtensions.mockReturnValue(true);

@@ -88,6 +88,18 @@ describe('response cache (spec FR-012, contracts/cache.md §5)', () => {
 		vi.mocked(Date.now).mockRestore();
 	});
 
+	// Backoffice (spec 031, D-212.2): the reads of /extensions while an uploaded package is loaded.
+	test('skipCacheWrite: nothing stored, the headers of a cached answer kept', async () => {
+		const r = res({ data: [1] });
+		r.locals.skipCacheWrite = true;
+
+		await respond(get(), r);
+
+		expect(setCacheValue).not.toHaveBeenCalled();
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=300, s-maxage=0');
+		expect(r.json).toHaveBeenCalledWith({ data: [1] });
+	});
+
 	test.each([
 		['a method other than GET', { method: 'POST' }, {}],
 		['a path under /auth', { originalUrl: '/auth/login' }, {}],

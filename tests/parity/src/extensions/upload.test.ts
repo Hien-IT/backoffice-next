@@ -29,7 +29,11 @@ beforeAll(() => {
 });
 
 afterAll(async () => {
-	// A test cut short leaves its rows and folders: remove them, then wait for every node to serve the seeded fixtures.
+	// A test cut short leaves its packages: uninstall them through Backoffice so every node reloads (raw deletes would
+	// leave them loaded in memory, and the next file would see the cache guard of D-212.2), then drop any leftover.
+	for (const id of installed) {
+		await call(backoffice().url, 'DELETE', `/extensions/registry/uninstall/${id}`).catch(() => undefined);
+	}
 	if (installed.length > 0) {
 		await hostDb()('directus_extensions').whereIn('id', installed).orWhereIn('bundle', installed).delete();
 		for (const id of installed) mc(`mc rm --recursive --force local/directus/extensions/.upload/${id} || true`);

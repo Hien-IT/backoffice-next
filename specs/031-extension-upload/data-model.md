@@ -44,7 +44,8 @@ loại trừ hai dòng cùng gói bằng `withSettingsLock` (research R5).
 ## Vòng đời
 
 ```text
-POST upload ──giải nén + kiểm──▶ file ở .upload/<id> (local + kho) ──lock──▶ dòng (source upload, enabled)
+POST upload ──giải nén + kiểm──▶ file ở kho .upload/<id> + local ẩn .upload/.<id> ──lock──▶ dòng (source upload,
+           enabled) ──▶ local đổi tên .upload/.<id> → .upload/<id> (vẫn trong khóa)
            ──bus partialSync──▶ mọi replica sync .upload/<id> và reload ──▶ endpoint/hook/app chạy
 PATCH /extensions/:id {enabled}  ──▶ bật/tắt (bus reload như registry)
 DELETE /extensions/registry/uninstall/:id ──▶ xóa dòng (+ entry) ──▶ xóa .upload/<id> (kho + local) ──bus──▶ replica xóa + reload

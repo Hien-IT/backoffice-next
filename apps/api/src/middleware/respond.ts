@@ -54,13 +54,17 @@ export async function respond(req: Request, res: Response): Promise<void> {
 			));
 
 	if (shouldCache) {
-		const key = await getCacheKey(req);
+		// Backoffice (spec 031, D-212.2): `skipCacheWrite` keeps the answer out of the shared cache with the headers of a
+		// cached answer, so the response stays identical to DR's (`cache: false` would send no-cache).
+		if (!res.locals['skipCacheWrite']) {
+			const key = await getCacheKey(req);
 
-		try {
-			await setCacheValue(cacheInstance, key, res.locals['payload'], cacheTTL);
-			await setCacheValue(cacheInstance, `${key}__expires_at`, { exp: Date.now() + cacheTTL });
-		} catch (err: any) {
-			logger.warn(err, `[cache] Couldn't set key ${key}. ${err}`);
+			try {
+				await setCacheValue(cacheInstance, key, res.locals['payload'], cacheTTL);
+				await setCacheValue(cacheInstance, `${key}__expires_at`, { exp: Date.now() + cacheTTL });
+			} catch (err: any) {
+				logger.warn(err, `[cache] Couldn't set key ${key}. ${err}`);
+			}
 		}
 
 		res.setHeader('Cache-Control', getCacheControlHeader(req, cacheTTL, !hasCustomCache, true));

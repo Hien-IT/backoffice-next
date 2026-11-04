@@ -296,6 +296,10 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
       response cache dùng chung) `api/middleware/uploaded-extensions-cache-guard.ts` (+ `.test.ts`) gắn trong
       `api/app-pipeline.ts` sau `passkeySessionCacheGuard`: khi `getExtensionManager().hasUploadedExtensions()`, `GET
       /extensions`, `GET /extensions/:pk`, tài liệu `/graphql/system` có `extensions` đặt `skipCacheRead` và `cache=false`.
+- [x] T028b [US4] (thêm 2026-11-04 sau khi đẩy lượt 2, parity MySQL đỏ) ca hai node tải cùng gói: bản local của gói
+      đặt ở `.upload/.<id>` (ẩn với scan) tới khi dòng được ghi, `InstallationManager.activateUpload(id)` đổi tên trong
+      khóa; `uninstall(id, 'upload')` xóa cả bản ẩn. Header: guard dùng `skipCacheWrite` (cờ mới của `respond`) thay
+      `cache=false`. Test parity dọn gói còn sót bằng API uninstall để mọi node nạp lại.
 - [x] T034 [US5] Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`), `api:build`; parity profile
       `extensions` đủ (`list`, `hooks`, `endpoints`, `install`, `sandbox`, `multi`, `upload`) trên `TEST_DB=postgres`;
       `libs/extensions`, `libs/types` test; sửa tới xanh.

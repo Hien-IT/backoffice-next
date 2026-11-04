@@ -81,6 +81,8 @@ async function upload(file: string, check?: (manifest: any) => void): Promise<an
 }
 
 const installed = () => join(root.dir, 'extensions', '.upload', FOLDER);
+/** Where an upload waits, hidden from the scan, until its row exists (activateUpload). */
+const staged = () => join(root.dir, 'extensions', '.upload', `.${FOLDER}`);
 /** What is left of the temp folders of uploads (their shared parent may stay, empty). */
 const tempLeft = async () => {
 	const parent = join(root.dir, 'temp', 'upload-extensions');
@@ -100,14 +102,20 @@ async function tarball(files: Record<string, string>, entries = ['package']): Pr
 }
 
 describe('a valid package', () => {
-	test('lands in .upload/<folder> with its files; the manifest is returned; the temp folder is gone', async () => {
+	test('is staged hidden in .upload/.<folder>, then activateUpload makes it .upload/<folder>; temp folder gone', async () => {
 		const manifest = await upload(ENDPOINT_TGZ);
 
 		expect(manifest).toMatchObject({ name: 'parity-upload-endpoint', 'directus:extension': { type: 'endpoint' } });
-		expect(existsSync(join(installed(), 'package.json'))).toBe(true);
-		expect(existsSync(join(installed(), 'dist', 'index.js'))).toBe(true);
+		expect(existsSync(join(staged(), 'package.json'))).toBe(true);
+		expect(existsSync(installed())).toBe(false);
 		expect(existsSync(join(root.dir, 'extensions', '.registry'))).toBe(false);
 		expect(await tempLeft()).toEqual([]);
+
+		await (await manager()).activateUpload(FOLDER);
+
+		expect(existsSync(staged())).toBe(false);
+		expect(existsSync(join(installed(), 'package.json'))).toBe(true);
+		expect(existsSync(join(installed(), 'dist', 'index.js'))).toBe(true);
 	});
 
 	test('a bundle: the manifest lists its entries', async () => {
@@ -129,7 +137,7 @@ describe('a valid package', () => {
 		expect(remote.writes).toEqual(
 			expect.arrayContaining([join('extensions', '.upload', FOLDER, 'dist', 'index.js')]),
 		);
-		expect(existsSync(join(installed(), 'package.json'))).toBe(true);
+		expect(existsSync(join(staged(), 'package.json'))).toBe(true);
 	});
 
 	test('readUploadedName reads the name from the shared storage, or undefined when the folder is gone', async () => {
@@ -141,12 +149,13 @@ describe('a valid package', () => {
 		expect(await installation.readUploadedName('missing')).toBeUndefined();
 	});
 
-	test('uninstall(folder, "upload") removes the local folder and every shared file of the package', async () => {
+	test('uninstall(folder, "upload") removes the local folder, staged or not, and every shared file', async () => {
 		root.location = 's3';
 		await upload(ENDPOINT_TGZ);
 
 		await (await manager()).uninstall(FOLDER, 'upload');
 
+		expect(existsSync(staged())).toBe(false);
 		expect(existsSync(installed())).toBe(false);
 		expect([...remote.files.keys()]).toEqual([]);
 		expect(remote.deletes.length).toBeGreaterThan(1);
@@ -161,6 +170,7 @@ describe('a rejected package: a 400 with its reason, no folder, the temp folder 
 		expect(error.status).toBe(400);
 		expect(error.extensions?.reason).toMatch(reason);
 		expect(existsSync(installed())).toBe(false);
+		expect(existsSync(staged())).toBe(false);
 		expect(remote.writes).toEqual([]);
 		expect(await tempLeft()).toEqual([]);
 	}

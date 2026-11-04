@@ -134,19 +134,21 @@ const FOCUS =
 			:data-extension-id="extension.id"
 		>
 			<BoIcon :name="icon" :title="t(`extension_${type}`)" class="text-gray-500 dark:text-gray-400" />
-			<span class="flex min-w-0 flex-1 items-center gap-2 text-theme-sm font-medium">
+			<!-- Backoffice (spec 031): the name keeps its width and the chips wrap below it on a narrow row (375 px), so the
+			     version and Uploaded chips never cut the name to a letter; a name wider than the row alone still truncates. -->
+			<span class="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-theme-sm font-medium">
 				<RouterLink
 					v-if="hasMarketplace && extension.meta.source === 'registry' && !extension.bundle"
 					:to="{ name: 'marketplace-extension', params: { extensionId: extension.id } }"
 					:title="t('open_in_marketplace')"
-					class="truncate rounded underline-offset-2 hover:underline"
+					class="max-w-full shrink-0 truncate rounded underline-offset-2 hover:underline"
 					:class="[FOCUS, disabled ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90']"
 				>
 					{{ name }}
 				</RouterLink>
 				<span
 					v-else
-					class="truncate"
+					class="max-w-full shrink-0 truncate"
 					:class="disabled ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
 				>
 					{{ name }}

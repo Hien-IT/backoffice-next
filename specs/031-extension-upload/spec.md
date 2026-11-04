@@ -187,7 +187,13 @@ nó không cài.
   /extensions/:pk` và tài liệu GraphQL system có `extensions` dùng chung khóa cache với Directus: khi node Backoffice đã
   nạp một gói `upload`, các đọc đó bỏ qua cache dùng chung (không đọc, không ghi), nếu không Backoffice trả lại body
   `schema: null` Directus đã ghi và web hiện gói là Missing (phát hiện khi chạy parity, implement 2026-11-04; cùng cơ chế
-  với D-188.4, D-207.5). Không có gói `upload` thì cache như Directus.
+  với D-188.4, D-207.5). Không có gói `upload` thì cache như Directus. Cờ là `skipCacheRead` + `skipCacheWrite` (không
+  `cache=false`): header `Cache-Control` giữ như câu trả lời có cache, giống Directus (parity MySQL bắt được `no-cache`
+  khác `no-store`, sửa 2026-11-04).
+- Hai node tải cùng gói gần như cùng lúc: bản sao local của gói nằm ở thư mục ẩn `.upload/.<id>` cho tới khi dòng của nó
+  được ghi trong khóa, rồi mới đổi tên thành `.upload/<id>`; một lần nạp lại của node đó trong khoảng giữa không thấy gói
+  chưa có dòng (parity MySQL: node thua đã nạp gói của chính nó cạnh gói thắng, "Added extensions: parity-upload-endpoint,
+  parity-upload-endpoint", rồi trả 404; sửa 2026-11-04).
 - Gói nhỏ nở ra rất lớn khi giải nén (gzip bomb): không giới hạn kích thước sau giải nén, như cài từ registry; chỉ admin
   tải được; đĩa của thư mục tạm là giới hạn; deploy/README ghi (FR-026; sửa khi checklist 2026-11-04).
 - Chép lên kho: `package.json` được chép **cuối cùng**, sau mọi file khác, nên một replica sync dở hay lần khởi động chỉ

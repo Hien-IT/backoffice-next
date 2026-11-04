@@ -15,6 +15,7 @@ vi.mock('../extensions/index.js', () => ({ getExtensionManager: vi.fn() }));
 // Backoffice (spec 031): the installation manager and the settings lock of installUpload.
 const installation = vi.hoisted(() => ({
 	installFromStream: vi.fn(),
+	activateUpload: vi.fn(async () => undefined),
 	readUploadedName: vi.fn(),
 	uninstall: vi.fn(async () => undefined),
 }));
@@ -281,6 +282,14 @@ describe('ExtensionsService', () => {
 			expect(lock.withSettingsLock).toHaveBeenCalledTimes(1);
 			expect(items.createOne).toHaveBeenCalledWith({ id, enabled: true, folder: id, source: 'upload', bundle: null });
 			expect(items.createMany).not.toHaveBeenCalled();
+			// Activated after its row, inside the lock, before the other nodes are told to reload.
+			expect(installation.activateUpload).toHaveBeenCalledWith(id);
+			expect(installation.activateUpload.mock.invocationCallOrder[0]).toBeGreaterThan(
+				items.createOne.mock.invocationCallOrder[0],
+			);
+			expect(manager.installed.mock.invocationCallOrder[0]).toBeGreaterThan(
+				installation.activateUpload.mock.invocationCallOrder[0]!,
+			);
 			expect(manager.installed).toHaveBeenCalledWith({ source: 'upload', folder: id });
 			expect(output).toMatchObject({ id, meta: { source: 'upload' } });
 			expect(installation.uninstall).not.toHaveBeenCalled();
@@ -343,9 +352,16 @@ describe('ExtensionsService', () => {
 			const id = installation.installFromStream.mock.calls[0]![1];
 			expect(installation.readUploadedName).toHaveBeenCalledWith('other');
 			expect(items.createOne).not.toHaveBeenCalled();
+			expect(installation.activateUpload).not.toHaveBeenCalled();
 			expect(installation.uninstall).toHaveBeenCalledWith(id, 'upload');
 			expect(items.deleteByQuery).toHaveBeenCalledWith({
-				filter: { _or: [{ id: { _eq: id } }, { bundle: { _eq: id } }] },
+				filter: {
+					_or: [
+						{ id: { _eq: id } },
+						{ bundle: { _eq: id } },
+						{ _and: [{ folder: { _eq: id } }, { source: { _eq: 'upload' } }] },
+					],
+				},
 			});
 			expect(manager.installed).not.toHaveBeenCalled();
 		});

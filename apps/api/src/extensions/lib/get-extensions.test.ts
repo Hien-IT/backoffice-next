@@ -45,6 +45,17 @@ test('a folder of .upload is in the upload map, keyed by its folder, and not in 
 	expect(registry.size).toBe(0);
 	expect([...upload.keys()]).toEqual(['5c1f6c80-0000-4000-8000-000000000001']);
 	expect(upload.get('5c1f6c80-0000-4000-8000-000000000001')?.name).toBe('uploaded-display');
+	// The first test imports get-extensions and its storage stack (~0.7 s alone): room for a loaded runner.
+}, 30_000);
+
+test('a staged upload (.upload/.<id>, no row yet) is not scanned', async () => {
+	await extension('.upload/.5c1f6c80-0000-4000-8000-000000000002', 'staged-display');
+
+	const { getExtensions } = await import('./get-extensions.js');
+	const { local, upload } = await getExtensions();
+
+	expect(upload.size).toBe(0);
+	expect(local.size).toBe(0);
 });
 
 test('no .upload folder: an empty upload map', async () => {

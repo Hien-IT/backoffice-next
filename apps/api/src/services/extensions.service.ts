@@ -152,11 +152,23 @@ export class ExtensionsService {
 						);
 					}
 				}
+
+				// Only now the scan of this node sees the package (it was staged until its row existed).
+				await installation.activateUpload(id);
 			});
 		} catch (error) {
 			// Best effort: the original error is the one the caller gets.
 			await this.extensionsItemService
-				.deleteByQuery({ filter: { _or: [{ id: { _eq: id } }, { bundle: { _eq: id } }] } })
+				// A settings pass of another node may have written a row for the folder with an id of its own.
+				.deleteByQuery({
+					filter: {
+						_or: [
+							{ id: { _eq: id } },
+							{ bundle: { _eq: id } },
+							{ _and: [{ folder: { _eq: id } }, { source: { _eq: 'upload' } }] },
+						],
+					},
+				})
 				.then(
 					() => undefined,
 					() => undefined,
