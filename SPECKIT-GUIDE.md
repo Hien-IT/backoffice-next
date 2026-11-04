@@ -2728,8 +2728,27 @@ Ghi chú đưa vào spec và plan 030 (đọc code ngày 2026-11-03, chưa chạ
 ### 031: Cài extension bằng gói `.tgz` tải lên
 
 Trạng thái: soạn 2026-11-04 từ câu hỏi của chủ dự án ("backoffice có import extension bằng file tar hoặc zip được
-không"); chưa chạy `/speckit.specify`. 8 điểm chốt theo đề xuất của bảng dưới (chủ dự án 2026-11-04); điểm 3 (chỗ lưu
-gói) đổi từ `.registry/<id>` sang `.upload/<id>` sau khi đọc mã nguồn Directus (xem "Ảnh hưởng tới Directus").
+không"); `/speckit.specify` chạy 2026-11-04 (spec.md: US1–US5, FR-001..FR-026 + FR-101, D-212..D-212.3 chờ duyệt,
+checklists/requirements.md đạt, không marker clarify; thư mục tạo tay, không chạy `create-new-feature.sh`);
+`/speckit.clarify` chạy 2026-11-04 (3 câu: `host` không khớp không kiểm lúc tải lên, chỉ log cảnh báo (hai app không kiểm
+`host` ở registry/local); trùng tên chỉ chặn ở đường tải lên, registry/local như hôm nay; `FILES_MAX_UPLOAD_SIZE` không
+đặt = không giới hạn như `/files`, README khuyên đặt); `/speckit.plan` chạy 2026-11-04 (research R1–R9 đọc code, chưa
+chạy thử: tách `installFromStream` dùng chung với registry, map `upload` thứ tư ở manager, khóa `extensions-settings` có
+sẵn, probe `GET /backoffice/extensions/upload`, fixture `.tgz` đã commit nên thêm `parity-upload-endpoint` có `name`
+riêng; 7 sửa câu chữ spec: 409 → 400 `INVALID_PAYLOAD`, `EXTENSIONS_LIMIT`, FR-010/019 probe, FR-013 khóa, FR-016
+Remove, FR-022 fixture; data-model không bảng mới, contracts api/web/tests, quickstart); chờ chủ dự án duyệt
+D-212..D-212.3 và một điểm Complexity Tracking (kiểu `source` của `libs/types` và `generateExtensionsEntrypoint` nhận
+`upload`); `/speckit.checklist` chạy 2026-11-04 (api-compat 13, security 13, data-safety 11 mục; 14 phát hiện sửa cùng
+lượt: FR-001 chỉ REST, FR-002 kiểm trước khi chép, FR-004 cấp cao, FR-006 chỉ gói có phần API phải sandbox (gói chỉ app
+được nhận), FR-007 lỗi tạo dòng, FR-021 uninstall ngoại lệ, D-212.2 thêm `/extensions/:pk` và app bundle, edge cases
+gzip bomb / `package.json` chép cuối / gỡ trong lúc sync, Assumptions rate limiter và rác `TEMP_PATH`); `/speckit.tasks` chạy 2026-11-04 (56 task, hai lượt: lượt 1 API
+T001–T035, lượt 2 web T036–T056; MVP = Phase 1–3 + 5 + 7); `/speckit.analyze` chạy 2026-11-04 (0 CRITICAL, 1 HIGH:
+không task nào tải bundle hay gói chỉ app → fixture `parity-upload-bundle`; 4 MEDIUM: parity đua hai replica, parity
+bật/tắt, cảnh báo `host` cho mọi gói và so major bằng chuỗi vì `apps/api` không có `semver`; 7 LOW; đã sửa vào tasks,
+contracts/tests, plan, research, spec); chủ dự án duyệt D-212..D-212.3, điểm Complexity Tracking và mọi sửa câu chữ
+2026-11-04. 8 điểm chốt theo đề xuất của bảng dưới (chủ dự án 2026-11-04);
+điểm 3 (chỗ lưu gói) đổi từ `.registry/<id>` sang `.upload/<id>` sau khi đọc mã nguồn Directus (xem "Ảnh hưởng tới
+Directus").
 Thư mục: `specs/031-extension-upload/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
 Không sửa constitution: không bảng mới, không migration (dùng dòng `directus_extensions` có sẵn, chỉ thêm giá trị
 `source`), khác biệt API và giao diện ghi theo Nguyên tắc X từ D-212. Không dependency mới (`tar` 7.5.19 đã có, không
@@ -2799,7 +2818,7 @@ chọn file), `components/ExtensionItemOptions.vue` (Uninstall mở cho `upload`
 | 5 | Ai được tải lên | Chỉ admin, như install từ registry; user khác 403 |
 | 6 | Kích thước tối đa | `FILES_MAX_UPLOAD_SIZE` có sẵn; vượt → 413 như `/files` |
 | 7 | Giao diện | Settings > Extensions có nút "Upload" mở dialog chọn file (`.tgz`), hiện lỗi của API, danh sách tải lại sau khi cài; Marketplace không đổi; ẩn khi API là Directus |
-| 8 | Trùng tên | Từ chối 409 khi đã có extension cùng `name` (mọi source), phải gỡ trước; không ghi đè, không nâng cấp tại chỗ |
+| 8 | Trùng tên | Từ chối khi đã có extension cùng `name` (mọi source), phải gỡ trước; không ghi đè, không nâng cấp tại chỗ (plan 2026-11-04: 400 `INVALID_PAYLOAD`, không mã 409) |
 
 **1. `/speckit.specify`**
 
