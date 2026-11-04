@@ -46,6 +46,7 @@ Thêm mục mới (ví dụ spec 030) thì thêm một dòng ở đây, anchor l
   - [028: Filter so sánh hai field của cùng collection](#028-filter-so-sánh-hai-field-của-cùng-collection)
   - [029: Đăng nhập bằng Passkey (WebAuthn)](#029-đăng-nhập-bằng-passkey-webauthn)
   - [030: Index ghép, index trigram và tạo index không khóa bảng](#030-index-ghép-index-trigram-và-tạo-index-không-khóa-bảng)
+  - [031: Cài extension bằng gói `.tgz` tải lên](#031-cài-extension-bằng-gói-tgz-tải-lên)
 - [7. Phần chung của `/speckit.plan`](#7-phần-chung-của-speckitplan)
 - [8. Chọn model cho từng bước](#8-chọn-model-cho-từng-bước)
 - [9. Mẹo khi chạy](#9-mẹo-khi-chạy)
@@ -291,6 +292,8 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 027 | Khóa chính uuid tự sinh dùng UUID v7 thay cho v4                                                                | 005, 021  | BE     |
 | 028 | Filter so sánh hai field của cùng collection ($FIELD(b) ở vế phải; Content, /items, /graphql)                  | 005, 011, 014, 023 | BE, FE |
 | 029 | Đăng nhập bằng Passkey (WebAuthn) cho user local; bảng backoffice_passkeys; chỉ Backoffice                      | 003, 012, 015, 022 | BE, FE |
+| 030 | Index ghép, index trigram và tạo index không khóa bảng (bảng backoffice_indexes); chỉ Backoffice               | 006, 016, 022 | BE, FE |
+| 031 | Cài extension bằng gói .tgz tải lên (source upload, thư mục .upload); chỉ Backoffice                           | 020, 025  | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
