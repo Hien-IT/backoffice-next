@@ -2722,6 +2722,155 @@ Ghi chú đưa vào spec và plan 030 (đọc code ngày 2026-11-03, chưa chạ
 - Parity chạy trên ba vendor của ma trận `parity` (postgres, sqlite, mysql); với `--` lọc file cần `TEST_DB=<vendor>`
   (bài học 027). Benchmark `?search=` đo Backoffice-only như 023 vì Directus không có index này.
 
+### 031: Cài extension bằng gói `.tgz` tải lên
+
+Trạng thái: soạn 2026-11-04 từ câu hỏi của chủ dự án ("backoffice có import extension bằng file tar hoặc zip được
+không"); chưa chạy `/speckit.specify`. 8 điểm chốt theo đề xuất của bảng dưới (chủ dự án 2026-11-04); điểm 3 (chỗ lưu
+gói) đổi từ `.registry/<id>` sang `.upload/<id>` sau khi đọc mã nguồn Directus (xem "Ảnh hưởng tới Directus").
+Thư mục: `specs/031-extension-upload/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+Không sửa constitution: không bảng mới, không migration (dùng dòng `directus_extensions` có sẵn, chỉ thêm giá trị
+`source`), khác biệt API và giao diện ghi theo Nguyên tắc X từ D-212. Không dependency mới (`tar` 7.5.19 đã có, không
+nhận `.zip`), không biến môi trường mới (`FILES_MAX_UPLOAD_SIZE`, `MARKETPLACE_TRUST`, `EXTENSIONS_PATH`,
+`EXTENSIONS_LOCATION` có sẵn).
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Vì sao cần** (đọc code 2026-11-04): Backoffice và Directus 11.17.4 chỉ cài extension từ registry:
+`POST /extensions/registry/install` nhận `extension` và `version` (`apps/api/src/controllers/extensions.controller.ts:162`),
+`InstallationManager.install` tải tarball npm của version đó từ `MARKETPLACE_REGISTRY`, giải nén thư mục `package/`,
+kiểm `package.json` bằng `ExtensionManifest`, chép vào `EXTENSIONS_PATH/.registry/<version>` hoặc `EXTENSIONS_LOCATION`
+(`apps/api/src/extensions/lib/installation/manager.ts:39`–`:90`) và ghi dòng `directus_extensions` với
+`source: 'registry'` (`apps/api/src/services/extensions.service.ts:95`). Ngoài ra chỉ còn cách chép thư mục tay vào
+`EXTENSIONS_PATH` (source `local`). Không có endpoint hay nút nào nhận file; Settings > Extensions và Marketplace không
+có chỗ tải lên. Phần giải nén, kiểm manifest và chép đích của luồng registry dùng lại được nguyên cho một stream `.tgz`
+đến từ multipart, nên chỉ nhận đúng định dạng `npm pack` (thư mục `package/` có `package.json`).
+
+**Ảnh hưởng tới Directus** (đọc mã nguồn Directus 11.17.4 trong `directus/`, chưa chạy thử; plan có task đo thật trên
+profile `extensions` với Directus cùng DB và cùng `EXTENSIONS_LOCATION`):
+
+- Thư mục: Directus quét `EXTENSIONS_PATH` bỏ qua thư mục bắt đầu bằng `.` (`listFolders(root, { ignoreHidden: true })`
+  trong `directus/packages/extensions/src/node/utils/get-extensions.ts`) và quét riêng `EXTENSIONS_PATH/.registry`
+  (`directus/api/src/extensions/lib/get-extensions.ts:11`). Gói tải lên **không được** nằm trong `.registry`: Directus
+  sẽ coi nó là extension registry chưa có dòng, gọi marketplace `list({ search: name })` rồi tự thêm dòng
+  `source: 'registry'`, `enabled: true` (`get-extensions-settings.ts:160`–`:168`, `:78`–`:86`) và chạy nó; kết quả là
+  hai dòng cho một gói và nút Reinstall ở Directus gọi registry với id không tồn tại. Vì vậy chốt lưu ở
+  `EXTENSIONS_PATH/.upload/<id>`: thư mục ẩn, Directus không quét; Backoffice đồng bộ từ `EXTENSIONS_LOCATION` và báo
+  reload qua bus với `partialSync: '.upload/<id>'` như `.registry` (`apps/api/src/extensions/manager.ts:255`–`:262`,
+  `lib/sync/sync.ts:58`).
+- Dòng `directus_extensions` với `source: 'upload'`: `getExtensionsSettings` của Directus chỉ lọc `local`, `registry`,
+  `module` và chỉ xóa dòng entry của bundle đã mất (`get-extensions-settings.ts:35`–`:37`, `:47`–`:53`), nên dòng được
+  giữ nguyên; `GET /extensions` của Directus trả nó với `schema: null` (`directus/api/src/services/extensions.ts:161`,
+  `getExtension` trả `undefined` cho source lạ, `manager.ts:169`); app Directus xếp vào nhóm "Missing" với chip cảnh
+  báo, Uninstall khóa vì `source !== 'registry'`, không có Reinstall (`ExtensionItem.vue:36`,
+  `extension-item-options.vue:25`); Directus không chạy nó (`registerApiExtensions` chỉ duyệt ba map, `manager.ts:677`).
+  Đây là D-212.1: ở app Directus gói tải lên hiện là "Missing", Directus không hỏng; chấp nhận, loại `doc`.
+- Bundle tải lên: dòng entry có `source: 'upload'`, `bundle: <id>`; `readAll` của Directus bỏ entry khi bundle cha có
+  `schema: null` (`:166`–`:173`), nên chỉ dòng cha hiện trong Missing.
+- Sandbox: khi cài từ registry, `MARKETPLACE_TRUST=sandbox` chỉ được chuyển cho registry qua URL tải
+  (`apps/api/src/extensions/registry/modules/download/download.ts:70`; registry từ chối gói không sandbox). Với gói tải
+  lên API phải tự đọc `directus:extension.sandbox.enabled` của `package.json` và từ chối khi `MARKETPLACE_TRUST=sandbox`
+  mà gói không bật sandbox. Gói bật sandbox chạy trong isolated-vm như hiện nay, không đổi.
+- Nhiều replica: như registry, gói được chép vào `EXTENSIONS_LOCATION` khi có cấu hình và mọi replica nạp qua bus; không
+  có `EXTENSIONS_LOCATION` thì chỉ replica nhận upload có gói (ghi Assumptions, giống registry hiện nay).
+
+**Code port từ Directus bị sửa** (mỗi chỗ ghi comment `Backoffice (spec 031, D-212)` theo Nguyên tắc IX, giữ dòng
+`Ported from`): `extensions/lib/get-extensions.ts` (thêm map `upload` đọc `.upload`), `extensions/manager.ts` (map
+`uploadExtensions`, `getExtension`, getter `extensions`, `registerApiExtensions`, `install`/`uninstall` theo source,
+`updateWatchedExtensions` bỏ `.upload` như `.registry`), `extensions/lib/get-extensions-settings.ts` (vòng lặp cho
+`upload`, không gọi marketplace), `extensions/lib/installation/manager.ts` (tách phần sau khi có stream tar thành hàm
+dùng chung, thư mục đích theo source), `extensions/lib/endpoint-app.ts` (app bundle gồm app extensions của `upload`),
+`services/extensions.service.ts` (`installUpload`, `uninstall` nhận `upload`, `reinstall` từ chối), controller mới dưới
+`/backoffice/extensions/upload` (multipart Busboy với `fileSize` từ `FILES_MAX_UPLOAD_SIZE` như
+`controllers/files.controller.ts:42`), web `modules/settings/routes/extensions/ExtensionsRoute.vue` (nút Upload + dialog
+chọn file), `components/ExtensionItemOptions.vue` (Uninstall mở cho `upload`, không Reinstall), `ExtensionItem.vue`
+(chip nguồn "Uploaded"). Không chạm: Marketplace, `/extensions/registry/*`, sandbox runtime, Directus app.
+
+**Câu hỏi đã chốt với chủ dự án 2026-11-04** (cột Chốt là câu trả lời; prompt bên dưới viết theo đó):
+
+| # | Câu hỏi | Chốt |
+| - | ------- | ---- |
+| 1 | Định dạng nhận | Chỉ `.tgz`/`.tar.gz` của `npm pack` (thư mục `package/` có `package.json`); `.zip` cần thư viện mới, không nhận; gói sai cấu trúc hay thiếu khóa `directus:extension` → 400 `INVALID_PAYLOAD` |
+| 2 | Lưu ở đâu, `source` gì | `source: 'upload'` (Directus chỉ có `local`, `registry`, `module`); file ở `EXTENSIONS_PATH/.upload/<id>` hoặc `EXTENSIONS_LOCATION` (đổi từ `.registry` sau khi đọc code Directus, xem trên); id uuid v4 như dòng registry |
+| 3 | Directus cùng DB thấy `source` lạ | Đã đọc code: dòng giữ nguyên, hiện "Missing" ở app Directus, Directus không chạy, không lỗi (D-212.1); plan có task đo thật trước khi duyệt |
+| 4 | Sandbox | Cùng luật registry: gói khai báo sandbox chạy trong sandbox; `MARKETPLACE_TRUST=sandbox` thì gói không sandbox bị 400 với thông báo nêu biến |
+| 5 | Ai được tải lên | Chỉ admin, như install từ registry; user khác 403 |
+| 6 | Kích thước tối đa | `FILES_MAX_UPLOAD_SIZE` có sẵn; vượt → 413 như `/files` |
+| 7 | Giao diện | Settings > Extensions có nút "Upload" mở dialog chọn file (`.tgz`), hiện lỗi của API, danh sách tải lại sau khi cài; Marketplace không đổi; ẩn khi API là Directus |
+| 8 | Trùng tên | Từ chối 409 khi đã có extension cùng `name` (mọi source), phải gỡ trước; không ghi đè, không nâng cấp tại chỗ |
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/031-extension-upload và đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. Feature 031: admin cài extension bằng cách tải lên một gói .tgz (kết quả của npm pack) trong Backoffice, thay vì chỉ cài từ Marketplace registry hoặc chép thư mục tay vào EXTENSIONS_PATH. Bối cảnh: Directus 11.17.4 và Backoffice chỉ cài extension từ registry (POST /extensions/registry/install nhận id và version, tải tarball npm từ MARKETPLACE_REGISTRY, giải nén thư mục package/, kiểm package.json, chép vào EXTENSIONS_PATH/.registry/<version> hoặc EXTENSIONS_LOCATION, ghi dòng directus_extensions với source registry) hoặc đọc thư mục có sẵn trong EXTENSIONS_PATH (source local). Không có endpoint hay nút nào nhận file. Đây là tính năng chỉ của Backoffice (như 022, 025, 029, 030): Directus không có endpoint này, không chạy gói tải lên. Phạm vi đã chốt (chủ dự án 2026-11-04): 1. Chỉ nhận gói .tgz hoặc .tar.gz đúng cấu trúc npm pack (thư mục package/ có package.json với khóa directus:extension hợp lệ theo manifest hiện có); gói khác định dạng, thiếu manifest, manifest sai → 400 INVALID_PAYLOAD với lý do rõ, không để lại file hay dòng DB; không nhận .zip. 2. Chỉ admin; endpoint multipart POST /backoffice/extensions/upload dưới tiền tố /backoffice/ (D-189.6; Directus trả 404); user khác 403. 3. Gói được lưu ở EXTENSIONS_PATH/.upload/<id> (id uuid v4) hoặc chép vào EXTENSIONS_LOCATION khi có cấu hình, nạp lại trên mọi replica qua bus như gói registry; dòng directus_extensions có source mới upload (Directus chỉ có local, registry, module), bundle tải lên ghi thêm dòng entry như registry; reinstall không áp dụng cho source này (400), uninstall xóa file và dòng như registry; không ghi đè gói đã cài: trùng name với một extension đã có ở bất kỳ source nào → 409, phải gỡ trước. 4. Cùng luật sandbox với registry: gói khai báo sandbox chạy trong sandbox; khi MARKETPLACE_TRUST=sandbox thì gói không bật sandbox bị 400 nêu rõ biến. 5. Kích thước tối đa theo FILES_MAX_UPLOAD_SIZE như /files (413), không thêm biến môi trường. 6. Web: Settings > Extensions có nút Upload mở dialog chọn một file .tgz, hiện lỗi của API tại chỗ, danh sách tải lại sau khi cài; extension tải lên hiện chip nguồn riêng, có Uninstall, không có Reinstall hay Marketplace; Marketplace không đổi; nút ẩn khi API là Directus. 7. Nhiều replica: gói vào EXTENSIONS_LOCATION khi có cấu hình và mọi replica nạp qua bus; không có EXTENSIONS_LOCATION thì chỉ replica nhận upload có gói (ghi Assumptions, giống registry). Ngoài phạm vi: .zip, nâng cấp tại chỗ cùng name, tải lên từ URL, Marketplace riêng, ký hay kiểm chữ ký gói, thay đổi sandbox runtime, Directus app. Khác biệt với Directus ghi từ D-212, chủ dự án duyệt theo Nguyên tắc X (bảng "Khác biệt so với Directus" theo FR-101 để tests/parity/src/spec-differences.ts đọc được): D-212 endpoint POST /backoffice/extensions/upload (Directus 404); D-212.1 dòng directus_extensions với source upload: Directus cùng DB giữ dòng, GET /extensions của Directus trả schema null và app Directus xếp vào nhóm Missing, Directus không chạy gói (đọc mã nguồn 2026-11-04, plan đo thật trước khi duyệt); D-212.2 GET /extensions của Backoffice trả gói tải lên với schema đầy đủ (khác Directus ở cùng dòng); D-212.3 DELETE /extensions/registry/uninstall/:pk của Backoffice nhận cả source upload (Directus chỉ registry). Parity: suite tests/parity/src/extensions/upload.test.ts trên profile extensions (Directus 404 ở endpoint mới; tải lên một gói fixture đóng từ tests/fixtures/extensions bằng npm pack, endpoint hoặc hook của gói chạy trên Backoffice, GET /extensions hai app khác như D-212.1/D-212.2, uninstall sạch file và dòng; gói hỏng, gói trùng name, gói không sandbox khi MARKETPLACE_TRUST=sandbox bị từ chối không để lại gì; user thường 403; mọi request /extensions khác vẫn giống Directus). E2E: settings-extensions-upload.spec.ts ba cấu hình (proxy-directus: nút ẩn; proxy-api và cors: tải gói fixture lên, thấy trong danh sách với chip nguồn, gỡ), a11y axe như 016. Deploy: tests/parity/src/deploy thêm một case tải gói lên qua lb với 3 replica và gọi endpoint của gói tới khi cả ba replica trả lời. Tiêu chí chấp nhận: admin tải một gói .tgz hợp lệ lên và extension hoạt động trên mọi replica có EXTENSIONS_LOCATION; gói sai bị từ chối với lỗi rõ và không để lại file hay dòng DB; Directus trên cùng DB vẫn chạy bình thường và không chạy gói đó.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. Bỏ qua được: 8 điểm đã chốt 2026-11-04 (chỉ .tgz, source upload ở .upload/<id>, Directus hiện Missing, sandbox như registry, admin only, FILES_MAX_UPLOAD_SIZE, nút Upload ở Settings > Extensions ẩn khi API là Directus, trùng name 409). Hỏi nếu spec chưa rõ: gói có host không khớp phiên bản Backoffice (đề xuất từ chối 400 như registry kiểm host, nêu host yêu cầu); gói là bundle có phần app (đề xuất nhận, app bundle dựng lại như registry, entry ghi dòng con); hai admin tải cùng lúc trên hai replica (đề xuất khóa Redis useLock extensions-upload quanh kiểm trùng name + chép + ghi dòng, request sau 409); file tải lên dở hoặc giải nén lỗi (đề xuất dọn thư mục tạm, không có dòng DB); tên hiển thị khi name trong package.json khác tên file (đề xuất lấy name của package.json, bỏ tên file); giới hạn số gói tải lên (đề xuất không giới hạn, mỗi gói ≤ FILES_MAX_UPLOAD_SIZE); activity (đề xuất ghi activity create/delete trên directus_extensions như install registry hiện nay, không thêm). Ghi "Clarifications" vào spec; D-212.x cập nhật theo câu trả lời.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-212+)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. Phần chung BE/FE như mục 7. Đọc trước: apps/api/src/extensions/lib/installation/manager.ts (install: tải tar, giải nén package/, ExtensionManifest, chép vào EXTENSIONS_LOCATION hoặc thư mục local; phần sau khi có stream dùng lại cho upload), apps/api/src/extensions/manager.ts (ba map local/registry/module, getExtension dòng 181, install/uninstall với partialSync dòng 255–280, registerApiExtensions dòng 740, updateWatchedExtensions bỏ .registry dòng 596), apps/api/src/extensions/lib/get-extensions.ts (resolveFsExtensions cho .registry; thêm .upload), apps/api/src/extensions/lib/get-extensions-settings.ts (vòng lặp theo source; upload không gọi marketplace), apps/api/src/extensions/lib/sync/sync.ts (getSyncPaths với partialSync), apps/api/src/extensions/lib/endpoint-app.ts (app bundle theo source), apps/api/src/services/extensions.service.ts (install dòng 89 ghi dòng source registry; reinstall/uninstall kiểm source dòng 117, 136), apps/api/src/controllers/extensions.controller.ts (kiểm admin, mẫu 204), apps/api/src/controllers/files.controller.ts dòng 42 (Busboy với fileSize FILES_MAX_UPLOAD_SIZE, một file), apps/api/src/controllers/backoffice-*.controller.ts (tiền tố /backoffice/, D-189.6), apps/api/src/extensions/registry/modules/download/download.ts dòng 70 (requireSandbox chỉ là tham số URL registry: upload phải kiểm manifest), libs/extensions/src/shared/schemas (ExtensionManifest, khóa sandbox.enabled), directus/api/src/extensions/lib/get-extensions-settings.ts và directus/api/src/services/extensions.ts (hành vi Directus với source lạ, cho task đo D-212.1), tests/fixtures/extensions (fixtures-build.test.ts, parity-endpoint-demo, parity-endpoint-sandbox, parity-bundle-tools: nguồn gói .tgz cho test), tests/parity/src/extensions/install.test.ts và helpers.ts (mẫu test cài và gọi endpoint của gói), web: apps/web/src/modules/settings/routes/extensions/ExtensionsRoute.vue, components/ExtensionItem.vue (chip nguồn dòng 137), components/ExtensionItemOptions.vue (uninstallLocked dòng 25), apps/web/src/components/files/BoUpload.vue (chọn file; 015 dùng cho /files), apps/web/src/composables/use-passkey-support.ts (mẫu probe để ẩn nút khi API là Directus), apps/web-e2e/src/settings-extensions*.spec.ts. Quyết định kỹ thuật cần ghi ở plan: 1. InstallationManager tách installFromStream(tarStream, { source, id }) dùng cho cả registry (source registry, thư mục .registry/<versionId>) và upload (source upload, thư mục .upload/<uuid>); kiểm ExtensionManifest, trùng name (so với extensions của manager mọi source), sandbox theo MARKETPLACE_TRUST trước khi chép; lỗi thì xóa thư mục tạm. 2. Manager thêm map uploadExtensions đọc từ .upload, getExtension/extensions/registerApiExtensions/endpoint-app gồm source upload; getExtensionsSettings tạo dòng cho upload khi thiếu (không gọi marketplace) như local. 3. Endpoint POST /backoffice/extensions/upload: Busboy một file, fileSize từ FILES_MAX_UPLOAD_SIZE (413 khi vượt), stream thẳng vào installFromStream không ghi đĩa trung gian ngoài thư mục tạm hiện có; trả 200 với dòng directus_extensions mới (id); khóa useLock().usingLock('extensions-upload') quanh kiểm trùng + chép + ghi dòng. 4. ExtensionsService.installUpload ghi dòng source upload (và entry bundle), uninstall nhận registry và upload, reinstall từ chối upload với 400. 5. Web: nút Upload ở header của ExtensionsRoute.vue mở BoDialog với BoUpload (accept .tgz,.tar.gz, một file), gọi endpoint qua sdk, lỗi hiện BoNotice trong dialog, xong thì đóng và tải lại danh sách; chip nguồn "Uploaded" ở ExtensionItem; ExtensionItemOptions mở Uninstall cho upload, giấu Reinstall; nút ẩn khi probe 404 (GET /backoffice/extensions/upload trả 405/204 ở Backoffice, 404 ở Directus; plan chọn cách probe rẻ nhất, có thể dùng lại tín hiệu "API là Directus" sẵn có của card Indexes). 6. Fixture: fixtures-build đóng thêm .tgz bằng npm pack của parity-endpoint-demo, parity-endpoint-sandbox, parity-bundle-tools vào thư mục build (không commit .tgz); parity và E2E đọc từ đó. 7. Parity upload.test.ts với mục http D-212 (Directus 404), D-212.1/D-212.2 so GET /extensions hai app sau khi cài (Backoffice có schema, Directus schema null), task đo thật: Directus cùng DB cùng EXTENSIONS_LOCATION sau khi Backoffice tải gói lên: GET /extensions, log khởi động, không có dòng registry mới. 8. Rủi ro ghi ở plan: Directus quét .registry nên gói tải lên tuyệt đối không nằm đó; thư mục ẩn .upload phải được sync từ EXTENSIONS_LOCATION và được bỏ khỏi watcher như .registry; app bundle phải dựng lại sau upload/uninstall; gói tải lên là mã tùy ý chạy trong tiến trình API khi không sandbox (ghi rõ ở quickstart và deploy/README: chỉ admin tin cậy, MARKETPLACE_TRUST=sandbox để ép sandbox). Kết quả: research.md R1–R?, data-model.md (giá trị source upload, không bảng mới), contracts (OpenAPI của /backoffice/extensions/upload), quickstart.md.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. api-compat: mọi endpoint ngoài /backoffice/ giống Directus trừ D-212.2/D-212.3 trên dòng source upload, /extensions/registry/* không đổi, D-212.x ghi đủ trong bảng FR-101, Directus cùng DB không tạo dòng mới và không chạy gói. security: chỉ admin, tên thư mục đích là uuid do API sinh (không lấy từ tên file hay package.json), giải nén tar chặn đường dẫn ra ngoài thư mục tạm (tar 7 strip/absolute), kiểm manifest trước khi chép, MARKETPLACE_TRUST=sandbox ép sandbox, giới hạn FILES_MAX_UPLOAD_SIZE, lỗi không để lại file. data-safety: trùng name không ghi đè, uninstall xóa đúng thư mục .upload/<id> và các dòng của gói, replica khác không giữ gói đã gỡ sau sync, lỗi giữa chừng không để dòng mồ côi.
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. Chia hai lượt: lượt 1 API (installFromStream dùng chung, map upload ở manager/get-extensions/get-extensions-settings/endpoint-app/sync/watcher, service installUpload + uninstall/reinstall theo source, controller /backoffice/extensions/upload với Busboy và khóa, kiểm sandbox theo MARKETPLACE_TRUST, fixtures-build đóng .tgz, unit test, parity upload.test.ts trên profile extensions kèm task đo Directus D-212.1, deploy case 3 replica, deploy/README mục cảnh báo mã tùy ý); lượt 2 web (nút Upload + dialog, chip nguồn, menu uninstall, probe ẩn khi API là Directus, overlay en-US/vi-VN, E2E ba cấu hình, a11y). Mỗi lượt kết thúc bằng lint, unit, parity liên quan và commit thẳng main sau khi CI của commit trước xanh (không stage apps/api/project.json, apps/web/project.json).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. Lượt 1: API (installFromStream, source upload ở manager và các lib, endpoint /backoffice/extensions/upload, kiểm sandbox, fixtures .tgz, parity extensions/upload.test.ts trên profile extensions, deploy case, README). Comment theo Nguyên tắc IX ("DR"), mỗi chỗ sửa code port ghi `Backoffice (spec 031, D-212)`. Chạy lint, unit API, parity extensions trước khi commit; commit thẳng main khi CI của commit trước xanh; không stage apps/api/project.json, apps/web/project.json.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=031-extension-upload khi chạy script .specify. Lượt 2: Web (nút Upload và dialog ở ExtensionsRoute.vue, chip nguồn, menu, probe, overlay en-US/vi-VN) với E2E ba cấu hình và a11y; cập nhật spec 020 ghi chú "(031: ...)" ở phần cài extension; đóng spec (Status, D-212.x duyệt). Commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Ghi chú đưa vào spec và plan 031 (đọc code ngày 2026-11-04, chưa chạy thử):
+
+- Luồng cài từ registry (`installation/manager.ts:39`–`:90`): sau khi có stream tar, phần còn lại (ghi `bin.tar.tgz` vào
+  thư mục tạm, `extract` của `tar`, đọc `package/package.json`, `ExtensionManifest.parseAsync`, chép lên
+  `EXTENSIONS_LOCATION` hoặc thư mục local) không phụ thuộc registry; 031 tách thành hàm nhận stream và source.
+- `MARKETPLACE_TRUST=sandbox` chỉ đổi URL tải của registry (`download.ts:70`); không có kiểm tra manifest phía Backoffice.
+  Upload phải tự kiểm `directus:extension.sandbox.enabled` (fixture `parity-endpoint-sandbox/package.json` là mẫu gói bật
+  sandbox).
+- `getExtension(source, folder)` của cả hai app trả `undefined` cho source lạ, `readAll` ghép thành `schema: null`
+  (`apps/api/src/services/extensions.service.ts:171`, Directus `:161`); app Directus có sẵn nhóm "Missing" cho trường hợp
+  này (`extensions.vue:29`, `types.ts:5`), nên D-212.1 không cần sửa gì ở Directus.
+- Directus `getExtensionsSettings` không xóa dòng có source lạ (chỉ xóa entry của bundle, `:47`–`:53`); nếu sau này
+  Directus đổi điều này thì gói tải lên mất dòng khi Directus khởi động → ghi ở Assumptions, kiểm lại khi nâng Directus.
+- `listFolders(root, { ignoreHidden: true })` bỏ thư mục bắt đầu bằng `.` ở cả hai app (`libs/utils/src/node/list-folders.ts:19`),
+  nên `.upload` không bị quét như local; Backoffice phải đọc nó tường minh như `.registry`
+  (`apps/api/src/extensions/lib/get-extensions.ts:11`).
+- Multipart một file với giới hạn: `files.controller.ts:42`–`:46` (`Busboy({ limits: { fileSize } })`); `utils.controller.ts:159`
+  là mẫu import không giới hạn, không dùng.
+- Parity profile `extensions` đã có fake registry với `/download` và fixtures dựng bằng `@directus/extensions-sdk` 17.1.4
+  (`tests/fixtures/extensions/fixtures-build.test.ts`); `.tgz` của 031 đóng từ cùng thư mục bằng `npm pack`, không commit.
+- Bài học 020 còn đúng: endpoint extension chạy trên app Express 4 gắn vào Nest; gói tải lên dùng cùng router, không có
+  đường mount riêng.
+
 ---
 
 ## 7. Phần chung của `/speckit.plan`
