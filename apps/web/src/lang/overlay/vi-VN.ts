@@ -155,4 +155,15 @@ export default {
 	index_help_trigram: 'Trigram (PostgreSQL): một field chữ, tăng tốc filter "contains" trên field đó (không phân biệt hoa thường, từ 3 ký tự). Ô tìm kiếm dò mọi field chữ và sắp theo ID nên trên bảng lớn vẫn có thể quét bảng.',
 	index_help_concurrent: 'Tạo không khóa bảng: DB vẫn nhận ghi trong lúc tạo index (chậm hơn trên bảng lớn).',
 	index_help_status: 'Index tạo ở nền: dòng hiện Đang tạo, rồi Sẵn sàng hoặc Thất bại kèm lý do. Xóa field sẽ gỡ các index của nó.',
+	// Spec 031 (D-212): hộp thoại Tải extension lên của Settings > Extensions và chip nguồn của gói tải lên.
+	upload_extension: 'Tải extension lên',
+	upload_extension_copy:
+		'Tải lên gói đóng bằng npm pack (.tgz). Extension chạy trên máy chủ với quyền của tiến trình API; chỉ tải gói bạn tin cậy.',
+	upload_extension_browse: 'Chọn file .tgz',
+	upload_extension_drop: 'hoặc thả file vào đây',
+	upload_extension_wrong_type: 'Chỉ nhận gói .tgz hoặc .tar.gz.',
+	upload_extension_too_large: 'File lớn hơn giới hạn tải lên ({max}).',
+	upload_extension_success: 'Đã cài extension "{name}".',
+	upload_extension_submit: 'Tải lên',
+	extension_source_upload: 'Đã tải lên',
 };

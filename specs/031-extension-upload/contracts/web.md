@@ -28,7 +28,8 @@ extension). Không component mới ngoài `ExtensionUploadDialog.vue`; không ro
 - `ExtensionItem.vue`: `BoChip` `$t('extension_source_upload')` ("Uploaded" / "Đã tải lên") size sm sau chip version khi
   `meta.source === 'upload'`; tên là `schema.name` (từ `package.json`), không phải tên file; không link Marketplace.
 - `ExtensionItemOptions.vue`: Uninstall mở cho `upload` (`uninstallLocked = !['registry','upload'].includes(source)`);
-  không Reinstall; Missing: Remove (có sẵn). Xác nhận gỡ như registry (dialog có sẵn của `ExtensionItem.uninstall`).
+  không Reinstall; Missing: Remove (có sẵn). Gỡ không có hộp thoại xác nhận, như gỡ gói registry ở Directus app và ở
+  020 (implement 2026-11-04: không có dialog xác nhận nào có sẵn).
 
 ## Chuỗi overlay (khối "Spec 031" en-US / vi-VN)
 

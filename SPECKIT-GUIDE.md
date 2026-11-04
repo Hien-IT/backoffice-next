@@ -2746,7 +2746,11 @@ T001–T035, lượt 2 web T036–T056; MVP = Phase 1–3 + 5 + 7); `/speckit.an
 không task nào tải bundle hay gói chỉ app → fixture `parity-upload-bundle`; 4 MEDIUM: parity đua hai replica, parity
 bật/tắt, cảnh báo `host` cho mọi gói và so major bằng chuỗi vì `apps/api` không có `semver`; 7 LOW; đã sửa vào tasks,
 contracts/tests, plan, research, spec); chủ dự án duyệt D-212..D-212.3, điểm Complexity Tracking và mọi sửa câu chữ
-2026-11-04. 8 điểm chốt theo đề xuất của bảng dưới (chủ dự án 2026-11-04);
+2026-11-04; `/speckit.implement` hai lượt 2026-11-04 (lượt 1 API 6636043a, CI 41805541284; lượt 2 web): parity đỏ lộ ra
+response cache dùng chung với Directus (Backoffice trả body `schema: null` của Directus cho `GET /extensions`) → thêm
+`uploaded-extensions-cache-guard`; bundle không có tùy chọn sandbox nên fixture bundle chỉ app; Busboy cắt file ở
+`fileSize` mà không báo lỗi → hủy stream với 413; `instanceUrls()` của deploy gồm Directus. 8 điểm chốt theo đề xuất của
+bảng dưới (chủ dự án 2026-11-04);
 điểm 3 (chỗ lưu gói) đổi từ `.registry/<id>` sang `.upload/<id>` sau khi đọc mã nguồn Directus (xem "Ảnh hưởng tới
 Directus").
 Thư mục: `specs/031-extension-upload/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".

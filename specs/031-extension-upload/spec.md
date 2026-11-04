@@ -3,7 +3,7 @@
 **Feature Branch**: `031-extension-upload` (làm trên `main` như 012–030, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=031-extension-upload`)
 **Created**: 2026-11-04
-**Status**: In progress. Lượt 1 (API) implement 2026-11-04 trên `main` (commit local, chưa push; local: unit api 392 file / 4449 test, parity `extensions/*` 7 file / 32 test trên Postgres gồm đo D-212.1, deploy `extension-upload` 3 replica). Spec, clarify 3 câu, plan, checklist api-compat/security/data-safety, tasks 56, analyze 2026-11-04; D-212..D-212.3, điểm Complexity Tracking và các sửa câu chữ của plan/checklist/analyze duyệt 2026-11-04 bởi chủ dự án kiêm tech lead.
+**Status**: Implemented 2026-11-04 in two waves on `main`. Lượt 1 (API) 6636043a (CI 41805541284 xanh: quality, parity Postgres/SQLite/MySQL, blackbox, cache, deploy, deploy-k8s, e2e ba cấu hình); lượt 2 (web) commit sau CI đó. Local: unit api 392 file / 4449 test, parity `extensions/*` 7 file / 32 test trên Postgres gồm đo D-212.1, deploy `extension-upload` 3 replica; web lint, typecheck, build, unit + browser (dialog với axe), E2E `settings-extensions-upload` ba cấu hình chromium. Spec, clarify 3 câu, plan, checklist api-compat/security/data-safety, tasks 56, analyze 2026-11-04; D-212..D-212.3, điểm Complexity Tracking và các sửa câu chữ của plan/checklist/analyze duyệt 2026-11-04 bởi chủ dự án kiêm tech lead.
 **Input**: User description: "Feature 031: admin cài extension bằng cách tải lên một gói .tgz (kết quả của npm pack)
 trong Backoffice, thay vì chỉ cài từ Marketplace registry hoặc chép thư mục tay vào EXTENSIONS_PATH. Bối cảnh: Directus
 11.17.4 và Backoffice chỉ cài extension từ registry [...] hoặc đọc thư mục có sẵn trong EXTENSIONS_PATH (source local).

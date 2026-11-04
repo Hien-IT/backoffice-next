@@ -14,6 +14,17 @@ vi.mock('../../../../api/sdk.ts', async (importOriginal) => ({
 	requestEndpoint: (path: string, options: object) => () => ({ path, ...options }),
 }));
 
+// Backoffice (spec 031): the Upload button follows the probe of useExtensionUpload (DR 404 → no button).
+const upload = vi.hoisted(() => ({ available: { value: false } }));
+vi.mock('../../../../composables/use-extension-upload.ts', async () => {
+	const { ref } = await import('vue');
+	const available = ref(false);
+	upload.available = available;
+	return {
+		useExtensionUpload: () => ({ available, maxUploadSize: ref(null), ready: Promise.resolve(true), upload: vi.fn() }),
+	};
+});
+
 enableAutoUnmount(afterEach);
 
 // DR locks the state of app extensions in dev mode (vite serves them); the tests run as a build.
@@ -121,4 +132,48 @@ test('empty list: the no_extensions info', async () => {
 	const wrapper = await mountRoute([]);
 
 	expect(wrapper.text()).toContain('No Extensions');
+});
+
+// Backoffice (spec 031, D-212, D-212.3): the Upload extension button, the Uploaded chip and the menu of an upload.
+test('the Upload extension button only when the API is Backoffice; it opens the dialog', async () => {
+	upload.available.value = false;
+	let wrapper = await mountRoute();
+	expect(wrapper.text()).not.toContain('Upload extension');
+	wrapper.unmount();
+
+	upload.available.value = true;
+	wrapper = await mountRoute();
+	const button = wrapper.findAll('button').find((b) => b.text().includes('Upload extension'))!;
+	await button.trigger('click');
+	await flushPromises();
+
+	expect(document.body.querySelector('[role="dialog"]')?.textContent).toContain('npm pack');
+	upload.available.value = false;
+});
+
+test('an uploaded package: an Uploaded chip, Uninstall enabled, no Reinstall; a local one stays locked', async () => {
+	const wrapper = await mountRoute([
+		ext('up', 'endpoint', { version: '1.0.0' }, { source: 'upload' }),
+		ext('loc', 'endpoint', {}, { source: 'local' }),
+		ext('gone-up', null, {}, { source: 'upload' }),
+	]);
+
+	expect(wrapper.get('[data-extension="up"]').text()).toContain('Uploaded');
+	expect(wrapper.get('[data-extension="loc"]').text()).not.toContain('Uploaded');
+
+	await wrapper.get('[data-extension="up"] button[aria-haspopup]').trigger('click');
+	await flushPromises();
+	let items = [...document.body.querySelectorAll('[role="menuitem"]')];
+	const uninstall = items.find((el) => el.textContent?.includes('Uninstall'))!;
+	expect(uninstall.textContent?.trim()).toBe('deleteUninstall');
+	expect(uninstall.getAttribute('data-disabled')).toBeNull();
+
+	uninstall.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+	await flushPromises();
+	expect(request).toHaveBeenCalledWith({ path: '/extensions/registry/uninstall/up', method: 'DELETE' });
+
+	await wrapper.get('[data-extension="gone-up"] button[aria-haspopup]').trigger('click');
+	await flushPromises();
+	items = [...document.body.querySelectorAll('[role="menuitem"]')];
+	expect(items.map((el) => el.textContent?.trim())).toEqual(['deleteRemove']);
 });

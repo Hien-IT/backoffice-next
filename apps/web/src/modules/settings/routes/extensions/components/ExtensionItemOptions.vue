@@ -22,7 +22,8 @@ const emit = defineEmits<{ toggleState: [enabled: boolean]; uninstall: []; reins
 
 const { t } = useI18n();
 
-const uninstallLocked = computed(() => props.extension.meta.source !== 'registry');
+// Backoffice (spec 031, D-212.3): a package of source `upload` is uninstalled like a registry one.
+const uninstallLocked = computed(() => !['registry', 'upload'].includes(props.extension.meta.source));
 
 const stateActions = computed(() => {
 	const enabled = props.state === 'enabled';

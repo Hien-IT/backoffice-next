@@ -1,23 +1,30 @@
 <!-- Ported from directus/app/src/modules/settings/routes/extensions/extensions.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020 US5, recipe Q-41): PrivateView with the settings sub-menu, groups in API order, skeleton rows
-// until the first answer, BoInfo when empty.
+// until the first answer, BoInfo when empty. Spec 031 (D-212): an Upload extension button in the page header actions
+// when the API is Backoffice (the probe of useExtensionUpload; DR 404s, no button).
 import type { ApiOutput } from '@directus/types';
 import { groupBy } from 'lodash-es';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import BoButton from '../../../../components/BoButton.vue';
 import BoInfo from '../../../../components/BoInfo.vue';
+import { useExtensionUpload } from '../../../../composables/use-extension-upload.ts';
 import PrivateView from '../../../../layout/PrivateView.vue';
 import { useExtensionsStore } from '../../../../stores/extensions.ts';
 import SettingsNavigation from '../../components/SettingsNavigation.vue';
 import ExtensionGroupDivider from './components/ExtensionGroupDivider.vue';
 import ExtensionItem from './components/ExtensionItem.vue';
+import ExtensionUploadDialog from './components/ExtensionUploadDialog.vue';
 import type { ExtensionType } from './types.ts';
 
 type ExtensionsMap = Record<ExtensionType, ApiOutput[]>;
 
 const extensionsStore = useExtensionsStore();
 const { extensions, loading } = storeToRefs(extensionsStore);
+
+const { available: uploadAvailable } = useExtensionUpload();
+const uploading = ref(false);
 
 const bundled = computed(() => extensionsStore.extensions.filter(({ bundle }) => bundle !== null));
 
@@ -39,6 +46,10 @@ const extensionsByType = computed(() => {
 	<PrivateView :title="$t('extensions')" icon="category" :breadcrumb="[{ name: $t('settings'), to: '/settings' }]">
 		<template #navigation>
 			<SettingsNavigation />
+		</template>
+
+		<template v-if="uploadAvailable" #actions>
+			<BoButton icon="upload" @click="uploading = true">{{ $t('upload_extension') }}</BoButton>
 		</template>
 
 		<div class="max-w-5xl">
@@ -71,5 +82,7 @@ const extensionsByType = computed(() => {
 				{{ $t('no_extensions_copy') }}
 			</BoInfo>
 		</div>
+
+		<ExtensionUploadDialog v-if="uploadAvailable" v-model:open="uploading" />
 	</PrivateView>
 </template>

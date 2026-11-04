@@ -48,6 +48,8 @@ const hasMarketplace = useRouter().hasRoute('marketplace-extension');
 const loading = ref(false);
 
 const name = computed(() => props.extension.schema?.name ?? props.extension.meta.folder);
+// Backoffice (spec 031, D-212): `upload` is a Backoffice source, not in the source type of @directus/types.
+const uploaded = computed(() => (props.extension.meta.source as string) === 'upload');
 const type = computed(() => props.extension.schema?.type ?? 'missing');
 const icon = computed(() => extensionTypeIconMap[type.value]);
 
@@ -150,6 +152,8 @@ const FOCUS =
 					{{ name }}
 				</span>
 				<BoChip v-if="version" :text="version" size="sm" />
+				<!-- Backoffice (spec 031, D-212): a package installed from an uploaded tarball. -->
+				<BoChip v-if="uploaded" :text="t('extension_source_upload')" size="sm" />
 			</span>
 			<BoProgressCircular v-if="loading" indeterminate :aria-label="t('loading')" />
 			<span

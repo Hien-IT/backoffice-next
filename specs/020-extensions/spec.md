@@ -202,6 +202,8 @@ Directus app ở `proxy-api`.
 2. **Given** một extension đang bật, **When** tắt, **Then** `PATCH /extensions/:pk` gửi đi giống Directus app và app nạp
    lại danh sách extension.
 3. **Given** extension từ registry, **When** gỡ, **Then** `DELETE /extensions/registry/uninstall/:pk` và dòng biến mất.
+   (031: nguồn thứ tư `upload` cài từ gói `.tgz` qua `POST /backoffice/extensions/upload`, nằm ở thư mục ẩn
+   `.upload/<id>`; uninstall nhận cả `upload` (D-212.3); trang có nút "Upload extension" và chip "Uploaded".)
 4. **Given** extension con của bundle, **When** mở menu của nó, **Then** không có cài lại, gỡ (Directus báo "Cannot
    uninstall sub extensions of bundles separately").
 

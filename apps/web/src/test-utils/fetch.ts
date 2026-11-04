@@ -276,6 +276,9 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 229, method: 'GET', path: new RegExp(`^/backoffice/collections/${ID}/indexes$`) },
 	{ id: 230, method: 'POST', path: new RegExp(`^/backoffice/collections/${ID}/indexes$`) },
 	{ id: 231, method: 'DELETE', path: new RegExp(`^/backoffice/collections/${ID}/indexes/${ID}$`) },
+	// Spec 031 (D-212): the upload size limit (the probe of the Upload button) and the upload of a package.
+	{ id: 232, method: 'GET', path: /^\/backoffice\/extensions\/upload$/ },
+	{ id: 233, method: 'POST', path: /^\/backoffice\/extensions\/upload$/ },
 ];
 
 /**

@@ -160,4 +160,15 @@ export default {
 	index_help_trigram: 'Trigram (PostgreSQL): one text field, speeds up "contains" filters on it (case-insensitive, 3 characters or more). The search box checks every text field and sorts by ID, so on large tables it may still scan.',
 	index_help_concurrent: 'Create without locking the table: the database keeps accepting writes while the index builds (slower on big tables).',
 	index_help_status: 'The index builds in the background: the row shows Creating, then Ready or Failed with the reason. Deleting a field drops its indexes.',
+	// Spec 031 (D-212): the Upload extension dialog of Settings > Extensions and the source chip of an uploaded package.
+	upload_extension: 'Upload extension',
+	upload_extension_copy:
+		'Upload a package built with npm pack (.tgz). The extension runs on the server with the rights of the API process; only upload packages you trust.',
+	upload_extension_browse: 'Choose a .tgz file',
+	upload_extension_drop: 'or drop it here',
+	upload_extension_wrong_type: 'Only .tgz or .tar.gz packages are accepted.',
+	upload_extension_too_large: 'The file is larger than the upload limit ({max}).',
+	upload_extension_success: 'Extension "{name}" installed.',
+	upload_extension_submit: 'Upload',
+	extension_source_upload: 'Uploaded',
 };

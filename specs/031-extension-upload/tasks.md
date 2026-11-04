@@ -299,7 +299,7 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 - [x] T034 [US5] Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`), `api:build`; parity profile
       `extensions` đủ (`list`, `hooks`, `endpoints`, `install`, `sandbox`, `multi`, `upload`) trên `TEST_DB=postgres`;
       `libs/extensions`, `libs/types` test; sửa tới xanh.
-- [ ] T035 Đóng lượt 1: `git add` theo đường dẫn (`apps/api`, `libs/extensions`, `libs/types`, `tests/fixtures/extensions`,
+- [x] T035 Đóng lượt 1: `git add` theo đường dẫn (`apps/api`, `libs/extensions`, `libs/types`, `tests/fixtures/extensions`,
       `tests/parity`, `deploy/README.md`, `specs/031-extension-upload`), commit `feat(api): install an extension from an
       uploaded .tgz package (spec 031, D-212)` với dòng `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`; push khi
       `main` rảnh; theo dõi CI (quality, parity postgres/sqlite/mysql, blackbox, deploy, bootstrap), sửa job đỏ; `graphify
@@ -315,29 +315,29 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T036 [P] [US1] `web/composables/use-extension-upload.test.ts` (mẫu `use-passkey-support.test.ts`): probe GET
+- [x] T036 [P] [US1] `web/composables/use-extension-upload.test.ts` (mẫu `use-passkey-support.test.ts`): probe GET
       `/backoffice/extensions/upload` 200 → `available=true`, `maxUploadSize` từ `data.max_upload_size`; 404/lỗi mạng →
       `false` im lặng; một probe cho mỗi API URL; `upload(file)` gửi `FormData` field `file` bằng `apiFetch` POST không
       `content-type`; 400 → ném lỗi dịch được bằng `translateAPIError` (reason giữ).
-- [ ] T037 [P] [US1] `sx/components/ExtensionUploadDialog.browser.test.ts` (project `browser`, axe): mở dialog, input file
+- [x] T037 [P] [US1] `sx/components/ExtensionUploadDialog.browser.test.ts` (project `browser`, axe): mở dialog, input file
       có label, nút Upload disabled khi chưa chọn; chọn `.txt` → lỗi `upload_extension_wrong_type` (`role="alert"`); chọn
       file 0 byte → `files_are_empty`; `maxUploadSize` 10 + file 20 byte → `upload_extension_too_large`; chọn `.tgz` hợp lệ +
       fetch mock 200 → `extensionsStore.refresh` gọi, `notify` thành công, emit `close`; fetch mock 400 reason → BoNotice
       với reason, dialog còn mở, gửi lại được; đang gửi: `aria-busy`, Escape không đóng; không vi phạm axe serious.
-- [ ] T038 [P] [US1] `sx/ExtensionsRoute.test.ts` thêm: nút "Upload extension" ở slot actions khi `available` true, không
+- [x] T038 [P] [US1] `sx/ExtensionsRoute.test.ts` thêm: nút "Upload extension" ở slot actions khi `available` true, không
       có khi false; bấm mở dialog; `web/test-utils/fetch.ts` KNOWN_REQUESTS thêm GET/POST `/backoffice/extensions/upload`.
 
 ### Implementation for User Story 1
 
-- [ ] T039 [P] [US1] `web/composables/use-extension-upload.ts` (mới): `useExtensionUpload(): { available, maxUploadSize,
+- [x] T039 [P] [US1] `web/composables/use-extension-upload.ts` (mới): `useExtensionUpload(): { available, maxUploadSize,
       ready, upload }` theo contracts/web.md và T036; `_resetExtensionUpload()` cho test.
-- [ ] T040 [P] [US1] `web/lang/overlay/en-US.ts`, `vi-VN.ts`: khối `// Spec 031 (D-212)` với 8 key của contracts/web.md.
-- [ ] T041 [US1] `sx/components/ExtensionUploadDialog.vue` (mới): BoDialog (`modelValue`), vùng kéo thả + `<input
+- [x] T040 [P] [US1] `web/lang/overlay/en-US.ts`, `vi-VN.ts`: khối `// Spec 031 (D-212)` với 8 key của contracts/web.md.
+- [x] T041 [US1] `sx/components/ExtensionUploadDialog.vue` (mới): BoDialog (`modelValue`), vùng kéo thả + `<input
       type="file" accept=".tgz,.tar.gz,application/gzip,application/x-gzip">` gắn label (mẫu drop zone của
       `web/components/files/BoUpload.vue`, không tái dùng component), tên + kích thước file, kiểm trước khi gửi, BoButton
       Upload/Cancel, `BoProgressCircular` + `aria-busy`, BoNotice lỗi (`translateAPIError`), thành công → `refresh` +
       `notify` + đóng + focus về trigger; mọi chuỗi từ gói qua text binding.
-- [ ] T042 [US1] `sx/ExtensionsRoute.vue`: `<template #actions>` BoButton primary icon `upload` `v-if="available"` mở
+- [x] T042 [US1] `sx/ExtensionsRoute.vue`: `<template #actions>` BoButton primary icon `upload` `v-if="available"` mở
       dialog; `<ExtensionUploadDialog v-model="uploadOpen" />`; chạy T036–T038 xanh.
 
 **Checkpoint**: unit + browser web xanh; nút hiện ở `proxy-api` local, ẩn ở `proxy-directus`.
@@ -348,46 +348,47 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T043 [P] [US3] `sx/components/ExtensionItem.test.ts`: `meta.source === 'upload'` → chip `extension_source_upload`
+- [x] T043 [P] [US3] (làm trong `sx/ExtensionsRoute.test.ts`, nơi các hàng đã được kiểm) `sx/components/ExtensionItem.test.ts`: `meta.source === 'upload'` → chip `extension_source_upload`
       sau chip version, tên là `schema.name`, không RouterLink Marketplace; `local`/`registry` không chip.
-- [ ] T044 [P] [US3] `sx/components/ExtensionItemOptions.test.ts`: `upload` → Uninstall enabled (không hậu tố
+- [x] T044 [P] [US3] `sx/components/ExtensionItemOptions.test.ts`: `upload` → Uninstall enabled (không hậu tố
       `uninstall_locked`), không Reinstall; `local` → Uninstall disabled như cũ; Missing `upload` → chỉ Remove.
-- [ ] T045 [P] [US2] `sx/components/ExtensionUploadDialog.browser.test.ts` thêm: 413 `CONTENT_TOO_LARGE` và 403
+- [x] T045 [P] [US2] `sx/components/ExtensionUploadDialog.browser.test.ts` thêm: 413 `CONTENT_TOO_LARGE` và 403
       `LIMIT_EXCEEDED` hiện thông điệp dịch; `host` không khớp không phải lỗi (không kiểm ở web).
 
 ### Implementation
 
-- [ ] T046 [P] [US3] `sx/components/ExtensionItem.vue`: BoChip `t('extension_source_upload')` khi `upload`.
-- [ ] T047 [P] [US3] `sx/components/ExtensionItemOptions.vue`: `uninstallLocked = !['registry', 'upload'].includes(source)`;
+- [x] T046 [P] [US3] `sx/components/ExtensionItem.vue`: BoChip `t('extension_source_upload')` khi `upload`.
+- [x] T047 [P] [US3] `sx/components/ExtensionItemOptions.vue`: `uninstallLocked = !['registry', 'upload'].includes(source)`;
       chạy T043–T045 xanh.
 
 **Checkpoint**: unit web `sx/**` xanh.
 
 ## Phase 10: E2E ba cấu hình (US1, US2, US3, US5)
 
-- [ ] T048 [P] `e2e/helpers/allowed-paths.ts`: 232 `GET ^/backoffice/extensions/upload$`, 233 `POST` cùng path.
-- [ ] T049 `e2e/settings-extensions-upload.spec.ts` (mới, mẫu `settings-extensions.spec.ts` + `helpers/extensions.ts`):
+- [x] T048 [P] `e2e/helpers/allowed-paths.ts`: 232 `GET ^/backoffice/extensions/upload$`, 233 `POST` cùng path.
+- [x] T049 `e2e/settings-extensions-upload.spec.ts` (mới, mẫu `settings-extensions.spec.ts` + `helpers/extensions.ts`):
       `proxy-directus`: không nút "Upload extension"; `proxy-api`, `cors`: nút có → dialog → `setInputFiles`
       `fx/parity-upload-endpoint/parity-upload-endpoint-1.0.0.tgz` → toast, hàng `[data-extension="parity-upload-endpoint"]`
       với chip "Uploaded" và Enabled, `loadedEverywhere(id)`; axe dialog mở (`checkA11y` như 016); gửi `package.json` thường
       → `role="alert"` trong dialog, dialog còn; menu hàng → Uninstall → xác nhận → hàng biến mất, poll `GET /extensions`
       không còn id ở mọi node; `afterAll` dọn dòng/kho nếu test đứt giữa chừng (`hostDb`, `mc` qua helper nếu có; nếu
       không, API `DELETE`).
-- [ ] T050 Chạy E2E local ba cấu hình (`PARITY_WEB_*` theo `apps/web-e2e/README`), chromium; sửa tới xanh (lưu ý bài học:
+- [x] T050 Chạy E2E local ba cấu hình (`PARITY_WEB_*` theo `apps/web-e2e/README`), chromium; sửa tới xanh (lưu ý bài học:
       sign-in mở `last_page`, `env-up` lại sau khi sửa web).
 
 **Checkpoint**: E2E ba cấu hình xanh local.
 
 ## Phase 11: Polish + đóng lượt 2
 
-- [ ] T051 [P] `specs/020-extensions/spec.md`: ghi chú "(031: nguồn `upload`, `POST /backoffice/extensions/upload`;
+- [x] T051 [P] `specs/020-extensions/spec.md`: ghi chú "(031: nguồn `upload`, `POST /backoffice/extensions/upload`;
       uninstall nhận `upload`)" ở phần cài/gỡ extension và bảng D-37.
-- [ ] T052 [P] `CLAUDE.md` dòng 031 → "implemented" với commit/CI; `SPECKIT-GUIDE.md` mục 031 trạng thái + bài học.
-- [ ] T053 [P] `design-system/docs/component-specs.md`: recipe Q-41 thêm "Upload extension dialog" (một đoạn, trỏ
-      contracts/web.md) nếu design owner yêu cầu; nếu không, ghi "không đổi" vào spec.
-- [ ] T054 Đóng spec: `specs/031-extension-upload/spec.md` Status "Implemented 2026-11-xx, hai lượt (commit, CI)",
+- [x] T052 [P] `CLAUDE.md` dòng 031 → "implemented" với commit/CI; `SPECKIT-GUIDE.md` mục 031 trạng thái + bài học.
+- [x] T053 [P] `design-system/docs/component-specs.md`: recipe Q-41 thêm "Upload extension dialog" (một đoạn, trỏ
+      contracts/web.md) nếu design owner yêu cầu; nếu không, ghi "không đổi" vào spec. Làm 2026-11-04: không đổi (dialog
+      ghép từ BoDialog, BoButton, BoNotice và drop zone của BoUpload; không mẫu mới).
+- [x] T054 Đóng spec: `specs/031-extension-upload/spec.md` Status "Implemented 2026-11-xx, hai lượt (commit, CI)",
       D-212..D-212.3 "duyệt", "Đánh giá hiện trạng" dòng 4–6 [Verified] với số liệu T031; `checklists/requirements.md` ghi chú.
-- [ ] T055 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test:unit`, `web:test:browser`, `web:build`, E2E ba cấu
+- [x] T055 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test:unit`, `web:test:browser`, `web:build`, E2E ba cấu
       hình; sửa tới xanh.
 - [ ] T056 Đóng lượt 2: `git add` theo đường dẫn (`apps/web`, `apps/web-e2e`, `design-system`, `specs`, `CLAUDE.md`,
       `SPECKIT-GUIDE.md`), commit `feat(web): upload an extension package on Settings > Extensions (spec 031, D-212)` với

@@ -188,6 +188,9 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 229, method: 'GET', path: new RegExp(`^/backoffice/collections/${ID}/indexes$`) },
 	{ id: 230, method: 'POST', path: new RegExp(`^/backoffice/collections/${ID}/indexes$`) },
 	{ id: 231, method: 'DELETE', path: new RegExp(`^/backoffice/collections/${ID}/indexes/${ID}$`) },
+	// Spec 031 (specs/031-extension-upload/contracts/web.md, D-212): the Upload extension button and dialog.
+	{ id: 232, method: 'GET', path: /^\/backoffice\/extensions\/upload$/ },
+	{ id: 233, method: 'POST', path: /^\/backoffice\/extensions\/upload$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {
