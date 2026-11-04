@@ -209,13 +209,15 @@ services:
       minio: { condition: service_healthy }
     # Feature 020: the fixture extensions (package.json + dist) go to s3://directus/extensions/<name>/, replacing what a
     # previous run left there; the `extensions` profile prefix (extensions-ext) starts with parity-hook-audit only.
+    # Spec 031: the parity-upload-* fixtures are installed by uploading their tarball, never seeded.
     volumes:
       - ../fixtures/extensions:/fixtures:ro
     entrypoint: >
       /bin/sh -c "mc alias set local http://minio:9000 minioadmin minioadmin && mc mb --ignore-existing local/directus
       && mc rm --recursive --force local/directus/extensions local/directus/extensions-ext >/dev/null 2>&1; for d in
-      /fixtures/parity-*; do n=$${d##*/}; mc cp --quiet $$d/package.json local/directus/extensions/$$n/package.json &&
-      mc cp --quiet --recursive $$d/dist/ local/directus/extensions/$$n/dist/ || exit 1; done && mc cp --quiet
+      /fixtures/parity-*; do n=$${d##*/}; case $$n in parity-upload-*) continue;; esac; mc cp --quiet $$d/package.json
+      local/directus/extensions/$$n/package.json && mc cp --quiet --recursive $$d/dist/
+      local/directus/extensions/$$n/dist/ || exit 1; done && mc cp --quiet
       /fixtures/parity-hook-audit/package.json local/directus/extensions-ext/parity-hook-audit/package.json && mc cp
       --quiet --recursive /fixtures/parity-hook-audit/dist/ local/directus/extensions-ext/parity-hook-audit/dist/"
 

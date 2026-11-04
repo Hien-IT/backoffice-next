@@ -35,7 +35,7 @@ Trình tự (research R5): giải nén + kiểm manifest/sandbox/limit → kiể
 |-------|------------------|------------|
 | `DELETE /extensions/registry/uninstall/:pk` | 400 `Cannot uninstall extensions that were not installed via marketplace` | 204: xóa dòng (+ entry), xóa `.upload/<folder>` kho + local, bus `partialSync`, reload; entry bundle vẫn 400 `Cannot uninstall sub extensions of bundles separately` |
 | `POST /extensions/registry/reinstall` | 400 (cùng chữ) | 400 `Cannot reinstall extensions that were not installed via marketplace` (không đổi, FR-015) |
-| `GET /extensions`, `GET /extensions/:pk`, GraphQL `extensions` | `schema: null` | `schema` đầy đủ (D-212.2 `http`) |
+| `GET /extensions`, `GET /extensions/:pk`, GraphQL `extensions` | `schema: null` | `schema` đầy đủ (D-212.2 `http`); khi node đã nạp gói `upload`: không đọc, không ghi response cache dùng chung (`uploadedExtensionsCacheGuard`, implement 2026-11-04) |
 | `PATCH /extensions/:pk` | cập nhật dòng, không nạp | cập nhật dòng, reload như registry |
 | `DELETE /extensions/:pk` | xóa dòng | xóa dòng (FR-016, dòng Missing) |
 | `GET /extensions/sources/:chunk` | bundle không có gói | bundle có phần app của gói tải lên |

@@ -18,6 +18,8 @@ export const getExtensionsSettings = (maps: {
 	local: Map<string, Extension>;
 	module: Map<string, Extension>;
 	registry: Map<string, Extension>;
+	// Backoffice (spec 031, D-212): the packages installed from an uploaded tarball (.upload/<id>).
+	upload?: Map<string, Extension>;
 }): Promise<ExtensionSettings[]> =>
 	// Backoffice: a read-only pass first, without the lock, as DR reads the rows. Waiting for the lock while another
 	// node holds it let an extension uninstalled meanwhile get its row created again; the lock is taken only to write.
@@ -31,10 +33,12 @@ const readAndCreateSettings = async (
 		local,
 		module,
 		registry,
+		upload = new Map(),
 	}: {
 		local: Map<string, Extension>;
 		module: Map<string, Extension>;
 		registry: Map<string, Extension>;
+		upload?: Map<string, Extension>;
 	},
 	write: boolean,
 ): Promise<ExtensionSettings[] | null> => {
@@ -53,6 +57,7 @@ const readAndCreateSettings = async (
 	const localSettings = existingSettings.filter(({ source }) => source === 'local');
 	const registrySettings = existingSettings.filter(({ source }) => source === 'registry');
 	const moduleSettings = existingSettings.filter(({ source }) => source === 'module');
+	const uploadSettings = existingSettings.filter(({ source }) => source === 'upload');
 
 	const updateBundleEntriesSettings = (
 		bundle: BundleExtension,
@@ -89,7 +94,7 @@ const readAndCreateSettings = async (
 	const generateSettingsEntry = async (
 		folder: string,
 		extension: Extension,
-		source: 'local' | 'registry' | 'module',
+		source: ExtensionSettings['source'],
 	) => {
 		let marketplaceId;
 
@@ -187,6 +192,20 @@ const readAndCreateSettings = async (
 			await generateSettingsEntry(folder, extension, 'registry');
 		} else if (extension.type === 'bundle') {
 			updateBundleEntriesSettings(extension, existingSettings, registrySettings);
+		}
+	}
+
+	// Backoffice (spec 031, D-212): a folder of .upload without its row (the row of an upload is written after its files,
+	// so a node that synced or restarted in between, or a restored database) gets an enabled row, like a local folder,
+	// without asking the marketplace.
+	for (const [folder, extension] of upload.entries()) {
+		const existingSettings = uploadSettings.find((settings) => settings.folder === folder);
+
+		if (!existingSettings) {
+			if (!write) return null;
+			await generateSettingsEntry(folder, extension, 'upload');
+		} else if (extension.type === 'bundle') {
+			updateBundleEntriesSettings(extension, existingSettings, uploadSettings);
 		}
 	}
 

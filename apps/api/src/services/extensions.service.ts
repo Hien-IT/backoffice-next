@@ -1,6 +1,9 @@
 // Ported from directus/api/src/services/extensions.ts
-// Backoffice (spec 020): full port.
+// Backoffice (spec 020): full port. Spec 031 (D-212): installUpload, and uninstall of the `upload` source.
+import { randomUUID } from 'node:crypto';
+import type { Readable } from 'node:stream';
 import { useEnv } from '@backoffice/env';
+import { EXTENSION_PKG_KEY, type ExtensionManifest } from '@backoffice/extensions';
 import { ForbiddenError, InvalidPayloadError, LimitExceededError, UnprocessableContentError } from '@backoffice/errors';
 import type {
 	AbstractServiceOptions,
@@ -16,6 +19,8 @@ import { isObject } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import getDatabase from '../database/index.js';
 import { getExtensionManager } from '../extensions/index.js';
+import { getInstallationManager } from '../extensions/lib/installation/index.js';
+import { withSettingsLock } from '../extensions/lib/settings-lock.js';
 import { describe, type DescribeOptions } from '../extensions/registry/index.js';
 import { transaction } from '../utils/transaction.js';
 import { ItemsService } from './items.service.js';
@@ -64,17 +69,23 @@ export class ExtensionsService {
 			throw new ForbiddenError();
 		}
 
+		/**
+		 * Bundle extensions should be counted as the number of nested entries rather than a single
+		 * extension to avoid a vulnerability where you can get around the technical limit by bundling
+		 * all extensions you want
+		 */
+		this.assertLimit(version.bundled.length ?? 1);
+
+		return { extension, version };
+	}
+
+	// Backoffice (spec 031): the EXTENSIONS_LIMIT check of preInstall, shared with installUpload.
+	private assertLimit(points: number) {
+		const env = useEnv();
 		const limit = env['EXTENSIONS_LIMIT'] ? Number(env['EXTENSIONS_LIMIT']) : null;
 
 		if (limit !== null) {
 			const currentlyInstalledCount = this.extensionsManager.extensions.length;
-
-			/**
-			 * Bundle extensions should be counted as the number of nested entries rather than a single
-			 * extension to avoid a vulnerability where you can get around the technical limit by bundling
-			 * all extensions you want
-			 */
-			const points = version.bundled.length ?? 1;
 
 			const afterInstallCount = currentlyInstalledCount + points;
 
@@ -82,8 +93,90 @@ export class ExtensionsService {
 				throw new LimitExceededError({ category: 'Extensions' });
 			}
 		}
+	}
 
-		return { extension, version };
+	/**
+	 * Backoffice (spec 031, D-212, research R5): installs the npm-pack tarball of an upload. The package is checked
+	 * (format, manifest, sandbox under MARKETPLACE_TRUST=sandbox, EXTENSIONS_LIMIT, no other top-level extension of the
+	 * same name) before it leaves the temp folder, copied to .upload/<id> of the shared storage and the local folder,
+	 * then its rows are written under the extensions settings lock, after the name is checked again against the
+	 * uploads of other nodes; every node then syncs and reloads. Any failure after the copy removes the files and rows.
+	 */
+	async installUpload(stream: Readable): Promise<ApiOutput> {
+		const env = useEnv();
+		const installation = getInstallationManager();
+		const id = randomUUID();
+
+		const manifest = await installation.installFromStream(stream, id, (candidate) => {
+			const options = candidate[EXTENSION_PKG_KEY];
+
+			if (env['MARKETPLACE_TRUST'] === 'sandbox' && hasApiPart(candidate) && !isSandboxed(candidate)) {
+				throw new InvalidPayloadError({ reason: 'MARKETPLACE_TRUST=sandbox requires a sandboxed extension' });
+			}
+
+			this.assertLimit(options.type === 'bundle' ? options.entries.length : 1);
+			this.assertNameFree(candidate.name, this.extensionsManager.getExtensionSourceByName(candidate.name));
+		});
+
+		try {
+			await withSettingsLock(async () => {
+				const rows = (await this.extensionsItemService.readByQuery({ limit: -1 })) as ExtensionSettings[];
+
+				for (const row of rows) {
+					if (row.source !== 'upload' || row.bundle !== null || row.folder === id) continue;
+					if ((await installation.readUploadedName(row.folder)) === manifest.name) {
+						this.assertNameFree(manifest.name, 'upload');
+					}
+				}
+
+				// A node that synced the folder before this lock may have created the rows already (FR-011).
+				const own = rows.filter((row) => row.id === id || row.bundle === id);
+				const options = manifest[EXTENSION_PKG_KEY];
+
+				if (!own.some((row) => row.id === id)) {
+					await this.extensionsItemService.createOne({
+						id,
+						enabled: true,
+						folder: id,
+						source: 'upload',
+						bundle: null,
+					});
+				}
+
+				if (options.type === 'bundle') {
+					const missing = options.entries.filter((entry) => !own.some((row) => row.folder === entry.name));
+
+					if (missing.length > 0) {
+						await this.extensionsItemService.createMany(
+							missing.map((entry) => ({ enabled: true, folder: entry.name, source: 'upload', bundle: id })),
+						);
+					}
+				}
+			});
+		} catch (error) {
+			// Best effort: the original error is the one the caller gets.
+			await this.extensionsItemService
+				.deleteByQuery({ filter: { _or: [{ id: { _eq: id } }, { bundle: { _eq: id } }] } })
+				.then(
+					() => undefined,
+					() => undefined,
+				);
+			await installation.uninstall(id, 'upload').then(
+				() => undefined,
+				() => undefined,
+			);
+			throw error;
+		}
+
+		await this.extensionsManager.installed({ source: 'upload', folder: id });
+
+		return this.readOne(id);
+	}
+
+	private assertNameFree(name: string, source: string | undefined) {
+		if (source) {
+			throw new InvalidPayloadError({ reason: `An extension named "${name}" is already installed (${source})` });
+		}
 	}
 
 	async install(extensionId: string, versionId: string) {
@@ -114,7 +207,8 @@ export class ExtensionsService {
 	async uninstall(id: string) {
 		const settings = await this.extensionsItemService.readOne(id);
 
-		if (settings.source !== 'registry') {
+		// Backoffice (spec 031, D-212.3): an uploaded package is uninstalled like a registry one.
+		if (settings.source !== 'registry' && settings.source !== 'upload') {
 			throw new InvalidPayloadError({
 				reason: 'Cannot uninstall extensions that were not installed via marketplace',
 			});
@@ -127,7 +221,7 @@ export class ExtensionsService {
 		}
 
 		await this.deleteOne(id);
-		await this.extensionsManager.uninstall(settings.folder);
+		await this.extensionsManager.uninstall(settings.folder, settings.source);
 	}
 
 	async reinstall(id: string) {
@@ -296,4 +390,19 @@ export class ExtensionsService {
 			await trx('directus_extensions').update({ enabled: false }).where({ id: parentId });
 		}
 	}
+}
+
+/** Backoffice (spec 031, FR-006): whether a package runs code in the API (an app-only package has no sandbox option). */
+function hasApiPart(manifest: ExtensionManifest): boolean {
+	const options = manifest[EXTENSION_PKG_KEY];
+	const api = ['hook', 'endpoint', 'operation'];
+
+	if (options.type === 'bundle') return options.entries.some((entry) => api.includes(entry.type));
+	return api.includes(options.type);
+}
+
+/** A bundle has no sandbox option in the DR manifest, so a bundle with an API entry is never sandboxed. */
+function isSandboxed(manifest: ExtensionManifest): boolean {
+	const options = manifest[EXTENSION_PKG_KEY] as { sandbox?: { enabled?: boolean } };
+	return options.sandbox?.enabled === true;
 }

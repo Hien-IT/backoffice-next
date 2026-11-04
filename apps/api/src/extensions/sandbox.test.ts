@@ -73,6 +73,7 @@ async function load(...extensions: Extension[]) {
 		local: new Map(extensions.map((ext) => [ext.name, ext])),
 		registry: new Map(),
 		module: new Map(),
+		upload: new Map(),
 	});
 
 	vi.mocked(getExtensionsSettings).mockResolvedValue(

@@ -166,6 +166,38 @@ describe('syncExtensions', () => {
 		});
 	});
 
+	// Backoffice (spec 031, research T001b): a file gone between the listing and the read is skipped with a warning; any
+	// other read error still fails the sync.
+	describe('a file deleted meanwhile', () => {
+		test('a missing file is skipped, the next one is still synced', async () => {
+			mockLock.increment.mockResolvedValue(1);
+			vi.mocked(mockDisk.list).mockImplementation(async function* () {
+				yield 'remote/extensions/.upload/u1/dist/index.js';
+				yield 'remote/extensions/.upload/u1/package.json';
+			});
+			vi.mocked(mockDisk.read)
+				.mockRejectedValueOnce(Object.assign(new Error('gone'), { name: 'NoSuchKey' }))
+				.mockResolvedValueOnce(Readable.from(['{}']) as any);
+			vi.mocked(createWriteStream).mockReturnValue({} as any);
+			vi.mocked(pipeline).mockResolvedValue(undefined);
+
+			await expect(syncExtensions({ forceSync: true })).resolves.toBeUndefined();
+
+			expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('.upload/u1/dist/index.js'));
+			expect(pipeline).toHaveBeenCalledTimes(1);
+		});
+
+		test('another read error fails the sync', async () => {
+			mockLock.increment.mockResolvedValue(1);
+			vi.mocked(mockDisk.list).mockImplementation(async function* () {
+				yield 'remote/extensions/a/package.json';
+			});
+			vi.mocked(mockDisk.read).mockRejectedValue(new Error('access denied'));
+
+			await expect(syncExtensions({ forceSync: true })).rejects.toThrow('access denied');
+		});
+	});
+
 	describe('partial sync', () => {
 		test('should use partial sync paths when partialSync option is provided', async () => {
 			mockLock.increment.mockResolvedValue(1);

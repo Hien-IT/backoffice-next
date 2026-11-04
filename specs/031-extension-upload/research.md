@@ -162,8 +162,9 @@ dưới tên thư mục local (`helpers.ts FIXTURES`), nên tải `parity-endpoi
 trùng tên dùng chính nó; test cài thành công cần một gói có `name` khác: thêm fixture `parity-upload-endpoint`
 (endpoint sandbox, `name` riêng, trả `{ ok: true, source: 'upload' }`) có `dist/` và `.tgz` commit như các fixture khác
 (`fixtures-build.test.ts` kiểm dist), **không** đưa vào `FIXTURES` (không chép lên kho lúc seed) và registry giả không
-cần biết nó. Cùng cách, `parity-upload-bundle` (analyze C1): bundle với interface `upload-iface` và endpoint sandbox
-`upload-endpoint`, để kiểm dòng entry, app bundle (D-212.2) và gỡ bundle.
+cần biết nó. Cùng cách, `parity-upload-bundle` (analyze C1): bundle chỉ app (interface `upload-iface`, display
+`upload-display`; manifest DR không cho bundle tùy chọn sandbox, nên bundle có entry API bị từ chối dưới
+`MARKETPLACE_TRUST=sandbox`, ca đó dùng `parity-bundle-tools.tgz`), để kiểm dòng entry, app bundle (D-212.2) và gỡ bundle.
 
 ## R8. Parity và deploy
 
@@ -189,6 +190,25 @@ Deploy [Verified] `tests/parity/src/deploy/indexes.test.ts` mẫu (`replicaUrl(n
 compose deploy có `EXTENSIONS_LOCATION` dùng chung (019, kiểm ở T0xx: `grep EXTENSIONS deploy/compose`). Thêm
 `deploy/extension-upload.test.ts`: tải qua `boLbUrl`, gọi `/parity-upload-endpoint` ở `replicaUrl(1..3)` tới khi 200
 (≤ 10 s, SC-004), gỡ, tới khi 404.
+
+## Kết quả T001 (2026-11-04, chạy tại chỗ)
+
+- (a) [Verified] `tar` 7.5.19 `extract({ file, cwd })` trên một tar dựng tay: `../escape.txt` bị bỏ (không có file ở thư
+  mục cha), `/tmp/abs_escape.txt` bị đặt lại thành `<cwd>/tmp/abs_escape.txt`, symlink `package/link → ../../../../etc`
+  rồi `package/link/pwned.txt`: tar thay symlink bằng thư mục, không có `/etc/pwned.txt`. Không gì ra ngoài `cwd`. Còn lại
+  một rủi ro: tar chỉ có symlink (không có mục con) để lại symlink trỏ ra ngoài trong `package/`, rồi bước chép lên kho
+  (`tmpStorage.list` + `read`) có thể đọc theo nó. Quyết định: với nguồn `upload`, `extract` có `filter` bỏ mục
+  `SymbolicLink` và `Link` (gói `npm pack` không chứa link); luồng registry giữ nguyên như DR.
+- (b) [Verified] `syncExtensions` (`lib/sync/sync.ts`) gọi `await disk.read(filepath)` không bắt lỗi: file mất giữa `list`
+  và `read` làm sync ném, `load()` gọi `process.exit(1)` (đúng bài học 020 với Directus NoSuchKey; registry hôm nay cũng
+  vậy). Quyết định (T028): bắt lỗi "không tồn tại" của **một** file khi đọc (`NoSuchKey`/`ENOENT`/`NotFound`), ghi `warn`
+  và bỏ qua file đó; lỗi khác vẫn ném như cũ. Comment `Backoffice (spec 031)`.
+- (c) [Verified] `deploy/compose/.env.example` đặt `EXTENSIONS_LOCATION=s3` (layout mặc định dùng kho chung); chỉ override
+  `docker-compose.shared-extensions.yml` tắt nó. Không cần sửa deploy compose.
+- (d) [Verified] `wrappedFetch` của `web/api/sdk.ts` truyền `init` nguyên cho `fetch` (không đặt `content-type`), nên
+  `FormData` đi với boundary của trình duyệt.
+- (e) [Verified] `semver` không có trong `apps/api/package.json`, `libs/extensions/package.json`, `package.json` gốc: cảnh
+  báo `host` so major bằng regex (R3).
 
 ## R9. Hai lượt
 

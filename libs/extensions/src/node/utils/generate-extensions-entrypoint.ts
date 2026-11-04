@@ -12,7 +12,13 @@ import type {
 } from '../../shared/types/index.js';
 
 export function generateExtensionsEntrypoint(
-	extensionMaps: { local: Map<string, Extension>; registry: Map<string, Extension>; module: Map<string, Extension> },
+	// Backoffice (spec 031, D-212): `upload` holds the packages installed from an uploaded tarball.
+	extensionMaps: {
+		local: Map<string, Extension>;
+		registry: Map<string, Extension>;
+		module: Map<string, Extension>;
+		upload?: Map<string, Extension>;
+	},
 	settings: ExtensionSettings[],
 ): string {
 	const appOrHybridExtensions: (AppExtension | HybridExtension)[] = [];

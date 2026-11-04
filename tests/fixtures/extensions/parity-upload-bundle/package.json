@@ -1,0 +1,26 @@
+{
+	"name": "parity-upload-bundle",
+	"version": "1.0.0",
+	"type": "module",
+	"directus:extension": {
+		"type": "bundle",
+		"path": {
+			"app": "dist/app.js",
+			"api": "dist/api.js"
+		},
+		"entries": [
+			{
+				"type": "interface",
+				"name": "upload-iface",
+				"source": "src/upload-iface/index.js"
+			},
+			{
+				"type": "display",
+				"name": "upload-display",
+				"source": "src/upload-display/index.js"
+			}
+		],
+		"partial": true,
+		"host": "^11.0.0"
+	}
+}

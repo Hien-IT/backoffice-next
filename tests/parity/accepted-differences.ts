@@ -670,4 +670,38 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		when: { directusStatus: 400 },
 		reason: 'The body of a composite unique violation differs (D-210.4), so does its ETag.',
 	},
+	// Spec 031 (D-212..D-212.3): install an extension from an uploaded npm-pack tarball, source `upload`.
+	{
+		id: 'D-212',
+		feature: '031',
+		kind: 'doc',
+		reason:
+			'GET/POST /backoffice/extensions/upload exist at Backoffice only (Directus 404): the size limit, and the install of an npm-pack tarball into .upload/<id> of EXTENSIONS_PATH with a directus_extensions row of source upload; tests/parity/src/extensions/upload.test.ts checks each app.',
+	},
+	{
+		id: 'D-212.1',
+		feature: '031',
+		kind: 'doc',
+		reason:
+			'Directus on the same database keeps a row of source upload, lists it as Missing (schema null), never loads it and never scans the hidden .upload folder; measured by restarting Directus in src/extensions/upload-restart.test.ts (FR-023).',
+	},
+	// While an uploaded package is installed, its row has a schema at Backoffice and null at Directus, and the app bundle
+	// of Backoffice holds its app part. upload.test.ts removes its packages before the file ends, so the other files compare
+	// the same lists.
+	{
+		id: 'D-212.2',
+		feature: '031',
+		kind: 'http',
+		endpoints: ['GET /extensions', 'GET /extensions/*', 'POST /graphql/system'],
+		location: { jsonPointer: /^\/data(\/extensions)?\/\d+\/schema(\/.*)?$/ },
+		reason:
+			'An extension of source upload is loaded at Backoffice only: its schema at Backoffice, null at Directus (spec 031 D-212.2).',
+	},
+	{
+		id: 'D-212.3',
+		feature: '031',
+		kind: 'doc',
+		reason:
+			'DELETE /extensions/registry/uninstall/:pk also uninstalls a row of source upload at Backoffice (files of .upload/<folder> and the rows); Directus answers 400 "not installed via marketplace"; checked per app in upload.test.ts.',
+	},
 ];

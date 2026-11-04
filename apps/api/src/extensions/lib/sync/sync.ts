@@ -86,19 +86,26 @@ export async function syncExtensions(options?: ExtensionSyncOptions): Promise<vo
 
 			await fileTracker.passedFile(relativePath);
 
-			// No need to check metadata when force is enabled
-			if (options?.forceSync !== true && hasLocalFiles) {
-				const fileUnchanged = await compareFileMetadata(destinationPath, filepath, disk);
-				if (fileUnchanged) continue;
+			// Backoffice (spec 031, research T001b): a file deleted between the listing and the read (an extension
+			// uninstalled on another node meanwhile) is skipped; DR throws and the node exits.
+			try {
+				// No need to check metadata when force is enabled
+				if (options?.forceSync !== true && hasLocalFiles) {
+					const fileUnchanged = await compareFileMetadata(destinationPath, filepath, disk);
+					if (fileUnchanged) continue;
+				}
+
+				// Ensure that the directory path exists
+				await mkdir(dirname(destinationPath), { recursive: true });
+
+				// write remote file to the local filesystem
+				const readStream = await disk.read(filepath);
+				const writeStream = createWriteStream(destinationPath);
+				queue.add(() => pipeline(readStream, writeStream));
+			} catch (error) {
+				if (!isMissingFile(error)) throw error;
+				logger.warn(`Extension file ${filepath} is gone from the storage, skipped`);
 			}
-
-			// Ensure that the directory path exists
-			await mkdir(dirname(destinationPath), { recursive: true });
-
-			// write remote file to the local filesystem
-			const readStream = await disk.read(filepath);
-			const writeStream = createWriteStream(destinationPath);
-			queue.add(() => pipeline(readStream, writeStream));
 		}
 
 		// wait for the queue to finish
@@ -121,4 +128,15 @@ export async function syncExtensions(options?: ExtensionSyncOptions): Promise<vo
 export async function clearOwnSyncLock(): Promise<void> {
 	const machineId = await mid.machineId();
 	await useLock().delete(`extensions-sync/${machineId}`);
+}
+
+/** Backoffice (spec 031): the not-found errors of the local and S3 storage drivers. */
+function isMissingFile(error: unknown): boolean {
+	const e = error as { code?: unknown; Code?: unknown; name?: unknown; $metadata?: { httpStatusCode?: number } } | null;
+	if (!e) return false;
+	return (
+		e.code === 'ENOENT' ||
+		['NotFound', 'NoSuchKey'].includes(String(e.Code ?? e.name ?? e.code)) ||
+		e.$metadata?.httpStatusCode === 404
+	);
 }

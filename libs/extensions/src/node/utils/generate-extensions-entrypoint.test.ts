@@ -321,4 +321,26 @@ describe('generateExtensionsEntrypoint', () => {
 			`"import display0 from './extensions/display/index.js';import operation0 from './extensions/operation/app.js';import {layouts as layoutBundle0,operations as operationBundle0} from './extensions/bundle/app.js';export const interfaces = [];export const displays = [display0];export const layouts = [...layoutBundle0];export const modules = [];export const panels = [];export const themes = [];export const operations = [operation0,...operationBundle0];"`,
 		);
 	});
+
+	// Backoffice (spec 031, D-212): a package of the `upload` map is imported when its `upload` row is enabled, and the
+	// row of another source with the same folder does not count.
+	it('imports an enabled extension of the upload map, matched on its upload row', () => {
+		const upload = new Map<string, Extension>();
+
+		upload.set('5c1f6c80-0000-4000-8000-000000000001', {
+			path: './extensions/.upload/5c1f6c80-0000-4000-8000-000000000001',
+			name: 'uploaded-display',
+			type: 'display',
+			entrypoint: 'dist/index.js',
+			local: false,
+		});
+
+		const extensions = { module: new Map(), registry: new Map(), local: new Map(), upload };
+		const row = { id: 'u', folder: '5c1f6c80-0000-4000-8000-000000000001', bundle: null, enabled: true };
+
+		expect(generateExtensionsEntrypoint(extensions, [{ ...row, source: 'upload' }])).toContain(
+			"import display0 from './extensions/.upload/5c1f6c80-0000-4000-8000-000000000001/dist/index.js';",
+		);
+		expect(generateExtensionsEntrypoint(extensions, [{ ...row, source: 'local' }])).not.toContain('import ');
+	});
 });

@@ -43,7 +43,8 @@ vi.mock('../services/index.js', () => ({ ItemsService: class {} }));
 vi.mock('./services.js', () => ({ extraServices: async () => ({}) }));
 vi.mock('./lib/get-extensions.js', () => ({ getExtensions: vi.fn() }));
 vi.mock('./lib/get-extensions-settings.js', () => ({ getExtensionsSettings: vi.fn() }));
-vi.mock('./lib/installation/index.js', () => ({ getInstallationManager: () => ({}) }));
+const installation = vi.hoisted(() => ({ install: vi.fn(), uninstall: vi.fn() }));
+vi.mock('./lib/installation/index.js', () => ({ getInstallationManager: () => installation }));
 vi.mock('./lib/sync/sync.js', () => ({ syncExtensions: vi.fn(), clearOwnSyncLock: vi.fn() }));
 
 vi.mock('rollup', () => ({ rollup: vi.fn(async () => ({ write: async () => ({ output: [] }), close: vi.fn() })) }));
@@ -130,6 +131,7 @@ beforeEach(() => {
 		local: new Map([['enabled-hook', hook('enabled-hook')]]),
 		registry: new Map([['other-source', hook('other-source')]]),
 		module: new Map(),
+		upload: new Map(),
 	});
 
 	vi.mocked(getExtensionsSettings).mockResolvedValue([
@@ -294,6 +296,7 @@ describe('registration (T030-T032)', () => {
 			local: new Map(extensions.map((ext) => [ext.name, ext])),
 			registry: new Map(),
 			module: new Map(),
+			upload: new Map(),
 		});
 
 		vi.mocked(getExtensionsSettings).mockResolvedValue(
@@ -414,6 +417,7 @@ describe('filter order (T039, R-62)', () => {
 			local: new Map([['order-hook', ext]]),
 			registry: new Map(),
 			module: new Map(),
+			upload: new Map(),
 		});
 		vi.mocked(getExtensionsSettings).mockResolvedValue([
 			{ id: '1', source: 'local', folder: 'order-hook', enabled: true, bundle: null },
@@ -433,6 +437,119 @@ describe('filter order (T039, R-62)', () => {
 		await expect(emitter.emitFilter('bo.manager.filter', {}, {})).resolves.toEqual({ ext: true, flowSawExt: false });
 
 		emitter.offFilter('bo.manager.filter', flow);
+		await manager.unload();
+	});
+});
+
+// Backoffice (spec 031, D-212): the `upload` map (.upload/<id>) is a fourth source: looked up by (source, folder),
+// registered when its row is enabled, synced by `.upload/<folder>` on install and uninstall, never watched, and its
+// packages whose host names another major than DR get a warning.
+describe('upload source (spec 031)', () => {
+	const FOLDER = '5c1f6c80-0000-4000-8000-000000000031';
+	const uploaded = (overrides: Partial<Extension> = {}) =>
+		({ ...hook('uploaded-endpoint'), type: 'endpoint', entrypoint: 'endpoint.mjs', ...overrides }) as Extension;
+
+	async function withUpload(extension: Extension, enabled = true) {
+		vi.mocked(getExtensions).mockResolvedValue({
+			local: new Map(),
+			registry: new Map(),
+			module: new Map(),
+			upload: new Map([[FOLDER, extension]]),
+		});
+		vi.mocked(getExtensionsSettings).mockResolvedValue([
+			{ id: FOLDER, source: 'upload', folder: FOLDER, enabled, bundle: null },
+		]);
+
+		const manager = new ExtensionManager();
+		await manager.initialize({ watch: false });
+		return manager;
+	}
+
+	test('an enabled upload row registers the endpoint under its package name; getExtension and the name lookup', async () => {
+		const manager = await withUpload(uploaded());
+		const app = express().use(manager.getEndpointRouter());
+
+		await request(app).get('/uploaded-endpoint').expect(200);
+		expect(manager.getExtension('upload', FOLDER)?.name).toBe('uploaded-endpoint');
+		expect(manager.getExtension('registry', FOLDER)).toBeUndefined();
+		expect(manager.extensions.map((e) => e.name)).toEqual(['uploaded-endpoint']);
+		expect(manager.getExtensionSourceByName('uploaded-endpoint')).toBe('upload');
+		expect(manager.getExtensionSourceByName('missing')).toBeUndefined();
+		expect(getExtensionsSettings).toHaveBeenCalledWith(expect.objectContaining({ upload: expect.any(Map) }));
+
+		await manager.unload();
+	});
+
+	test('a disabled upload row does not register it', async () => {
+		const manager = await withUpload(uploaded(), false);
+		const app = express().use(manager.getEndpointRouter());
+
+		await request(app).get('/uploaded-endpoint').expect(404);
+		await manager.unload();
+	});
+
+	test('installed() and uninstall(folder, "upload") sync .upload/<folder> on the other nodes', async () => {
+		const manager = await withUpload(uploaded());
+		const reload = vi.spyOn(manager, 'reload').mockResolvedValue(undefined);
+		const installed = vi.fn();
+		emitter.onAction('extensions.installed', installed);
+
+		await manager.installed({ source: 'upload', folder: FOLDER });
+		expect(bus.publish).toHaveBeenLastCalledWith(
+			'extensions.reload',
+			expect.objectContaining({ partialSync: join('.upload', FOLDER) }),
+		);
+		expect(reload).toHaveBeenLastCalledWith({ skipSync: true });
+		expect(installed).toHaveBeenCalledWith(expect.objectContaining({ versionId: FOLDER }), expect.anything());
+
+		await manager.uninstall(FOLDER, 'upload');
+		expect(installation.uninstall).toHaveBeenLastCalledWith(FOLDER, 'upload');
+		expect(bus.publish).toHaveBeenLastCalledWith(
+			'extensions.reload',
+			expect.objectContaining({ partialSync: join('.upload', FOLDER) }),
+		);
+
+		await manager.install('v1');
+		expect(installation.install).toHaveBeenLastCalledWith('v1');
+		expect(bus.publish).toHaveBeenLastCalledWith(
+			'extensions.reload',
+			expect.objectContaining({ partialSync: join('.registry', 'v1') }),
+		);
+
+		emitter.offAction('extensions.installed', installed);
+		await manager.unload();
+	});
+
+	test('a host of another major gets one warning per load; a matching host none', async () => {
+		const manager = await withUpload(uploaded({ host: '^10.0.0' } as Partial<Extension>));
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('declares host "^10.0.0"'));
+		await manager.unload();
+
+		logger.warn.mockClear();
+		const matching = await withUpload(uploaded({ host: '^11.0.0' } as Partial<Extension>));
+		expect(logger.warn).not.toHaveBeenCalledWith(expect.stringContaining('declares host'));
+		await matching.unload();
+	});
+
+	test('an uploaded package is not watched, a local one is', async () => {
+		const local = { ...hook('watched-hook'), path: join('extensions', 'watched-hook') } as Extension;
+		const upload = uploaded({ path: join(process.cwd(), 'extensions', '.upload', FOLDER) } as Partial<Extension>);
+		vi.mocked(getExtensions).mockResolvedValue({
+			local: new Map([['watched-hook', local]]),
+			registry: new Map(),
+			module: new Map(),
+			upload: new Map([[FOLDER, upload]]),
+		});
+		vi.mocked(getExtensionsSettings).mockResolvedValue([]);
+
+		const manager = new ExtensionManager();
+		await manager.initialize({ watch: true });
+		const watcher = vi.mocked(chokidar.watch).mock.results[0]!.value as { add: ReturnType<typeof vi.fn> };
+		const added = watcher.add.mock.calls.flat(2) as string[];
+
+		expect(added.some((path) => path.includes('watched-hook'))).toBe(true);
+		expect(added.some((path) => path.includes('.upload'))).toBe(false);
+
 		await manager.unload();
 	});
 });

@@ -47,7 +47,7 @@ parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify u
 
 **Purpose**: chốt ba điểm chưa thử, có gói fixture để test, mở kiểu `source`.
 
-- [ ] T001 Thử tại chỗ (script dùng một lần trong scratchpad, không commit): (a) `tar` 7.5.19 `extract({ file, cwd })`
+- [x] T001 Thử tại chỗ (script dùng một lần trong scratchpad, không commit): (a) `tar` 7.5.19 `extract({ file, cwd })`
       với tar có mục `../x`, `/etc/x` và symlink trỏ ra ngoài: không file ngoài `cwd` (bỏ qua hay lỗi, ghi cái nào);
       (b) `syncExtensions({ partialSync })` của `ext/lib/sync/sync.ts` khi một file của prefix biến mất giữa `list` và
       `read` (mock disk): bỏ qua hay ném (bài học 020 NoSuchKey); (c) `deploy/compose` có `EXTENSIONS_LOCATION` dùng chung
@@ -56,18 +56,18 @@ parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify u
       `apps/api`/`libs/extensions` (grep 2026-11-04, analyze U1) → so **major** bằng regex trên chuỗi `host`
       (`/(\d+)/` đầu tiên ≠ major của `BACKOFFICE_VERSION` → cảnh báo), không thêm gói; ghi research R3. Ghi "Kết quả
       T001" vào `specs/031-extension-upload/research.md` R2/R3/R6/R8.
-- [ ] T002 [P] Fixture `fx/parity-upload-endpoint/`: `package.json` (`name` `parity-upload-endpoint`, `version` `1.0.0`,
+- [x] T002 [P] Fixture `fx/parity-upload-endpoint/`: `package.json` (`name` `parity-upload-endpoint`, `version` `1.0.0`,
       `directus:extension` type `endpoint`, `path dist/index.js`, `source src/index.js`, `host ^11.0.0`, `sandbox.enabled
       true`, scopes `log` như `fx/parity-endpoint-sandbox/package.json`), `src/index.js` (GET `/` trả `{ ok: true, source:
       'upload' }`), build `dist/` bằng `pnpm --filter @backoffice/extension-fixtures fixtures:build parity-upload-endpoint`
       và `fixtures:pack` → commit `dist/` + `parity-upload-endpoint-1.0.0.tgz`; `fx/fixtures-build.test.ts` xanh;
       **không** thêm vào `FIXTURES` của `parity/extensions/helpers.ts`, không chép lên kho ở seed
       (`tests/parity/docker-compose.yml` dòng 216–220 chỉ lặp `parity-*`: thêm loại trừ `parity-upload-*` vào vòng `for`).
-      Cùng cách, fixture thứ hai `fx/parity-upload-bundle/` (analyze C1): bundle (`path.app dist/app.js`, `path.api
-      dist/api.js`, mẫu `fx/parity-bundle-tools/package.json`) với hai entry: interface `upload-iface` (app) và endpoint
-      `upload-endpoint` (api, `sandbox.enabled true`, trả `{ ok: true }`), `partial: true`; build + pack, commit `dist/` +
-      `parity-upload-bundle-1.0.0.tgz`.
-- [ ] T003 [P] Kiểu: `libs/types/src/extensions*.ts` (file chứa `ExtensionSettings`) `source: 'local' | 'registry' |
+      Cùng cách, fixture thứ hai `fx/parity-upload-bundle/` (analyze C1): bundle **chỉ app** (interface `upload-iface` +
+      display `upload-display`, `partial: true`; làm 2026-11-04: manifest DR không có `sandbox` cho bundle hay entry, và
+      parity chạy `MARKETPLACE_TRUST=sandbox`, nên bundle có entry API bị FR-006 từ chối; ca đó dùng
+      `parity-bundle-tools.tgz` có hook); build + pack, commit `dist/` + `parity-upload-bundle-1.0.0.tgz`.
+- [x] T003 [P] Kiểu: `libs/types/src/extensions*.ts` (file chứa `ExtensionSettings`) `source: 'local' | 'registry' |
       'module' | 'upload'`; `libs/extensions/src/node/utils/generate-extensions-entrypoint.ts:14-17` tham số
       `extensionMaps` thêm `upload?: Map<string, Extension>` (thân hàm duyệt `Object.entries`, không đổi) + case trong
       `generate-extensions-entrypoint.test.ts` (map `upload` có setting → vào entrypoint); comment `Backoffice (spec 031,
@@ -84,13 +84,13 @@ parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify u
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T004 [P] `ext/lib/get-extensions.test.ts`: thư mục `<root>/.upload/<id>/package.json` ra map `upload`, không vào
+- [x] T004 [P] `ext/lib/get-extensions.test.ts`: thư mục `<root>/.upload/<id>/package.json` ra map `upload`, không vào
       `local`; không có `.upload` → map rỗng.
-- [ ] T005 [P] `ext/lib/get-extensions-settings.test.ts`: (a) thư mục `upload` không có dòng → `createMany` một dòng
+- [x] T005 [P] `ext/lib/get-extensions-settings.test.ts`: (a) thư mục `upload` không có dòng → `createMany` một dòng
       `{ enabled: true, source: 'upload', folder, bundle: null }` không gọi `list` của registry (mock); bundle → entry
       `source: 'upload'`, `bundle: id`; (b) dòng `upload` không có thư mục → giữ; (c) pass đọc không ghi (`write: false`)
       trả `null` khi thiếu dòng `upload` như local.
-- [ ] T006 [P] `ext/manager.test.ts`: `getExtension('upload', f)`, getter `extensions` gồm `uploadExtensions`,
+- [x] T006 [P] `ext/manager.test.ts`: `getExtension('upload', f)`, getter `extensions` gồm `uploadExtensions`,
       `registerApiExtensions` nạp endpoint `upload` khi dòng `enabled` và bỏ khi `enabled: false`, `registerBundleExtension`
       với source `upload`; `installed({ source: 'upload', folder })` publish `{ partialSync: '.upload/<folder>', origin }`
       rồi `reload({ skipSync: true })` và `emitAction('extensions.installed', { versionId: folder })`;
@@ -98,7 +98,7 @@ parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify u
       `updateWatchedExtensions` không watch đường dẫn dưới `.upload`; log `warn` một dòng cho **mỗi** extension của map
       `upload` (mọi type, kể cả chỉ app) có major của `host` khác major của `BACKOFFICE_VERSION` (so chuỗi, T001(e);
       clarify Q1, analyze I1/U1), trong `load()` sau khi có map.
-- [ ] T007 [P] `ext/lib/installation/manager.test.ts` (tar thật trong thư mục tạm của test, `TEMP_PATH`/`EXTENSIONS_PATH`
+- [x] T007 [P] `ext/lib/installation/upload.test.ts` (file mới cạnh `manager.test.ts`, vì file đó mock `tar`; tar thật trong thư mục tạm của test, `TEMP_PATH`/`EXTENSIONS_PATH`
       trỏ vào đó; storage mock cho `EXTENSIONS_LOCATION`): `installFromStream(stream, { source: 'upload', folder })` từ
       `fx/parity-upload-endpoint/parity-upload-endpoint-1.0.0.tgz` → `<EXTENSIONS_PATH>/.upload/<folder>/package.json` +
       `dist/index.js`, trả manifest; với `EXTENSIONS_LOCATION`: mọi file ghi lên kho, `package.json` ghi **sau** khi
@@ -110,12 +110,12 @@ parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify u
 
 ### Implementation
 
-- [ ] T008 `ext/lib/get-extensions.ts`: `uploadExtensions = resolveFsExtensions(join(getExtensionsPath(), '.upload'))`,
+- [x] T008 `ext/lib/get-extensions.ts`: `uploadExtensions = resolveFsExtensions(join(getExtensionsPath(), '.upload'))`,
       trả `{ local, registry, module, upload }`.
-- [ ] T009 `ext/lib/get-extensions-settings.ts`: tham số và `readAndCreateSettings` nhận `upload`; `uploadSettings` lọc
+- [x] T009 `ext/lib/get-extensions-settings.ts`: tham số và `readAndCreateSettings` nhận `upload`; `uploadSettings` lọc
       `source === 'upload'`; vòng lặp thứ tư như `module` (không nhánh đổi tên của local, không marketplace);
       `generateSettingsEntry` union source thêm `'upload'`.
-- [ ] T010 `ext/manager.ts`: `private uploadExtensions: Map<string, Extension>`; `extensions` getter; `getExtension`
+- [x] T010 `ext/manager.ts`: `private uploadExtensions: Map<string, Extension>`; `extensions` getter; `getExtension`
       case `'upload'`; `load()` nhận `upload` từ `getExtensions()` và truyền vào `getExtensionsSettings`;
       `generateExtensionBundle` truyền map `upload`; `registerApiExtensions` `sources` thêm `upload`;
       `registerBundleExtension` union source thêm `'upload'`; `updateWatchedExtensions` bỏ cả `uploadDir`;
@@ -123,12 +123,12 @@ parity/E2E liên quan xanh, commit, push khi `main` rảnh, CI xanh, `graphify u
       broadcast + reload + emit + log); `uninstall(folder, source: 'registry' | 'upload' = 'registry')` tạo `syncFolder`
       theo source; cảnh báo `host` trong `load()` cho mọi extension của `uploadExtensions` (T006); `installed(target)`
       public (broadcast + reload + emit + log, dùng ở `install` và T016). Comment `Backoffice (spec 031, D-212)` mỗi chỗ.
-- [ ] T011 `ext/lib/installation/manager.ts`: tách `installFromStream(tarStream: Readable, target: { source: 'registry'
+- [x] T011 `ext/lib/installation/manager.ts`: tách `installFromStream(tarStream: Readable, target: { source: 'registry'
       | 'upload'; folder: string }): Promise<ExtensionManifest>` (bước 3–7 của R1, thư mục con theo source, thư mục tạm
       `TEMP_PATH/<source === 'upload' ? 'upload-extensions' : 'marketplace'>/<folder>`, `package.json` chép cuối sau
       `queue.onIdle()`, lỗi `isBackofficeError` đi qua nguyên, lỗi khác → `ServiceUnavailableError` như cũ, `finally rm`);
       `install(versionId)` = mkdir + download + `installFromStream`; `uninstall(folder, source = 'registry')`.
-- [ ] T012 Chạy T004–T007 xanh; unit `ext/**` và `api/services/extensions.service.test.ts` hiện có xanh nguyên.
+- [x] T012 Chạy T004–T007 xanh; unit `ext/**` và `api/services/extensions.service.test.ts` hiện có xanh nguyên.
 
 **Checkpoint**: unit `apps/api` `extensions/**` xanh; `pnpm nx run api:typecheck` xanh; parity `extensions/list.test.ts`
 và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới nào kích hoạt vì chưa có `.upload`).
@@ -141,7 +141,7 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T013 [P] [US1] `api/services/extensions.service.test.ts` (knex-mock, manager/installationManager mock): `installUpload(stream)`
+- [x] T013 [P] [US1] `api/services/extensions.service.test.ts` (knex-mock, manager/installationManager mock): `installUpload(stream)`
       gọi `installationManager.installFromStream(stream, { source: 'upload', folder: <uuid v4> })`, rồi trong
       `withSettingsLock` (mock `lib/settings-lock.js`) kiểm trùng name lần hai và `createOne({ id: folder, enabled: true,
       folder, source: 'upload', bundle: null })` + `createMany` entry bundle (`manifest['directus:extension'].entries`
@@ -149,12 +149,12 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
       `parity-upload-bundle`; C1),
       rồi `extensionsManager.installed({ source: 'upload', folder })`, rồi trả `readOne(id)`; `EXTENSIONS_LIMIT` đạt →
       `LimitExceededError` trước khi giải nén xong (điểm = số entry hoặc 1).
-- [ ] T014 [P] [US1] `api/controllers/backoffice-extensions.controller.test.ts` (supertest, mẫu
+- [x] T014 [P] [US1] `api/controllers/backoffice-extensions.controller.test.ts` (supertest, mẫu
       `backoffice-indexes.controller.test.ts`): `GET /backoffice/extensions/upload` 200 `{ data: { max_upload_size:
       null } }` (admin; với `FILES_MAX_UPLOAD_SIZE=10mb` → `10485760`), 403 user, 401 không token; `POST` multipart
       (`.attach('file', <tgz>)`) 200 `{ data: ApiOutput }` với service mock; `res.locals.cache === false`; không multipart
       → 400 `Request must be multipart/form-data`; multipart không file → 400 `No file was uploaded`.
-- [ ] T015 [P] [US1] `parity/extensions/upload.test.ts` phần 1 (đỏ tới T018): D-212 Directus `GET`/`POST` 404
+- [x] T015 [P] [US1] `parity/extensions/upload.test.ts` phần 1 (đỏ tới T018): D-212 Directus `GET`/`POST` 404
       `ROUTE_NOT_FOUND`, Backoffice GET 200; tải `fx/parity-upload-endpoint/parity-upload-endpoint-1.0.0.tgz` (FormData +
       `fetch`, `admin()`) → 200 `meta.source === 'upload'`, `schema.type === 'endpoint'`, `schema.name ===
       'parity-upload-endpoint'`; `waitAll` `/parity-upload-endpoint` 200 ở `backoffice` và `backoffice-2`, 404 ở
@@ -162,9 +162,8 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
       local/directus/extensions/.upload/<id>/` có `package.json`, `dist/index.js`; D-212.2: `GET /extensions` Directus dòng
       `schema: null`, Backoffice `schema.type` (`same()` loại trừ dòng id này cho phần còn lại); **bundle** (C1): tải
       `fx/parity-upload-bundle/parity-upload-bundle-1.0.0.tgz` → 200 `schema.type === 'bundle'`, `extRows()` có 2 dòng con
-      `{ bundle: <id>, source: 'upload', folder: 'upload-iface' | 'upload-endpoint' }`, `waitAll` `/upload-endpoint` 200 ở
-      hai node Backoffice, `GET /extensions/sources/<chunk đầu của GET /extensions/sources/index.js>` ở Backoffice chứa
-      `upload-iface`, ở Directus không (D-212.2 app bundle); Directus `GET /extensions` bỏ 2 dòng con (cha `schema: null`);
+      `{ bundle: <id>, source: 'upload', folder: 'upload-iface' | 'upload-display' }`, app bundle (`index.js` và các chunk
+      nó import) ở Backoffice chứa "Upload Bundle Interface", ở Directus không (D-212.2 app bundle); Directus `GET /extensions` bỏ 2 dòng con (cha `schema: null`);
       **bật/tắt** (C3): `PATCH /extensions/<id endpoint> { meta: { enabled: false } }` ở Backoffice → `waitAll` 404 ở hai
       node, bật lại → 200; cùng PATCH ở Directus (`enabled: false`) → dòng cập nhật, Backoffice tắt theo (bus), bật lại;
       **đua** (C2): `Promise.all` tải lại `parity-upload-endpoint` ở `backoffice` và `backoffice-2` sau khi đã gỡ nó (T026
@@ -174,16 +173,16 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] `api/services/extensions.service.ts`: `installUpload(stream: Readable): Promise<ApiOutput>` theo
+- [x] T016 [US1] `api/services/extensions.service.ts`: `installUpload(stream: Readable): Promise<ApiOutput>` theo
       T013 và research R5 (kiểm `EXTENSIONS_LIMIT` bằng cách tách `assertLimit(points)` từ `preInstall`; lỗi sau khi file
       ở đích → `installationManager.uninstall(folder, 'upload')` rồi ném); comment `Backoffice (spec 031, D-212)`.
-- [ ] T017 [US1] `api/controllers/backoffice-extensions.controller.ts` (mới): `@Controller('backoffice/extensions')`;
+- [x] T017 [US1] `api/controllers/backoffice-extensions.controller.ts` (mới): `@Controller('backoffice/extensions')`;
       `GET upload` → `{ data: { max_upload_size: bytes.parse(env.FILES_MAX_UPLOAD_SIZE) ?? null } }`; `POST upload`:
       `req.is('multipart/form-data')` → 400; Busboy `{ headers, limits: { files: 1, fileSize } }` (mẫu
       `files.controller.ts:42-46`), `on('file')` → `service.installUpload(fileStream)`; `fileStream.on('limit')` →
       `ContentTooLargeError` (hủy stream, service dọn); không file khi `close` → 400; lỗi → `next(error)`; trả 200 `{ data }`
       qua `respond`; `res.locals.cache = false`; admin/401/403 như `backoffice-indexes.controller.ts:30-36`.
-- [ ] T018 [US1] `api/app.module.ts`: controller vào `controllers`, `consumer.apply(useCollection('directus_extensions'))
+- [x] T018 [US1] `api/app.module.ts`: controller vào `controllers`, `consumer.apply(useCollection('directus_extensions'))
       .forRoutes(BackofficeExtensionsController)`; `ExtensionsService` đã là provider (giữ). Chạy T013–T015 xanh (parity:
       `env-up` profile `extensions`, `TEST_DB=postgres`).
 
@@ -197,7 +196,7 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T019 [P] [US2] `ext/lib/installation/manager.test.ts` thêm: file không phải gzip (`package.json` thường) →
+- [x] T019 [P] [US2] `ext/lib/installation/manager.test.ts` thêm: file không phải gzip (`package.json` thường) →
       `InvalidPayloadError` reason `The file is not a gzipped tar archive`; tar không có `package/package.json` → reason
       `package/package.json is missing (npm pack layout expected)`; manifest sai (`directus:extension` thiếu `type`) →
       reason bắt đầu `Invalid extension manifest:`; `MARKETPLACE_TRUST=sandbox` + endpoint không `sandbox.enabled` → reason
@@ -205,10 +204,10 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
       **được nhận** (FR-006 sau checklist); trùng name với `existingNames` truyền vào → reason `An extension named "x" is
       already installed (local)`; mọi trường hợp: thư mục tạm xóa, không `.upload/<folder>`, kho không ghi (mock); tar có
       `../x` (T001) không file ngoài tạm.
-- [ ] T020 [P] [US2] `api/controllers/backoffice-extensions.controller.test.ts` thêm: `FILES_MAX_UPLOAD_SIZE=1kb` + file
+- [x] T020 [P] [US2] `api/controllers/backoffice-extensions.controller.test.ts` thêm: `FILES_MAX_UPLOAD_SIZE=1kb` + file
       2 KB → 413 `CONTENT_TOO_LARGE`, service không được gọi tới `createOne` (stream hủy); service ném `InvalidPayloadError`
       → 400 với reason nguyên; user thường → 403 trước khi đọc body.
-- [ ] T021 [P] [US2] `parity/extensions/upload.test.ts` phần 2: `package.json` thường → 400 reason `not a gzipped tar`;
+- [x] T021 [P] [US2] `parity/extensions/upload.test.ts` phần 2: `package.json` thường → 400 reason `not a gzipped tar`;
       tar tự dựng trong test (`tar.create` vào thư mục tạm, không `package/`) → 400 `package/package.json is missing`;
       `fx/parity-endpoint-demo/parity-endpoint-demo-1.0.0.tgz` (không sandbox) → 400 `MARKETPLACE_TRUST=sandbox requires…`;
       `fx/parity-endpoint-sandbox/parity-endpoint-sandbox-1.0.0.tgz` (trùng name với fixture local) → 400 `already
@@ -217,15 +216,15 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] `ext/lib/installation/manager.ts`: trong `installFromStream` các kiểm tra theo thứ tự R1 (định dạng →
+- [x] T022 [US2] `ext/lib/installation/manager.ts`: trong `installFromStream` các kiểm tra theo thứ tự R1 (định dạng →
       manifest → `type` → sandbox theo `MARKETPLACE_TRUST` chỉ khi gói có phần API: `type` hook/endpoint/operation hoặc
       bundle có entry api → trùng name so với `options.existingNames: Map<name, source>`), tất cả **trước** khi chép; lỗi
       `tar`/gzip bắt ở `extract` và map thành `InvalidPayloadError`; `ENOENT` của `package/package.json` → reason riêng;
       zod → `Invalid extension manifest: ${issues}`.
-- [ ] T023 [US2] `api/services/extensions.service.ts`: `existingNames` từ `extensionsManager.extensions` (cấp cao, `name`
+- [x] T023 [US2] `api/services/extensions.service.ts`: `existingNames` từ `extensionsManager.extensions` (cấp cao, `name`
       → source: suy từ map của manager, thêm `getExtensionSource(name)` nhỏ ở manager) truyền vào `installFromStream`;
       kiểm lại trong `withSettingsLock` (đọc `directus_extensions` + manager) → cùng reason; `EXTENSIONS_LIMIT`.
-- [ ] T024 [US2] `api/controllers/backoffice-extensions.controller.ts`: 413 trên `limit`, 400 không file, lỗi đi qua
+- [x] T024 [US2] `api/controllers/backoffice-extensions.controller.ts`: 413 trên `limit`, 400 không file, lỗi đi qua
       `next`; chạy T019–T021 xanh.
 
 **Checkpoint**: parity `upload.test.ts` phần 1–2 xanh; `security.md` CHK019/CHK021/CHK026 có code tương ứng.
@@ -238,20 +237,20 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T025 [P] [US3] `api/services/extensions.service.test.ts` thêm: `uninstall(id)` với dòng `source: 'upload'` →
+- [x] T025 [P] [US3] `api/services/extensions.service.test.ts` thêm: `uninstall(id)` với dòng `source: 'upload'` →
       `deleteOne` + `extensionsManager.uninstall(folder, 'upload')`; dòng `local`/`module` → 400 chữ cũ; entry bundle
       `upload` → 400 `Cannot uninstall sub extensions of bundles separately`; `reinstall(id)` với `upload` → 400 `Cannot
       reinstall extensions that were not installed via marketplace`, không gọi manager.
-- [ ] T026 [P] [US3] `parity/extensions/upload.test.ts` phần 3: Directus `DELETE /extensions/registry/uninstall/<id>` →
+- [x] T026 [P] [US3] `parity/extensions/upload.test.ts` phần 3: Directus `DELETE /extensions/registry/uninstall/<id>` →
       400 reason `not installed via marketplace` (D-212.3, dòng còn); Backoffice `POST /extensions/registry/reinstall`
       `{ extension: id }` → 400; Backoffice `DELETE` → 204; `waitAll` `/parity-upload-endpoint` 404 ở `backoffice` và
       `backoffice-2`; `extRows()` không còn dòng; `mc ls .upload/<id>/` rỗng; `GET /extensions` hai app bằng nhau (`same`);
       tải lại cùng gói → 200 (trùng tên đã hết) rồi gỡ lại; gỡ bundle (C1): `DELETE` dòng cha → 204, hai dòng con mất,
-      `/upload-endpoint` 404, `mc ls .upload/<id bundle>/` rỗng; `DELETE` một dòng con → 400 `sub extensions of bundles`.
+      `mc ls .upload/<id bundle>/` rỗng; `DELETE` một dòng con → 400 `sub extensions of bundles`.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] `api/services/extensions.service.ts`: `uninstall` chấp nhận `['registry', 'upload']`, truyền
+- [x] T027 [US3] `api/services/extensions.service.ts`: `uninstall` chấp nhận `['registry', 'upload']`, truyền
       `settings.source` cho `extensionsManager.uninstall(folder, source)`; `reinstall` không đổi; chạy T025–T026 xanh.
 
 **Checkpoint**: parity `upload.test.ts` phần 1–3 xanh.
@@ -262,16 +261,17 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 **Independent Test**: deploy `extension-upload.test.ts` 3 replica; parity `backoffice-2` đã kiểm ở T015/T026.
 
-- [ ] T028 [P] [US4] `ext/lib/sync/sync.test.ts` (có sẵn, thêm case): `partialSync: '.upload/<id>'` chép đúng prefix về
+- [x] T028 [P] [US4] `ext/lib/sync/sync.test.ts` (có sẵn, thêm case): `partialSync: '.upload/<id>'` chép đúng prefix về
       `<TEMP_PATH>/extensions/.upload/<id>`; khi `package.json` không còn trên kho → `rm` thư mục local; sync đầy đủ gồm
       file dưới `.upload/`; theo kết quả T001(b): file mất giữa chừng → bỏ qua (nếu T001 cho thấy ném thì sửa `sync.ts`
       bắt `NoSuchKey`/`ENOENT` của một file và ghi `warn`, comment `Backoffice (spec 031)`).
-- [ ] T029 [US4] `parity/deploy/extension-upload.test.ts` (mới, mẫu `deploy/indexes.test.ts`): `adminToken(replicaUrl(1))`,
+- [x] T029 [US4] `parity/deploy/extension-upload.test.ts` (mới, mẫu `deploy/indexes.test.ts`): `adminToken(replicaUrl(1))`,
       POST multipart qua `boLbUrl` → 200; `waitFor` `replicaUrl(1..3)` `/parity-upload-endpoint` 200 trong ≤ 10 s
       (SC-004); `docker restart` replica 2 → sau `/server/ping` endpoint vẫn 200 (sync đầy đủ, US4 kịch bản 3); gỡ qua lb
       → 204; `waitFor` cả ba 404 ≤ 10 s; nếu T001(c) cho thấy deploy compose không có `EXTENSIONS_LOCATION`: thêm vào
-      `deploy/compose` (MinIO đã có, 019) và ghi `deploy/README.md`.
-- [ ] T030 [US4] `tests/parity/project.json` / `vitest.deploy.config.ts`: file mới vào suite deploy; chạy
+      `deploy/compose` (MinIO đã có, 019) và ghi `deploy/README.md`. Làm 2026-11-04: `instanceUrls()` gồm cả Directus, nên
+      test chỉ đếm BE replica và kiểm Directus 404 riêng; local: 3 replica phục vụ gói sau 384 ms.
+- [x] T030 [US4] `tests/parity/project.json` / `vitest.deploy.config.ts`: file mới vào suite deploy; chạy
       `pnpm nx run parity-tests:deploy -- extension-upload` local (Postgres, 3 replica) xanh.
 
 **Checkpoint**: deploy test xanh local.
@@ -280,18 +280,23 @@ và `install.test.ts` xanh nguyên (profile `extensions`, không hành vi mới 
 
 **Goal**: D-212.1 đo thật; `accepted-differences`; README; lượt 1 lên `main` với CI xanh.
 
-- [ ] T031 [US5] `parity/extensions/upload.test.ts` phần 4 (FR-023, chèn giữa phần 1 và 2): sau khi tải gói lên,
-      `const since = new Date(); compose('restart', 'directus-extensions')`; chờ `/server/ping` Directus 200 (`waitAll`
+- [x] T031 [US5] `parity/extensions/upload-restart.test.ts` (file riêng trên cặp profile `extensions` 10655/10656, prefix
+      `extensions-ext`; làm 2026-11-04: cặp chính không bao giờ khởi động lại theo quy ước của suite): sau khi tải gói lên
+      cặp đó, `const since = new Date(); compose('up', '-d', '--wait', '--force-recreate', '--no-deps', 'directus-extensions')`; chờ `/server/ping` Directus 200 (`waitAll`
       60 s); `containerLog('directus-extensions', since)` không có dòng `"level":50` hay chứa `extension` + `error`;
       `extRows()` cùng số dòng và không dòng `source: 'registry'` có `folder` là id; Directus `/parity-upload-endpoint`
       404; `GET /extensions` Directus dòng id `schema: null`; ghi số liệu vào spec "Đánh giá hiện trạng" dòng 5 → [Verified].
-- [ ] T032 [P] [US5] `tests/parity/accepted-differences.ts`: D-212 (doc), D-212.1 (doc), D-212.2 (http), D-212.3 (doc)
+- [x] T032 [P] [US5] `tests/parity/accepted-differences.ts`: D-212 (doc), D-212.1 (doc), D-212.2 (http), D-212.3 (doc)
       với `reason` theo bảng spec; `spec-differences.test.ts` (nếu có) xanh; `tests/parity/README.md` mục 031.
-- [ ] T033 [P] [US5] `deploy/README.md` mục "Tải extension lên (spec 031)": chỉ admin; gói không sandbox = mã tùy ý với
+- [x] T033 [P] [US5] `deploy/README.md` mục "Tải extension lên (spec 031)": chỉ admin; gói không sandbox = mã tùy ý với
       quyền tiến trình API; `MARKETPLACE_TRUST=sandbox` ép sandbox cho gói có phần API; `FILES_MAX_UPLOAD_SIZE` (không đặt
       = không giới hạn; không giới hạn sau giải nén, gzip bomb); `EXTENSIONS_LOCATION` cho nhiều replica; `.upload` ẩn với
       Directus; gỡ tay (thư mục + dòng); `host` không khớp chỉ log.
-- [ ] T034 [US5] Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`), `api:build`; parity profile
+- [x] T028a [US1] (thêm khi implement 2026-11-04, parity đỏ: Backoffice trả body `schema: null` Directus đã ghi vào
+      response cache dùng chung) `api/middleware/uploaded-extensions-cache-guard.ts` (+ `.test.ts`) gắn trong
+      `api/app-pipeline.ts` sau `passkeySessionCacheGuard`: khi `getExtensionManager().hasUploadedExtensions()`, `GET
+      /extensions`, `GET /extensions/:pk`, tài liệu `/graphql/system` có `extensions` đặt `skipCacheRead` và `cache=false`.
+- [x] T034 [US5] Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`), `api:build`; parity profile
       `extensions` đủ (`list`, `hooks`, `endpoints`, `install`, `sandbox`, `multi`, `upload`) trên `TEST_DB=postgres`;
       `libs/extensions`, `libs/types` test; sửa tới xanh.
 - [ ] T035 Đóng lượt 1: `git add` theo đường dẫn (`apps/api`, `libs/extensions`, `libs/types`, `tests/fixtures/extensions`,

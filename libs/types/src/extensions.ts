@@ -28,7 +28,8 @@ export type ExtensionSandboxOptions =
 
 export interface ExtensionSettings {
 	id: string;
-	source: 'module' | 'registry' | 'local';
+	// Backoffice (spec 031, D-212): 'upload' for packages installed from an uploaded tarball (.upload/<id>).
+	source: 'module' | 'registry' | 'local' | 'upload';
 	enabled: boolean;
 	bundle: string | null;
 	folder: string;
@@ -133,7 +134,12 @@ export type ExtensionManager = {
 	getExtension: (source: string, folder: string) => Extension | undefined;
 	initialize: (options: Partial<ExtensionManagerOptions>) => Promise<void>;
 	install: (versionId: string) => Promise<void>;
-	uninstall: (folder: string) => Promise<void>;
+	// Backoffice (spec 031, D-212): `source` of uninstall picks .registry (default) or .upload; installed() runs the steps
+	// after the files of a package are in place; getExtensionSourceByName finds a loaded top-level extension by name.
+	uninstall: (folder: string, source?: 'registry' | 'upload') => Promise<void>;
+	installed: (target: { source: 'registry' | 'upload'; folder: string }) => Promise<void>;
+	getExtensionSourceByName: (name: string) => ExtensionSettings['source'] | undefined;
+	hasUploadedExtensions: () => boolean;
 	broadcastReloadNotification: () => Promise<void>;
 	reload: (options?: { forceSync: boolean }) => Promise<unknown>;
 	isReloading: () => Promise<void>;

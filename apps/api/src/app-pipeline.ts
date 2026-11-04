@@ -13,6 +13,7 @@ import emitter from './emitter.js';
 import { createExpressLogger } from './logger/index.js';
 import checkCacheMiddleware from './middleware/cache.js';
 import passkeySessionCacheGuard from './middleware/passkey-session-cache-guard.js';
+import uploadedExtensionsCacheGuard from './middleware/uploaded-extensions-cache-guard.js';
 import collectionTogglesGuard from './middleware/collection-toggles-guard.js';
 import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
@@ -171,6 +172,9 @@ export async function createExpressApp(options: ExpressAppOptions = {}): Promise
 
 	// Backoffice (spec 029, D-207.5): the globals of a passkey session never go through the shared cache.
 	app.use(passkeySessionCacheGuard);
+
+	// Backoffice (spec 031, D-212.2): the reads of /extensions skip the shared cache while an uploaded package is loaded.
+	app.use(uploadedExtensionsCacheGuard);
 
 	app.use(checkCacheMiddleware);
 

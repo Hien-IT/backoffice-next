@@ -3,7 +3,7 @@
 **Feature Branch**: `031-extension-upload` (làm trên `main` như 012–030, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=031-extension-upload`)
 **Created**: 2026-11-04
-**Status**: Approved (spec, clarify 3 câu, plan, checklist api-compat/security/data-safety, tasks 56, analyze 2026-11-04; D-212..D-212.3, điểm Complexity Tracking và các sửa câu chữ của plan/checklist/analyze duyệt 2026-11-04 bởi chủ dự án kiêm tech lead; chờ `/speckit.implement` lượt 1)
+**Status**: In progress. Lượt 1 (API) implement 2026-11-04 trên `main` (commit local, chưa push; local: unit api 392 file / 4449 test, parity `extensions/*` 7 file / 32 test trên Postgres gồm đo D-212.1, deploy `extension-upload` 3 replica). Spec, clarify 3 câu, plan, checklist api-compat/security/data-safety, tasks 56, analyze 2026-11-04; D-212..D-212.3, điểm Complexity Tracking và các sửa câu chữ của plan/checklist/analyze duyệt 2026-11-04 bởi chủ dự án kiêm tech lead.
 **Input**: User description: "Feature 031: admin cài extension bằng cách tải lên một gói .tgz (kết quả của npm pack)
 trong Backoffice, thay vì chỉ cài từ Marketplace registry hoặc chép thư mục tay vào EXTENSIONS_PATH. Bối cảnh: Directus
 11.17.4 và Backoffice chỉ cài extension từ registry [...] hoặc đọc thư mục có sẵn trong EXTENSIONS_PATH (source local).
@@ -183,7 +183,11 @@ nó không cài.
 - Tải lên ở replica có kho dùng chung nhưng chép lên kho thất bại giữa chừng: dọn phần đã chép, không có dòng, lỗi 500.
 - Directus có cùng kho extension dùng chung: thư mục `.upload` là thư mục ẩn, Directus không quét (đọc mã nguồn
   2026-11-04, đo ở plan); nếu một phiên bản Directus sau này quét nó thì D-212.1 phải xem lại (Assumptions).
-- Hai route mới không vào response cache dùng chung (sửa khi checklist 2026-11-04).
+- Hai route mới không vào response cache dùng chung (sửa khi checklist 2026-11-04). `GET /extensions`, `GET
+  /extensions/:pk` và tài liệu GraphQL system có `extensions` dùng chung khóa cache với Directus: khi node Backoffice đã
+  nạp một gói `upload`, các đọc đó bỏ qua cache dùng chung (không đọc, không ghi), nếu không Backoffice trả lại body
+  `schema: null` Directus đã ghi và web hiện gói là Missing (phát hiện khi chạy parity, implement 2026-11-04; cùng cơ chế
+  với D-188.4, D-207.5). Không có gói `upload` thì cache như Directus.
 - Gói nhỏ nở ra rất lớn khi giải nén (gzip bomb): không giới hạn kích thước sau giải nén, như cài từ registry; chỉ admin
   tải được; đĩa của thư mục tạm là giới hạn; deploy/README ghi (FR-026; sửa khi checklist 2026-11-04).
 - Chép lên kho: `package.json` được chép **cuối cùng**, sau mọi file khác, nên một replica sync dở hay lần khởi động chỉ
@@ -313,8 +317,8 @@ nó không cài.
 | 2 | Nguồn extension và menu | `getExtension(source, folder)` chỉ biết `module`/`registry`/`local`, source khác → `undefined` → `schema: null`; menu web khóa Uninstall khi `source !== 'registry'` | `apps/api/src/extensions/manager.ts:181`, `apps/api/src/services/extensions.service.ts:171`, `apps/web/src/modules/settings/routes/extensions/components/ExtensionItemOptions.vue:25` |
 | 3 | Quét thư mục | Hai app bỏ thư mục bắt đầu bằng `.` khi quét local và quét riêng `.registry`; `.upload` phải đọc tường minh ở Backoffice | `libs/utils/src/node/list-folders.ts:19`, `apps/api/src/extensions/lib/get-extensions.ts:11`, `directus/api/src/extensions/lib/get-extensions.ts:11` |
 | 4 | Directus với thư mục lạ trong `.registry` | Thư mục `.registry/<x>` không có dòng `registry` → Directus gọi Marketplace `list({ search: name })`, tạo dòng `source: 'registry'`, `enabled: true` và chạy gói [Inference]; vì vậy gói tải lên không được nằm trong `.registry` | `directus/api/src/extensions/lib/get-extensions-settings.ts:78`–`:86`, `:160`–`:168` |
-| 5 | Directus với dòng `source` lạ | Chỉ lọc ba nguồn, chỉ xóa dòng entry của bundle đã mất → dòng giữ nguyên; `GET /extensions` trả `schema: null`; app Directus xếp vào nhóm "Missing" (chip cảnh báo, Uninstall khóa, không Reinstall); không nạp vì chỉ duyệt ba map [Inference] | `get-extensions-settings.ts:35`–`:37`, `:47`–`:53`; `directus/api/src/services/extensions.ts:161`; `directus/app/src/modules/settings/routes/extensions/components/ExtensionItem.vue:36`, `extension-item-options.vue:25`; `directus/api/src/extensions/manager.ts:677` |
-| 6 | Entry của bundle `upload` ở Directus | `readAll` bỏ entry khi bundle cha `schema: null` → chỉ dòng cha hiện Missing [Inference] | `directus/api/src/services/extensions.ts:166`–`:173` |
+| 5 | Directus với dòng `source` lạ | Chỉ lọc ba nguồn, chỉ xóa dòng entry của bundle đã mất → dòng giữ nguyên; `GET /extensions` trả `schema: null`; app Directus xếp vào nhóm "Missing" (chip cảnh báo, Uninstall khóa, không Reinstall); không nạp vì chỉ duyệt ba map [Verified 2026-11-04: `extensions/upload-restart.test.ts`, Directus khởi động lại cạnh gói tải lên: dòng giữ nguyên, không dòng mới, log không nhắc gói, endpoint 404, `schema: null`] | `get-extensions-settings.ts:35`–`:37`, `:47`–`:53`; `directus/api/src/services/extensions.ts:161`; `directus/app/src/modules/settings/routes/extensions/components/ExtensionItem.vue:36`, `extension-item-options.vue:25`; `directus/api/src/extensions/manager.ts:677` |
+| 6 | Entry của bundle `upload` ở Directus | `readAll` bỏ entry khi bundle cha `schema: null` → chỉ dòng cha hiện Missing [Verified 2026-11-04: `extensions/upload.test.ts`, bundle `parity-upload-bundle`] | `directus/api/src/services/extensions.ts:166`–`:173` |
 | 7 | Sandbox bắt buộc | `MARKETPLACE_TRUST=sandbox` chỉ đổi URL tải của registry; Backoffice không kiểm manifest | `apps/api/src/extensions/registry/modules/download/download.ts:70`, `installation/manager.ts:40` |
 | 8 | Nạp lại nhiều replica | `install`/`uninstall` báo bus với `partialSync: '.registry/<folder>'` rồi `reload`; sync từ kho dùng chung theo `partialSync` | `apps/api/src/extensions/manager.ts:255`–`:280`, `lib/sync/sync.ts:58` |
 | 9 | Multipart có giới hạn | `/files` dùng Busboy với `limits.fileSize` từ `FILES_MAX_UPLOAD_SIZE` | `apps/api/src/controllers/files.controller.ts:42`–`:46` |
@@ -322,7 +326,7 @@ nó không cài.
 | 11 | Ẩn nút khi API là Directus | Probe 404 như passkey và card Indexes | `apps/web/src/composables/use-passkey-support.ts` |
 | 12 | Bộ đối chiếu đọc mã D | Cột `Mã` đầu, `Gỡ ở` cuối; D-211 đã dùng ở spec 012 (2026-11-04) | `tests/parity/src/spec-differences.ts:29`–`:36` |
 
-**Kết luận** [Inference]: Directus không phải làm gì; Redis, cấu hình Directus không đổi; DB chỉ có thêm dòng
+**Kết luận** (dòng 5–6 đã đo 2026-11-04 bằng parity; dòng 4 vẫn là đọc mã nguồn): Directus không phải làm gì; Redis, cấu hình Directus không đổi; DB chỉ có thêm dòng
 `directus_extensions` với `source: 'upload'` mà Directus giữ nguyên và hiện "Missing"; kho dùng chung có thêm thư mục ẩn
 `.upload` mà Directus không quét. FR-023 đo thật trước khi duyệt.
 
@@ -334,7 +338,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
 | D-212 | Thao tác tải gói extension lên dưới `/backoffice/` (D-189.6), admin only | 404 | Có; nhận một file `.tgz` của `npm pack`; bộ đối chiếu: entry `doc`, test từng app (Directus 404) | Yêu cầu chủ dự án 2026-11-04: cài gói nội bộ không qua Marketplace | khác (duyệt 2026-11-04) | — |
 | D-212.1 | Dòng `directus_extensions` với `source: 'upload'` ở Directus cùng DB | Không có giá trị này; với dòng lạ: giữ dòng, `GET /extensions` trả `schema: null`, app xếp vào "Missing", không nạp, không gỡ được từ Directus (đọc mã nguồn 2026-11-04, FR-023 đo thật) | Nguồn `upload` được nạp, bật/tắt, gỡ; entry `doc` | Directus không có nguồn tương ứng; dùng `.registry` sẽ làm Directus tự tạo dòng và chạy gói | khác (duyệt 2026-11-04) | — |
-| D-212.2 | `GET /extensions`, `GET /extensions/:pk`, GraphQL `extensions` khi một gói tải lên còn; app bundle `GET /extensions/sources/:chunk` | Dòng với `schema: null`; bundle không có phần app của gói | Dòng với schema đầy đủ như gói registry; bundle gồm phần app của gói; entry `http`; suite gỡ gói ở cuối (sửa khi checklist 2026-11-04) | Hệ quả của D-212.1 | khác (duyệt 2026-11-04) | — |
+| D-212.2 | `GET /extensions`, `GET /extensions/:pk`, GraphQL `extensions` khi một gói tải lên còn; app bundle `GET /extensions/sources/:chunk` | Dòng với `schema: null`; bundle không có phần app của gói | Dòng với schema đầy đủ như gói registry; bundle gồm phần app của gói; entry `http`; suite gỡ gói ở cuối (sửa khi checklist 2026-11-04); khi node đã nạp một gói `upload`, các đọc này không đọc không ghi response cache dùng chung với Directus (cùng khóa ở hai app; implement 2026-11-04) | Hệ quả của D-212.1 | khác (duyệt 2026-11-04) | — |
 | D-212.3 | Gỡ extension (`DELETE /extensions/registry/uninstall/:pk`) với nguồn `upload`; cài lại | Gỡ chỉ nhận `registry` (lỗi với nguồn khác) | Gỡ nhận `registry` và `upload`; cài lại với `upload` → 400; entry `doc` | Gói tải lên phải gỡ được từ giao diện | khác (duyệt 2026-11-04) | — |
 
 **Cần xác nhận** (chủ dự án kiêm tech lead và design owner, cùng lượt duyệt D-212):
@@ -377,7 +381,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 ### Sửa khi `/speckit.analyze` (2026-11-04: 0 CRITICAL, 1 HIGH, 4 MEDIUM, 7 LOW)
 
-- C1 (HIGH): thêm fixture `parity-upload-bundle` (interface + endpoint sandbox) để parity kiểm dòng entry, app bundle
+- C1 (HIGH): thêm fixture `parity-upload-bundle` (chỉ app: interface + display; implement 2026-11-04: bundle không có
+  tùy chọn sandbox nên bundle có entry API bị FR-006 từ chối dưới `MARKETPLACE_TRUST=sandbox`) để parity kiểm dòng entry, app bundle
   (D-212.2) và gỡ bundle; T002/T007/T013/T015/T026. C2: parity đua hai replica (FR-013). C3: parity bật/tắt dòng `upload`
   ở hai app (FR-012). I1/U1: cảnh báo `host` cho mọi gói tải lên, so major bằng chuỗi (không có `semver`). I2: plan IV
   "không dọn riêng". U3: unit `EACCES`/stream đứt. A2: FR-017 "vùng thao tác của page header". T1: gộp T012 vào T010.

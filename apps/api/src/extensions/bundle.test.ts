@@ -39,7 +39,7 @@ async function build(disabled: string[] = []) {
 	const local = await resolveFsExtensions(FIXTURES);
 	const appTypes = new Set(['interface', 'display', 'layout', 'module', 'panel', 'operation', 'bundle']);
 
-	vi.mocked(getExtensions).mockResolvedValue({ local, registry: new Map(), module: new Map() });
+	vi.mocked(getExtensions).mockResolvedValue({ local, registry: new Map(), module: new Map(), upload: new Map() });
 
 	vi.mocked(getExtensionsSettings).mockResolvedValue(
 		[...local.values()].map((ext, i) => ({

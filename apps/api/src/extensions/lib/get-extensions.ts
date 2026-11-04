@@ -9,9 +9,11 @@ export const getExtensions = async () => {
 
 	const localExtensions = await resolveFsExtensions(getExtensionsPath());
 	const registryExtensions = await resolveFsExtensions(join(getExtensionsPath(), '.registry'));
+	// Backoffice (spec 031, D-212): uploaded packages live in the hidden .upload folder, which DR never scans.
+	const uploadExtensions = await resolveFsExtensions(join(getExtensionsPath(), '.upload'));
 
 	/** Extensions that are listed as dependencies in the root package.json */
 	const moduleExtensions = await resolveModuleExtensions(env['PACKAGE_FILE_LOCATION'] as string);
 
-	return { local: localExtensions, registry: registryExtensions, module: moduleExtensions };
+	return { local: localExtensions, registry: registryExtensions, module: moduleExtensions, upload: uploadExtensions };
 };

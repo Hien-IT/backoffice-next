@@ -21,8 +21,8 @@ Theo research R8, thứ tự trong một file `describe` serial:
    `/parity-upload-endpoint` 200 ở `backoffice` và `backoffice-2`, 404 ở `directus`; `extRows()` có dòng; `mc ls
    local/directus/extensions/.upload/<id>/` có `package.json`, `dist/index.js`.
 3. D-212.2: `GET /extensions` tại Directus: dòng id với `schema: null`; tại Backoffice: `schema.type === 'endpoint'`.
-   Bundle (analyze C1): tải `parity-upload-bundle-1.0.0.tgz` → 2 dòng con `source: 'upload'`, `/upload-endpoint` 200 ở
-   hai node Backoffice, chunk app bundle của Backoffice chứa `upload-iface`, của Directus không; Directus bỏ 2 dòng con.
+   Bundle (analyze C1, chỉ app): tải `parity-upload-bundle-1.0.0.tgz` → 2 dòng con `source: 'upload'` (`upload-iface`,
+   `upload-display`), app bundle của Backoffice chứa "Upload Bundle Interface", của Directus không; Directus bỏ 2 dòng con.
    Bật/tắt (C3): `PATCH /extensions/<id> { meta: { enabled: false } }` ở Backoffice → 404 ở hai node, bật lại → 200; cùng
    PATCH ở Directus → Backoffice tắt theo qua bus.
 4. FR-023 / D-212.1: `compose restart directus-extensions`; chờ `/server/ping`; `containerLog('directus-extensions',

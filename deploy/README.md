@@ -177,6 +177,27 @@ interface, display, layout, module, panel trong app web mới.
 - Không bật `EXTENSIONS_AUTO_RELOAD` khi chạy nhiều instance (theo dõi thư mục cục bộ, không qua storage chung); mỗi
   container một process (khóa sync theo máy).
 
+### Tải extension lên (spec 031)
+
+Admin cài một extension bằng file `.tgz` do `npm pack` tạo (Settings > Extensions > Upload extension, hoặc
+`POST /backoffice/extensions/upload` dạng multipart). Directus không có đường này (404).
+
+- **Mã tùy ý**: gói không bật sandbox chạy trong tiến trình API với quyền của tiến trình. Chỉ admin tải được; chỉ tải
+  gói tin cậy. `MARKETPLACE_TRUST=sandbox` (mặc định) từ chối mọi gói có phần API (hook, endpoint, operation, bundle có
+  entry API) không bật sandbox; gói chỉ có phần app (interface, display, layout, module, panel) vẫn được nhận. Bundle
+  không có tùy chọn sandbox, nên bundle có entry API chỉ cài được khi `MARKETPLACE_TRUST=all`.
+- **Kích thước**: `FILES_MAX_UPLOAD_SIZE` giới hạn file tải lên (413 khi vượt); không đặt là không giới hạn. Không có
+  giới hạn sau khi giải nén: gói nhỏ có thể nở ra lớn trong `TEMP_PATH`.
+- **Nhiều replica**: gói được chép vào `<EXTENSIONS_PATH>/.upload/<id>/` của `EXTENSIONS_LOCATION` rồi mọi replica sync
+  qua kênh `extensions.reload`; không có `EXTENSIONS_LOCATION` thì chỉ replica nhận request có gói.
+- **Cạnh Directus**: `.upload` là thư mục ẩn, Directus không quét; dòng `directus_extensions` có `source = 'upload'`,
+  Directus liệt kê nó ở nhóm Missing và không chạy gói.
+- **Trùng tên, nâng cấp**: gói cùng `name` với một extension đã cài bị từ chối (400); đổi phiên bản = gỡ rồi tải lên.
+  `host` khác major của Directus 11 chỉ ghi một dòng cảnh báo khi nạp.
+- **Gỡ tay**: xóa `<EXTENSIONS_PATH>/.upload/<id>/` trên storage (và `<TEMP_PATH>/extensions/.upload/<id>/` của từng
+  replica nếu có `EXTENSIONS_LOCATION`), xóa dòng `directus_extensions` có `id` đó và các dòng `bundle = <id>`, rồi khởi
+  động lại hoặc chờ lần reload.
+
 ## Tắt máy an toàn
 
 Khi nhận SIGTERM, BE theo trình tự của 001: `/server/health` chuyển `error`, ngừng nhận kết nối mới, chờ request dở tối

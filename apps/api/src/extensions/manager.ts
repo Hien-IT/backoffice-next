@@ -40,6 +40,7 @@ import ivm from 'isolated-vm';
 import { clone, debounce, isPlainObject } from 'lodash-es';
 import PQueue from 'p-queue';
 import { useBus } from '../bus/index.js';
+import { DIRECTUS_COMPAT_VERSION } from '../constants.js';
 import getDatabase from '../database/index.js';
 import emitter, { Emitter } from '../emitter.js';
 import { getFlowManager } from '../flows.js';
@@ -55,7 +56,7 @@ import { getExtensionsPath } from './lib/get-extensions-path.js';
 import { getExtensionsSettings } from './lib/get-extensions-settings.js';
 import { getExtensions } from './lib/get-extensions.js';
 import { getInstallationManager } from './lib/installation/index.js';
-import type { InstallationManager } from './lib/installation/manager.js';
+import type { InstallationManager, InstalledSource } from './lib/installation/manager.js';
 import { generateApiExtensionsSandboxEntrypoint } from './lib/sandbox/generate-api-extensions-sandbox-entrypoint.js';
 import { instantiateSandboxSdk } from './lib/sandbox/sdk/instantiate.js';
 import { clearOwnSyncLock, type ExtensionSyncOptions, syncExtensions } from './lib/sync/sync.js';
@@ -91,6 +92,9 @@ export class ExtensionManager {
 
 	// name:Extension
 	private moduleExtensions: Map<string, Extension> = new Map();
+
+	// Backoffice (spec 031, D-212): folder:Extension of the packages installed from an uploaded tarball (.upload/<id>)
+	private uploadExtensions: Map<string, Extension> = new Map();
 
 	/**
 	 * Settings for the extensions that are loaded within the current process
@@ -175,7 +179,36 @@ export class ExtensionManager {
 	private subscribed = false;
 
 	public get extensions() {
-		return [...this.localExtensions.values(), ...this.registryExtensions.values(), ...this.moduleExtensions.values()];
+		return [
+			...this.localExtensions.values(),
+			...this.registryExtensions.values(),
+			...this.moduleExtensions.values(),
+			// Backoffice (spec 031, D-212)
+			...this.uploadExtensions.values(),
+		];
+	}
+
+	/** Backoffice (spec 031, D-212.2): whether this node has loaded a package of source `upload`. */
+	public hasUploadedExtensions(): boolean {
+		return this.uploadExtensions.size > 0;
+	}
+
+	/** Backoffice (spec 031, D-212): the source of the loaded top-level extension named `name`, if any. */
+	public getExtensionSourceByName(name: string): ExtensionSettings['source'] | undefined {
+		const maps = {
+			local: this.localExtensions,
+			registry: this.registryExtensions,
+			module: this.moduleExtensions,
+			upload: this.uploadExtensions,
+		} as const;
+
+		for (const [source, extensions] of Object.entries(maps)) {
+			for (const extension of extensions.values()) {
+				if (extension.name === name) return source as ExtensionSettings['source'];
+			}
+		}
+
+		return undefined;
 	}
 
 	public getExtension(source: string, folder: string) {
@@ -186,6 +219,9 @@ export class ExtensionManager {
 				return this.registryExtensions.get(folder);
 			case 'local':
 				return this.localExtensions.get(folder);
+			// Backoffice (spec 031, D-212)
+			case 'upload':
+				return this.uploadExtensions.get(folder);
 		}
 
 		return undefined;
@@ -249,31 +285,39 @@ export class ExtensionManager {
 	 * Installs an external extension from registry
 	 */
 	public async install(versionId: string): Promise<void> {
+		await this.installationManager.install(versionId);
+		await this.installed({ source: 'registry', folder: versionId });
+	}
+
+	/**
+	 * Backoffice (spec 031, D-212): the steps after the files of a package are in place, shared by the registry install
+	 * and the upload: the other nodes sync the folder and reload, this node reloads, then `extensions.installed`.
+	 */
+	public async installed({ source, folder }: { source: InstalledSource; folder: string }): Promise<void> {
 		const logger = useLogger();
 
-		await this.installationManager.install(versionId);
-
-		const resolvedFolder = relative(sep, resolve(sep, versionId));
-		const syncFolder = join('.registry', resolvedFolder);
+		const resolvedFolder = relative(sep, resolve(sep, folder));
+		const syncFolder = join(source === 'upload' ? '.upload' : '.registry', resolvedFolder);
 
 		await this.broadcastReloadNotification({ partialSync: syncFolder });
 		await this.reload({ skipSync: true });
 
 		emitter.emitAction('extensions.installed', {
 			extensions: this.extensions,
-			versionId,
+			versionId: folder,
 		});
 
-		logger.info(`Installed extension: ${versionId}`);
+		logger.info(`Installed extension: ${folder}`);
 	}
 
-	public async uninstall(folder: string) {
+	// Backoffice (spec 031, D-212): `source` picks .registry or .upload.
+	public async uninstall(folder: string, source: InstalledSource = 'registry') {
 		const logger = useLogger();
 
-		await this.installationManager.uninstall(folder);
+		await this.installationManager.uninstall(folder, source);
 
 		const resolvedFolder = relative(sep, resolve(sep, folder));
-		const syncFolder = join('.registry', resolvedFolder);
+		const syncFolder = join(source === 'upload' ? '.upload' : '.registry', resolvedFolder);
 
 		await this.broadcastReloadNotification({ partialSync: syncFolder });
 		await this.reload({ skipSync: true });
@@ -309,13 +353,16 @@ export class ExtensionManager {
 		this.services = await loadServices();
 
 		try {
-			const { local, registry, module } = await getExtensions();
+			const { local, registry, module, upload = new Map() } = await getExtensions();
 
 			this.localExtensions = local;
 			this.registryExtensions = registry;
 			this.moduleExtensions = module;
+			// Backoffice (spec 031, D-212)
+			this.uploadExtensions = upload;
+			this.warnHostMismatch(upload);
 
-			this.extensionsSettings = await getExtensionsSettings({ local, registry, module });
+			this.extensionsSettings = await getExtensionsSettings({ local, registry, module, upload });
 		} catch (error) {
 			this.handleExtensionError({ error, reason: `Couldn't load extensions` });
 		}
@@ -586,6 +633,26 @@ export class ExtensionManager {
 	}
 
 	/**
+	 * Backoffice (spec 031, clarify Q1): an uploaded package whose `host` names another major version than the DR
+	 * version Backoffice follows is still loaded, with one warning per load. `semver` is not a dependency, so the first
+	 * number of `host` is compared with the major of DR (research T001e).
+	 */
+	private warnHostMismatch(extensions: Map<string, Extension>): void {
+		const major = DIRECTUS_COMPAT_VERSION.split('.')[0];
+
+		for (const extension of extensions.values()) {
+			const host = 'host' in extension && typeof extension.host === 'string' ? extension.host : undefined;
+			const hostMajor = host?.match(/(\d+)/)?.[1];
+
+			if (host && hostMajor !== major) {
+				useLogger().warn(
+					`Extension "${extension.name}" declares host "${host}", Backoffice follows Directus ${DIRECTUS_COMPAT_VERSION}`,
+				);
+			}
+		}
+	}
+
+	/**
 	 * Update the chokidar watcher configuration when new extensions are added or existing ones
 	 * removed
 	 */
@@ -594,10 +661,15 @@ export class ExtensionManager {
 
 		const extensionDir = path.resolve(getExtensionsPath());
 		const registryDir = path.join(extensionDir, '.registry');
+		// Backoffice (spec 031, D-212): uploaded packages are not watched either.
+		const uploadDir = path.join(extensionDir, '.upload');
 
 		const toPackageExtensionPaths = (extensions: Extension[]) =>
 			extensions
-				.filter((extension) => extension.local && !extension.path.startsWith(registryDir))
+				.filter(
+					(extension) =>
+						extension.local && !extension.path.startsWith(registryDir) && !extension.path.startsWith(uploadDir),
+				)
 				.flatMap((extension) =>
 					isTypeIn(extension, HYBRID_EXTENSION_TYPES) || extension.type === 'bundle'
 						? [
@@ -620,7 +692,13 @@ export class ExtensionManager {
 		const env = useEnv();
 
 		const entrypoint = generateExtensionsEntrypoint(
-			{ module: this.moduleExtensions, registry: this.registryExtensions, local: this.localExtensions },
+			{
+				module: this.moduleExtensions,
+				registry: this.registryExtensions,
+				local: this.localExtensions,
+				// Backoffice (spec 031, D-212)
+				upload: this.uploadExtensions,
+			},
 			this.extensionsSettings,
 		);
 
@@ -742,6 +820,8 @@ export class ExtensionManager {
 			module: this.moduleExtensions,
 			registry: this.registryExtensions,
 			local: this.localExtensions,
+			// Backoffice (spec 031, D-212)
+			upload: this.uploadExtensions,
 		} as const;
 
 		await Promise.all(
@@ -765,7 +845,7 @@ export class ExtensionManager {
 								await this.registerOperationExtension(extension);
 								break;
 							case 'bundle':
-								await this.registerBundleExtension(extension, source as 'module' | 'registry' | 'local', id);
+								await this.registerBundleExtension(extension, source as ExtensionSettings['source'], id);
 								break;
 							default:
 								return;
@@ -864,7 +944,7 @@ export class ExtensionManager {
 
 	private async registerBundleExtension(
 		bundle: BundleExtension,
-		source: 'local' | 'registry' | 'module',
+		source: ExtensionSettings['source'],
 		bundleId: string,
 	) {
 		const extensionEnabled = (extensionName: string) => {
