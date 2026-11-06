@@ -47,7 +47,7 @@ const FILLED = { fontVariationSettings: "'FILL' 1" };
 		{{ value }}
 	</span>
 	<BoTooltip v-else :text="String(value ?? '')" side="bottom">
-		<div class="rating detailed relative inline-flex w-min" role="img" :aria-label="`${value ?? 0} / ${starCount}`">
+		<div class="rating detailed relative isolate inline-flex w-min" role="img" :aria-label="`${value ?? 0} / ${starCount}`">
 			<div
 				class="active relative z-2 inline-flex overflow-hidden text-warning-600 dark:text-warning-400"
 				:style="ratingPercentage"
