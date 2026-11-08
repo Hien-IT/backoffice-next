@@ -107,6 +107,11 @@ test('settings branding is applied on the login page and in the app (US3-2..4)',
 	await expect(page).toHaveTitle('Sign In · Acme Backoffice E2E');
 	await expect(page.getByText('Branding test')).toBeVisible();
 	await expect(page.locator(`img[src*="/assets/${logo}"]`).first()).toBeVisible();
+	// D-159 (owner 2026-11-08): the uploaded logo sits on a white tile, not on the project color.
+	await expect(page.getByTestId('public-title').locator(`img[src*="/assets/${logo}"]`).locator('..')).toHaveCSS(
+		'background-color',
+		'rgb(255, 255, 255)',
+	);
 	await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#336699');
 	await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', `${apiUrl}/assets/${favicon}`);
 
