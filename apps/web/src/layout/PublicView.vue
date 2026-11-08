@@ -109,10 +109,11 @@ function playVideo() {
 		>
 			<div class="px-6 pt-8 sm:px-10">
 				<div class="flex items-center gap-3" data-testid="public-title">
-					<!-- The default app icon (owner 2026-10-22, D-159) shows as is, without the project color tile. -->
+					<!-- The default app icon (owner 2026-10-22, D-159) shows as is; an uploaded logo sits on a white tile like
+					the sidebar (owner 2026-11-08: a logo in the project color vanished on the project color tile). -->
 					<div
 						class="flex size-12 shrink-0 items-center justify-center rounded-xl"
-						:class="{ 'bg-(--project-color)': logoURL }"
+						:class="{ 'border border-gray-200 bg-white dark:border-gray-700': logoURL }"
 					>
 						<img v-if="logoURL" :src="logoURL" :alt="projectName" class="size-9 object-contain" />
 						<img v-else :src="logo" :alt="projectName" class="size-12 object-contain" />

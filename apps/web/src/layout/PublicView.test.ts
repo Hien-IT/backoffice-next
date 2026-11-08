@@ -63,6 +63,9 @@ describe('PublicView', () => {
 		expect(images).toHaveLength(1);
 		expect(images[0]!.attributes('src')).toMatch(/\/assets\/logo-id$/);
 		expect(images[0]!.attributes('alt')).toBe('Acme');
+		// D-159 (owner 2026-11-08): a white tile like the sidebar, not the project color.
+		expect(images[0]!.element.parentElement!.classList).toContain('bg-white');
+		expect(images[0]!.element.parentElement!.className).not.toContain('bg-(--project-color)');
 	});
 
 	test('public_note is markdown with dangerous HTML removed', () => {

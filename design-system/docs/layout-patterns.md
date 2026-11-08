@@ -31,7 +31,8 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 `PrivateView.vue`. (The same day a top tab bar, then a Directus-like vertical icon rail came first; the owner chose this.)
 
 - App icon (D-159): without a `project_logo` the default icon `src/assets/logo.png` (256 px, transparent) shows as is;
-  the public pages show it at `size-12` and keep the project color tile for an uploaded `project_logo`. The default
+  the public pages show it at `size-12` and put an uploaded `project_logo` on a white tile with a gray-200 border like
+  the sidebar (owner 2026-11-08; was the project color tile, where a logo in that color vanished). The default
   favicon is `public/favicon.ico` from the same icon.
   While API requests run the favicon plays drawn sprites, a runner, a cyclist and a swimmer whose limbs and wheels
   move, white strokes on a circle in the project color (D-173, `theme/favicon-sprites.ts`, 6 frames a gait cycle,
