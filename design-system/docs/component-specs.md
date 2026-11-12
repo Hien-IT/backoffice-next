@@ -234,6 +234,9 @@ w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text
   item icon `text-gray-500 dark:text-gray-400`, `aria-hidden`
 - `BoMenu` items: `to` (router link), `href` (new tab, `rel="noopener noreferrer"`), `disabled`, `loading` (spinner in
   place of the text, text kept for screen readers); dark disabled text `dark:data-[disabled]:text-white/15`.
+- `BoMenu` `searchable` (owner 2026-11-12, D-213; the Related Collection menu of the field detail): above 10 items a sticky
+  search row at the top of the content (the select dropdown search input `h-9` + `BoSearchClear`), focused on open; it
+  filters on the item text, hides the dividers while filtering and shows `no_results` when nothing matches.
 - Separator: `my-1 border-t border-gray-200 dark:border-gray-800`; label:
   `px-3 py-1 text-theme-xs text-gray-500 dark:text-gray-400`
 - Changed from TailAdmin: `shadow-lg` → `shadow-theme-lg`; item text gray-500 `text-theme-xs` → gray-700 `text-theme-sm`

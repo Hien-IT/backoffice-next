@@ -106,9 +106,24 @@ test('input, required (US3 simple mode)', async ({ page }) => {
 	expect(field).toMatchObject({ type: 'string', meta: { interface: 'input', required: true } });
 });
 
-test('many to one to directus_users', async ({ page }) => {
+test('many to one to directus_users, picked through the search of the Select Existing menu (D-213)', async ({
+	page,
+}) => {
 	await simple(page, 'Many to One', 'author', async (drawer) => {
-		await drawer.getByRole('textbox', { name: 'Collection', exact: true }).fill('directus_users');
+		await drawer.getByRole('button', { name: 'Select Existing', exact: true }).click();
+		const menu = page.getByRole('menu');
+		const search = menu.getByRole('searchbox', { name: 'Search', exact: true });
+		await expect(search).toBeFocused();
+		await search.fill('USERS');
+		await expect(menu.getByRole('menuitemradio')).toHaveText(['directus_users']);
+		await search.fill('no_such_collection');
+		await expect(menu).toContainText('No Results');
+		// Keyboard path with a single match left (Reka's own arrow navigation finds nothing then).
+		await search.fill('users');
+		await search.press('ArrowDown');
+		await expect(menu.getByRole('menuitemradio', { name: 'directus_users', exact: true })).toBeFocused();
+		await page.keyboard.press('Enter');
+		await expect(drawer.getByRole('textbox', { name: 'Collection', exact: true })).toHaveValue('directus_users');
 	});
 
 	expect(await fieldOf(ARTICLES, 'author')).toMatchObject({

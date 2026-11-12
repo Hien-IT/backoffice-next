@@ -321,7 +321,7 @@ Directus app (bộ so DB).
    `<c>_files`, `directus_files_id`), m2a (`related_collections`, `collection_key` `collection`, field `item` string),
    translations (junction `<c>_translations`, ngôn ngữ `languages` với `code` PK, `name`, `direction` ltr|rtl và 8 dòng
    seed en-US, ar-SA, de-DE, fr-FR, ru-RU, es-ES, it-IT, pt-BR); `RelatedCollectionSelect` có menu `select_existing`
-   (collection quản lý, singleton khóa, nhóm `system`), `RelatedFieldSelect` khóa alias, khóa chính, kiểu ngoài danh
+   (collection quản lý, singleton khóa, nhóm `system`; ô tìm kiếm khi trên 10 mục, D-213), `RelatedFieldSelect` khóa alias, khóa chính, kiểu ngoài danh
    sách.
 6. **Given** bấm lưu, **When** chạy, **Then** thứ tự request như `save()`: (1) `POST /fields/:c` hoặc
    `PATCH /fields/:c/:f` chỉ khóa đổi (bỏ `name`, bỏ qua khi bằng), (2) `POST /collections` hoặc `PATCH` cho
@@ -822,7 +822,7 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
   quan) là hàm, vẽ qua `ExtensionOptions` (FR-037); giá trị ghi ra bằng Directus app.
 - **FR-039**: Tab Relationship PHẢI như kịch bản US3-5 cho m2o/file, o2m, m2m/files, m2a, translations (`field-detail-
   advanced-relationship-*.vue`), `RelatedCollectionSelect` (ô db-safe, trạng thái "khớp" khi tồn tại, menu
-  `select_existing` với collection quản lý (singleton khóa) và nhóm `system` crud-safe), `RelatedFieldSelect` (menu
+  `select_existing` với collection quản lý (singleton khóa) và nhóm `system` crud-safe; ô tìm kiếm D-213), `RelatedFieldSelect` (menu
   field theo bảng chữ cái; khóa alias, khóa chính, `disabledFields`, kiểu ngoài allow/deny), ô `auto_fill` chỉ field
   mới, notice `new_data_alert` từ `generationInfo`. Field quan hệ có sẵn: collection liên quan, junction và khóa ngoại
   khóa; `sort_field`, trigger (`on_delete`, `one_deselect_action`) và field tương ứng sửa được, như
@@ -1134,6 +1134,7 @@ chú chưa dịch dạng `directus_collection.x` không hiện (D-118 của 018)
 | D-150 | Khung form của các trang Settings (Project, Appearance, Role, Public role, Policy, Preset, Translation, trang collection của Data Model) | Form nằm thẳng trên nền trang, không khung | Form trong Card TailAdmin, mỗi divider một card có header (D-150 của 014), trong khung `max-w-5xl` sẵn có (form rộng 974px, giữ lưới 3 cột `fill`); form trong drawer, dialog, nhóm lồng và ExtensionOptions không đổi | Design-system TailAdmin (Form Layout), owner 2026-10-22 | khác | — |
 | D-193 | Kiểu mặc định khi chọn interface `datetime` cho field (chế độ đơn giản và nâng cao) | `dateTime`, kiểu đầu của `types` (dateTime, date, time, timestamp) | `timestamp`: `types` của interface là timestamp, dateTime, date, time (cùng bốn kiểu, ô Type liệt kê Timestamp trước); kiểu đang chọn hợp với `datetime` (ví dụ `date`) thì giữ | Owner yêu cầu (2026-10-29) | khác | — |
 | D-191 | Vạch `reporting` (`report_feature_url`, `report_bug_url`, `report_error_url`) và `collaborative_editing` (`collaborative_editing_enabled`) ở `/settings/project` | Hiện; `collaborative_editing_enabled` chỉ đọc khi server không có websocket hoặc tắt collaborative editing | Không hiện (6 field, gồm hai vạch); giá trị trong DB giữ nguyên, app Directus vẫn đọc và sửa | Owner 2026-10-28: Backoffice không dùng hai mục này (D-94 đã bỏ Report Bug/Request Feature; không có collaborative editing) | khác | — |
+| D-213 | Menu `select_existing` của `RelatedCollectionSelect` (Related Collection ở chế độ đơn giản và tab Relationship) | Danh sách không có ô tìm kiếm (`v-menu` với `v-list`, nhóm `system` thu gọn) | Trên 10 mục: ô tìm kiếm dính ở đầu menu, focus khi mở, lọc theo tên collection không phân biệt hoa thường, ẩn vạch ngăn nhóm khi đang lọc, `no_results` khi không khớp, nút X xoá (D-169), ↓/↑ từ ô tìm kiếm tới kết quả đầu/cuối (cả khi chỉ còn một); gõ tay vào ô `Collection` giữ như cũ | Owner yêu cầu (2026-11-12): DB nhiều collection, cuộn tìm lâu | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -1167,6 +1168,7 @@ chú chưa dịch dạng `directus_collection.x` không hiện (D-118 của 018)
 | D-168 | `routes/appearance/AppearanceRoute.vue` bỏ `default_theme_light`, `theme_light_overrides`, `default_theme_dark`, `theme_dark_overrides`; `modules/users/routes/UserItemRoute.vue` bỏ `theme_light`, `theme_light_overrides`, `theme_dark`, `theme_dark_overrides` (danh sách `fieldsDenyList`). Lý do: chọn theme Directus và override theme không đổi giao diện Backoffice (D-43, D-88); giá trị vẫn trong DB cho app Directus, override đã lưu (5 khóa có ánh xạ ở `theme/override-map.ts`) vẫn áp dụng; `default_appearance`/`appearance` và `custom_css` giữ. `ProjectRoute.test.ts`, E2E `profile.spec.ts` sửa theo | Owner yêu cầu (2026-10-23) |
 | D-193 | `interfaces/datetime/index.ts` (`types` bắt đầu bằng `timestamp`); `alterations/global.ts` giữ nguyên bản port (`setTypeForInterface` lấy `types[0]`); `interfaces/registry.test.ts` cho phép thứ tự này và vẫn so cùng bốn kiểu với Directus; `field-detail/store/alterations.test.ts`, E2E `settings-field-detail.spec.ts` (field `expires_at`: Type Timestamp, Timezone chọn theo nhóm vùng, lưu `tz`) | Owner yêu cầu (2026-10-29) |
 | D-191 | `routes/project/ProjectRoute.vue` (`HIDDEN_FIELDS`); bỏ nhánh chỉ đọc của `collaborative_editing_enabled`; `ProjectRoute.test.ts`, E2E `settings-project.spec.ts` | Owner yêu cầu (2026-10-28) |
+| D-213 | `components/BoMenu.vue` prop `searchable` (ô tìm kiếm như `select-dropdown`, `BoSearchClear`); `field-detail/shared/RelatedCollectionSelect.vue` bật `searchable`; recipe Dropdown menu ở `design-system/docs/component-specs.md`; `BoMenu.test.ts`, E2E `settings-field-detail.spec.ts` (field `author`) | Owner yêu cầu (2026-11-12) |
 | R-40 | `field-detail/store/index.ts` port nguyên `save()` (nuốt lỗi từng bước như Directus) | Duyệt (owner, 2026-10-17) |
 | R-41 | `presets/PresetItemRoute.vue` gọi `router.push` về danh sách trong `finally` như Directus; khi lưu lỗi các sửa còn giữ nên guard sửa dở chặn và hiện hộp `unsaved_changes` (cả hai app), không mất form | Duyệt (owner, 2026-10-17) |
 | R-42 | `CollectionsRoute.vue`: `PATCH /collections` khi kéo thả không chờ, không báo lỗi | Owner chọn B (Clarifications); duyệt |

@@ -61,7 +61,7 @@ const ICON_BTN =
 				@update:model-value="emit('update:modelValue', String($event ?? ''))"
 			/>
 		</div>
-		<BoMenu v-if="!disabled" :items="items" align="end">
+		<BoMenu v-if="!disabled" :items="items" align="end" searchable>
 			<template #trigger>
 				<button type="button" :class="ICON_BTN" :aria-label="t('select_existing')" :title="t('select_existing')">
 					<BoIcon name="list_alt" size="sm" />
