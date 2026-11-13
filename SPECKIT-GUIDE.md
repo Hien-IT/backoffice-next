@@ -47,6 +47,7 @@ Thêm mục mới (ví dụ spec 030) thì thêm một dòng ở đây, anchor l
   - [029: Đăng nhập bằng Passkey (WebAuthn)](#029-đăng-nhập-bằng-passkey-webauthn)
   - [030: Index ghép, index trigram và tạo index không khóa bảng](#030-index-ghép-index-trigram-và-tạo-index-không-khóa-bảng)
   - [031: Cài extension bằng gói `.tgz` tải lên](#031-cài-extension-bằng-gói-tgz-tải-lên)
+  - [032: Đồng bộ cấu hình từ môi trường khác (kéo qua URL và token)](#032-đồng-bộ-cấu-hình-từ-môi-trường-khác-kéo-qua-url-và-token)
 - [7. Phần chung của `/speckit.plan`](#7-phần-chung-của-speckitplan)
 - [8. Chọn model cho từng bước](#8-chọn-model-cho-từng-bước)
 - [9. Mẹo khi chạy](#9-mẹo-khi-chạy)
@@ -294,6 +295,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 029 | Đăng nhập bằng Passkey (WebAuthn) cho user local; bảng backoffice_passkeys; chỉ Backoffice                      | 003, 012, 015, 022 | BE, FE |
 | 030 | Index ghép, index trigram và tạo index không khóa bảng (bảng backoffice_indexes); chỉ Backoffice               | 006, 016, 022 | BE, FE |
 | 031 | Cài extension bằng gói .tgz tải lên (source upload, thư mục .upload); chỉ Backoffice                           | 020, 025  | BE, FE |
+| 032 | Đồng bộ cấu hình từ môi trường khác (kéo qua URL và token, so sánh và chọn dòng); chỉ Backoffice               | 006, 009, 010, 016, 025, 030, 031 | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -2896,6 +2898,153 @@ Ghi chú đưa vào spec và plan 031 (đọc code ngày 2026-11-04, chưa chạ
   (`tests/fixtures/extensions/fixtures-build.test.ts`); `.tgz` của 031 đóng từ cùng thư mục bằng `npm pack`, không commit.
 - Bài học 020 còn đúng: endpoint extension chạy trên app Express 4 gắn vào Nest; gói tải lên dùng cùng router, không có
   đường mount riêng.
+
+### 032: Đồng bộ cấu hình từ môi trường khác (kéo qua URL và token)
+
+Trạng thái: soạn 2026-11-14 từ câu hỏi của chủ dự án ("backoffice có nhiều môi trường stg, uat, prod, muốn đồng bộ
+setting, flow, collection giữa các môi trường"; "có UI nhập URL và token của môi trường khác, có UI chọn những gì cần
+đồng bộ"); chưa chạy lệnh Spec Kit nào, chưa có code. 12 điểm đã chốt 2026-11-14 (bảng dưới); 5 mặc định chưa được
+duyệt rõ và 5 câu còn mở đi vào `/speckit.specify` và `/speckit.clarify`.
+Thư mục: `specs/032-environment-sync/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
+Dự kiến không sửa constitution: không bảng mới, không cột mới, không migration (tính năng không lưu gì), khác biệt API
+và giao diện ghi theo Nguyên tắc X từ D-214 (D-213 đã dùng 2026-11-12). Dự kiến không dependency mới (gọi nguồn bằng
+`getAxios()` có sẵn) và không biến môi trường mới; plan xác nhận cả hai.
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Cách dùng mục này:** chạy 7 lệnh dưới theo thứ tự, mỗi lệnh một lượt, chép nguyên khối `text`. Sau `/speckit.clarify`
+trả lời tối đa 5 câu. Sau `/speckit.plan` chủ dự án duyệt D-214+ và câu hỏi design-system rồi mới chạy
+`/speckit.tasks`. Sau mỗi lệnh, cập nhật dòng "Trạng thái" ở trên như các feature trước.
+
+**Vì sao cần** (đọc code 2026-11-14): cách duy nhất để chuyển cấu hình giữa hai môi trường là `GET /schema/snapshot`,
+`POST /schema/diff`, `POST /schema/apply` (`apps/api/src/controllers/schema.controller.ts:98`, `:106`, `:122`) và CLI
+`schema snapshot`, `schema apply` (`apps/api/src/cli/index.ts:106`, `:114`). Snapshot chỉ gồm `collections`, `fields`,
+`systemFields`, `relations` của collection người dùng (`apps/api/src/utils/get-snapshot.ts`). Flow, role, policy,
+permission, settings, translation, preset, dashboard, folder, trạng thái extension, `backoffice_permissions` và
+`backoffice_indexes` không nằm trong đó. Web chỉ có nút tải snapshot ở Data Model
+(`apps/web/src/modules/settings/routes/data-model/components/SnapshotSidebarDetail.vue`), không có màn hình diff hay
+apply. Không endpoint nào của Backoffice gọi sang một môi trường khác.
+
+**Ảnh hưởng tới Directus** (suy từ thiết kế, chưa chạy thử; plan xác nhận):
+
+- Endpoint mới dưới `/backoffice/sync`: Directus trả 404 (D-214), như các endpoint `/backoffice/` khác.
+- Không bảng, cột hay kiểu dòng mới. Mọi thay đổi ghi qua service có sẵn vào bảng có sẵn, nên Directus trên cùng DB
+  (chế độ shared) thấy các dòng như khi admin sửa tay; thay đổi schema báo `schemaChanged` qua bus như `/schema/apply`.
+- Nguồn phải là Backoffice: `GET /server/info` chỉ báo phiên bản Directus 11.17.4
+  (`apps/api/src/services/server.service.ts:121`), không báo phiên bản Backoffice hay migration. Điểm chốt 9 (lệch
+  phiên bản thì từ chối) cần một endpoint thông tin ở nguồn; Directus thuần trả 404 ở đó nên bị từ chối.
+- Nhóm Extensions chỉ đổi `enabled` của dòng `directus_extensions`, như `PATCH /extensions/:pk` hiện nay.
+
+**Điểm đã chốt với chủ dự án 2026-11-14** (cột Chốt là câu trả lời; prompt bên dưới viết theo đó):
+
+| #   | Câu hỏi                   | Chốt                                                                                                                                                                                     |
+| --- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Chiều đồng bộ             | Chỉ kéo (pull): admin đứng ở môi trường đích, nhập URL và token của nguồn; không có chiều đẩy                                                                                            |
+| 2   | Lưu trữ                   | Không lưu gì: không URL, không token, không danh sách môi trường, không lịch sử                                                                                                          |
+| 3   | Mức chọn                  | Theo nhóm hoặc theo từng dòng                                                                                                                                                            |
+| 4   | Xóa                       | Dòng chỉ có ở đích được tick để xóa                                                                                                                                                      |
+| 5   | Trang so sánh hai bên     | Có; gộp chung một màn hình với bước tick dòng                                                                                                                                            |
+| 6   | Nhóm                      | Data model, Flows, Roles/Policies/Permissions (gồm quyền import/export của Backoffice), Settings, Translations, Presets, Dashboards, Indexes, Folders (chỉ cây thư mục), Extensions (chỉ bật/tắt, không chép file) |
+| 7   | Presets                   | Chỉ preset global (không gắn user, không gắn role)                                                                                                                                       |
+| 8   | `status` của flow kéo về  | Giữ như nguồn (flow đang bật chạy ngay ở đích)                                                                                                                                           |
+| 9   | Lệch phiên bản, migration | Từ chối so sánh và áp dụng                                                                                                                                                               |
+| 10  | Lỗi giữa chừng            | Hoàn tác toàn bộ phần dòng dữ liệu                                                                                                                                                       |
+| 11  | Xác thực nguồn            | Chỉ static token của user admin ở nguồn                                                                                                                                                  |
+| 12  | Loại DB                   | stg, uat, prod đều là Postgres                                                                                                                                                           |
+
+**Mặc định đã nêu, chủ dự án chưa phản đối, chưa duyệt rõ** (đưa vào spec dạng chờ duyệt): chỉ admin dùng được; tham
+chiếu tới user không có ở đích đặt null; hộp xác nhận liệt kê bảng, cột, dòng sẽ bị xóa; Directus trả 404; bố cục màn
+hình so sánh là câu hỏi mở design-system (Nguyên tắc XII, số Q kế tiếp; `docs`, `design-system`, `specs` đang tới
+Q-48).
+
+**Câu còn mở** (phát hiện khi đọc code 2026-11-14; hỏi ở `/speckit.clarify`):
+
+1. Các môi trường dựng từ cùng một bản DB hay bootstrap riêng? Bootstrap riêng thì id của role và policy Administrator
+   khác nhau, so khớp theo id sẽ coi chúng là hai dòng khác nhau.
+2. Field settings trỏ tới file (`project_logo`, `public_foreground`, `public_background`, `public_favicon`,
+   `libs/system-data/src/fields/settings.yaml:631`–`:647`) khi file không có ở đích: đặt null sẽ xóa logo của đích.
+3. Field settings chứa khóa (`mapbox_key`, `ai_*_api_key`, cùng file dòng 494, 762–907): API có thể trả giá trị đã
+   che; so và ghi giá trị che là sai.
+4. Khóa so khớp cho dòng không có uuid chung: `directus_permissions`, `directus_presets`, `directus_settings` có khóa
+   tự tăng (seed `08-permissions.yaml`, `09-presets.yaml`, `13-settings.yaml`).
+5. Vendor khác Postgres: cho chạy mà không đo, hay chặn?
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/032-environment-sync và đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Feature 032: admin kéo cấu hình từ một môi trường Backoffice khác vào môi trường đang đứng (ví dụ đứng ở uat kéo từ stg, đứng ở prod kéo từ uat) qua một trang trong Settings: nhập URL và static token admin của môi trường nguồn, xem bảng so sánh hai bên, tick theo nhóm hoặc từng dòng, xác nhận và áp dụng. Bối cảnh: Backoffice và Directus 11.17.4 chỉ có /schema/snapshot, /schema/diff, /schema/apply và CLI schema snapshot, schema apply, phủ collection, field, relation của collection người dùng; flow, role, policy, permission, settings, translation, preset, dashboard, folder, trạng thái extension, quyền import/export và index của Backoffice không có cách chuyển giữa môi trường ngoài gọi REST tay; web chỉ có nút tải snapshot ở Data Model. Đây là tính năng chỉ của Backoffice (như 022, 025, 029, 030, 031): Directus không có endpoint và trang này. Phạm vi đã chốt (chủ dự án 2026-11-14): 1. Chỉ kéo (pull): admin đứng ở môi trường đích; không có chiều đẩy. 2. Không lưu gì: URL, token, danh sách môi trường, lịch sử đồng bộ đều không lưu ở DB, file, log hay trình duyệt (tải lại trang là nhập lại). 3. Xác thực nguồn chỉ bằng static token của một user admin ở nguồn. 4. Nhóm đồng bộ: Data model (collection, field, relation), Flows (kèm operations), Roles, Policies, Permissions (kèm liên kết role với policy và quyền import/export của Backoffice), Settings (so và chọn theo từng field), Translations, Presets (chỉ preset global: không gắn user, không gắn role), Dashboards (kèm panels), Indexes (định nghĩa index của 030), Folders (chỉ cây thư mục, không chép file), Extensions (chỉ trạng thái bật/tắt của extension có ở cả hai bên; extension chỉ có ở một bên hiện để biết, không tick được; không chép file extension). 5. Một màn hình vừa so sánh vừa chọn: mỗi dòng có trạng thái giống nhau, khác nhau, chỉ có ở nguồn, chỉ có ở đích; lọc theo trạng thái; mở một dòng thấy giá trị nguồn cạnh giá trị đích theo từng field; tick từng dòng hoặc tick cả nhóm. 6. Áp dụng: dòng chỉ có ở nguồn được tạo, dòng khác nhau được sửa theo nguồn, dòng chỉ có ở đích được tick để xóa (mặc định không tick); trước khi chạy có hộp xác nhận liệt kê rõ collection, field và dòng sẽ bị xóa. 7. Flow kéo về giữ status như nguồn (flow đang bật chạy ngay ở đích; hộp xác nhận nêu điều này). 8. Phiên bản Backoffice hoặc danh sách migration (Directus và Backoffice) của hai bên khác nhau: từ chối so sánh và áp dụng, nêu hai phiên bản. 9. Lỗi khi áp dụng: hoàn tác toàn bộ phần dòng dữ liệu và báo dòng lỗi; thay đổi cấu trúc bảng đã chạy (nếu không hoàn tác được) nêu rõ trong kết quả. 10. Kết quả so sánh chỉ dùng được khi hai bên chưa đổi: nguồn hoặc đích đổi sau lúc so sánh thì áp dụng bị từ chối và yêu cầu so sánh lại. 11. Phụ thuộc: chọn một dòng cần dòng khác (flow cần operations, permission cần policy và collection, panel cần dashboard, liên kết role với policy cần cả hai, field cần collection) thì dòng cần được tick kèm hoặc bị chặn với lý do. 12. Ba môi trường của chủ dự án đều là Postgres. Mặc định chờ duyệt ở spec (đã nêu với chủ dự án 2026-11-14, chưa phản đối): chỉ admin dùng được (user khác 403); tham chiếu tới user không có ở đích (user_created và tương tự) đặt null; không cho thao tác làm mất admin cuối cùng hoặc quyền của chính admin đang thao tác; hai admin không áp dụng cùng lúc (người sau nhận lỗi rõ); mỗi dòng ghi vào đích để lại activity và revision như sửa tay, không có bản ghi riêng cho lần đồng bộ. Ngoài phạm vi: chiều đẩy; lưu môi trường hay lịch sử; users, nội dung file, item của collection người dùng, activity, revisions, sessions, notifications, comments, shares; preset theo role hay user; liên kết user với policy; cài hay gỡ extension; file gói cấu hình và lệnh CLI; chạy theo lịch; nguồn là Directus thuần; đăng nhập nguồn bằng email và mật khẩu. Giao diện: bố cục màn hình so sánh nhiều bước chưa có mẫu trong design-system, ghi thành câu hỏi mở theo Nguyên tắc XII (số Q kế tiếp), không tự chọn; mục menu và trang ẩn khi API là Directus. Khác biệt với Directus ghi từ D-214, chủ dự án duyệt theo Nguyên tắc X (bảng "Khác biệt so với Directus" theo FR-101 để tests/parity/src/spec-differences.ts đọc được): D-214 các endpoint dưới /backoffice/sync (Directus 404); D-214.1 trang Settings mới chỉ có ở app Backoffice. Parity: suite mới tests/parity/src/sync với hai Backoffice trên hai DB (nguồn và đích): Directus 404 ở endpoint mới; so sánh đúng bốn trạng thái cho từng nhóm; áp dụng tạo, sửa, xóa đúng dòng đã chọn và không chạm dòng không chọn; lệch phiên bản bị từ chối; token sai, URL không tới được, URL bị chặn theo IMPORT_IP_DENY_LIST trả lỗi rõ; lỗi giữa chừng không để lại dòng nào; so sánh cũ bị từ chối; user thường 403; token và URL không xuất hiện trong log, activity hay thông báo lỗi; mọi endpoint khác vẫn giống Directus. E2E: settings-sync.spec.ts ba cấu hình (proxy-directus: không có mục menu; proxy-api và cors: kết nối, so sánh, tick một flow và một collection, áp dụng, thấy chúng ở đích; tick xóa có hộp xác nhận), a11y axe như 016. Tiêu chí chấp nhận: admin ở môi trường đích kéo được một flow, một collection, một policy kèm permission và một field settings từ nguồn mà không sửa tay; không dòng nào không được tick bị đổi; URL và token không còn ở đâu sau khi rời trang.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Bỏ qua được: 12 điểm đã chốt 2026-11-14 (chỉ pull, không lưu gì, static token, 10 nhóm, một màn hình so sánh và chọn, tick xóa, flow giữ status, lệch phiên bản từ chối, hoàn tác phần dòng, so sánh cũ bị từ chối, phụ thuộc, Postgres). Hỏi nếu spec chưa rõ: 1. Các môi trường được dựng từ cùng một bản DB (id role và policy Administrator giống nhau) hay bootstrap riêng (id khác nhau): đề xuất so khớp theo id; role và policy có admin_access không được tick xóa, chỉ hiện để biết. 2. Field settings trỏ tới file (project_logo, public_foreground, public_background, public_favicon) khi file không có ở đích: đề xuất không cho tick và nêu lý do, không đặt null (đặt null sẽ xóa logo của đích); storage_default_folder và public_registration_role chỉ tick được khi folder hoặc role đó có ở đích hoặc được tick kèm. 3. Field settings chứa khóa (mapbox_key, ai_*_api_key): đề xuất không so và không ghi. 4. Khóa so khớp cho dòng không có uuid chung: đề xuất permission theo (policy, collection, action), preset global theo (collection, bookmark), translation theo (language, key), extension theo tên gói (và tên entry trong bundle), index theo name; các bảng còn lại theo id. 5. Vendor khác Postgres: đề xuất không thêm chặn theo vendor ngoài kiểm tra có sẵn của snapshot (khác vendor thì nhóm Data model bị từ chối), chỉ đo trên Postgres và ghi "chưa đo" cho vendor khác. Ghi "Clarifications" vào spec; D-214.x cập nhật theo câu trả lời.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-214+ và câu hỏi design-system)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Phần chung BE/FE như mục 7. Đọc trước: apps/api/src/services/schema.service.ts (apply dòng 37, diff dòng 51), apps/api/src/utils/get-snapshot.ts, get-snapshot-diff.ts (dòng 7), apply-diff.ts (applyDiff dòng 38, transaction dòng 57), validate-snapshot.ts (kiểm phiên bản và vendor, dòng 67), validate-diff.ts (dòng 73), get-versioned-hash.ts, apps/api/src/controllers/schema.controller.ts (dòng 98–129), apps/api/src/request/index.ts (getAxios dòng 8) cùng is-denied-ip.ts và agent-with-ip-validation.ts (chặn IP theo IMPORT_IP_DENY_LIST), các service ghi đích: flows.service.ts, operations.service.ts, roles.service.ts, policies.service.ts, permissions.service.ts, access.service.ts, backoffice-permissions.service.ts, settings.service.ts, translations.service.ts, presets.service.ts, dashboards.service.ts, panels.service.ts, folders.service.ts, extensions.service.ts, backoffice-indexes.service.ts (đều trong apps/api/src/services), apps/api/src/permissions/modules/validate-remaining-admin (chặn mất admin cuối), apps/api/src/controllers/backoffice-indexes.controller.ts dòng 31 và backoffice-extensions.controller.ts (tiền tố /backoffice/, kiểm admin, endpoint GET làm probe), apps/api/src/services/server.service.ts dòng 121 (version chỉ là Directus 11.17.4), apps/api/src/version.ts (BACKOFFICE_VERSION), apps/api/src/database/backoffice-migrations/index.ts và run.ts (danh sách migration Backoffice), apps/api/src/lock/lib/use-lock.ts, libs/system-data/src/fields/settings.yaml (field trỏ file dòng 631–647, storage_default_folder dòng 206, public_registration_role dòng 152, mapbox_key dòng 494, ai_*_api_key dòng 762–907) và apps/api/src/services/payload.service.ts dòng 123 (conceal), web: apps/web/src/modules/settings/components/SettingsNavigation.vue (dòng 19–34), apps/web/src/modules/settings/routes/extensions (mẫu trang Settings chỉ của Backoffice), apps/web/src/composables/use-extension-upload.ts (mẫu probe ẩn khi API là Directus), apps/web/src/components/comparison (ComparisonModal.vue, use-comparison.ts: so sánh hai phiên bản của 014), apps/web/src/components/BoCheckbox.vue và BoCheckboxTree.vue (trạng thái indeterminate), design-system/docs/layout-patterns.md và component-specs.md, tests: tests/parity docker-compose profile bootstrap (postgres-bootstrap, backoffice-api-bootstrap: mẫu một Backoffice trên DB riêng), apps/web-e2e (ba cấu hình; replica backoffice-api-passkey của 029 là mẫu thêm một instance cho E2E). Quyết định kỹ thuật cần ghi ở plan: 1. Ba endpoint chỉ admin dưới /backoffice/sync: GET /backoffice/sync trả thông tin của chính instance (BACKOFFICE_VERSION, phiên bản Directus tương thích, vendor, danh sách migration Directus và Backoffice đã chạy) và là probe của web (Directus 404); POST /backoffice/sync/diff nhận { url, token, groups? } trả { hash, rows }; POST /backoffice/sync/apply nhận { url, token, hash, selected }. Nguồn chỉ cần GET /backoffice/sync và các endpoint REST đã có (GET /schema/snapshot, /flows, /operations, /roles, /policies, /permissions, /access, /settings, /translations, /presets, /dashboards, /panels, /folders, /extensions, /backoffice/permissions, /backoffice/collections/:collection/indexes). 2. Gọi nguồn bằng getAxios(): chỉ http và https, không theo redirect sang host khác, có timeout và giới hạn kích thước body; token chỉ nằm ở header Authorization gửi tới nguồn; URL và token không vào log (kiểm cấu hình pino-http với body), activity, revision, thông báo lỗi hay response cache; dữ liệu nhận từ nguồn là dữ liệu không tin cậy: kiểm hình dạng và chỉ nhận bảng, cột có trong registry nhóm. 3. Registry tĩnh các nhóm (khóa nhóm, cách đọc nguồn, service ghi đích, khóa so khớp, cột bỏ qua như id tự tăng, date_created, user_created và field bị che, phụ thuộc, thứ tự áp dụng); một kiểu dòng chung: group, key, label, state (same, changed, source_only, target_only), changes [{ path, source, target }], depends, selectable và lý do khi không tick được. 4. hash tính bằng getVersionedHash trên dữ liệu nguồn đã đọc và trạng thái đích của các nhóm được so; apply đọc lại hai bên, tính lại, khác thì từ chối (không lưu gì giữa hai request). 5. Data model: snapshot nguồn qua GET /schema/snapshot, getSnapshotDiff, lọc mảng diff theo dòng được chọn, applyDiff; validateSnapshot không force. 6. Áp dụng dưới useLock().usingLock('backoffice-sync'); thứ tự: schema → folders → roles → policies → access → permissions → backoffice_permissions → settings → translations → presets → flows (flow, operations hai lượt cho resolve/reject, rồi flow.operation) → dashboards → panels → extensions → indexes; phần dòng trong một transaction, ghi qua service với accountability của admin đang gọi để có activity, revision, xóa cache và reload flow; lỗi thì rollback và trả dòng lỗi. Plan đo trên Postgres: applyDiff có transaction riêng, DDL của Postgres nằm được trong transaction, vậy schema và dòng gộp vào một transaction được hay không; index của 030 tạo bằng job không đồng bộ nên chạy sau commit và báo "đang tạo". 7. Phụ thuộc và bảo vệ: tự tick kèm hoặc chặn theo registry; dùng validate-remaining-admin có sẵn; không xóa role, policy mà admin đang gọi dựa vào. 8. Web: route /settings/sync và một mục trong SettingsNavigation, ẩn khi probe 404; URL và token chỉ ở biến của component (không localStorage, không sessionStorage, không store bền); một trang: form kết nối → bảng so sánh theo nhóm thu gọn được (checkbox nhóm có trạng thái indeterminate, lọc theo trạng thái, mở dòng thấy hai cột nguồn và đích) → hộp xác nhận (liệt kê collection, field, dòng bị xóa; flow sẽ bật) → kết quả; overlay en-US/vi-VN; xét dùng lại components/comparison cho chi tiết dòng. 9. Môi trường test: parity profile mới sync (một Postgres riêng và một Backoffice standalone làm đích, nguồn là Backoffice của cặp chính); E2E thêm một instance nguồn cho proxy-api và cors. 10. Rủi ro ghi ở plan: token admin của nguồn đi qua trình duyệt và API đích; SSRF qua URL do admin nhập; nguồn trả dữ liệu độc hại; xóa collection hoặc field làm mất dữ liệu; flow đang bật chạy ngay ở đích; id role và policy Administrator khác nhau giữa các môi trường bootstrap riêng; field settings bị che hoặc trỏ tới file; xóa role làm user mất role, xóa folder đẩy file lên cấp trên (đọc RolesService, FoldersService để ghi đúng vào hộp xác nhận). Kết quả: research.md R1–R?, data-model.md (không bảng mới; registry nhóm, kiểu dòng, khóa so khớp từng nhóm), contracts api/web/tests, quickstart.md.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. api-compat: mọi endpoint ngoài /backoffice/sync giống Directus, D-214.x ghi đủ trong bảng FR-101, không bảng, cột hay migration mới, dòng ghi vào đích giống dòng do service hiện có ghi (Directus trên cùng DB đọc được). security: chỉ admin ở cả ba endpoint; token và URL không vào log, activity, revision, lỗi, cache, localStorage; URL chỉ http/https, chặn IP theo IMPORT_IP_DENY_LIST, không theo redirect sang host khác, có timeout và giới hạn kích thước; dữ liệu từ nguồn được kiểm hình dạng và chỉ ghi bảng, cột trong registry; field bị che không được so hay ghi; không tự khóa admin. data-safety: dòng không tick không đổi; xóa mặc định không tick và có hộp xác nhận liệt kê; so sánh cũ bị từ chối; lỗi giữa chừng không để lại dòng nào; hai admin không áp dụng cùng lúc; phụ thuộc thiếu bị chặn trước khi ghi; lệch phiên bản hoặc migration bị từ chối trước khi đọc dữ liệu.
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Chia ba lượt: lượt 1 API chỉ đọc (GET /backoffice/sync, gọi nguồn qua getAxios với các kiểm tra an toàn, registry nhóm, POST /backoffice/sync/diff với bốn trạng thái và hash, kiểm lệch phiên bản, unit test, parity profile sync với các case so sánh, 404 ở Directus, 403, token sai, URL bị chặn, token không vào log); lượt 2 API áp dụng (POST /backoffice/sync/apply: khóa, thứ tự nhóm, transaction và rollback, phụ thuộc, bảo vệ admin, xóa, Data model qua applyDiff, index sau commit, parity các case áp dụng, so sánh cũ, lỗi giữa chừng); lượt 3 web (route /settings/sync, mục menu và probe, form kết nối, bảng so sánh và chọn, hộp xác nhận, kết quả, overlay en-US/vi-VN, E2E ba cấu hình, a11y). Mỗi lượt kết thúc bằng lint, unit, parity liên quan và commit thẳng main sau khi CI của commit trước xanh (không stage apps/api/project.json, apps/web/project.json).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Lượt 1: API chỉ đọc (GET /backoffice/sync, gọi nguồn, registry nhóm, POST /backoffice/sync/diff, kiểm phiên bản, parity profile sync). Comment theo Nguyên tắc IX ("DR"), mỗi chỗ sửa code port ghi `Backoffice (spec 032, D-214)`. Chạy lint, unit API, parity sync trước khi commit; commit thẳng main khi CI của commit trước xanh; không stage apps/api/project.json, apps/web/project.json.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Lượt 2: API áp dụng (POST /backoffice/sync/apply: khóa, thứ tự, transaction, phụ thuộc, bảo vệ admin, xóa, Data model, index) với parity các case áp dụng và rollback. Chạy lint, unit API, parity sync; commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Lượt 3: Web (route /settings/sync, mục menu, probe, form kết nối, bảng so sánh và chọn, hộp xác nhận, kết quả, overlay en-US/vi-VN) với E2E ba cấu hình và a11y; cập nhật CLAUDE.md (Active Technologies, Recent Changes), deploy/README nếu có ghi chú vận hành; đóng spec (Status, D-214.x duyệt). Commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Ghi chú đưa vào spec và plan 032 (đọc code ngày 2026-11-14, chưa chạy thử):
+
+- Snapshot giữ nguyên `meta` của collection (`apps/api/src/utils/sanitize-schema.ts:22`), nên ba cột `bo_show_*` của 022
+  dự kiến đi theo nhóm Data model; plan chạy thử để xác nhận.
+- `validateSnapshot` từ chối snapshot khác phiên bản Directus hoặc khác vendor trừ khi `force`
+  (`apps/api/src/utils/validate-snapshot.ts:67`–`:89`); 032 không dùng `force`.
+- `applyDiff` chạy trong `transaction(database, ...)` riêng (`apps/api/src/utils/apply-diff.ts:57`).
+- Gọi HTTP ra ngoài có sẵn `getAxios()` (`apps/api/src/request/index.ts:8`) với kiểm IP; mặc định `IMPORT_IP_DENY_LIST`
+  là `0.0.0.0`, `169.254.169.254` (`libs/env/src/constants/defaults.ts:134`), nên địa chỉ mạng nội bộ vẫn gọi được.
+- `/server/info` chỉ trả `version` = Directus 11.17.4 cho user đã đăng nhập (`server.service.ts:121`);
+  `BACKOFFICE_VERSION` ở `apps/api/src/version.ts:3`; migration Backoffice hiện có 4 file trong
+  `apps/api/src/database/backoffice-migrations`.
+- Kiểm admin của endpoint `/backoffice/`: `if (!req.accountability.admin) throw new ForbiddenError()`
+  (`backoffice-indexes.controller.ts:31`).
+- `FLOWS_ENV_ALLOW_LIST` đã chạy (`apps/api/src/flows.ts:81`): flow nên dùng `{{$env.X}}` cho URL và token riêng từng
+  môi trường để cùng một flow chạy đúng ở mọi nơi; ghi vào quickstart.
+- Web: menu Settings là mảng tĩnh ở `SettingsNavigation.vue:19`–`:34`; `components/comparison` có `ComparisonModal.vue`
+  và `use-comparison.ts` của 014 (chưa kiểm dùng lại được cho dòng bất kỳ hay không).
+- Hướng đã bàn và không chọn: file gói cấu hình commit vào git cùng CLI `config snapshot`, `config apply` cho CI. Chủ dự
+  án chọn UI kéo trực tiếp; nếu sau này cần CI thì registry nhóm và diff của 032 dùng lại được.
 
 ---
 
