@@ -17,6 +17,7 @@ import { BackofficeExtensionsController } from './controllers/backoffice-extensi
 import { BackofficeIndexesController } from './controllers/backoffice-indexes.controller.js';
 import { BackofficePasskeysController } from './controllers/backoffice-passkeys.controller.js';
 import { BackofficePermissionsController } from './controllers/backoffice-permissions.controller.js';
+import { BackofficeSyncController } from './controllers/backoffice-sync.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
 import { RelationsController } from './controllers/relations.controller.js';
@@ -74,6 +75,8 @@ export class TusModule implements NestModule {
 		BackofficeIndexesController,
 		// Backoffice (spec 031, D-212)
 		BackofficeExtensionsController,
+		// Backoffice (spec 032, D-214): environment sync.
+		BackofficeSyncController,
 		PoliciesController,
 		RelationsController,
 		RevisionsController,

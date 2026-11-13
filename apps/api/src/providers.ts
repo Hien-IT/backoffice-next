@@ -28,6 +28,7 @@ import { DashboardsService } from './services/dashboards.service.js';
 import { OperationsService } from './services/operations.service.js';
 import { BackofficeIndexesService } from './services/backoffice-indexes.service.js';
 import { BackofficePermissionsService } from './services/backoffice-permissions.service.js';
+import { BackofficeSyncService } from './services/backoffice-sync.service.js';
 import { PasskeyService } from './services/passkey.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
@@ -210,6 +211,12 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: BackofficeIndexesService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new BackofficeIndexesService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	// Backoffice (spec 032, D-214): environment sync.
+	{
+		provide: BackofficeSyncService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new BackofficeSyncService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	// Backoffice (spec 029, D-207): the rows of backoffice_passkeys and the passkey login.

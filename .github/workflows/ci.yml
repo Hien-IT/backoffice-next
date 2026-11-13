@@ -99,18 +99,19 @@ jobs:
           # `full` on Postgres in two shards (about 12 minutes of tests in one job), each with its own environment.
           # Feature 007 (spec Clarifications): Postgres runs the files and assets tests on `local` and MinIO, MySQL and
           # SQLite on MinIO only; the assets-limit and assets-stress pairs serve the narrower files configuration.
+          # Spec 032: profile sync (the two target nodes of an environment sync) runs on Postgres only (clarify 5).
           - {
               vendor: postgres,
               suite: full,
               shard: 1,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions,bootstrap',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions,bootstrap,sync',
               storages: 'local,s3',
             }
           - {
               vendor: postgres,
               suite: full,
               shard: 2,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions,bootstrap',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions,bootstrap,sync',
               storages: 'local,s3',
             }
           # Feature 005 (spec FR-041): the reduced blackbox port (integer keys) runs on the blackbox pair after `reduced`.

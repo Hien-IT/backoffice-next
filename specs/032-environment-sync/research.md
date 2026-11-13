@@ -244,6 +244,36 @@ cặp chính ở cả ba vendor của bộ rút gọn (Nguyên tắc V); phần 
 giữa hai request (FR-003, FR-022). Máy chủ là nơi quyết định: lượt áp dụng tự tính lại diff, kiểm từng dòng trong
 `selected` có tồn tại, tick được và đủ phụ thuộc; web tự tick kèm chỉ là tiện ích.
 
+## Kết quả T001 (2026-11-14, đọc code)
+
+- (a) Các dòng [Reported] đã đọc lại khi dùng tới; sai lệch ghi ở mục tương ứng dưới đây.
+- (b) R6 [Verified]: `Redlock.using` tự gia hạn khóa trước khi hết hạn (`automaticExtensionThreshold` 500 ms,
+  `@sesamecare-oss/redlock/src/index.ts:545-584`), nên khóa giữ suốt lượt áp dụng dù dài hơn 5 giây. Bên chờ thử 100 lần
+  cách 50 ms (cộng jitter), tức khoảng 5–7 giây, rồi ném `ExecutionError`; T032 ánh xạ lỗi đó sang 503.
+- (c) R2 [Verified]: IP bị chặn ném `Error('Requested domain "<host>" resolves to a denied IP address')`
+  (`agent-with-ip-validation.ts:12`), lúc tạo kết nối (IP literal) hoặc qua `socket.destroy` sau `lookup`. Mục `0.0.0.0`
+  của `IMPORT_IP_DENY_LIST` chặn **mọi địa chỉ của các network interface của máy** (`is-denied-ip.ts:20-22`,
+  `addLocalNetworkInterfaces`), không chỉ `localhost`: trong Docker, một node gọi chính tên của nó cũng bị chặn. Hệ quả:
+  ca "nguồn là chính đích" của T017 dùng node thứ hai cùng DB (`backoffice-api-sync-2`) làm nguồn.
+- (d) R7 [Verified]: `@backoffice/utils/node` có `fetchRolesTree(role, { knex })`, `fetchGlobalAccessForRoles(roles, {
+  knex, ip })`, `fetchGlobalAccessForUser(user, { knex, ip })` không qua cache (bản có cache ở
+  `permissions/modules/fetch-global-access/fetch-global-access.ts:15`). T038 đọc `directus_users.role` qua transaction,
+  dựng cây role rồi gọi hai hàm đó.
+- (e) [Verified]: `directus_operations.flow` và `directus_panels.dashboard` là `ON DELETE CASCADE`
+  (`20220429A-add-flows.ts:32`, `20210525A-add-insights.ts:16`); `directus_operations.resolve`, `reject` là FK không
+  `onDelete` (`:30-31`), nên phải đặt về null trước khi xóa operation.
+- (f) R4 [Verified đọc code]: mọi DDL và ghi của `applyDiff` đi qua `trx` khi truyền `database` (`apply-diff.ts:43-58`,
+  `:213-302`), kể cả lần đọc schema cuối (`:366`); không có kết nối riêng. Hoàn tác thật trên Postgres đo ở T039.
+- (g) [Verified]: `RolesService.deleteMany` (`roles.service.ts:47-107`) đúng như bảng "Xóa kèm".
+
+## Kết quả lượt 1 (2026-11-14)
+
+- Parity trên Postgres, profile `sync`: `route.test.ts` (3), `diff.test.ts` (4), `refuse.test.ts` (8), `no-trace.test.ts`
+  (1) xanh lần chạy đầu. Hai node đích báo cùng danh sách migration với cặp chính (E1 đạt).
+- T025, SC-006: nguồn có 100 flow, 2.000 permission (cùng 33 collection của DB parity chính) → `POST /backoffice/sync/diff`
+  trả 2.184 dòng, 1,1 MB, trong 440 ms ở máy local (Docker giả lập amd64). Mốc 30 giây của SC-006 không cần chỉnh; chưa
+  đo với 200 collection người dùng.
+
 ## Việc của T001 (trước khi viết code)
 
 1. Đọc lại mọi mục [Reported] ở trên.

@@ -46,6 +46,8 @@ export function compose(...args: string[]): string {
 		'extensions',
 		// Spec 021 (contracts/tests.md): the bootstrap pair, its Postgres and registry, Directus on the Backoffice database.
 		'bootstrap',
+		// Spec 032 (contracts/tests.md §2b): the two target nodes of an environment sync and their Postgres.
+		'sync',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

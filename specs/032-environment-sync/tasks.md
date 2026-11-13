@@ -49,7 +49,7 @@ Mỗi lượt kết thúc bằng task "đóng lượt": lint, typecheck, test, b
 
 **Purpose**: research không còn điểm chưa kiểm; có profile `sync` để chạy đối chiếu; có kiểu dùng chung.
 
-- [ ] T001 Kiểm tại chỗ (script dùng một lần trong scratchpad, không commit) và ghi "Kết quả T001" vào
+- [x] T001 Kiểm tại chỗ (script dùng một lần trong scratchpad, không commit) và ghi "Kết quả T001" vào
       `specs/032-environment-sync/research.md`: (a) đọc lại mọi dòng [Reported] của R1–R13, sửa chỗ sai; (b) `redlock.using`
       của `libs/memory/src/kv/lib/redis.ts` với callback 20 giây trên Redis parity (cổng 6108): khóa có tự gia hạn không
       (R6); nếu không, ghi cách gia hạn cho T032; (c) thông điệp lỗi của `api/request/agent-with-ip-validation.ts` khi IP
@@ -59,23 +59,24 @@ Mỗi lượt kết thúc bằng task "đóng lượt": lint, typecheck, test, b
       `ON DELETE CASCADE` hay không (migrations `20220429A-add-flows.ts`, `20210525A-add-insights.ts`) cho thứ tự xóa;
       (f) trên Postgres parity: trong một transaction ngoài, `applyDiff` tạo một collection rồi một insert lỗi → rollback,
       bảng không còn (R4); (g) `roles.service.ts:47-107` đúng như bảng "Xóa kèm" của data-model.
-- [ ] T002 [P] Profile parity `sync` theo mẫu profile `bootstrap` (research R13): `tests/parity/docker-compose.yml` thêm
+- [x] T002 [P] Profile parity `sync` theo mẫu profile `bootstrap` (research R13): `tests/parity/docker-compose.yml` thêm
       `backoffice-api-sync`, `backoffice-api-sync-2` dựng từ anchor `<<: *app` như `backoffice-api` (cùng build, image,
       lệnh), `env_file` = `env/${TEST_DB}.env`, `env/${PARITY_EXTENSIONS_ENV:-extensions}.env` (cùng extension và cùng
-      `MIGRATIONS_PATH` với cặp chính) và một file mới `env/profile-sync.env` (chỉ `DB_HOST: postgres-bootstrap`, mật khẩu
-      DB của `profile-bootstrap.env`, `ADMIN_TOKEN` riêng); `environment` đè `DB_DATABASE: backoffice_sync`, Redis db 12,
+      `MIGRATIONS_PATH` với cặp chính) và một file mới `env/profile-sync.env` (`DB_HOST: postgres-sync`, `DB_DATABASE`,
+      mật khẩu DB, `ADMIN_TOKEN` riêng); `environment` đè `DB_DATABASE: backoffice_sync`, Redis db 12,
       `CACHE_NAMESPACE: parity-sync`, `PUBLIC_URL: http://localhost:10856`; cổng 10856 và 10857; **không** dùng
-      `MIGRATIONS_PATH` của profile `bootstrap` (khác danh sách migration thì FR-005 từ chối mọi lượt; analyze E1); và
-      profile `sync` cho `postgres-bootstrap`; `tests/parity/env/bootstrap-init.sql` thêm `CREATE DATABASE backoffice_sync;` (init chỉ chạy
-      trên volume mới: kiểm `.data` của `scripts/env.mjs` và ghi cách tạo DB khi volume đã có); `tests/parity/scripts/env.mjs`
+      `MIGRATIONS_PATH` của profile `bootstrap` (khác danh sách migration thì FR-005 từ chối mọi lượt; analyze E1); và một
+      Postgres riêng `postgres-sync` (cổng 6116, DB `backoffice_sync` do image tạo; làm 2026-11-14 thay cho thêm DB vào
+      `postgres-bootstrap`, vì init SQL chỉ chạy trên volume mới); node 2 chờ node 1 healthy (bootstrap không có khóa);
+      `tests/parity/scripts/env.mjs`
       (`ALL_PROFILES`), `parity/config.ts` (cổng; nếu `profilePorts` bắt buộc khóa `directus` thì thêm hằng số riêng
       `syncPorts` như `bootstrapCrossPort`), `parity/docker.ts`, `parity/global-setup.ts`, `parity/suite.ts` (`src/sync/**`
       trong FULL, `src/sync/route.test.ts` trong REDUCED và FULL). `env-up --vendor=postgres --profiles=sync` chạy được.
-- [ ] T003 [P] Route giả trong `tests/parity/registry/server.mjs`: `/sync-fake/mismatch/backoffice/sync` (phiên bản
+- [x] T003 [P] Route giả trong `tests/parity/registry/server.mjs`: `/sync-fake/mismatch/backoffice/sync` (phiên bản
       Backoffice khác), `/sync-fake/redirect/backoffice/sync` (302 sang host khác), `/sync-fake/shape/backoffice/sync` và
       `/state` (JSON sai hình dạng), `/sync-fake/slow/backoffice/sync` (trả lời sau 35 giây); mọi route yêu cầu header
       `Authorization` như nguồn thật.
-- [ ] T004 [P] Kiểu `sync/types.ts`: `GroupKey`, `GROUP_KEYS`, `SyncInfo`, `SyncState`, `RowState`, `SyncRow` (gồm
+- [x] T004 [P] Kiểu `sync/types.ts`: `GroupKey`, `GROUP_KEYS`, `SyncInfo`, `SyncState`, `RowState`, `SyncRow` (gồm
       `depends`, `cascade`, `selectable`, `reason`, `impact`), `SyncResult` (gồm `indexes`, `warnings`) theo data-model.md.
 
 **Checkpoint**: research không còn [Reported] hay [Unverified] chưa xử lý; `env-up` profile `sync` lên hai node đích;
@@ -90,38 +91,38 @@ Mỗi lượt kết thúc bằng task "đóng lượt": lint, typecheck, test, b
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T005 [P] `sync/groups.test.ts`: đủ mười nhóm; mỗi `kind` có bảng, khóa so khớp, cột bỏ qua đúng bảng "Nhóm, loại
+- [x] T005 [P] `sync/groups.test.ts`: đủ mười nhóm; mỗi `kind` có bảng, khóa so khớp, cột bỏ qua đúng bảng "Nhóm, loại
       dòng, khóa so khớp" của data-model; đồ thị phụ thuộc không vòng; thứ tự xóa là ngược thứ tự tạo.
-- [ ] T006 [P] `sync/state.test.ts` (DB SQLite tạm như các test service hiện có; tìm helper trong `api/__utils__` hoặc
+- [x] T006 [P] `sync/state.test.ts` (DB SQLite tạm như các test service hiện có; tìm helper trong `api/__utils__` hoặc
       `api/services/backoffice-indexes.service.test.ts`): mỗi nhóm trả đúng bảng và cột; bỏ cột của data-model; bỏ field
       settings có special `encrypt`, `conceal`, `hash` (lấy từ schema, không ghi cứng tên); preset chỉ `user` và `role`
       null; link chỉ `user` null; index chỉ `ready`; operations nằm trong flow, panels trong dashboard; ngày giờ là chuỗi;
       `groups` giới hạn đúng nhóm được đọc.
-- [ ] T007 [P] `sync/source.test.ts` (axios giả): `normalizeUrl` bỏ `/` cuối, giữ đường dẫn con, từ chối không
+- [x] T007 [P] `sync/source.test.ts` (axios giả): `normalizeUrl` bỏ `/` cuối, giữ đường dẫn con, từ chối không
       http/https và `user:pass@`; 401 → 400 "rejected the token"; 403; 404 ở `/backoffice/sync` → "does not support"; mọi
       3xx (kể cả cùng host) → 503; timeout → 503; trả lời > 100 MB → 503; sai hình dạng → 503; bảng và cột lạ trong
       `state` bị bỏ (FR-006); IP bị chặn → 400 "not allowed" (theo T001c); lỗi ném ra không chứa URL, token, nội dung trả
       lời của nguồn, không có `cause`; token chỉ ở header `Authorization`.
-- [ ] T008 [P] `api/services/backoffice-sync.service.test.ts`: `info()` lấy `BACKOFFICE_VERSION`,
+- [x] T008 [P] `api/services/backoffice-sync.service.test.ts`: `info()` lấy `BACKOFFICE_VERSION`,
       `DIRECTUS_COMPAT_VERSION`, vendor, hai danh sách migration đã sắp xếp; `compareInfo` báo khác phiên bản, khác danh
       sách migration (nêu số mục khác), khác vendor (chỉ đánh dấu nhóm `schema`); khóa áp dụng: cờ trong process trả 503
       ngay cho lượt thứ hai cùng process (analyze E2).
-- [ ] T009 [P] `api/controllers/backoffice-sync.controller.test.ts` (supertest, mẫu `backoffice-indexes.controller.test.ts`):
+- [x] T009 [P] `api/controllers/backoffice-sync.controller.test.ts` (supertest, mẫu `backoffice-indexes.controller.test.ts`):
       `GET /backoffice/sync` và `GET /backoffice/sync/state` 401 không token, 403 user thường, 200 admin; `groups` lạ →
       400 `INVALID_QUERY`; `res.locals.cache === false`.
 
 ### Implementation
 
-- [ ] T010 `sync/groups.ts`: registry tĩnh theo data-model (bảng, khóa so khớp, cột bỏ qua, phụ thuộc, xóa kèm, thứ tự).
-- [ ] T011 `sync/state.ts`: `readState(groups, { knex, schema, accountability })` (R1, R9, R10): `schema` =
+- [x] T010 `sync/groups.ts`: registry tĩnh theo data-model (bảng, khóa so khớp, cột bỏ qua, phụ thuộc, xóa kèm, thứ tự).
+- [x] T011 `sync/state.ts`: `readState(groups, { knex, schema, accountability })` (R1, R9, R10): `schema` =
       `getSnapshot()` bỏ `systemFields`; các nhóm khác đọc qua `ItemsService` với accountability của người gọi; extension
       lấy tên gói và tên entry từ extension manager cùng `enabled` của dòng; kết quả qua `JSON.parse(JSON.stringify())`.
-- [ ] T012 `sync/source.ts`: `normalizeUrl`, `fetchInfo(url, token)`, `fetchState(url, token, groups)` qua `getAxios()`
+- [x] T012 `sync/source.ts`: `normalizeUrl`, `fetchInfo(url, token)`, `fetchState(url, token, groups)` qua `getAxios()`
       với `timeout: 30_000`, `maxRedirects: 0`, `maxContentLength` và `maxBodyLength` 100 MB, `validateStatus: () => true`;
       kiểm hình dạng (Joi) và lọc theo registry; ánh xạ lỗi theo bảng của contracts/api.md; không log URL, token, lỗi axios.
-- [ ] T013 `api/services/backoffice-sync.service.ts`: `info()`, `state(groups)`, `compareInfo(source, target)`; dùng
+- [x] T013 `api/services/backoffice-sync.service.ts`: `info()`, `state(groups)`, `compareInfo(source, target)`; dùng
       `checkMigrations` (`api/database/validate-migrations.ts`) và `completedBackofficeMigrations`.
-- [ ] T014 `api/controllers/backoffice-sync.controller.ts`: `GET /backoffice/sync`, `GET /backoffice/sync/state` (admin,
+- [x] T014 `api/controllers/backoffice-sync.controller.ts`: `GET /backoffice/sync`, `GET /backoffice/sync/state` (admin,
       `res.locals.cache = false`, `respond`); đăng ký trong `api/app.module.ts` (controllers) và `api/providers.ts`; chạy
       T005–T009 xanh.
 
@@ -137,27 +138,27 @@ Mỗi lượt kết thúc bằng task "đóng lượt": lint, typecheck, test, b
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T015 [P] [US1] `sync/diff.test.ts`: bốn trạng thái cho từng `kind`; khóa so khớp theo data-model (clarify 4); hai
+- [x] T015 [P] [US1] `sync/diff.test.ts`: bốn trạng thái cho từng `kind`; khóa so khớp theo data-model (clarify 4); hai
       dòng cùng khóa ở một bên → dòng sau `selectable: false` `sync_duplicate_key`; `depends` của từng loại; `cascade` của
       collection, policy, role, folder theo bảng "Xóa kèm"; `selectable: false` cho role và policy admin `target_only`
       (clarify 1), field settings trỏ file thiếu (clarify 2), field mã hóa (clarify 3), extension một bên; `impact`;
       collection `source_only` mang field mới của nó; dòng `same` không mang giá trị; thay đổi chỉ ở giá trị bỏ qua
       không đổi `hash`; khác vendor → nhóm `schema` báo lỗi riêng, nhóm khác vẫn có dòng.
-- [ ] T016 [P] [US1] `api/controllers/backoffice-sync.controller.test.ts` thêm: `POST /backoffice/sync/diff` body sai →
+- [x] T016 [P] [US1] `api/controllers/backoffice-sync.controller.test.ts` thêm: `POST /backoffice/sync/diff` body sai →
       400; service giả trả dòng → 200 `{ data: { hash, source, groups, rows } }`; lỗi của service đi qua nguyên.
-- [ ] T017 [US1] `parity/sync/diff.test.ts` (profile `sync`, `describe.skipIf`): seed ở nguồn và đích theo
+- [x] T017 [US1] `parity/sync/diff.test.ts` (profile `sync`, `describe.skipIf`): seed ở nguồn và đích theo
       contracts/tests.md §2b; mỗi nhóm đủ bốn trạng thái; `GET /backoffice/sync/state` của nguồn không chứa `**********`;
-      dump số dòng các bảng cấu hình hai bên trước và sau diff không đổi (FR-015); nguồn là chính đích
-      (`http://backoffice-api-sync:8055` gọi từ `backoffice-api-sync`) → mọi dòng `same` (analyze E3); dọn seed ở
-      `afterAll`.
+      dump số dòng các bảng cấu hình hai bên trước và sau diff không đổi (FR-015); nguồn là node thứ hai cùng DB
+      (`http://backoffice-api-sync-2:8055` gọi từ `backoffice-api-sync`) → mọi dòng `same` (analyze E3; gọi chính tên
+      của node bị `IMPORT_IP_DENY_LIST` chặn, T001c); dọn seed ở `afterAll`.
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] `sync/diff.ts`: `diffStates(source, target, groups, { knex, schema })` → `SyncRow[]` với `depends`,
+- [x] T018 [US1] `sync/diff.ts`: `diffStates(source, target, groups, { knex, schema })` → `SyncRow[]` với `depends`,
       `cascade`, `selectable`, `reason`, `impact` (đếm qua `knex`); nhóm `schema` qua `getSnapshotDiff` và
       `validateSnapshot` không `force` (R3); `hash` = `getVersionedHash({ source, target })` trên giá trị đã bỏ cột bỏ qua
       (R14).
-- [ ] T019 [US1] `api/services/backoffice-sync.service.ts` `diff({ url, token, groups })` theo trình tự của contracts/api.md;
+- [x] T019 [US1] `api/services/backoffice-sync.service.ts` `diff({ url, token, groups })` theo trình tự của contracts/api.md;
       `api/controllers/backoffice-sync.controller.ts` `POST /backoffice/sync/diff` (Joi); chạy T015–T017 xanh.
 
 **Checkpoint**: parity `diff.test.ts` xanh; không dòng nào ở hai DB đổi sau diff.
@@ -169,25 +170,25 @@ Mỗi lượt kết thúc bằng task "đóng lượt": lint, typecheck, test, b
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T020 [P] [US5] `parity/sync/refuse.test.ts` phần đọc: nguồn là Directus (`http://directus:8055`) → 400 "does not
+- [x] T020 [P] [US5] `parity/sync/refuse.test.ts` phần đọc: nguồn là Directus (`http://directus:8055`) → 400 "does not
       support"; token sai → 400 (không 401); URL không tới được → 503; `http://localhost:8055` → 400 "not allowed"; route
       giả `mismatch` → 400 kèm hai phiên bản; `redirect` → 503; `shape` → 503; `slow` → 503 sau khoảng 30 giây; user
       thường ở đích → 403; không lỗi nào chứa token hay host nguồn.
-- [ ] T021 [P] [US6] `parity/sync/route.test.ts` (cặp chính; REDUCED và FULL; Postgres, SQLite, MySQL): bốn route tại
+- [x] T021 [P] [US6] `parity/sync/route.test.ts` (cặp chính; REDUCED và FULL; Postgres, SQLite, MySQL): bốn route tại
       Directus → 404 `ROUTE_NOT_FOUND`; Backoffice `GET /backoffice/sync` admin 200 với `directus: '11.17.4'`, user thường
       403, không token 401; `/server/specs/oas` của Backoffice không chứa `/backoffice/sync` (FR-037, analyze E5).
-- [ ] T022 [P] [US5] `parity/sync/no-trace.test.ts` phần đọc: sau các lượt diff, token nguồn và chuỗi
+- [x] T022 [P] [US5] `parity/sync/no-trace.test.ts` phần đọc: sau các lượt diff, token nguồn và chuỗi
       `backoffice-api:8055` không có trong log của hai node đích (`serviceLogs` của `parity/bootstrap/cli.ts` hoặc
       `logs` của `parity/docker.ts`), trong `directus_activity`, `directus_revisions` của DB đích.
 
 ### Implementation
 
-- [ ] T023 [P] [US6] `tests/parity/accepted-differences.ts`: D-214 và D-214.1, `kind: 'doc'`, `feature: '032'`, `reason`
+- [x] T023 [P] [US6] `tests/parity/accepted-differences.ts`: D-214 và D-214.1, `kind: 'doc'`, `feature: '032'`, `reason`
       theo bảng spec; `tests/parity/README.md` mục 032 (profile `sync`, cổng, cách chạy).
-- [ ] T024 [P] `.github/workflows/ci.yml`: thêm `sync` vào danh sách profile của job `parity` Postgres (hai shard).
-- [ ] T025 [US1] Đo SC-006 một lần (script trong scratchpad, không commit): seed 200 collection, 100 flow, 2.000 permission ở
+- [x] T024 [P] `.github/workflows/ci.yml`: thêm `sync` vào danh sách profile của job `parity` Postgres (hai shard).
+- [x] T025 [US1] Đo SC-006 một lần (script trong scratchpad, không commit): seed 200 collection, 100 flow, 2.000 permission ở
       nguồn, đo thời gian `POST /backoffice/sync/diff`; ghi "Kết quả lượt 1" vào research.md; chỉnh SC-006 nếu cần.
-- [ ] T026 Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`; target `test` chặn ngưỡng
+- [x] T026 Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`; target `test` chặn ngưỡng
       coverage 80 % qua `vitest.shared.ts:26-32`, analyze U1), `api:build`; parity
       `sync/route.test.ts` trên Postgres và SQLite, `sync/{diff,refuse,no-trace}.test.ts` trên profile `sync`,
       `accepted-differences.test.ts`; sửa tới xanh.

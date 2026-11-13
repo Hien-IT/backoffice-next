@@ -50,12 +50,25 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   | `blackbox`          | 9555     | 9556       | `env/profile-blackbox.env` (bộ `blackbox`, env của Directus blackbox) |
   | `web`               | —        | 8163       | `env/profile-web-cors.env` (web 8180, 8181; proxy 8161, 8162)         |
   | `extensions`        | 10655    | 10656      | `env/profile-extensions.env` (feature 020: prefix `extensions-ext`)   |
+  | `sync`              | —        | 10856      | `env/profile-sync.env` (spec 032: hai node đích, node 2 ở 10857, Postgres riêng `postgres-sync` 6116) |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 
 - Chạy một file: `pnpm nx run parity-tests:parity --vendor=postgres -- src/server/info.test.ts`.
 - So với một API đang chạy ngoài Docker: đặt `BACKOFFICE_URL` (hoặc `DIRECTUS_URL`) trước khi chạy.
 - Unit test của chính bộ so sánh (không cần Docker): `pnpm nx test parity-tests`.
+
+### Đồng bộ môi trường (spec 032)
+
+- Profile `sync` (chỉ Postgres): `env-up --vendor=postgres --profiles=sync` dựng `backoffice-api-sync` (10856) và
+  `backoffice-api-sync-2` (10857) trên DB `backoffice_sync` của `postgres-sync` (6116). Hai node dùng env của cặp chính
+  (cùng extension, cùng danh sách migration, nếu không FR-005 từ chối mọi lượt) cộng `env/profile-sync.env`.
+- Nguồn là `backoffice-api` của cặp chính, gọi từ đích bằng `http://backoffice-api:8055`; đích dùng `ADMIN_TOKEN` của
+  `env/profile-sync.env`. Một node gọi chính tên của nó bị `IMPORT_IP_DENY_LIST` chặn (mục `0.0.0.0` chặn mọi
+  interface của máy), nên ca "nguồn là chính đích" dùng node 2 làm nguồn.
+- `src/sync/route.test.ts` chạy trên cặp chính với mọi vendor (Directus 404); các file khác bỏ qua khi profile không chạy.
+  Route giả ở `registry/server.mjs` (`/sync-fake/<ca>/backoffice/sync`) cho các ca lệch phiên bản, chuyển hướng, sai
+  hình dạng, chậm.
 
 ### Test schema và cache dùng chung (feature 002)
 

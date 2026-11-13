@@ -48,6 +48,8 @@ export const REDUCED_FILES = [
 	'src/extensions/{list,hooks,endpoints}.test.ts',
 	// Spec 021: profile `bootstrap` (SQLite runs it with the reduced suite) and the vendor gate (MySQL).
 	'src/bootstrap/**/*.test.ts',
+	// Spec 032: the environment sync routes on the main pair (Directus 404, Backoffice 200/403/401).
+	'src/sync/route.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -77,6 +79,9 @@ export const FULL_FILES = [
 	'src/extensions/**/*.test.ts',
 	// Spec 021: profile `bootstrap` (each file skips without the profile) and the vendor gate on the main pair (MySQL).
 	'src/bootstrap/**/*.test.ts',
+	// Spec 032: the environment sync routes on the main pair and profile `sync` (each file but route.test.ts skips
+	// without the profile).
+	'src/sync/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

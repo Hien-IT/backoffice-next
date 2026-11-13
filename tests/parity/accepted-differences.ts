@@ -704,4 +704,19 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'DELETE /extensions/registry/uninstall/:pk also uninstalls a row of source upload at Backoffice (files of .upload/<folder> and the rows); Directus answers 400 "not installed via marketplace"; checked per app in upload.test.ts.',
 	},
+	// Spec 032 (D-214, D-214.1): environment sync, pull the config of another Backoffice by URL and static admin token.
+	{
+		id: 'D-214',
+		feature: '032',
+		kind: 'doc',
+		reason:
+			'GET /backoffice/sync, GET /backoffice/sync/state, POST /backoffice/sync/diff and POST /backoffice/sync/apply exist at Backoffice only (Directus 404), admin only; nothing is stored. tests/parity/src/sync/route.test.ts checks each app, the files of profile sync check the comparison and the apply.',
+	},
+	{
+		id: 'D-214.1',
+		feature: '032',
+		kind: 'doc',
+		reason:
+			'The Settings page of the environment sync is in the Backoffice app only, hidden when the API is Directus (probe GET /backoffice/sync 404); E2E settings-sync.spec.ts in the three configurations.',
+	},
 ];

@@ -1,6 +1,6 @@
 import { awaitDirectusConnection } from './await-connection.js';
 import { captureBaseline } from './bootstrap/baseline.js';
-import { appPorts, type Profile, profilePorts, proxyPort, secondBackofficePort } from './config.js';
+import { appPorts, type Profile, profilePorts, proxyPort, secondBackofficePort, syncPorts } from './config.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
 import { profileEnvKeys, profileUrls } from './profiles.js';
 
@@ -42,6 +42,14 @@ export default async function setup(): Promise<void> {
 			process.env[directusKey] ??= directus;
 			process.env[backofficeKey] ??= backoffice;
 		}
+	}
+
+	// Spec 032: the target nodes of profile sync (Backoffice only).
+	const syncTarget = `http://127.0.0.1:${syncPorts.target}`;
+	const syncTarget2 = `http://127.0.0.1:${syncPorts.target2}`;
+	if ((await answers(syncTarget)) && (await answers(syncTarget2))) {
+		process.env['BACKOFFICE_URL_SYNC'] ??= syncTarget;
+		process.env['BACKOFFICE_URL_SYNC_2'] ??= syncTarget2;
 	}
 
 	// Spec 021: the state of profile bootstrap right after both apps started, before any test writes to its databases.

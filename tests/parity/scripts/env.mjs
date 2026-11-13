@@ -56,6 +56,8 @@ const ALL_PROFILES = [
 	'extensions',
 	// Spec 021 (contracts/tests.md): the bootstrap pair on empty databases; `up` only with --profiles=bootstrap.
 	'bootstrap',
+	// Spec 032 (contracts/tests.md §2b): the target nodes of an environment sync; `up` only with --profiles=sync.
+	'sync',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

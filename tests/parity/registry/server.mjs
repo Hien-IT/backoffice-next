@@ -70,6 +70,27 @@ export function createRegistryServer() {
 
 		if (url.pathname === '/v1/owner' && req.method === 'GET') return send(res, 200, owner);
 		if (req.method !== 'GET') return send(res, 404, { error: 'not found' });
+
+		// Spec 032 (contracts/tests.md §2b): fake sync sources for the refusal cases of src/sync/refuse.test.ts. The
+		// target calls <url>/backoffice/sync with the source token, so <url> is http://registry:9100/sync-fake/<case>.
+		const fake = /^\/sync-fake\/([a-z]+)\/backoffice\/sync(\/state)?$/.exec(url.pathname);
+		if (fake) {
+			if (!req.headers.authorization) return send(res, 401, { errors: [{ message: 'Invalid user credentials.' }] });
+			const info = {
+				backoffice: '0.0.0-fake',
+				directus: '11.17.4',
+				vendor: 'postgres',
+				migrations: { directus: [], backoffice: [] },
+			};
+			if (fake[1] === 'mismatch') return send(res, 200, { data: fake[2] ? { info, state: {} } : info });
+			if (fake[1] === 'redirect') {
+				res.writeHead(302, { Location: 'http://example.invalid/backoffice/sync' });
+				return res.end();
+			}
+			if (fake[1] === 'shape') return send(res, 200, { data: 'not an object' });
+			if (fake[1] === 'slow') return void setTimeout(() => send(res, 200, { data: info }), 35_000);
+			return send(res, 404, { error: 'not found' });
+		}
 		if (url.pathname === '/version') return send(res, 200, { version: REGISTRY_VERSION });
 		if (url.pathname === '/extensions') return send(res, 200, listExtensions(list, url.searchParams, accounts));
 

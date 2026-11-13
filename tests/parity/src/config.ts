@@ -118,6 +118,12 @@ export const profilePorts = {
 	bootstrap: { directus: 10755, backoffice: 10756 },
 } as const;
 
+/**
+ * Spec 032: host ports of profile sync, the two target nodes of an environment sync on their own Postgres (no Directus,
+ * so not in profilePorts). global-setup sets BACKOFFICE_URL_SYNC and BACKOFFICE_URL_SYNC_2 when they answer.
+ */
+export const syncPorts = { target: 10856, target2: 10857, db: 6116 } as const;
+
 /** Spec 021: host port of the Postgres of profile bootstrap (databases directus_bootstrap, backoffice_bootstrap...). */
 export const bootstrapDbPort = 6114;
 

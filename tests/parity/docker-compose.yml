@@ -1556,6 +1556,72 @@ services:
       timeout: 5s
       retries: 100
 
+  # Spec 032 (contracts/tests.md §2b): profile sync, Postgres only. Two Backoffice nodes on one database of their own are
+  # the TARGET of an environment sync (the source is backoffice-api of the main pair, http://backoffice-api:8055). They
+  # use the env files of the main pair (same extensions on the shared storage, no MIGRATIONS_PATH of profile bootstrap)
+  # so that both sides report the same migration list; each node bootstraps the database with the image CMD.
+  postgres-sync:
+    profiles: [sync]
+    image: postgis/postgis:13-3.4-alpine
+    environment:
+      POSTGRES_PASSWORD: sync-db-pass-4d1e
+      POSTGRES_DB: backoffice_sync
+    ports:
+      - '6116:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d backoffice_sync']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  backoffice-api-sync: &sync-node
+    <<: *app
+    profiles: [sync]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): one image for every pair
+    volumes:
+      - uploads:/backoffice/uploads
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/${PARITY_EXTENSIONS_ENV:-extensions}.env
+      - ./env/profile-sync.env
+    environment:
+      PUBLIC_URL: http://localhost:10856
+      REDIS: redis://redis:6379/12
+      CACHE_NAMESPACE: parity-sync
+      REDIS_BUS_NAMESPACE: parity-sync:bus
+      REDIS_LOCK_NAMESPACE: parity-sync:lock
+    depends_on:
+      postgres-sync: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+      registry: { condition: service_healthy }
+    ports:
+      - '10856:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  # Second target node on the same database: an apply through node 1 must take effect on node 2 (FR-029), and node 2 is
+  # the "source equals target" case of diff.test.ts (a node calling its own name is denied by IMPORT_IP_DENY_LIST).
+  backoffice-api-sync-2:
+    <<: *sync-node
+    environment:
+      PUBLIC_URL: http://localhost:10856
+      REDIS: redis://redis:6379/12
+      CACHE_NAMESPACE: parity-sync
+      REDIS_BUS_NAMESPACE: parity-sync:bus
+      REDIS_LOCK_NAMESPACE: parity-sync:lock
+    depends_on:
+      backoffice-api-sync: { condition: service_healthy }
+    ports:
+      - '10857:8055'
+
   # Feature 012 (research R10, R13, contracts/e2e.md §3): the Backoffice web app (apps/web) in the three E2E configurations
   # of FR-071. backoffice-web (config.json apiUrl "/") sits behind two reverse proxies: /admin/ goes to it, the rest to
   # Directus (proxy-web-directus) or to the new API (proxy-web-api). backoffice-web-cors calls backoffice-api-web-cors
