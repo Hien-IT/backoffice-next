@@ -19,6 +19,12 @@ const connection = {
 
 export const diffBody = Joi.object(connection).unknown(false);
 
+export const applyBody = Joi.object({
+	...connection,
+	hash: Joi.string().min(1).max(128).required(),
+	selected: Joi.array().items(Joi.string().min(1).max(1024)).min(1).max(100_000).unique().required(),
+}).unknown(false);
+
 @Controller('backoffice/sync')
 export class BackofficeSyncController {
 	constructor(
@@ -56,6 +62,17 @@ export class BackofficeSyncController {
 		if (error) throw new InvalidPayloadError({ reason: error.message });
 
 		res.locals['payload'] = { data: await service.diff(value) };
+		return respond(req, res);
+	}
+
+	@Post('apply')
+	@HttpCode(200)
+	async apply(@Req() req: Request, @Res() res: Response): Promise<void> {
+		const service = this.service(req, res);
+		const { error, value } = applyBody.validate(req.body ?? {});
+		if (error) throw new InvalidPayloadError({ reason: error.message });
+
+		res.locals['payload'] = { data: await service.apply(value) };
 		return respond(req, res);
 	}
 }

@@ -54,8 +54,7 @@ test('Backoffice: GET /backoffice/sync answers the instance info to the admin, 4
 	expect(typeof info.data.backoffice).toBe('string');
 	expect(typeof info.data.vendor).toBe('string');
 
-	// Wave 1 serves the read routes; POST /backoffice/sync/apply joins in wave 2 (tasks.md T032).
-	for (const [method, path] of ROUTES.filter(([, path]) => path !== '/backoffice/sync/apply')) {
+	for (const [method, path] of ROUTES) {
 		expect((await call('backoffice', method, path, USER_TOKEN)).status, `${method} ${path} user`).toBe(403);
 		expect((await call('backoffice', method, path)).status, `${method} ${path} anonymous`).toBe(401);
 	}

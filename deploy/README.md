@@ -198,6 +198,29 @@ Admin cài một extension bằng file `.tgz` do `npm pack` tạo (Settings > Ex
   replica nếu có `EXTENSIONS_LOCATION`), xóa dòng `directus_extensions` có `id` đó và các dòng `bundle = <id>`, rồi khởi
   động lại hoặc chờ lần reload.
 
+### Đồng bộ cấu hình giữa các môi trường (spec 032)
+
+Settings > Đồng bộ môi trường (và `POST /backoffice/sync/diff`, `/apply`) kéo cấu hình của một Backoffice khác vào
+Backoffice đang đứng: data model, flow, role, policy, permission (gồm quyền import/export), settings, bản dịch, preset
+global, dashboard, index, thư mục, trạng thái bật/tắt extension. Chỉ admin; chỉ chiều kéo; không lưu URL, token hay lịch
+sử. Cần biết khi vận hành:
+
+- Hai môi trường phải chạy **cùng phiên bản Backoffice** và cùng danh sách migration (kể cả migration riêng trong
+  `MIGRATIONS_PATH`); lệch thì bị từ chối trước khi đọc dữ liệu.
+- Máy chủ đích gọi tới URL nguồn qua mạng. `IMPORT_IP_DENY_LIST` (mặc định `0.0.0.0,169.254.169.254`) áp cho URL này;
+  mục `0.0.0.0` chặn mọi địa chỉ của chính máy (một Backoffice không kéo được từ chính nó qua `localhost`). Không theo
+  chuyển hướng; mỗi lần gọi chờ tối đa 30 giây và nhận tối đa 100 MB.
+- Token admin của nguồn đi qua trình duyệt và máy chủ đích ở mỗi lượt: dùng một static token riêng cho việc này, đổi khi
+  không cần nữa; dùng URL `https` (http chỉ trong mạng nội bộ tin cậy). Token và URL không vào log, activity hay revision.
+- Flow giữ `status` của nguồn: flow đang bật chạy ngay ở đích. Đặt URL, khóa riêng từng môi trường trong biến môi trường
+  có trong `FLOWS_ENV_ALLOW_LIST` và dùng `{{$env.TEN_BIEN}}` trong flow, để cùng một flow chạy đúng ở mọi nơi.
+- Xóa role làm user của role đó bị đình chỉ và mất role; xóa collection là mất dữ liệu; role và policy có quyền admin ở
+  đích không xóa được qua đồng bộ.
+- Một lượt áp dụng chạy trong một transaction (trên Postgres gồm cả thay đổi cấu trúc bảng); lỗi thì hoàn tác hết. Index
+  được tạo và xóa sau cùng, ngoài phần hoàn tác. Mỗi lúc một lượt trên một môi trường (khóa Redis
+  `backoffice-sync-apply`); lượt thứ hai chờ khoảng 5 giây rồi nhận lỗi.
+- Bảng bị đổi cấu trúc bị khóa tới khi lượt áp dụng commit: nên áp dụng thay đổi data model lớn ngoài giờ cao điểm.
+
 ## Tắt máy an toàn
 
 Khi nhận SIGTERM, BE theo trình tự của 001: `/server/health` chuyển `error`, ngừng nhận kết nối mới, chờ request dở tối

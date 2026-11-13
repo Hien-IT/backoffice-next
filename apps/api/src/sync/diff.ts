@@ -477,18 +477,28 @@ function link(rows: SyncRow[], target: SyncState, groups: readonly GroupKey[], c
 					.flatMap((c) => [c.id, ...closure(String(row(c)['id']))]);
 
 			r.cascade.push(...closure(id));
-			// A child folder kept by the source under another parent must be moved first (FK without ON DELETE).
+			// A child folder kept by the source under another parent must be moved first (FK without ON DELETE): a
+			// dependency on a "changed" row, marked "!" (the others only need rows the target lacks).
 			for (const c of rows) {
-				if (c.kind === 'folder' && c.state === 'changed' && String(c.target?.['parent']) === id) r.depends.push(c.id);
+				if (c.kind === 'folder' && c.state === 'changed' && String(c.target?.['parent']) === id)
+					r.depends.push(`!${c.id}`);
 			}
 		}
 	}
 
-	// Keep the dependencies that still need applying; an unknown one ("?…") or a blocked one blocks the row.
+	// Keep the dependencies that still need applying: a row the target lacks (source_only), or a "!" row that must
+	// change first; an unknown one ("?…") blocks the row. A row that exists at the target (same or changed) is enough.
+	const needed = (d: string) =>
+		d.startsWith('!') ? byId.get(d.slice(1))?.state !== 'same' : byId.get(d)?.state === 'source_only';
+
 	for (const r of rows) {
 		const blocked = r.depends.filter((d) => d.startsWith('?'));
 		r.depends = [
-			...new Set(r.depends.filter((d) => !d.startsWith('?') && byId.has(d) && byId.get(d)!.state !== 'same')),
+			...new Set(
+				r.depends
+					.filter((d) => !d.startsWith('?') && byId.has(d.replace(/^!/, '')) && needed(d))
+					.map((d) => d.replace(/^!/, '')),
+			),
 		];
 		r.cascade = [...new Set(r.cascade)];
 

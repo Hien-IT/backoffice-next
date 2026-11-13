@@ -2,9 +2,11 @@
 // order of a comparison (refused before any config is read).
 import type { SchemaOverview } from '@backoffice/types';
 import { afterEach, describe, expect, test, vi } from 'vitest';
+import { afterCommit, applySchema, assertCallerAdmin, writeRows } from '../sync/apply.js';
 import { fetchInfo, fetchState } from '../sync/source.js';
 import { readState } from '../sync/state.js';
-import { BackofficeSyncService, compareInfo, parseGroups } from './backoffice-sync.service.js';
+import type { SyncRow } from '../sync/types.js';
+import { BackofficeSyncService, compareInfo, parseGroups, validateSelection } from './backoffice-sync.service.js';
 
 vi.mock('../database/index.js', () => ({ default: () => ({}), getDatabaseClient: () => 'postgres' }));
 vi.mock('../database/validate-migrations.js', () => ({
@@ -15,6 +17,21 @@ vi.mock('../sync/source.js', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../sync/source.js')>()),
 	fetchInfo: vi.fn(),
 	fetchState: vi.fn(),
+}));
+const lock = vi.hoisted(() => ({ usingLock: vi.fn(async (_key: string, run: () => Promise<unknown>) => run()) }));
+vi.mock('../lock/index.js', () => ({ useLock: () => lock }));
+vi.mock('../utils/transaction.js', () => ({
+	transaction: async (knex: unknown, run: (trx: unknown) => unknown) => run(knex),
+}));
+vi.mock('../schema/get-database-schema.js', () => ({
+	getSchema: vi.fn(async () => ({ collections: {}, relations: [] })),
+}));
+vi.mock('../logger/index.js', () => ({ useLogger: () => ({ info: vi.fn(), warn: vi.fn(), error: vi.fn() }) }));
+vi.mock('../sync/apply.js', () => ({
+	applySchema: vi.fn(async () => false),
+	writeRows: vi.fn(async () => ({ created: { flows: 1 }, updated: {}, deleted: {}, deletedLabels: [] })),
+	assertCallerAdmin: vi.fn(),
+	afterCommit: vi.fn(async () => ({ indexes: [], warnings: [] })),
 }));
 vi.mock('../sync/state.js', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../sync/state.js')>()),
@@ -87,4 +104,96 @@ test('compare checks the versions before reading any config, then reads both sid
 		rows: [{ id: 'folders/folder:a', state: 'source_only' }],
 	});
 	expect(diff.hash).toMatch(/^[0-9a-f]{40}$/);
+});
+
+const r = (id: string, over: Partial<SyncRow> = {}): SyncRow =>
+	({
+		id,
+		group: 'access',
+		kind: 'policy',
+		key: id,
+		label: id,
+		state: 'source_only',
+		depends: [],
+		cascade: [],
+		selectable: true,
+		...over,
+	}) as SyncRow;
+
+describe('validateSelection', () => {
+	const rows = [
+		r('a'),
+		r('b', { depends: ['a'] }),
+		r('del', { state: 'target_only', cascade: ['child'] }),
+		r('child', { state: 'target_only' }),
+		r('blocked', { selectable: false, reason: 'sync_admin_protected' }),
+		r('same', { state: 'same', selectable: false }),
+	];
+
+	test('returns the ticked rows in comparison order', () => {
+		expect(validateSelection(rows, ['b', 'a']).map((x) => x.id)).toEqual(['a', 'b']);
+	});
+
+	test.each([
+		[['zzz'], 'Unknown row "zzz"'],
+		[['blocked'], 'Row "blocked" cannot be applied: sync_admin_protected'],
+		[['same'], 'Row "same" cannot be applied'],
+		[['b'], 'Row "b" needs "a"'],
+		[['del'], 'Deleting "del" also deletes "child"'],
+	])('%j → %s', (selected, message) => {
+		expect(() => validateSelection(rows, selected)).toThrow(message);
+	});
+});
+
+describe('apply', () => {
+	const request = {
+		url: 'https://source.example',
+		token: 't',
+		groups: ['folders'] as never,
+		hash: 'h',
+		selected: ['folders/folder:a'],
+	};
+
+	test('reads both sides again under the lock and refuses another hash before any write', async () => {
+		vi.mocked(fetchInfo).mockResolvedValue(target);
+		vi.mocked(fetchState).mockResolvedValue({ folders: [{ id: 'a', name: 'A', parent: null }] });
+
+		await expect(service().apply(request)).rejects.toThrow('The comparison is out of date, compare again');
+		expect(lock.usingLock).toHaveBeenCalledWith('backoffice-sync-apply', expect.any(Function));
+		expect(writeRows).not.toHaveBeenCalled();
+	});
+
+	test('writes in one transaction, checks the caller, then runs the after-commit steps', async () => {
+		vi.mocked(fetchInfo).mockResolvedValue(target);
+		vi.mocked(fetchState).mockResolvedValue({ folders: [{ id: 'a', name: 'A', parent: null }] });
+		const { hash } = await service().diff(request);
+
+		const result = await service().apply({ ...request, hash });
+
+		// No data model compared: applyDiff is never reached.
+		expect(applySchema).not.toHaveBeenCalled();
+		expect(vi.mocked(writeRows).mock.calls[0]![0].map((x) => x.id)).toEqual(['folders/folder:a']);
+		expect(assertCallerAdmin).toHaveBeenCalledTimes(1);
+		expect(afterCommit).toHaveBeenCalledWith(new Set(['flows']), [], expect.anything());
+		expect(result).toEqual({
+			created: { flows: 1 },
+			updated: {},
+			deleted: {},
+			deletedLabels: [],
+			indexes: [],
+			warnings: [],
+		});
+	});
+
+	test('a second apply in the same process, or a lock held elsewhere, is a 503', async () => {
+		let release!: () => void;
+		lock.usingLock.mockImplementationOnce(() => new Promise((resolve) => (release = () => resolve({}))));
+		const first = service().apply(request);
+		await expect(service().apply(request)).rejects.toMatchObject({ status: 503 });
+		release();
+		await first;
+
+		lock.usingLock.mockRejectedValueOnce(Object.assign(new Error('quorum'), { name: 'ExecutionError' }));
+		await expect(service().apply(request)).rejects.toThrow('Another sync is being applied');
+	});
 });

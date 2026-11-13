@@ -133,6 +133,21 @@ describe('table groups', () => {
 		expect(find(rows, 'access/link:l1').depends).toEqual(['access/policy:p2']);
 	});
 
+	test('a dependency that exists at the target, even changed, is not needed (only a missing row is)', () => {
+		const source: SyncState = {
+			access: access({
+				policies: [{ id: 'p1', name: 'Renamed', admin_access: false }],
+				permissions: [{ id: 1, policy: 'p1', collection: 'articles', action: 'read' }],
+			}),
+		};
+
+		const target: SyncState = { access: access({ policies: [{ id: 'p1', name: 'Old name', admin_access: false }] }) };
+		const rows = diffStates(source, target, ['access'], ctx);
+
+		expect(find(rows, 'access/policy:p1').state).toBe('changed');
+		expect(find(rows, 'access/permission:p1:articles:read').depends).toEqual([]);
+	});
+
 	test('a permission on a collection the target does not have is blocked when the data model is not compared', () => {
 		const source: SyncState = {
 			access: access({

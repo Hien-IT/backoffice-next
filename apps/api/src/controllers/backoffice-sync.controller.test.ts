@@ -95,6 +95,7 @@ test('401 without a token and 403 for a user who is not admin on every route', a
 		['get', '/backoffice/sync'],
 		['get', '/backoffice/sync/state'],
 		['post', '/backoffice/sync/diff'],
+		['post', '/backoffice/sync/apply'],
 	] as const) {
 		expect((await agent[method](path)).status).toBe(401);
 		expect((await agent[method](path).set('Authorization', user())).status).toBe(403);
@@ -144,4 +145,35 @@ test('POST diff validates the body and answers 200 { data }', async () => {
 	expect(ok.status).toBe(200);
 	expect(ok.body).toEqual({ data: { hash: 'h', rows: [] } });
 	expect(calls.diff).toHaveBeenCalledWith({ url: 'https://s', token: 't', groups: ['flows'] });
+});
+
+test('POST apply validates hash and selected and answers 200 { data }', async () => {
+	calls.apply.mockResolvedValue({ created: {}, warnings: [] });
+	const agent = await start();
+
+	const missing = await agent
+		.post('/backoffice/sync/apply')
+		.set('Authorization', admin())
+		.send({ url: 'https://s', token: 't', groups: ['flows'] });
+	expect(missing.status).toBe(400);
+
+	const empty = await agent
+		.post('/backoffice/sync/apply')
+		.set('Authorization', admin())
+		.send({ url: 'https://s', token: 't', groups: ['flows'], hash: 'h', selected: [] });
+	expect(empty.status).toBe(400);
+
+	const ok = await agent
+		.post('/backoffice/sync/apply')
+		.set('Authorization', admin())
+		.send({ url: 'https://s', token: 't', groups: ['flows'], hash: 'h', selected: ['flows/flow:f1'] });
+	expect(ok.status).toBe(200);
+	expect(ok.body).toEqual({ data: { created: {}, warnings: [] } });
+	expect(calls.apply).toHaveBeenCalledWith({
+		url: 'https://s',
+		token: 't',
+		groups: ['flows'],
+		hash: 'h',
+		selected: ['flows/flow:f1'],
+	});
 });

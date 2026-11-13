@@ -42,14 +42,15 @@ describe.skipIf(!TARGET)('profile sync: diff', () => {
 		expect(rowOf(rows, `flows/flow:${s.targetFlow}`)).toMatchObject({ state: 'target_only', selectable: true });
 		expect(rowOf(rows, `access/policy:${s.policy}`)).toMatchObject({ state: 'changed' });
 		expect(rowOf(rows, `access/policy:${s.policy}`).changes.map((c: any) => c.path)).toContain('name');
+		// The policy exists at the target (changed): only the missing collection is a dependency.
 		expect(rowOf(rows, `access/permission:${s.policy}:${s.collection}:read`)).toMatchObject({
 			state: 'source_only',
-			depends: expect.arrayContaining([`access/policy:${s.policy}`, `schema/collection:${s.collection}`]),
+			depends: [`schema/collection:${s.collection}`],
 		});
 		expect(rowOf(rows, `access/role:${s.role}`)).toMatchObject({ state: 'source_only' });
 		expect(rowOf(rows, `access/link:${s.link}`)).toMatchObject({
 			state: 'source_only',
-			depends: expect.arrayContaining([`access/role:${s.role}`, `access/policy:${s.policy}`]),
+			depends: [`access/role:${s.role}`],
 		});
 		expect(rowOf(rows, `translations/translation:en-US:${s.translationKey}`)).toMatchObject({ state: 'source_only' });
 		expect(rowOf(rows, `presets/preset:${s.collection}:${s.bookmark}`)).toMatchObject({ state: 'source_only' });
