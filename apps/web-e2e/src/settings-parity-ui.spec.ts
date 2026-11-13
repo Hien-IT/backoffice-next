@@ -271,13 +271,17 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 
 	// Below `xl` the navigation is a drawer; chromium-1280 is at `xl`, the sidebar holds the sub-menu (D-157).
 	const bar = await moduleNavigation(page);
-	const nav = await bar.evaluate((root) =>
-		Array.from(root.querySelectorAll('nav[aria-label="Settings"] li > a')).map((row) => {
-			const copy = row.cloneNode(true) as HTMLElement;
-			copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
-			return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
-		}),
-	);
+	const nav = (
+		await bar.evaluate((root) =>
+			Array.from(root.querySelectorAll('nav[aria-label="Settings"] li > a')).map((row) => {
+				const copy = row.cloneNode(true) as HTMLElement;
+				copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
+				return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
+			}),
+		)
+	)
+		// Spec 032 (D-214.1): Environment Sync is a Backoffice-only row of the sub-menu, not in the Directus app.
+		.filter((row) => row !== 'Environment Sync');
 
 	const sections = (await page.locator('#sidebar h3').allTextContents())
 		.map((t) => t.replace(/expand_more|[a-z_]+(?=[A-Z])/g, '').trim())

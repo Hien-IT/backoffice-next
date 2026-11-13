@@ -107,8 +107,9 @@ test('no Environment Sync entry and a not-found page when the API is Directus (p
 	await page.goto('/admin/login');
 	await login(page, ADMIN);
 	await page.goto('/admin/settings/data-model');
-	await expect(page.getByRole('link', { name: 'Flows', exact: true }).first()).toBeVisible();
-	await expect(page.getByRole('link', { name: 'Environment Sync' })).toHaveCount(0);
+	await expect(page.getByRole('heading', { level: 1, name: 'Data Model' })).toBeVisible();
+	// Below `xl` the sub-menu is in the closed drawer; the row must not exist at any width.
+	await expect(page.locator('a[href$="/settings/sync"]')).toHaveCount(0);
 
 	await page.goto('/admin/settings/sync');
 	await expect(page.getByLabel('Static admin token of the source')).toHaveCount(0);

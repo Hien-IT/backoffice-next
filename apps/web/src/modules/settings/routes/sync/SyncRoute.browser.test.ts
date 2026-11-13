@@ -111,12 +111,17 @@ test('connect form and a group table: no serious axe violation; Space ticks a ro
 });
 
 test('row detail and confirm dialog: no serious axe violation', async () => {
-	mount(SyncRowDetail, { props: { open: true, row: ROWS[1]! }, global: { plugins: [i18n] }, attachTo: document.body });
+	const detailWrapper = mount(SyncRowDetail, {
+		props: { open: true, row: ROWS[1]! },
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
 	await flushPromises();
 	const detail = document.body.querySelector('[role="dialog"]')!;
 	expect(detail.textContent).toContain('Old');
 	expect(await violations(detail)).toEqual([]);
-	document.body.innerHTML = '';
+	detailWrapper.unmount();
+	await flushPromises();
 
 	mount(SyncConfirmDialog, {
 		props: { open: true, rows: ROWS.slice(0, 3) },
