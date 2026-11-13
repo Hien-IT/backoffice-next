@@ -106,6 +106,7 @@ test('no Environment Sync entry and a not-found page when the API is Directus (p
 	await resetLastPage(api);
 	await page.goto('/admin/login');
 	await login(page, ADMIN);
+	await expect(page).toHaveURL(CONTENT_URL);
 	await page.goto('/admin/settings/data-model');
 	await expect(page.getByRole('heading', { level: 1, name: 'Data Model' })).toBeVisible();
 	// Below `xl` the sub-menu is in the closed drawer; the row must not exist at any width.
