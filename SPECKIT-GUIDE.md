@@ -2903,8 +2903,41 @@ Ghi chú đưa vào spec và plan 031 (đọc code ngày 2026-11-04, chưa chạ
 
 Trạng thái: soạn 2026-11-14 từ câu hỏi của chủ dự án ("backoffice có nhiều môi trường stg, uat, prod, muốn đồng bộ
 setting, flow, collection giữa các môi trường"; "có UI nhập URL và token của môi trường khác, có UI chọn những gì cần
-đồng bộ"); chưa chạy lệnh Spec Kit nào, chưa có code. 12 điểm đã chốt 2026-11-14 (bảng dưới); 5 mặc định chưa được
-duyệt rõ và 5 câu còn mở đi vào `/speckit.specify` và `/speckit.clarify`.
+đồng bộ"); `/speckit.specify` chạy 2026-11-14 (spec.md: US1–US6, FR-001..FR-040 + FR-101, SC-001..SC-008, D-214 và
+D-214.1 chờ duyệt, Q-49 mở cho bố cục màn hình so sánh, checklists/requirements.md đạt, không marker clarify; thư mục
+tạo tay, không chạy `create-new-feature.sh`; 5 mặc định "(chờ duyệt)" ở FR-001, FR-024, FR-026, FR-027, FR-028; 5 câu
+chờ `/speckit.clarify` ghi ở Assumptions của spec); `/speckit.clarify` chạy 2026-11-14 (5 câu, cả 5 theo đề xuất: so
+khớp theo id và role, policy admin ở đích không tick xóa được; field settings trỏ tới file không có ở đích thì không
+tick được, không đặt null; field mã hóa hoặc che không so, không ghi, `mapbox_key` so như field khác; khóa tự nhiên cho
+permission, preset, translation, extension, index; không chặn theo vendor, chỉ đo Postgres; D-214, D-214.1 không đổi);
+`/speckit.plan` chạy 2026-11-14 (research R1–R14 đọc code, ba lượt đọc bằng agent, chưa chạy thử: nguồn phục vụ hai GET
+chỉ đọc `/backoffice/sync` và `/backoffice/sync/state`, đích chạy cùng hàm `readState()` nên không đọc qua các endpoint
+REST có sẵn như prompt plan ghi; `applyDiff` nhận transaction ngoài nên trên Postgres cấu trúc và dòng chung một
+transaction; cache, reload flow, reload extension chạy trước commit trong các service nên phải chạy lại sau commit; flow
+ghi bằng `ItemsService` trực tiếp; index tạo và xóa sau commit; khóa Redis `backoffice-sync-apply` cộng cờ trong
+process; profile parity `sync` với hai node đích trên DB `backoffice_sync`, route test ba vendor; 10 sửa câu chữ spec:
+D-214 thêm "đọc trạng thái", FR-024 người tạo do đích tự ghi, FR-025, FR-021 hệ quả xóa role/policy/folder, FR-007,
+FR-034, FR-026, 3 edge case; data-model không bảng mới, contracts api/web/tests, quickstart; `CLAUDE.md` thêm một dòng
+Active Technologies); chưa có code. 12 điểm đã chốt 2026-11-14 (bảng dưới). Chủ dự án duyệt 2026-11-14 sau plan ("duyệt
+như đề xuất"): D-214, D-214.1, Q-49 theo bố cục đề xuất ở contracts/web.md, 5 mặc định, 3 điểm Complexity Tracking của
+plan và 10 sửa câu chữ spec. `/speckit.checklist` chạy 2026-11-14 (api-compat 12, security 14, data-safety 14 mục,
+CHK001–CHK040; 19 phát hiện sửa cùng lượt vào spec, data-model, contracts: lớn nhất là xóa kèm (xóa collection xóa luôn
+permission, preset, index của nó; xóa policy xóa permission; xóa role xóa liên kết, preset) mâu thuẫn với "dòng không
+tick không đổi" → trường `cascade` tick xóa kèm và liệt kê trong hộp xác nhận, máy chủ kiểm lại; so hash phải làm sau
+khi giữ khóa; FR-004 thêm 30 giây, 100 MB, URL có mật khẩu, `IMPORT_IP_DENY_LIST` sau phân giải tên, không theo mọi
+chuyển hướng, lỗi không chép trả lời của nguồn; FR-003 URL và token chỉ trong thân request; mô hình tin cậy ở
+Assumptions; FR-037 chỉ REST; FR-029 Directus dùng chung Redis; operation và panel theo flow, dashboard; lỗi ở bước sau
+commit; ba edge case); chủ dự án xem lại cùng ngày: bốn sửa có lựa chọn theo đề xuất (xóa kèm tự tick và khóa, không
+theo mọi chuyển hướng, hằng số 30 giây/100 MB, lỗi sau commit trả 200 kèm cảnh báo), mười lăm sửa còn lại không phản
+đối. `/speckit.tasks` chạy 2026-11-14 (69 task, ba lượt: lượt 1 API chỉ đọc T001–T027 (Setup gồm T001 kiểm các mục
+[Reported] và [Unverified] của research, profile parity `sync`, route giả ở `registry`), lượt 2 API áp dụng T028–T043,
+lượt 3 web T044–T069; 35 task [P]; MVP = Phase 1–4: so sánh không ghi, mọi đường từ chối, Directus 404);
+`/speckit.analyze` chạy 2026-11-14 (0 CRITICAL, 2 HIGH, 4 MEDIUM, 5 LOW; 41/41 FR có task, 2 một phần; chủ dự án "sửa
+tất cả", sửa cùng ngày: E1 node đích của profile `sync` dựng từ anchor `x-app` của cặp chính (profile `bootstrap` đặt
+`MIGRATIONS_PATH` riêng và không có `extensions.env`, nên danh sách migration có thể lệch và FR-005 sẽ từ chối mọi
+lượt), C1 thêm T040a `directus-cross.test.ts` (Directus cùng DB đọc, sửa dòng do đồng bộ ghi, cache xóa), I1 FR-026
+chờ khóa rồi lỗi hoặc chạy và bị kiểm so sánh cũ, E2/E3/U1 thêm ca test và ghi ngưỡng coverage có sẵn của target
+`test`, năm LOW; 70 task). Bước kế: commit tài liệu (`docs(032): ...`), rồi `/speckit.implement` lượt 1.
 Thư mục: `specs/032-environment-sync/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng mới, không cột mới, không migration (tính năng không lưu gì), khác biệt API
 và giao diện ghi theo Nguyên tắc X từ D-214 (D-213 đã dùng 2026-11-12). Dự kiến không dependency mới (gọi nguồn bằng
@@ -2963,8 +2996,8 @@ Q-48).
    khác nhau, so khớp theo id sẽ coi chúng là hai dòng khác nhau.
 2. Field settings trỏ tới file (`project_logo`, `public_foreground`, `public_background`, `public_favicon`,
    `libs/system-data/src/fields/settings.yaml:631`–`:647`) khi file không có ở đích: đặt null sẽ xóa logo của đích.
-3. Field settings chứa khóa (`mapbox_key`, `ai_*_api_key`, cùng file dòng 494, 762–907): API có thể trả giá trị đã
-   che; so và ghi giá trị che là sai.
+3. Field settings có giá trị mã hóa hoặc che: `ai_openai_api_key` có special `encrypt` (cùng file dòng 762; các
+   `ai_*_api_key` khác chưa đọc); so và ghi giá trị đó là sai. `mapbox_key` (dòng 494) là chuỗi thường.
 4. Khóa so khớp cho dòng không có uuid chung: `directus_permissions`, `directus_presets`, `directus_settings` có khóa
    tự tăng (seed `08-permissions.yaml`, `09-presets.yaml`, `13-settings.yaml`).
 5. Vendor khác Postgres: cho chạy mà không đo, hay chặn?
@@ -2978,7 +3011,7 @@ Q-48).
 **2. `/speckit.clarify`**
 
 ```text
-/speckit.clarify Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Bỏ qua được: 12 điểm đã chốt 2026-11-14 (chỉ pull, không lưu gì, static token, 10 nhóm, một màn hình so sánh và chọn, tick xóa, flow giữ status, lệch phiên bản từ chối, hoàn tác phần dòng, so sánh cũ bị từ chối, phụ thuộc, Postgres). Hỏi nếu spec chưa rõ: 1. Các môi trường được dựng từ cùng một bản DB (id role và policy Administrator giống nhau) hay bootstrap riêng (id khác nhau): đề xuất so khớp theo id; role và policy có admin_access không được tick xóa, chỉ hiện để biết. 2. Field settings trỏ tới file (project_logo, public_foreground, public_background, public_favicon) khi file không có ở đích: đề xuất không cho tick và nêu lý do, không đặt null (đặt null sẽ xóa logo của đích); storage_default_folder và public_registration_role chỉ tick được khi folder hoặc role đó có ở đích hoặc được tick kèm. 3. Field settings chứa khóa (mapbox_key, ai_*_api_key): đề xuất không so và không ghi. 4. Khóa so khớp cho dòng không có uuid chung: đề xuất permission theo (policy, collection, action), preset global theo (collection, bookmark), translation theo (language, key), extension theo tên gói (và tên entry trong bundle), index theo name; các bảng còn lại theo id. 5. Vendor khác Postgres: đề xuất không thêm chặn theo vendor ngoài kiểm tra có sẵn của snapshot (khác vendor thì nhóm Data model bị từ chối), chỉ đo trên Postgres và ghi "chưa đo" cho vendor khác. Ghi "Clarifications" vào spec; D-214.x cập nhật theo câu trả lời.
+/speckit.clarify Đặt SPECIFY_FEATURE=032-environment-sync khi chạy script .specify. Bỏ qua được: 12 điểm đã chốt 2026-11-14 (chỉ pull, không lưu gì, static token, 10 nhóm, một màn hình so sánh và chọn, tick xóa, flow giữ status, lệch phiên bản từ chối, hoàn tác phần dòng, so sánh cũ bị từ chối, phụ thuộc, Postgres). Hỏi nếu spec chưa rõ: 1. Các môi trường được dựng từ cùng một bản DB (id role và policy Administrator giống nhau) hay bootstrap riêng (id khác nhau): đề xuất so khớp theo id; role và policy có admin_access không được tick xóa, chỉ hiện để biết. 2. Field settings trỏ tới file (project_logo, public_foreground, public_background, public_favicon) khi file không có ở đích: đề xuất không cho tick và nêu lý do, không đặt null (đặt null sẽ xóa logo của đích); storage_default_folder và public_registration_role chỉ tick được khi folder hoặc role đó có ở đích hoặc được tick kèm. 3. Field settings có giá trị mã hóa hoặc che (ai_*_api_key có special encrypt): đề xuất không so và không ghi; mapbox_key là chuỗi thường, so như field khác. 4. Khóa so khớp cho dòng không có uuid chung: đề xuất permission theo (policy, collection, action), preset global theo (collection, bookmark), translation theo (language, key), extension theo tên gói (và tên entry trong bundle), index theo name; các bảng còn lại theo id. 5. Vendor khác Postgres: đề xuất không thêm chặn theo vendor ngoài kiểm tra có sẵn của snapshot (khác vendor thì nhóm Data model bị từ chối), chỉ đo trên Postgres và ghi "chưa đo" cho vendor khác. Ghi "Clarifications" vào spec; D-214.x cập nhật theo câu trả lời.
 ```
 
 **3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-214+ và câu hỏi design-system)
