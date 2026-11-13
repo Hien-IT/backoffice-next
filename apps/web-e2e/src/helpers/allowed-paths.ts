@@ -191,6 +191,11 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	// Spec 031 (specs/031-extension-upload/contracts/web.md, D-212): the Upload extension button and dialog.
 	{ id: 232, method: 'GET', path: /^\/backoffice\/extensions\/upload$/ },
 	{ id: 233, method: 'POST', path: /^\/backoffice\/extensions\/upload$/ },
+	// Spec 032 (specs/032-environment-sync/contracts/web.md, D-214): the probe of the Settings entry, the comparison and
+	// the apply of Environment Sync.
+	{ id: 234, method: 'GET', path: /^\/backoffice\/sync$/ },
+	{ id: 235, method: 'POST', path: /^\/backoffice\/sync\/diff$/ },
+	{ id: 236, method: 'POST', path: /^\/backoffice\/sync\/apply$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

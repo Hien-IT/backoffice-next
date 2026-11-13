@@ -279,6 +279,10 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	// Spec 031 (D-212): the upload size limit (the probe of the Upload button) and the upload of a package.
 	{ id: 232, method: 'GET', path: /^\/backoffice\/extensions\/upload$/ },
 	{ id: 233, method: 'POST', path: /^\/backoffice\/extensions\/upload$/ },
+	// Spec 032 (D-214): environment sync (the probe of the Settings entry, the comparison and the apply).
+	{ id: 234, method: 'GET', path: /^\/backoffice\/sync$/ },
+	{ id: 235, method: 'POST', path: /^\/backoffice\/sync\/diff$/ },
+	{ id: 236, method: 'POST', path: /^\/backoffice\/sync\/apply$/ },
 ];
 
 /**

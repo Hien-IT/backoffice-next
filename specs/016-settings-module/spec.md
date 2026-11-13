@@ -129,7 +129,8 @@ rồi mở `/admin/content/bo_articles` trên Directus app (8155) và tạo mộ
 1. **Given** admin, **When** mở `/settings`, **Then** chuyển tới `/settings/data-model`; sub-menu của module Settings
    trong sidebar là ba nhóm có vạch chia như `navigation.vue` trừ mục ngoài phạm vi: (Data Model `database`, Flows
    `bolt` → khung 012 tới 017), (Roles `group`, Access Policies `admin_panel_settings`), (Project `tune`, Appearance
-   `palette`, Bookmarks/Presets `bookmark`, Translations `translate`); không có nhóm Report Bug, Request Feature (D-94),
+   `palette`, Bookmarks/Presets `bookmark`, Translations `translate`) (032: nhóm đầu thêm mục "Đồng bộ môi trường"
+   `sync_alt` sau Flows, chỉ khi API là Backoffice; spec 032 D-214.1); không có nhóm Report Bug, Request Feature (D-94),
    không có dòng phiên bản ở cuối (D-95); người không `admin_access` không thấy module (như
    `preRegisterCheck` 012) và route trả màn không có quyền của 012.
 2. **Given** `/settings/data-model` với bộ mẫu, **When** mở, **Then** page header tiêu đề `settings_data_model`, icon

@@ -192,7 +192,7 @@ Mỗi lượt kết thúc bằng task "đóng lượt": lint, typecheck, test, b
       coverage 80 % qua `vitest.shared.ts:26-32`, analyze U1), `api:build`; parity
       `sync/route.test.ts` trên Postgres và SQLite, `sync/{diff,refuse,no-trace}.test.ts` trên profile `sync`,
       `accepted-differences.test.ts`; sửa tới xanh.
-- [ ] T027 Đóng lượt 1: `git add` theo đường dẫn (`apps/api`, `tests/parity`, `.github/workflows/ci.yml`,
+- [x] T027 Đóng lượt 1: `git add` theo đường dẫn (`apps/api`, `tests/parity`, `.github/workflows/ci.yml`,
       `specs/032-environment-sync`), commit `feat(api): compare config with another Backoffice environment (spec 032,
       D-214)` kết thúc bằng `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; push khi `main` rảnh; theo dõi CI
       (quality, guard-differences, parity Postgres/SQLite/MySQL, blackbox, deploy), sửa job đỏ; `graphify update .`; ghi
@@ -209,7 +209,7 @@ việc sau commit chạy một lần; index chạy sau commit.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T028 [P] [US2] `sync/apply.test.ts` phần dòng: khóa được giữ trước khi đọc lại hai bên và so hash (một thay đổi ở
+- [x] T028 [P] [US2] `sync/apply.test.ts` phần dòng: khóa được giữ trước khi đọc lại hai bên và so hash (một thay đổi ở
       đích giữa diff và lúc lấy khóa vẫn bị bắt; analyze E2); thứ tự tạo của data-model; flow mới với FK vòng (flow
       `operation: null` → operations `resolve/reject` null → cập nhật `resolve/reject` → cập nhật `flow.operation`); sửa
       flow thêm, sửa, xóa operation (dashboard, panel cũng vậy); flow giữ `status` của nguồn (FR-019); dòng khớp theo id
@@ -217,9 +217,9 @@ việc sau commit chạy một lần; index chạy sau commit.
       (FR-024); settings được tạo khi đích chưa có dòng; extension chỉ đổi `enabled`; dòng không chọn không bị gọi ghi; việc
       sau commit gọi đúng một lần và chỉ cho nhóm có ghi; lỗi ở việc sau commit → kết quả có `warnings`, không ném; index
       tạo và xóa sau commit, lỗi index vào `indexes[].error`, không hoàn tác.
-- [ ] T029 [P] [US2] `api/controllers/backoffice-sync.controller.test.ts` thêm: `POST /backoffice/sync/apply` body sai →
+- [x] T029 [P] [US2] `api/controllers/backoffice-sync.controller.test.ts` thêm: `POST /backoffice/sync/apply` body sai →
       400; 200 `{ data: SyncResult }`.
-- [ ] T030 [US2] `parity/sync/apply.test.ts` phần 1 (profile `sync`): tick flow (webhook), policy + permission + quyền
+- [x] T030 [US2] `parity/sync/apply.test.ts` phần 1 (profile `sync`): tick flow (webhook), policy + permission + quyền
       import, field settings, translation, preset global, dashboard + panel, folder, bật/tắt một extension có ở cả hai
       bên → áp dụng → ở đích đúng như nguồn; trigger webhook của flow chạy ở **cả hai node** đích (FR-029); activity và
       revision mang user admin của đích (FR-028); dump các dòng không tick trước và sau không đổi (SC-002); tick một index
@@ -227,14 +227,14 @@ việc sau commit chạy một lần; index chạy sau commit.
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] `sync/apply.ts` `applyRows(trx, rows, ctx)`: ghi theo nhóm qua service với `{ knex: trx, accountability,
+- [x] T031 [US2] `sync/apply.ts` `applyRows(trx, rows, ctx)`: ghi theo nhóm qua service với `{ knex: trx, accountability,
       schema }`: `RolesService`, `PoliciesService`, `AccessService`, `PermissionsService`, `BackofficePermissionsService`,
       `SettingsService` (tạo nếu chưa có), `TranslationsService`, `PresetsService`, `DashboardsService`, `PanelsService`,
       `FoldersService`, `ExtensionsService` (`enabled`); flow và operation bằng `ItemsService` trên `directus_flows`,
       `directus_operations` (Complexity Tracking, R5). `afterCommit(written)`: `clearSystemCache()`, `clearCache()` của
       permissions, `getFlowManager().reload()`, reload và broadcast của extension manager, rồi index qua
       `BackofficeIndexesService.create/remove` từng cái; mỗi bước `try/catch` → `warnings`.
-- [ ] T032 [US2] `api/services/backoffice-sync.service.ts` `apply({ url, token, hash, groups, selected })` theo trình tự của
+- [x] T032 [US2] `api/services/backoffice-sync.service.ts` `apply({ url, token, hash, groups, selected })` theo trình tự của
       contracts/api.md: kiểm body, `fetchInfo` và `compareInfo`, **giữ khóa** `useLock().usingLock('backoffice-sync-apply')`
       cộng cờ trong process (503 ngay khi cùng process; gia hạn theo T001b), đọc lại hai bên, `diffStates`, so `hash`,
       kiểm `selected` (tồn tại, `selectable`, `depends`, `cascade`), transaction, commit, nhả khóa, `afterCommit`; một dòng
@@ -250,17 +250,17 @@ việc sau commit chạy một lần; index chạy sau commit.
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T033 [P] [US3] `sync/apply.test.ts` phần schema: lọc `SnapshotDiff` theo dòng chọn (collection, field, relation);
+- [x] T033 [P] [US3] `sync/apply.test.ts` phần schema: lọc `SnapshotDiff` theo dòng chọn (collection, field, relation);
       collection `source_only` mang field mới của nó; `applyDiff` nhận `database: trx`; schema đọc lại bằng
       `getSchema({ database: trx, bypassCache: true })` trước khi ghi dòng; field mà collection chưa có ở đích và không
       được chọn → 400 trước khi ghi.
-- [ ] T034 [US3] `parity/sync/apply.test.ts` phần 2: tick collection `parity_sync_a` (3 field, 1 relation tới collection có
+- [x] T034 [US3] `parity/sync/apply.test.ts` phần 2: tick collection `parity_sync_a` (3 field, 1 relation tới collection có
       ở hai bên) → tạo item ở **cả hai node** đích; tick riêng một field mới của collection có ở hai bên → chỉ field đó thêm;
       ba cột `bo_show_*` của collection đi theo (xác nhận R3).
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] `sync/apply.ts` `applySchema(trx, rows, snapshots)`: lọc diff, `applyDiff(current, diff, { database:
+- [x] T035 [US3] `sync/apply.ts` `applySchema(trx, rows, snapshots)`: lọc diff, `applyDiff(current, diff, { database:
       trx })`, đọc lại schema; chạy T033–T034 xanh.
 
 **Checkpoint**: parity `apply.test.ts` phần 1–2 xanh.
@@ -274,17 +274,17 @@ không xóa được; người gọi không tự khóa mình.
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T036 [P] [US4] `sync/apply.test.ts` phần xóa: thứ tự xóa của data-model (con trước, operations sau khi đặt
+- [x] T036 [P] [US4] `sync/apply.test.ts` phần xóa: thứ tự xóa của data-model (con trước, operations sau khi đặt
       `resolve/reject` null); `selected` thiếu một dòng trong `cascade` → 400; dòng `selectable: false` → 400; người gọi mất
       quyền admin sau khi ghi → 400 "remove your own admin access" và rollback; folder có folder con `changed` không tick →
       400.
-- [ ] T037 [US4] `parity/sync/apply.test.ts` phần 3: tick xóa một flow và một collection có dữ liệu của đích → biến mất
+- [x] T037 [US4] `parity/sync/apply.test.ts` phần 3: tick xóa một flow và một collection có dữ liệu của đích → biến mất
       cùng permission và preset của collection; dòng `target_only` khác không đổi; policy admin của đích không có trong dòng
       tick được; tick một thay đổi làm admin đích mất quyền → 400, không đổi.
 
 ### Implementation for User Story 4
 
-- [ ] T038 [US4] `sync/apply.ts`: `deleteRows(trx, rows, ctx)` theo chiều ngược (qua cùng các service; xóa role qua
+- [x] T038 [US4] `sync/apply.ts`: `deleteRows(trx, rows, ctx)` theo chiều ngược (qua cùng các service; xóa role qua
       `RolesService` để user bị đình chỉ như sửa tay); `assertCallerAdmin(trx, accountability)` bằng hàm của T001d trước
       commit; chạy T036–T037 xanh.
 
@@ -296,14 +296,14 @@ không xóa được; người gọi không tự khóa mình.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T039 [P] [US5] `parity/sync/refuse.test.ts` phần ghi: sửa một flow ở nguồn sau diff rồi apply → 400 "out of date",
+- [x] T039 [P] [US5] `parity/sync/refuse.test.ts` phần ghi: sửa một flow ở nguồn sau diff rồi apply → 400 "out of date",
       đích không đổi; sửa ở đích sau diff → 400 như vậy; hai lượt apply cùng lúc vào **cùng một node** → một 200, một 503
       ngay (cờ trong process); vào **hai node** → một 200, lượt kia 503 hoặc 400 "out of date", không ghi gì (FR-026,
       analyze I1); thu hồi token nguồn giữa diff và apply → 400, đích không đổi (analyze E3); `selected` thiếu phụ
       thuộc → 400, không ghi; một dòng lỗi khi ghi sau khi đã tạo collection → collection không còn ở đích (SC-004).
-- [ ] T040 [P] [US5] `parity/sync/no-trace.test.ts` phần ghi: sau các lượt apply, token và host nguồn không có trong log,
+- [x] T040 [P] [US5] `parity/sync/no-trace.test.ts` phần ghi: sau các lượt apply, token và host nguồn không có trong log,
       activity, revision của đích.
-- [ ] T040a [P] [US6] (thêm khi analyze 2026-11-14, C1) `parity/sync/directus-cross.test.ts` (profile `sync`): nguồn là
+- [x] T040a [P] [US6] (thêm khi analyze 2026-11-14, C1) `parity/sync/directus-cross.test.ts` (profile `sync`): nguồn là
       `backoffice-api-sync` (seed một flow và một collection bằng `ADMIN_TOKEN` của `env/profile-sync.env`), đích là
       `backoffice-api` của cặp chính (chung DB và Redis với `directus`, response cache bật), URL nguồn
       `http://backoffice-api-sync:8055`; áp dụng → tại `directus`: `GET /flows/:id` và `GET /collections/<c>` 200, tạo
@@ -313,14 +313,14 @@ không xóa được; người gọi không tự khóa mình.
 
 ### Implementation
 
-- [ ] T041 [P] `deploy/README.md` mục "Đồng bộ cấu hình giữa các môi trường (spec 032)" theo FR-040 và quickstart: cùng
+- [x] T041 [P] `deploy/README.md` mục "Đồng bộ cấu hình giữa các môi trường (spec 032)" theo FR-040 và quickstart: cùng
       phiên bản, mạng giữa môi trường, `IMPORT_IP_DENY_LIST`, token riêng và đổi sau khi dùng, khuyên https, flow giữ
       `status`, `{{$env.X}}` với `FLOWS_ENV_ALLOW_LIST`, xóa role đình chỉ user, khóa áp dụng.
-- [ ] T042 Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`; chặn ngưỡng coverage 80 %),
+- [x] T042 Chạy `pnpm nx run api:lint`, `api:typecheck`, `api:test` (`--maxWorkers=1`; chặn ngưỡng coverage 80 %),
       `api:build`; parity
       `sync/**` (gồm `directus-cross.test.ts`) trên profile `sync` và `sync/route.test.ts` trên Postgres, SQLite; sửa tới
       xanh.
-- [ ] T043 Đóng lượt 2: `git add` theo đường dẫn (`apps/api`, `tests/parity`, `deploy/README.md`,
+- [x] T043 Đóng lượt 2: `git add` theo đường dẫn (`apps/api`, `tests/parity`, `deploy/README.md`,
       `specs/032-environment-sync`), commit `feat(api): apply config pulled from another Backoffice environment (spec 032,
       D-214)` kết thúc bằng `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; push khi `main` rảnh; theo dõi CI,
       sửa job đỏ; `graphify update .`; ghi mã commit và run CI vào spec Status.
@@ -336,31 +336,31 @@ chi tiết dòng.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T044 [P] [US1] `web/composables/use-environment-sync.test.ts` (mẫu `use-extension-upload.test.ts`): 200 →
+- [x] T044 [P] [US1] `web/composables/use-environment-sync.test.ts` (mẫu `use-extension-upload.test.ts`): 200 →
       `available`; 404, lỗi mạng → không; một probe cho mỗi URL API; `_resetEnvironmentSync()` cho test.
-- [ ] T045 [P] [US1] `web/modules/settings/components/SettingsNavigation.test.ts` thêm: link `/settings/sync` ở cuối nhóm 1
+- [x] T045 [P] [US1] `web/modules/settings/components/SettingsNavigation.test.ts` thêm: link `/settings/sync` ở cuối nhóm 1
       khi `available`, không có khi không.
-- [ ] T046 [P] [US1] `ss/use-sync.test.ts` phần so sánh: chuyển `phase` (`idle` → `comparing` → `compared`, lỗi về
+- [x] T046 [P] [US1] `ss/use-sync.test.ts` phần so sánh: chuyển `phase` (`idle` → `comparing` → `compared`, lỗi về
       `idle`); gửi `url`, `token`, `groups` trong body; `url` và `token` bị xóa khi unmount; không ghi `localStorage`,
       `sessionStorage`; lọc theo trạng thái.
-- [ ] T047 [P] [US1] `ss/SyncRoute.test.ts`: các `phase`; lỗi API hiện chuỗi dịch từ `reason`; lệch phiên bản hiện hai
+- [x] T047 [P] [US1] `ss/SyncRoute.test.ts`: các `phase`; lỗi API hiện chuỗi dịch từ `reason`; lệch phiên bản hiện hai
       phiên bản; nhóm thu gọn và mở; mở chi tiết dòng; ô token có `type="password"`, `autocomplete="off"` và không hiện
       lại giá trị sau khi gửi (FR-034, analyze E4); `web/test-utils/fetch.ts` KNOWN_REQUESTS thêm bốn route.
 
 ### Implementation for User Story 1
 
-- [ ] T048 [P] [US1] `web/composables/use-environment-sync.ts` (mới): probe `GET /backoffice/sync` theo contracts/web.md.
-- [ ] T049 [P] [US1] `web/lang/overlay/en-US.ts`, `vi-VN.ts`: khối `// Spec 032 (D-214)` với các key của contracts/web.md
+- [x] T048 [P] [US1] `web/composables/use-environment-sync.ts` (mới): probe `GET /backoffice/sync` theo contracts/web.md.
+- [x] T049 [P] [US1] `web/lang/overlay/en-US.ts`, `vi-VN.ts`: khối `// Spec 032 (D-214)` với các key của contracts/web.md
       ("Environment Sync" / "Đồng bộ môi trường").
-- [ ] T050 [US1] `web/modules/settings.ts`: route `settings-sync` (`/settings/sync`) trước `settings-not-found`;
+- [x] T050 [US1] `web/modules/settings.ts`: route `settings-sync` (`/settings/sync`) trước `settings-not-found`;
       `SettingsNavigation.vue`: link `{ icon: 'sync_alt', name: t('settings_sync'), to: '/settings/sync' }` cuối nhóm 1
       khi `available`.
-- [ ] T051 [US1] `ss/use-sync.ts` (mới): trạng thái trong `ref` của trang, gọi `diff` bằng `requestEndpoint`, lọc.
-- [ ] T052 [US1] `ss/components/SyncConnectForm.vue` (BoInput `type="url"`, BoInput `type="password"`
+- [x] T051 [US1] `ss/use-sync.ts` (mới): trạng thái trong `ref` của trang, gọi `diff` bằng `requestEndpoint`, lọc.
+- [x] T052 [US1] `ss/components/SyncConnectForm.vue` (BoInput `type="url"`, BoInput `type="password"`
       `autocomplete="off"`, danh sách BoCheckbox nhóm, BoButton So sánh, BoNotice lỗi), `SyncGroup.vue` (BoDetail chứa
       BoTable `showSelect: 'none'`, cột tick tự vẽ qua slot, chip trạng thái có chữ, cột lý do), `SyncRowDetail.vue`
       (BoDialog bảng Field, Nguồn, Đích; JSON trong `<pre>`).
-- [ ] T053 [US1] `ss/SyncRoute.vue` (mới): PrivateView với `#navigation` SettingsNavigation, BoTabs lọc trạng thái có số
+- [x] T053 [US1] `ss/SyncRoute.vue` (mới): PrivateView với `#navigation` SettingsNavigation, BoTabs lọc trạng thái có số
       dòng, danh sách SyncGroup; chạy T044–T047 xanh.
 
 **Checkpoint**: unit web xanh; mục menu hiện ở `proxy-api` local, ẩn ở `proxy-directus`.
@@ -371,53 +371,53 @@ chi tiết dòng.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T054 [P] [US2] `ss/use-sync.test.ts` phần chọn: tick dòng tick kèm `depends` chưa `same`; bỏ tick bỏ dòng phụ thuộc;
+- [x] T054 [P] [US2] `ss/use-sync.test.ts` phần chọn: tick dòng tick kèm `depends` chưa `same`; bỏ tick bỏ dòng phụ thuộc;
       ô nhóm chỉ chọn dòng `changed` và `source_only` tick được, `indeterminate` khi chọn một phần, không chọn dòng
       `target_only`; dòng `selectable: false` không chọn được; tick xóa tự tick và khóa dòng trong `cascade`.
-- [ ] T055 [P] [US4] `ss/SyncRoute.test.ts` thêm hộp xác nhận: số tạo, sửa, xóa theo nhóm; tên dòng xóa và dòng xóa kèm;
+- [x] T055 [P] [US4] `ss/SyncRoute.test.ts` thêm hộp xác nhận: số tạo, sửa, xóa theo nhóm; tên dòng xóa và dòng xóa kèm;
       `impact` (item, user bị đình chỉ, permission, file); flow sẽ bật; câu không hoàn tác; nút danger khi có xóa; hủy không
       gửi; lỗi "out of date" có nút So sánh lại; kết quả có `warnings` hiện BoNotice warning.
-- [ ] T056 [US1] `ss/SyncRoute.browser.test.ts` (project `browser`, axe): không vi phạm serious ở `idle`, `compared`, hộp
+- [x] T056 [US1] `ss/SyncRoute.browser.test.ts` (project `browser`, axe): không vi phạm serious ở `idle`, `compared`, hộp
       xác nhận mở, `done`; bàn phím: tick dòng, tick nhóm, mở chi tiết, áp dụng, focus trở về nút đã mở hộp thoại.
 
 ### Implementation
 
-- [ ] T057 [US2] `ss/use-sync.ts` + `ss/components/SyncGroup.vue`: logic chọn theo T054; nút "Áp dụng (n)" ở slot
+- [x] T057 [US2] `ss/use-sync.ts` + `ss/components/SyncGroup.vue`: logic chọn theo T054; nút "Áp dụng (n)" ở slot
       `#actions` của `SyncRoute.vue`.
-- [ ] T058 [US4] `ss/components/SyncConfirmDialog.vue` (mới) theo contracts/web.md; gửi `apply` với `url`, `token`, `hash`,
+- [x] T058 [US4] `ss/components/SyncConfirmDialog.vue` (mới) theo contracts/web.md; gửi `apply` với `url`, `token`, `hash`,
       `groups`, `selected`.
-- [ ] T059 [US2] `ss/components/SyncResult.vue` (mới): số theo nhóm, tên đã xóa, bảng index, `warnings`; `notify`; tải lại
+- [x] T059 [US2] `ss/components/SyncResult.vue` (mới): số theo nhóm, tên đã xóa, bảng index, `warnings`; `notify`; tải lại
       các store bị ảnh hưởng (collections, fields, relations, permissions, settings, flows); chạy T054–T056 xanh.
 
 **Checkpoint**: unit và browser web xanh.
 
 ## Phase 11: E2E ba cấu hình (US1, US2, US4, US6)
 
-- [ ] T060 [P] `e2e/helpers/allowed-paths.ts`: bốn route của `/backoffice/sync`; `e2e/helpers/config.ts`: URL nguồn
+- [x] T060 [P] `e2e/helpers/allowed-paths.ts`: bốn route của `/backoffice/sync`; `e2e/helpers/config.ts`: URL nguồn
       trong mạng Docker (`http://backoffice-api-sync:8055`), URL seed từ máy chạy test (`http://localhost:10856`), token từ
       `tests/parity/env/profile-sync.env`.
-- [ ] T061 [P] `.github/workflows/ci.yml` job `e2e-web`: thêm profile `sync` vào lệnh `env-up`; kiểm các API của
+- [x] T061 [P] `.github/workflows/ci.yml` job `e2e-web`: thêm profile `sync` vào lệnh `env-up`; kiểm các API của
       `proxy-api` và `cors` gọi được `backoffice-api-sync` trong cùng mạng compose.
-- [ ] T062 `e2e/settings-sync.spec.ts` (mới) theo contracts/tests.md §4: `proxy-directus` không có mục, `/admin/settings/sync`
+- [x] T062 `e2e/settings-sync.spec.ts` (mới) theo contracts/tests.md §4: `proxy-directus` không có mục, `/admin/settings/sync`
       là not-found; `proxy-api`, `cors`: seed flow và collection ở nguồn → So sánh → tick → Áp dụng → hộp xác nhận → kết
       quả → thấy trong Flows và Data Model; tải lại trang thì form trống; flow chỉ ở đích → tick xóa → hộp xác nhận nêu tên,
       nút danger → flow biến mất; axe ở `compared`; `afterAll` dọn mọi thứ đã kéo ở đích và seed ở nguồn.
-- [ ] T063 Chạy E2E local ba cấu hình (chromium) theo `apps/web-e2e/README`; sửa tới xanh (bài học: đăng nhập mở
+- [ ] T063 (máy local không có trình duyệt Playwright, chạy ở CI job e2e-web) Chạy E2E local ba cấu hình (chromium) theo `apps/web-e2e/README`; sửa tới xanh (bài học: đăng nhập mở
       `last_page`; `env-up` lại sau khi sửa web).
 
 **Checkpoint**: E2E ba cấu hình xanh local.
 
 ## Phase 12: Polish + đóng lượt 3
 
-- [ ] T064 [P] `design-system/docs/component-specs.md`: recipe `### Environment sync page (Q-49; spec 032, D-214.1, no
+- [x] T064 [P] `design-system/docs/component-specs.md`: recipe `### Environment sync page (Q-49; spec 032, D-214.1, no
       Directus counterpart)` ngay trước `## Acceptance criteria`, theo contracts/web.md, kết bằng dòng "Built: …".
-- [ ] T065 [P] `specs/016-settings-module/spec.md`: ghi chú "(032: mục Đồng bộ môi trường trong menu Settings, chỉ khi API
+- [x] T065 [P] `specs/016-settings-module/spec.md`: ghi chú "(032: mục Đồng bộ môi trường trong menu Settings, chỉ khi API
       là Backoffice)" ở phần menu Settings.
-- [ ] T066 [P] `CLAUDE.md`: dòng 032 ở Active Technologies → "implemented" với commit và CI; Recent Changes thêm 032;
+- [x] T066 [P] `CLAUDE.md`: dòng 032 ở Active Technologies → "implemented" với commit và CI; Recent Changes thêm 032;
       `SPECKIT-GUIDE.md` mục 032: Trạng thái và bài học.
 - [ ] T067 Đóng spec: `specs/032-environment-sync/spec.md` Status "Done 2026-11-xx, ba lượt (commit, CI)"; bảng "Đánh giá
       hiện trạng" các dòng [Inference] → [Verified] với kết quả T001 và parity; `checklists/requirements.md` ghi chú.
-- [ ] T068 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test` (unit và browser, chặn ngưỡng coverage 60 %;
+- [x] T068 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test` (unit và browser, chặn ngưỡng coverage 60 %;
       analyze U1), `web:build`, E2E ba cấu hình; sửa tới xanh.
 - [ ] T069 Đóng lượt 3: `git add` theo đường dẫn (`apps/web`, `apps/web-e2e`, `.github/workflows/ci.yml`,
       `design-system`, `specs`, `CLAUDE.md`, `SPECKIT-GUIDE.md`), commit `feat(web): environment sync page in Settings

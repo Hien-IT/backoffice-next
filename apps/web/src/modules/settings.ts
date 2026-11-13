@@ -208,6 +208,12 @@ export default defineModule({
 				},
 			],
 		},
+		// Backoffice (spec 032, D-214.1): Environment Sync; the page shows the not-found page when the API is DR.
+		{
+			name: 'settings-sync',
+			path: 'sync',
+			component: () => import('./settings/routes/sync/SyncRoute.vue'),
+		},
 		{
 			name: 'settings-extensions',
 			path: 'extensions',

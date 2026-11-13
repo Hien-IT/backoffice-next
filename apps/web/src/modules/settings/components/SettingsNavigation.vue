@@ -2,22 +2,26 @@
 <script setup lang="ts">
 // Backoffice (spec 016 FR-003, layout-patterns §12, Q-24): a flat sub-menu of groups split by dividers. The AI and
 // System Logs rows are out of scope (D-93); Extensions and Marketplace since spec 020 (Marketplace after Extensions, Q-42). No Report Bug / Request Feature group (D-94)
-// and no version row at the end (D-95).
+// and no version row at the end (D-95). Spec 032 (D-214.1, Q-49): Environment Sync at the end of the first group, only
+// when the API is Backoffice (probe of useEnvironmentSync).
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute } from 'vue-router';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoTextOverflow from '../../../components/BoTextOverflow.vue';
+import { useEnvironmentSync } from '../../../composables/use-environment-sync.ts';
 
 type Link = { icon: string; name: string; to: string };
 
 const { t } = useI18n();
 const route = useRoute();
+const { available: syncAvailable } = useEnvironmentSync();
 
 const groups = computed<Link[][]>(() => [
 	[
 		{ icon: 'database', name: t('settings_data_model'), to: '/settings/data-model' },
 		{ icon: 'bolt', name: t('settings_flows'), to: '/settings/flows' },
+		...(syncAvailable.value ? [{ icon: 'sync_alt', name: t('settings_sync'), to: '/settings/sync' }] : []),
 	],
 	[
 		{ icon: 'group', name: t('settings_roles'), to: '/settings/roles' },

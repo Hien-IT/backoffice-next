@@ -2086,6 +2086,35 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
 - Built: `modules/settings/routes/data-model/components/CollectionIndexes.vue`,
   `composables/use-collection-indexes.ts`, `fields/FieldsManagement.vue`. No new component, no new color pair.
 
+### Environment sync page (Q-49; spec 032, D-214.1, no Directus counterpart)
+
+- Route `/settings/sync` with the Settings sub-menu; the sub-menu row `settings_sync` (icon `sync_alt`) ends the first
+  group (after Flows), only when the probe `GET /backoffice/sync` answers (hidden at Directus, 404; the route then shows
+  the Settings not-found page). Design owner 2026-11-14: one screen compares and selects (no separate compare page).
+- Body `max-w-6xl`, top to bottom: the copy `sync_copy` (`text-sm text-gray-500`); the connect form (BoInput `type="url"`
+  `sync_source_url`, BoInput `type="password"` `autocomplete="off"` `sync_source_token`, a fieldset `sync_groups` of
+  ten BoCheckbox, primary BoButton `compare_arrows` `sync_compare` with `loading`); a danger BoNotice with the API reason
+  in words (`sync_error_*`; a stale comparison adds a secondary `sync_compare_again` button); the result or the table.
+- Table: `sync_source_info`, then BoTabs (`sync_filter`) Differences / Different / Only at source / Only here / All with
+  counts in the labels; in the tab content one BoDetail per group (title: group name and the three counts) holding a
+  BoTable with `showSelect="none"` and a tick column drawn in the `item.select` / `header.select` slots (BoCheckbox,
+  header `indeterminate` when only some creates and updates are ticked; never ticks a delete), the name as a text button
+  that opens the row detail, the kind, the state as a BoChip with words (success tint only at source, warning
+  different, error only here, gray same: color is never the only cue), and a note column (the reason a row cannot be
+  ticked, or "deleted with another ticked row"). A row ticks the rows it needs; a delete ticks and locks its cascade.
+- Header action: primary BoButton `check` `sync_apply_count` (disabled with nothing ticked).
+- Row detail (BoDialog): a three-column table Field / Source / Here with JSON in `pre`; a row on one side only shows that
+  side and says so. Not the comparison modal of 014 (bound to items and versions).
+- Confirm dialog (BoDialog, `persistent` while applying): counts per group, then `sync_confirm_delete` in `text-error-*`
+  with each deleted row, its impact (items lost, users suspended, permissions, files moved) and the rows deleted along,
+  the active flows that start at once, a danger BoNotice `sync_confirm_irreversible`; Cancel then a danger Apply when
+  something is deleted, primary otherwise.
+- Result: a bordered section `role="status"` with the counts per group, the deleted names, the index jobs, a warning
+  BoNotice per step after the commit that failed; a secondary `sync_compare_again` button below.
+- Built: `modules/settings/routes/sync/SyncRoute.vue`, `use-sync.ts`, `components/{SyncConnectForm,SyncGroup,
+  SyncRowDetail,SyncConfirmDialog,SyncResult}.vue`, `composables/use-environment-sync.ts`. No new component, no new
+  color pair.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

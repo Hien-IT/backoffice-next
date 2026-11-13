@@ -370,7 +370,8 @@ jobs:
           gunzip -c images.tar.gz | docker load
           docker tag hiennd23/backoffice-api:ci hiennd23/backoffice-api:local
           docker tag hiennd23/backoffice-web:ci hiennd23/backoffice-web:local
-      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup,sso,web
+      # Spec 032: profile sync is the source of settings-sync.spec.ts (backoffice-api-sync on its own database).
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup,sso,web,sync
         env:
           PARITY_NO_BUILD: '1'
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
