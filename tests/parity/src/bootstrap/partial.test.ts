@@ -75,5 +75,6 @@ describe.skipIf(!profileUrls('bootstrap'))('profile bootstrap: a half installed 
 		expect(results.backoffice.code).toBe(results.directus.code);
 		expect(errors(results.backoffice)).toEqual(errors(results.directus));
 		expect(migrations.backoffice).toEqual(migrations.directus);
-	});
+		// Two installs and two bootstraps through `docker compose exec`: the 30 s default is too short on a slow runner.
+	}, 300_000);
 });
