@@ -10,7 +10,7 @@ import { validateAccess } from '../permissions/modules/validate-access/validate-
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
 import type { FieldNode, FunctionFieldNode, NestedCollectionNode } from '../types/ast.js';
 import { getService } from '../utils/get-service.js';
-import { createErrorTracker, getHeadingsForCsvExport, ImportService } from './import-export.service.js';
+import { createErrorTracker, getHeadingsForCsvExport, ImportService, whenDrained } from './import-export.service.js';
 import { NotificationsService } from './notifications.service.js';
 
 const cache: { importCount?: number } = {};
@@ -1392,5 +1392,36 @@ describe('rowGuard', () => {
 		});
 
 		expect(importCSV).toHaveBeenCalledWith('test_collection', expect.anything(), guard);
+	});
+});
+
+describe('whenDrained (Backoffice)', () => {
+	test('runs at once when the last task finished before the end of the input (DR waits for a drain that never comes)', async () => {
+		const { queue } = await import('async');
+		const q = queue(async () => undefined);
+		await q.push({});
+		expect(q.idle()).toBe(true);
+
+		const fn = vi.fn();
+		whenDrained(q, fn);
+		expect(fn).toHaveBeenCalledOnce();
+	});
+
+	test('waits for the drain while a task is still running', async () => {
+		const { queue } = await import('async');
+		let release!: () => void;
+		const q = queue(async () => {
+			await new Promise<void>((resolve) => (release = resolve));
+		});
+		q.push({});
+		await setTimeout(0);
+
+		const fn = vi.fn();
+		whenDrained(q, fn);
+		expect(fn).not.toHaveBeenCalled();
+
+		release();
+		await setTimeout(10);
+		expect(fn).toHaveBeenCalledOnce();
 	});
 });

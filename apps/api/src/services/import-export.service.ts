@@ -210,6 +210,15 @@ export function createErrorTracker() {
 	};
 }
 
+/**
+ * Backoffice: runs `fn` once the save queue is idle. DR calls `queue.drain(fn)` only, which waits for the next drain: when
+ * the last row was saved (or refused) before the parser ended, the queue never drains again and the request hangs.
+ */
+export function whenDrained(queue: { idle(): boolean; drain(fn: () => void): void }, fn: () => void) {
+	if (queue.idle()) fn();
+	else queue.drain(fn);
+}
+
 const store = useStore<{ importCount: number | undefined }>(String(env['IMPORT_EXPORT_NAMESPACE']), {
 	ttl: ms((env['IMPORT_TIMEOUT'] as StringValue) ?? '1h'),
 });
@@ -431,7 +440,7 @@ export class ImportService {
 						// In case of empty JSON file
 						if (!saveQueue.started) return resolve();
 
-						saveQueue.drain(() => {
+						whenDrained(saveQueue, () => {
 							if (errorTracker.hasErrors()) {
 								return reject();
 							}
@@ -604,7 +613,7 @@ export class ImportService {
 										return resolve();
 									}
 
-									saveQueue.drain(() => {
+									whenDrained(saveQueue, () => {
 										if (!errorTracker.shouldStop()) cleanup(false);
 
 										if (errorTracker.hasErrors()) {

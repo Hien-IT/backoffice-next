@@ -82,6 +82,18 @@ async function indexColumns(name: string): Promise<string[] | undefined> {
 	return info.sort((a, b) => a.seqno - b.seqno).map((c) => c.name);
 }
 
+/**
+ * The MySQL column query of both apps (a port of DR's) joins information_schema.STATISTICS with no ORDER BY, so once
+ * the table has an index /fields comes in either order, at Directus too: compare it sorted by field.
+ */
+function fieldsByName(captured: Captured): Captured {
+	const data = (captured.json as any)?.data;
+	if (!Array.isArray(data)) return captured;
+	const { etag: _etag, ...headers } = captured.headers;
+	const sorted = [...data].sort((a, b) => String(a.field).localeCompare(String(b.field)));
+	return { ...captured, headers, json: { ...(captured.json as object), data: sorted } };
+}
+
 // Outside the seeded pairs (p0..p6 × s0..s9999).
 const dup = { provider: 'zz', provider_subject: 'zz', name: 'dup', note: 'n' };
 
@@ -150,7 +162,7 @@ describe('US1: a composite unique index', () => {
 		expect(row).toMatchObject({ status: 'ready', error: null, missing: false });
 		expect(await indexColumns(UNIQUE)).toEqual(['provider', 'provider_subject']);
 
-		assertParity(await parity({ path: `/fields/${C}`, headers: auth() }));
+		assertParity(await parity({ path: `/fields/${C}`, headers: auth(), normalize: fieldsByName }));
 		assertParity(await parity({ path: `/fields/${C}/provider`, headers: auth() }));
 
 		const { meta } = await list();
@@ -297,7 +309,7 @@ describe('US4: delete, cascade, missing (D-210.3)', () => {
 
 		expect(await indexColumns(name)).toBeUndefined();
 		expect((await list()).data.map((r) => r.name)).not.toContain(name);
-		assertParity(await parity({ path: `/fields/${C}`, headers: auth() }));
+		assertParity(await parity({ path: `/fields/${C}`, headers: auth(), normalize: fieldsByName }));
 
 		await bo('POST', `/fields/${C}`, { field: 'provider_subject', type: 'string', meta: {} });
 	});
@@ -333,7 +345,7 @@ describe('US4: delete, cascade, missing (D-210.3)', () => {
 		await bo('POST', '/schema/apply', diff);
 
 		expect((await list()).data.map((r) => r.name)).not.toContain(`${C}_note_index`);
-		assertParity(await parity({ path: `/fields/${C}`, headers: auth() }));
+		assertParity(await parity({ path: `/fields/${C}`, headers: auth(), normalize: fieldsByName }));
 	});
 
 	it('a row still being created refuses DELETE and the delete of its field', async () => {
