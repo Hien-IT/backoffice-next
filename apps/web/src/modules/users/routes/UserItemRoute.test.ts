@@ -200,6 +200,8 @@ describe('UserItemRoute', () => {
 			.find((b) => b.textContent?.trim() === 'Delete')!
 			.click();
 		await vi.waitFor(() => expect(logout).toHaveBeenCalled());
+		// No not-found page in between: its async navigation would mount after logout removed the module routes.
+		expect(document.body.textContent).not.toContain('Page Not Found');
 	});
 
 	// Spec 029 (D-207.4): the Passkeys card follows the form, with the user, its provider and whether it is oneself.

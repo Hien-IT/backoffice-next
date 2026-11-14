@@ -238,8 +238,15 @@ async function saveAsCopyAndNavigate() {
 	}
 }
 
+// Backoffice: a deleted user is not "not found" (DR has no not-found page here). Its async UsersNavigation would mount
+// after logout() removed the module routes, and its named links would throw in router.resolve.
+const deleted = ref(false);
+
 async function deleteAndQuit() {
 	if (deleting.value) return;
+
+	// Set before remove(): it empties `item` and the page renders before this function resumes.
+	deleted.value = true;
 
 	try {
 		// If the deleted user is the current user, we want to log them out
@@ -253,6 +260,7 @@ async function deleteAndQuit() {
 		edits.value = {};
 		router.replace({ name: 'users-active' });
 	} catch {
+		deleted.value = false;
 		// `remove` will show the unexpected error dialog
 	}
 }
@@ -315,7 +323,7 @@ const STATUS_BADGE: Record<string, string> = {
 	archived: 'bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80',
 };
 
-const notFound = computed(() => !isNew.value && !loading.value && !item.value);
+const notFound = computed(() => !isNew.value && !loading.value && !item.value && !deleted.value);
 </script>
 
 <template>
