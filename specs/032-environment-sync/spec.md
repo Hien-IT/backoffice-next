@@ -3,7 +3,7 @@
 **Feature Branch**: `032-environment-sync` (làm trên `main` như 012–031, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=032-environment-sync`)
 **Created**: 2026-11-14
-**Status**: Draft
+**Status**: Done 2026-11-14. Implemented in three waves on `main`. Tài liệu 99e69f06 (CI 43494134317 xanh); lượt 1 (API chỉ đọc) 268381f9, lượt 2 (API áp dụng) 6371148b, lượt 3 (web) 4866bc05, đẩy cùng lúc (CI 43503745533 đỏ: browser test xóa `body` khi component còn mount, E2E proxy-directus tìm link Flows dưới `xl`, `settings-parity-ui` so menu ở proxy-api); sửa fe0fd556 (CI 43513301806 đỏ: ca proxy-directus mở Settings trước khi đăng nhập xong; `users-item` US4-6 flaky ở proxy-directus); sửa 237dd5d9 (CI 43521582809: E2E ba cấu hình xanh; parity Postgres full 2 đỏ hai lần vì hết giờ trên runner chậm: `schema/indexes.test.ts` của 030 quá 240 s, lần chạy lại `bootstrap/partial.test.ts` của 021 quá 30 s mặc định); sửa c005b150 (300 s cho ca đó) với CI 43534892284 xanh (parity MySQL reduced: `schema/indexes.test.ts` của 030 lệch thứ tự `/fields` ở Directus một lần, xanh khi chạy lại). Local: unit API 399 file xanh với ngưỡng coverage, unit web xanh, parity `sync/*` 6 file / 26 test trên Postgres (hoàn tác DDL cùng dòng khi lỗi SC-004, Directus cùng DB, chặn tự khóa admin, so sánh cũ, hai lượt áp dụng cùng lúc, token bị thu hồi, không để lại dấu vết nguồn); SC-006 đo 440 ms cho 2.184 dòng. E2E và browser test chỉ chạy ở CI (máy local không có trình duyệt Playwright). Spec, clarify 5 câu, plan, checklist api-compat/security/data-safety, tasks 70, analyze 2026-11-14; D-214, D-214.1 và Q-49 duyệt 2026-11-14 bởi chủ dự án kiêm tech lead.
 **Input**: User description: "Feature 032: admin kéo cấu hình từ một môi trường Backoffice khác vào môi trường đang đứng
 (ví dụ đứng ở uat kéo từ stg, đứng ở prod kéo từ uat) qua một trang trong Settings: nhập URL và static token admin của
 môi trường nguồn, xem bảng so sánh hai bên, tick theo nhóm hoặc từng dòng, xác nhận và áp dụng. [...] Đây là tính năng
@@ -430,27 +430,27 @@ Không thực thể nào được lưu (FR-003); tất cả chỉ sống trong m
 
 ### Đánh giá hiện trạng và chạy song song với Directus 11.17.4
 
-Đọc code ngày 2026-11-14, chưa chạy thử. Mục ghi [Inference] là suy ra từ code, plan PHẢI có bước xác nhận.
+Đọc code ngày 2026-11-14; bốn mục [Inference] ban đầu đã xác nhận khi implement (ghi [Verified] kèm test).
 
 | # | Điểm kiểm tra | Kết quả | Nguồn |
 |---|---------------|---------|-------|
 | 1 | Chuyển cấu hình hiện nay | Chỉ có snapshot, diff, apply của schema và CLI `schema snapshot`, `schema apply`; snapshot gồm `collections`, `fields`, `systemFields`, `relations` của collection người dùng | `apps/api/src/controllers/schema.controller.ts:98`, `:106`, `:122`; `apps/api/src/cli/index.ts:106`, `:114`; `apps/api/src/utils/get-snapshot.ts` |
 | 2 | Web | Chỉ có nút tải snapshot ở Data Model; không có màn hình diff hay apply | `apps/web/src/modules/settings/routes/data-model/components/SnapshotSidebarDetail.vue` |
-| 3 | Biết phiên bản của nguồn | `/server/info` chỉ trả phiên bản Directus 11.17.4, không trả phiên bản Backoffice hay migration; FR-005 cần nguồn tự báo hai thứ đó, nên nguồn phải là Backoffice có feature này; plan R1: nguồn phục vụ hai thao tác chỉ đọc (thông tin instance và trạng thái cấu hình), đích không đọc qua các endpoint REST có sẵn | `apps/api/src/services/server.service.ts:121`, `apps/api/src/version.ts:3`, `apps/api/src/database/backoffice-migrations` (4 migration) |
+| 3 | Biết phiên bản của nguồn | `/server/info` chỉ trả phiên bản Directus 11.17.4, không trả phiên bản Backoffice hay migration; FR-005 cần nguồn tự báo hai thứ đó, nên nguồn phải là Backoffice có feature này; plan R1: nguồn phục vụ hai thao tác chỉ đọc (thông tin instance và trạng thái cấu hình), đích không đọc qua các endpoint REST có sẵn [Verified: `GET /backoffice/sync`, `GET /backoffice/sync/state`; parity `sync/route.test.ts`, `sync/refuse.test.ts`] | `apps/api/src/services/server.service.ts:121`, `apps/api/src/version.ts:3`, `apps/api/src/database/backoffice-migrations` (4 migration) |
 | 4 | Gọi HTTP ra ngoài | Có sẵn hàm gọi ra ngoài kèm kiểm IP theo `IMPORT_IP_DENY_LIST`; mặc định chỉ chặn `0.0.0.0` và `169.254.169.254`, nên địa chỉ mạng nội bộ gọi được | `apps/api/src/request/index.ts:8`, `is-denied-ip.ts`, `libs/env/src/constants/defaults.ts:134` |
 | 5 | Kiểm snapshot | Từ chối snapshot khác phiên bản Directus hoặc khác vendor trừ khi `force` | `apps/api/src/utils/validate-snapshot.ts:67`–`:89` |
-| 6 | Áp dụng schema | Chạy trong một transaction riêng [Inference: gộp được với phần dòng trên Postgres hay không, plan đo] | `apps/api/src/utils/apply-diff.ts:57` |
-| 7 | Snapshot và cài đặt 022 | Snapshot giữ nguyên `meta` của collection [Inference: ba cột `bo_show_*` đi theo nhóm Data model] | `apps/api/src/utils/sanitize-schema.ts:22` |
+| 6 | Áp dụng schema | Chạy trong một transaction riêng; nhận transaction ngoài khi truyền `database` [Verified: Postgres hoàn tác DDL cùng các dòng khi lỗi giữa chừng, SC-004, parity `sync/apply.test.ts`] | `apps/api/src/utils/apply-diff.ts:57` |
+| 7 | Snapshot và cài đặt 022 | Snapshot giữ nguyên `meta` của collection [Verified: `meta.bo_show_search` so và ghi theo nhóm Data model, parity `sync/apply.test.ts`] | `apps/api/src/utils/sanitize-schema.ts:22` |
 | 8 | Flow sau khi ghi | Service flow nạp lại bộ quản lý flow sau tạo, sửa, xóa | `apps/api/src/services/flows.service.ts:15`, `:24`, `:36` |
 | 9 | Xóa role | User của role bị xóa được đặt `role: null` | `apps/api/src/services/roles.service.ts:47`, `:86` |
 | 10 | Chặn mất admin cuối | Đã có kiểm tra số admin còn lại, dùng ở service policies và users | `apps/api/src/permissions/modules/validate-remaining-admin`, `apps/api/src/services/policies.service.ts` |
 | 11 | Field settings đặc biệt | Trỏ tới file: `project_logo`, `public_foreground`, `public_background`, `public_favicon`; tới folder: `storage_default_folder`; tới role: `public_registration_role`; `ai_*_api_key` có special `encrypt`; `mapbox_key` là chuỗi thường | `libs/system-data/src/fields/settings.yaml:152`, `:206`, `:494`, `:631`–`:647`, `:762` |
 | 12 | Bảng có khóa tự tăng | `directus_permissions`, `directus_presets`, `directus_settings`: định danh khác nhau giữa các môi trường, cần khóa so khớp khác | `apps/api/src/database/seeds/08-permissions.yaml`, `09-presets.yaml`, `13-settings.yaml` |
-| 13 | Định danh role, policy mặc định | Policy public có định danh cố định trong migration [Inference: role và policy Administrator do bootstrap sinh nên có thể khác nhau giữa các môi trường; plan đọc] | `apps/api/src/database/migrations/20240806A-permissions-policies.ts` |
+| 13 | Định danh role, policy mặc định | Policy public có định danh cố định trong migration [Verified: role và policy Administrator do bootstrap sinh nên khác nhau giữa hai DB bootstrap riêng; policy admin của đích hiện `target_only`, không tick được (`sync_admin_protected`), parity `sync/apply.test.ts`] | `apps/api/src/database/migrations/20240806A-permissions-policies.ts` |
 | 14 | Endpoint chỉ của Backoffice | Tiền tố `/backoffice/`, kiểm admin ở controller; web ẩn tính năng bằng probe 404 | `apps/api/src/controllers/backoffice-indexes.controller.ts:31`, `apps/web/src/composables/use-extension-upload.ts` |
 | 15 | Bộ đối chiếu đọc mã D | Cột `Mã` đầu, `Gỡ ở` cuối; từ đầu của dòng `Status` | `tests/parity/src/spec-differences.ts:27`–`:36` |
 
-**Kết luận** (chưa đo): Directus không phải làm gì; DB, Redis và cấu hình của Directus không đổi; không bảng, cột hay
+**Kết luận** (đo 2026-11-14, parity `sync/directus-cross.test.ts`): Directus không phải làm gì; DB, Redis và cấu hình của Directus không đổi; không bảng, cột hay
 kiểu dòng mới; các dòng do đồng bộ ghi đi qua cùng đường với sửa tay. Điểm mới duy nhất ở phía nguồn là thao tác báo
 phiên bản (dòng 3).
 

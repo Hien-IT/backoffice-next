@@ -64,3 +64,7 @@
 - Q-49 (bố cục màn hình so sánh và chọn) là câu hỏi mở design-system theo Nguyên tắc XII; spec không chọn (FR-033).
 - SC-006 (200 collection, 100 flow, 2.000 permission trong dưới 30 giây) là ước lượng ban đầu, ghi ở Assumptions; plan đo
   và chỉnh.
+- Đóng 2026-11-14 (T067): bốn mục [Inference] của bảng "Đánh giá hiện trạng" đã xác nhận bằng parity `sync/*` (dòng 3
+  route và refuse, dòng 6 Postgres hoàn tác DDL cùng dòng SC-004, dòng 7 `meta.bo_show_search` theo nhóm Data model,
+  dòng 13 policy Administrator của đích khác id nên hiện `target_only` và không tick được); Q-49 duyệt, recipe ở
+  `design-system/docs/component-specs.md`; SC-006 đo 440 ms cho 2.184 dòng (research.md "Kết quả lượt 1").

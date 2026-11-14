@@ -2937,7 +2937,18 @@ tất cả", sửa cùng ngày: E1 node đích của profile `sync` dựng từ 
 `MIGRATIONS_PATH` riêng và không có `extensions.env`, nên danh sách migration có thể lệch và FR-005 sẽ từ chối mọi
 lượt), C1 thêm T040a `directus-cross.test.ts` (Directus cùng DB đọc, sửa dòng do đồng bộ ghi, cache xóa), I1 FR-026
 chờ khóa rồi lỗi hoặc chạy và bị kiểm so sánh cũ, E2/E3/U1 thêm ca test và ghi ngưỡng coverage có sẵn của target
-`test`, năm LOW; 70 task). Bước kế: commit tài liệu (`docs(032): ...`), rồi `/speckit.implement` lượt 1.
+`test`, năm LOW; 70 task). Tài liệu commit `99e69f06`. `/speckit.implement` ba lượt 2026-11-14 ("đến khi xong"): lượt 1 API chỉ đọc `268381f9`,
+lượt 2 API áp dụng `6371148b`, lượt 3 web `4866bc05`, đẩy cùng lúc sau khi CI của `99e69f06` xong. Local: unit API 399
+file xanh, unit web xanh, parity `sync/*` 6 file 26 test xanh trên Postgres (gồm hoàn tác DDL cùng dòng khi lỗi, Directus
+cùng DB, chặn tự khóa admin); E2E và browser test chỉ chạy ở CI (máy không có trình duyệt Playwright). Bài học:
+`IMPORT_IP_DENY_LIST` mục `0.0.0.0` chặn mọi interface của máy (node không gọi được tên của chính nó); node đích của
+profile `sync` phải dựng từ anchor `x-app` của cặp chính, không từ profile `bootstrap`; tạo index làm `is_indexed` của
+field lệch trong snapshot, nên phụ thuộc chỉ tính dòng đích còn thiếu; `GET /extensions/:id` không có (đọc danh sách);
+chuỗi hiển thị không được chứa chữ Directus (`check-brand`). CI: 4866bc05 đỏ (browser test xóa `body` khi component còn
+mount; E2E proxy-directus; `settings-parity-ui` so menu), sửa `fe0fd556`, rồi `237dd5d9` (ca proxy-directus phải chờ
+đăng nhập xong, `toHaveURL(CONTENT_URL)`, trước khi mở trang Settings; CI 43521582809 đỏ vì hết giờ trên runner chậm),
+rồi `c005b150` (300 s cho `bootstrap/partial.test.ts` của 021) với CI 43534892284 xanh (`schema/indexes.test.ts` của 030
+lệch thứ tự `/fields` ở Directus trên MySQL một lần, xanh khi chạy lại). **Trạng thái: Done 2026-11-14.**
 Thư mục: `specs/032-environment-sync/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng mới, không cột mới, không migration (tính năng không lưu gì), khác biệt API
 và giao diện ghi theo Nguyên tắc X từ D-214 (D-213 đã dùng 2026-11-12). Dự kiến không dependency mới (gọi nguồn bằng

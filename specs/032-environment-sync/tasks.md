@@ -402,7 +402,7 @@ chi tiết dòng.
       là not-found; `proxy-api`, `cors`: seed flow và collection ở nguồn → So sánh → tick → Áp dụng → hộp xác nhận → kết
       quả → thấy trong Flows và Data Model; tải lại trang thì form trống; flow chỉ ở đích → tick xóa → hộp xác nhận nêu tên,
       nút danger → flow biến mất; axe ở `compared`; `afterAll` dọn mọi thứ đã kéo ở đích và seed ở nguồn.
-- [ ] T063 (máy local không có trình duyệt Playwright, chạy ở CI job e2e-web) Chạy E2E local ba cấu hình (chromium) theo `apps/web-e2e/README`; sửa tới xanh (bài học: đăng nhập mở
+- [x] T063 (máy local không có trình duyệt Playwright, chạy ở CI job e2e-web; xanh ba cấu hình ở CI 43521582809 và 43534892284) Chạy E2E local ba cấu hình (chromium) theo `apps/web-e2e/README`; sửa tới xanh (bài học: đăng nhập mở
       `last_page`; `env-up` lại sau khi sửa web).
 
 **Checkpoint**: E2E ba cấu hình xanh local.
@@ -415,11 +415,11 @@ chi tiết dòng.
       là Backoffice)" ở phần menu Settings.
 - [x] T066 [P] `CLAUDE.md`: dòng 032 ở Active Technologies → "implemented" với commit và CI; Recent Changes thêm 032;
       `SPECKIT-GUIDE.md` mục 032: Trạng thái và bài học.
-- [ ] T067 Đóng spec: `specs/032-environment-sync/spec.md` Status "Done 2026-11-xx, ba lượt (commit, CI)"; bảng "Đánh giá
+- [x] T067 Đóng spec: `specs/032-environment-sync/spec.md` Status "Done 2026-11-xx, ba lượt (commit, CI)"; bảng "Đánh giá
       hiện trạng" các dòng [Inference] → [Verified] với kết quả T001 và parity; `checklists/requirements.md` ghi chú.
 - [x] T068 Chạy `pnpm nx run web:lint`, `web:typecheck`, `web:test` (unit và browser, chặn ngưỡng coverage 60 %;
       analyze U1), `web:build`, E2E ba cấu hình; sửa tới xanh.
-- [ ] T069 Đóng lượt 3: `git add` theo đường dẫn (`apps/web`, `apps/web-e2e`, `.github/workflows/ci.yml`,
+- [x] T069 Đóng lượt 3: `git add` theo đường dẫn (`apps/web`, `apps/web-e2e`, `.github/workflows/ci.yml`,
       `design-system`, `specs`, `CLAUDE.md`, `SPECKIT-GUIDE.md`), commit `feat(web): environment sync page in Settings
       (spec 032, D-214)` kết thúc bằng `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; push khi `main` rảnh;
       theo dõi CI (web, e2e-web, parity, deploy), sửa job đỏ; `graphify update .`; ghi mã commit và run CI vào spec Status.
