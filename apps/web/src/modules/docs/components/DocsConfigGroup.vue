@@ -1,17 +1,19 @@
 <script setup lang="ts">
 // Backoffice (spec 033, FR-030..FR-033, Q-50): the tables of one group of environment variables. Names, descriptions
 // and notes are hand-written (docs/configuration/variables.ts) and shown as text (FR-046), with `code` spans for the
-// parts in backticks; the default comes from the generated list, so it is the one the API uses.
+// parts in backticks; the default comes from the generated list, so it is the one the API uses. A family row (`DB_*`) is
+// followed by one row per variable of the family, indented, each with its own description and default (2026-11-18).
 import BoNotice from '../../../components/BoNotice.vue';
 import type { ConfigTable, DocsHeading } from '../../../docs/types.ts';
 import { useDocsLang } from '../use-docs-lang.ts';
+import DocsConfigDefault from './DocsConfigDefault.vue';
 import DocsInlineText from './DocsInlineText.vue';
 
 const { tables, headings, defaults } = defineProps<{
 	tables: ConfigTable[];
 	/** One per titled table, in order: the anchors (DocsRoute builds them, the "On this page" column shows them). */
 	headings: DocsHeading[];
-	/** Pattern → default of supported.generated.json. */
+	/** Pattern, or single variable of a family → default of supported.generated.json. */
 	defaults: Record<string, string | undefined>;
 }>();
 
@@ -41,29 +43,33 @@ const headingOf = (table: ConfigTable) => headings[titled().indexOf(table)];
 						</tr>
 					</thead>
 					<tbody>
-						<tr v-for="row in table.rows" :key="row.pattern" :data-variable="row.name">
-							<td>
-								<code class="docs-inline-code whitespace-nowrap">{{ row.name }}</code>
-							</td>
-							<td :lang="lang">
-								<DocsInlineText :text="row.description" />
-								<p v-if="row.note" class="mt-1 text-gray-500 dark:text-gray-400" data-note>
-									<DocsInlineText :text="row.note" />
-								</p>
-							</td>
-							<td>
-								<!-- A list default may wrap after its commas, nowhere else. -->
-								<code v-if="defaults[row.pattern]" class="docs-inline-code">
-									<template v-for="(piece, i) in defaults[row.pattern]!.split(',')" :key="i">
-										<template v-if="i > 0">
-											,
-											<wbr />
-										</template>
-										{{ piece }}
-									</template>
-								</code>
-							</td>
-						</tr>
+						<template v-for="row in table.rows" :key="row.pattern">
+							<tr :data-variable="row.name">
+								<td>
+									<code class="docs-inline-code whitespace-nowrap">{{ row.name }}</code>
+								</td>
+								<td :lang="lang">
+									<DocsInlineText :text="row.description" />
+									<p v-if="row.note" class="mt-1 text-gray-500 dark:text-gray-400" data-note>
+										<DocsInlineText :text="row.note" />
+									</p>
+								</td>
+								<td>
+									<DocsConfigDefault :value="defaults[row.pattern]" />
+								</td>
+							</tr>
+							<tr v-for="member in row.members ?? []" :key="member.name" :data-variable="member.name" data-member>
+								<td class="ps-8">
+									<code class="docs-inline-code whitespace-nowrap">{{ member.name }}</code>
+								</td>
+								<td :lang="lang">
+									<DocsInlineText :text="member.description" />
+								</td>
+								<td>
+									<DocsConfigDefault :value="defaults[member.name]" />
+								</td>
+							</tr>
+						</template>
 					</tbody>
 				</table>
 			</div>

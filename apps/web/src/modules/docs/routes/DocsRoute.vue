@@ -120,7 +120,11 @@ async function build(target: DocsPage, lang: DocsLang): Promise<Content> {
 			lang,
 			kind: 'configuration',
 			tables,
-			defaults: Object.fromEntries(supported.variables.map((variable) => [variable.pattern, variable.default])),
+			// Patterns and the single variables of a family: their defaults, both from the API lists.
+			defaults: {
+				...Object.fromEntries(supported.variables.map((variable) => [variable.pattern, variable.default])),
+				...supported.members,
+			},
 			headings: tables
 				.filter((table) => table.title)
 				.map((table) => ({ id: slug(table.title!), text: table.title!, level: 2 as const })),

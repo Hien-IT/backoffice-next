@@ -576,6 +576,12 @@ Hệ quả của câu 1 và câu 5 so với đề xuất ban đầu: không có 
   bổ sung qua bảng `api/supplement/en.json` và `noun-en` của `x-crud`; script dừng khi bản tiếng Anh còn chữ tiếng
   Việt), `nav.ts` dựng một menu cho mỗi ngôn ngữ với cùng đường dẫn.
 - Ảnh tiếng Anh: `DOCS_LANG=en` cho `docs:shots`, trên một database riêng với dữ liệu mẫu tiếng Anh (`docs-shots/lang.ts`).
+- FR-031 (chủ dự án 2026-11-18, "hiện chi tiết từng biến"): một dòng nhóm biến (`DB_*`, `SERVER_*`, `LOGGER_*`,
+  `CONTENT_SECURITY_POLICY_*`, `HSTS_*`, `RATE_LIMITER_*`, `RATE_LIMITER_EMAIL_FLOWS_*`, `HASH_*`,
+  `AUTH_<PROVIDER>_CLIENT_HTTP_*`, và `STORAGE_LOCAL_*` dưới hai dòng `STORAGE_<LOCATION>_*`) có thêm một dòng thụt vào
+  cho mỗi biến, với mô tả và mặc định riêng; mặc định lấy từ `DEFAULTS` của API qua `members` của
+  `supported.generated.json`; tên mỗi biến đã đối chiếu với code đọc nó; tùy chọn chuyển thẳng cho thư viện ghi dạng
+  `<OPTION>`. Sửa luôn tên sai `HASH_LENGTH` thành `HASH_HASH_LENGTH` (tùy chọn `hashLength` của argon2).
 
 ## Assumptions
 

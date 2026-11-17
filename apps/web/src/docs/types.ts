@@ -96,6 +96,8 @@ export interface DocsApiResource {
 export interface SupportedGenerated {
 	$source: string;
 	variables: SupportedVariable[];
+	/** Default of a single variable of a family (a DEFAULTS key that only a family pattern matches). */
+	members: Record<string, string>;
 }
 
 export interface SupportedVariable {
@@ -106,6 +108,13 @@ export interface SupportedVariable {
 	default?: string;
 }
 
+/** One variable of a family row, listed under it with its own description and default (2026-11-18). */
+export interface ConfigMember {
+	/** The variable, or a sub-family with a placeholder such as `DB_POOL__<OPTION>`; must fit the family pattern. */
+	name: string;
+	description: string;
+}
+
 export interface ConfigRow {
 	/** Shown name: the variable, or a pattern such as `DB_*`. */
 	name: string;
@@ -113,6 +122,8 @@ export interface ConfigRow {
 	pattern: string;
 	description: string;
 	note?: string;
+	/** The single variables of a family row (a `pattern` that is not a plain name). */
+	members?: ConfigMember[];
 }
 
 export interface ConfigTable {

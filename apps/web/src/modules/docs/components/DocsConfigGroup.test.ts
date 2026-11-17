@@ -21,7 +21,20 @@ const TABLES: ConfigTable[] = [
 			},
 		],
 	},
-	{ title: 'Kết nối', rows: [{ name: 'DB_*', pattern: 'DB_.+', description: 'Kết nối: `DB_CLIENT`, `DB_HOST`.' }] },
+	{
+		title: 'Kết nối',
+		rows: [
+			{
+				name: 'DB_*',
+				pattern: 'DB_.+',
+				description: 'Kết nối: `DB_CLIENT`, `DB_HOST`.',
+				members: [
+					{ name: 'DB_CLIENT', description: 'Loại cơ sở dữ liệu.' },
+					{ name: 'DB_EXCLUDE_TABLES', description: 'Các bảng bỏ qua.' },
+				],
+			},
+		],
+	},
 ];
 
 const HEADINGS = [
@@ -31,7 +44,16 @@ const HEADINGS = [
 
 const group = () =>
 	mount(DocsConfigGroup, {
-		props: { tables: TABLES, headings: HEADINGS, defaults: { PORT: '8055', SECRET: undefined, 'DB_.+': undefined } },
+		props: {
+			tables: TABLES,
+			headings: HEADINGS,
+			defaults: {
+				PORT: '8055',
+				SECRET: undefined,
+				'DB_.+': undefined,
+				DB_EXCLUDE_TABLES: 'spatial_ref_sys,sysdiagrams',
+			},
+		},
 		global: { plugins: [i18n] },
 	});
 
@@ -97,4 +119,17 @@ test('the note of a table is a notice; the parts are marked with the docs langua
 	expect(wrapper.find('[role="status"], [role="alert"], .mt-4').text()).toContain('Đọc khi khởi động');
 	expect(wrapper.find('h2').attributes('lang')).toBe('vi');
 	expect(wrapper.findAll('tbody')[0]!.findAll('td')[1]!.attributes('lang')).toBe('vi');
+});
+
+// 2026-11-18: a family row is followed by one indented row per variable, each with its own default.
+test('the variables of a family row follow it, indented, with their own description and default', () => {
+	const wrapper = group();
+	const rows = wrapper.findAll('tbody')[1]!.findAll('tr');
+
+	expect(rows.map((row) => row.attributes('data-variable'))).toEqual(['DB_*', 'DB_CLIENT', 'DB_EXCLUDE_TABLES']);
+	expect(rows[1]!.attributes('data-member')).toBeDefined();
+	expect(rows[1]!.find('td').classes()).toContain('ps-8');
+	expect(rows[1]!.findAll('td')[2]!.text()).toBe('');
+	expect(rows[2]!.findAll('td')[1]!.text()).toBe('Các bảng bỏ qua.');
+	expect(rows[2]!.findAll('td')[2]!.text().replace(/\s+/g, '')).toBe('spatial_ref_sys,sysdiagrams');
 });

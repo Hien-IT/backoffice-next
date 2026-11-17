@@ -2,7 +2,7 @@
 // of the Configuration part. Same groups, tables and rows in the same order; only the text is English. variables.test.ts
 // checks that both files have the same rows. The other system on the same database is never named (FR-047): write "the
 // system that shares the database".
-import type { ConfigRow, ConfigTable } from '../types.ts';
+import type { ConfigMember, ConfigRow, ConfigTable } from '../types.ts';
 
 const SHARED = 'Must match the system that shares the database, if any.';
 
@@ -15,12 +15,22 @@ const v = (name: string, description: string, note?: string): ConfigRow => ({
 });
 
 /** A family of variables: `name` is what the reader types, `pattern` the entry of the generated file. */
-const p = (name: string, pattern: string, description: string, note?: string): ConfigRow => ({
+const p = (
+	name: string,
+	pattern: string,
+	description: string,
+	note?: string,
+	members?: ConfigMember[],
+): ConfigRow => ({
 	name,
 	pattern,
 	description,
 	...(note ? { note } : {}),
+	...(members ? { members } : {}),
 });
+
+/** One variable of a family, listed under it (its default comes from the API list when it has one). */
+const m = (name: string, description: string): ConfigMember => ({ name, description });
 
 export const configTablesEn: Record<string, ConfigTable[]> = {
 	general: [
@@ -54,8 +64,15 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 				p(
 					'SERVER_*',
 					'SERVER_.+',
-					'Options of the HTTP server. Common ones: `SERVER_KEEP_ALIVE_TIMEOUT` and `SERVER_HEADERS_TIMEOUT` (milliseconds), `SERVER_SHUTDOWN_TIMEOUT` (milliseconds to wait for running requests on shutdown).',
-					'Set `SERVER_KEEP_ALIVE_TIMEOUT` higher than the timeout of the load balancer in front.',
+					'HTTP server options. A `SERVER_<OPTION>` variable sets the property of the same name (camelCase) of the Node HTTP server.',
+					'Set `SERVER_KEEP_ALIVE_TIMEOUT` higher than the idle timeout of the load balancer in front.',
+					[
+						m('SERVER_KEEP_ALIVE_TIMEOUT', 'Time (milliseconds) an idle keep-alive connection stays open.'),
+						m('SERVER_HEADERS_TIMEOUT', 'Time (milliseconds) to receive the full request headers.'),
+						m('SERVER_REQUEST_TIMEOUT', 'Time (milliseconds) to receive a whole request.'),
+						m('SERVER_SHUTDOWN_TIMEOUT', 'Time (milliseconds) to wait for running requests when the server shuts down.'),
+						m('SERVER_<OPTION>', 'Any other property of the Node HTTP server.'),
+					],
 				),
 			],
 		},
@@ -82,8 +99,27 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 				p(
 					'DB_*',
 					'DB_.+',
-					'Database connection. `DB_CLIENT` picks the kind (`pg`, `mysql`, `sqlite3`, `mssql`, `oracledb`, `cockroachdb`); `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD` for a server; `DB_FILENAME` for SQLite; `DB_CONNECTION_STRING` instead of the separate variables; `DB_POOL__MIN`, `DB_POOL__MAX` for the connection pool; `DB_SSL__*` for TLS. Other `DB_*` variables go straight to the driver.',
-					'Next to the system that shares the database, these variables must point to the same database. The `bootstrap`, `install` and `migrate` commands run only on PostgreSQL and SQLite.',
+					'The database connection. `DB_*` variables not listed below go straight to the driver.',
+					'Next to the system that shares the database, these must point at the same database. The `bootstrap`, `install` and `migrate` commands run on PostgreSQL and SQLite only.',
+					[
+						m('DB_CLIENT', 'The database type: `pg`, `cockroachdb`, `mysql`, `mssql`, `oracledb` or `sqlite3`. Required.'),
+						m('DB_HOST', 'Host name or address of the database server.'),
+						m('DB_PORT', 'Port of the database server. Integer.'),
+						m('DB_DATABASE', 'Database name.'),
+						m('DB_USER', 'Database user.'),
+						m('DB_PASSWORD', 'Password of that user.'),
+						m('DB_FILENAME', 'Path of the database file (`sqlite3`). Required with `sqlite3`.'),
+						m('DB_CONNECTION_STRING', 'Connection string, used instead of host, port, database and user (`pg`, `cockroachdb`).'),
+						m('DB_CONNECT_STRING', 'Oracle connect string, used with `DB_USER` and `DB_PASSWORD` (`oracledb`).'),
+						m('DB_SOCKET_PATH', 'Unix socket path, used instead of host and port (`mysql`).'),
+						m('DB_TYPE', 'MSSQL authentication type; unset or `default` signs in with user and password (`mssql`).'),
+						m('DB_SEARCH_PATH', 'The PostgreSQL schemas queries look for tables in.'),
+						m('DB_VERSION', 'Database server version given to the query builder when it cannot detect it.'),
+						m('DB_POOL__<OPTION>', 'Connection pool option, e.g. `DB_POOL__MIN`, `DB_POOL__MAX` (fewest and most connections).'),
+						m('DB_SSL__<OPTION>', 'TLS option of the connection, e.g. `DB_SSL__REJECT_UNAUTHORIZED`, `DB_SSL__CA`.'),
+						m('DB_EXCLUDE_TABLES', 'Tables left out when the schema is read. Comma-separated list.'),
+						m('DB_HEALTHCHECK_THRESHOLD', 'Time (milliseconds) the database check of `/server/health` may take before it warns. 150 when unset.'),
+					],
 				),
 			],
 		},
@@ -196,20 +232,40 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 				p(
 					'CONTENT_SECURITY_POLICY_*',
 					'CONTENT_SECURITY_POLICY_.+',
-					'Customizes the `Content-Security-Policy` header, for example `CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_ANCESTORS`.',
+					'Customises the `Content-Security-Policy` header; the values merge into the API default policy.',
+					undefined,
+					[
+						m('CONTENT_SECURITY_POLICY_DIRECTIVES__<DIRECTIVE>', 'Value of one directive, e.g. `CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_ANCESTORS`.'),
+						m('CONTENT_SECURITY_POLICY_REPORT_ONLY', 'Sends the header in report-only mode (`Content-Security-Policy-Report-Only`). Boolean.'),
+					],
 				),
 				v('CROSS_ORIGIN_OPENER_POLICY_ENABLED', 'Sends the `Cross-Origin-Opener-Policy` header. Boolean.'),
 				v('CROSS_ORIGIN_OPENER_POLICY', 'Value of that header. String.'),
 				p(
 					'HSTS_*',
 					'HSTS_.+',
-					'The `Strict-Transport-Security` header: `HSTS_ENABLED` turns it on, the other `HSTS_*` variables are header options.',
+					'The `Strict-Transport-Security` header. Options other than `HSTS_ENABLED` use the defaults of the header library when unset.',
+					undefined,
+					[
+						m('HSTS_ENABLED', 'Sends the header. Boolean.'),
+						m('HSTS_MAX_AGE', 'Time (seconds) the browser remembers to use HTTPS only.'),
+						m('HSTS_INCLUDE_SUB_DOMAINS', 'Applies to subdomains too. Boolean.'),
+						m('HSTS_PRELOAD', 'Adds the `preload` directive. Boolean.'),
+					],
 				),
 				p(
 					'HASH_*',
 					'HASH_.+',
-					'Options of the argon2 password hashing: `HASH_MEMORY_COST`, `HASH_LENGTH`, `HASH_TIME_COST`, `HASH_PARALLELISM`, `HASH_TYPE`, `HASH_ASSOCIATED_DATA`.',
+					'Options of the argon2 password hash.',
 					SHARED,
+					[
+						m('HASH_MEMORY_COST', 'Memory used to hash (KiB). Integer.'),
+						m('HASH_HASH_LENGTH', 'Length of the hash (bytes). Integer.'),
+						m('HASH_TIME_COST', 'Number of iterations. Integer.'),
+						m('HASH_PARALLELISM', 'Number of parallel threads. Integer.'),
+						m('HASH_TYPE', 'Variant: `0` argon2d, `1` argon2i, `2` argon2id.'),
+						m('HASH_ASSOCIATED_DATA', 'Associated data mixed into the hash. String.'),
+					],
 				),
 			],
 		},
@@ -234,8 +290,22 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 				p(
 					'RATE_LIMITER_*',
 					'RATE_LIMITER_(?!EMAIL_).+',
-					'Limits requests per IP address: `RATE_LIMITER_ENABLED`, `RATE_LIMITER_POINTS` (requests), `RATE_LIMITER_DURATION` (seconds), `RATE_LIMITER_STORE` (`memory` or `redis`). `RATE_LIMITER_GLOBAL_*` limits the total number of requests; `RATE_LIMITER_REGISTRATION_*` limits registrations.',
-					'Use `redis` with several instances so the counters are shared.',
+					'Limits on how many requests the API takes.',
+					'With several instances, use `redis` so the counters are shared.',
+					[
+						m('RATE_LIMITER_ENABLED', 'Limits the requests per IP address. Boolean.'),
+						m('RATE_LIMITER_POINTS', 'Requests one IP address may send per period. Integer.'),
+						m('RATE_LIMITER_DURATION', 'Length of a period (seconds). Integer.'),
+						m('RATE_LIMITER_STORE', 'Where the counters live: `memory` or `redis`.'),
+						m('RATE_LIMITER_HEALTHCHECK_THRESHOLD', 'Time (milliseconds) the limiter check of `/server/health` may take before it warns. 150 when unset.'),
+						m('RATE_LIMITER_GLOBAL_ENABLED', 'Limits the total requests of all addresses. Boolean.'),
+						m('RATE_LIMITER_GLOBAL_POINTS', 'Total requests allowed per period. Integer.'),
+						m('RATE_LIMITER_GLOBAL_DURATION', 'Length of a period of the total limit (seconds). Integer.'),
+						m('RATE_LIMITER_GLOBAL_HEALTHCHECK_THRESHOLD', 'Like `RATE_LIMITER_HEALTHCHECK_THRESHOLD`, for the total limit. 150 when unset.'),
+						m('RATE_LIMITER_REGISTRATION_ENABLED', 'Limits account registrations. Boolean.'),
+						m('RATE_LIMITER_REGISTRATION_POINTS', 'Registrations allowed per period. Integer.'),
+						m('RATE_LIMITER_REGISTRATION_DURATION', 'Length of a period of the registration limit (seconds). Integer.'),
+					],
 				),
 				v('PRESSURE_LIMITER_ENABLED', 'Rejects requests with status 503 when the server is overloaded. Boolean.'),
 				v('PRESSURE_LIMITER_SAMPLE_INTERVAL', 'Time between two load measurements. Milliseconds.'),
@@ -393,7 +463,12 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 				p(
 					'AUTH_<PROVIDER>_CLIENT_HTTP_*',
 					'AUTH_.+_CLIENT_HTTP_.+',
-					'Options of the HTTP connection to the provider, for example the timeout.',
+					'Options of the HTTP connection to the OpenID Connect provider.',
+					undefined,
+					[
+						m('AUTH_<PROVIDER>_CLIENT_HTTP_TIMEOUT', 'Timeout of a request to the provider (milliseconds). Integer.'),
+						m('AUTH_<PROVIDER>_CLIENT_HTTP_<OPTION>', 'Any other option of the HTTP requests to the provider.'),
+					],
 				),
 			],
 		},
@@ -450,11 +525,13 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 					'Names of the file storage locations. Comma-separated list; the first one is the default.',
 					SHARED,
 				),
-				p('STORAGE_<LOCATION>_DRIVER', 'STORAGE_.+_DRIVER', 'Driver of the location: `local` or `s3`.'),
+				p('STORAGE_<LOCATION>_DRIVER', 'STORAGE_.+_DRIVER', 'Driver of the location: `local` or `s3`.', undefined, [m('STORAGE_LOCAL_DRIVER', 'The `local` location of the default configuration.')]),
 				p(
 					'STORAGE_<LOCATION>_ROOT',
 					'STORAGE_.+_ROOT',
 					'Root folder of the files (`local`), or key prefix in the bucket (`s3`). Path string.',
+					undefined,
+					[m('STORAGE_LOCAL_ROOT', 'Folder of the default `local` location.')],
 				),
 				p('STORAGE_<LOCATION>_KEY', 'STORAGE_.+_KEY', 'S3 access key. String.'),
 				p('STORAGE_<LOCATION>_SECRET', 'STORAGE_.+_SECRET', 'S3 secret key. String.'),
@@ -564,8 +641,14 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 				p(
 					'RATE_LIMITER_EMAIL_FLOWS_*',
 					'RATE_LIMITER_EMAIL_FLOWS_.+',
-					'Rate limit of the Send Email operation: `RATE_LIMITER_EMAIL_FLOWS_ENABLED`, `_POINTS`, `_DURATION`.',
-					'Backoffice sends no email: the operation runs every step and writes a log line instead of sending.',
+					'Rate limit of the Send Email operation.',
+					'Backoffice sends no email: the operation runs every step and writes a log line instead.',
+					[
+						m('RATE_LIMITER_EMAIL_FLOWS_ENABLED', 'Turns the limit on. Boolean.'),
+						m('RATE_LIMITER_EMAIL_FLOWS_POINTS', 'Emails per period. Integer.'),
+						m('RATE_LIMITER_EMAIL_FLOWS_DURATION', 'Length of a period (seconds). Integer.'),
+						m('RATE_LIMITER_EMAIL_FLOWS_ERROR_MESSAGE', 'Error message when the limit is reached. String.'),
+					],
 				),
 			],
 		},
@@ -679,7 +762,17 @@ export const configTablesEn: Record<string, ConfigTable[]> = {
 					'LOG_HTTP_IGNORE_PATHS',
 					'Paths whose requests are not logged, for example `/server/ping`. Comma-separated list.',
 				),
-				p('LOGGER_*', 'LOGGER_.+', 'More logger options, for example `LOGGER_LEVELS` to rename log levels.'),
+				p(
+					'LOGGER_*',
+					'LOGGER_.+',
+					'More options of the logger.',
+					undefined,
+					[
+						m('LOGGER_LEVELS', 'Renames the log levels in the `severity` field, as `trace:DEBUG,info:INFO,error:ERROR`. Comma-separated list.'),
+						m('LOGGER_<OPTION>', 'Any other logger option, by its camelCase name, e.g. `LOGGER_MESSAGE_KEY`.'),
+						m('LOGGER_HTTP_<OPTION>', 'Option of the HTTP request logger.'),
+					],
+				),
 			],
 		},
 		{

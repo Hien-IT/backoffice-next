@@ -444,6 +444,9 @@ một link nội bộ thành sai và thấy test đỏ.
 - [X] T101 `content.test.ts` cho hai ngôn ngữ (link, anchor, ảnh, bản tiếng Anh đủ trang, cùng ảnh, không chữ tiếng
   Việt), `nav.test.ts`, test của component và route (ca en-US rồi vi-VN), E2E `docs.spec.ts` theo tiếng Anh và một ca
   admin vi-VN
+- [X] T103 Biến của từng nhóm trong trang Cấu hình: `ConfigMember`, `members` của `supported.generated.json`,
+  `DocsConfigDefault.vue`, dòng thụt vào trong `DocsConfigGroup.vue`, dữ liệu ở `variables.ts` và `variables.en.ts`,
+  test trong `variables.test.ts` và `DocsConfigGroup.test.ts`
 - [ ] T102 Commit `feat(web): English documentation content (spec 033 amendment)`; push khi CI trước xanh; theo dõi CI
 
 ## Dependencies & Execution Order

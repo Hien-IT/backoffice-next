@@ -3,7 +3,7 @@
 // here; the page shows them from the generated file. variables.test.ts fails when an entry has no row, a row has no
 // entry, or a variable sits in two groups. The other system on the same database is never named (FR-047): write "hệ
 // thống dùng chung cơ sở dữ liệu".
-import type { ConfigRow, ConfigTable } from '../types.ts';
+import type { ConfigMember, ConfigRow, ConfigTable } from '../types.ts';
 
 const SHARED = 'Phải trùng với hệ thống dùng chung cơ sở dữ liệu, nếu có.';
 
@@ -16,12 +16,22 @@ const v = (name: string, description: string, note?: string): ConfigRow => ({
 });
 
 /** A family of variables: `name` is what the reader types, `pattern` the entry of the generated file. */
-const p = (name: string, pattern: string, description: string, note?: string): ConfigRow => ({
+const p = (
+	name: string,
+	pattern: string,
+	description: string,
+	note?: string,
+	members?: ConfigMember[],
+): ConfigRow => ({
 	name,
 	pattern,
 	description,
 	...(note ? { note } : {}),
+	...(members ? { members } : {}),
 });
+
+/** One variable of a family, listed under it (its default comes from the API list when it has one). */
+const m = (name: string, description: string): ConfigMember => ({ name, description });
 
 export const configTables: Record<string, ConfigTable[]> = {
 	general: [
@@ -58,8 +68,15 @@ export const configTables: Record<string, ConfigTable[]> = {
 				p(
 					'SERVER_*',
 					'SERVER_.+',
-					'Tùy chọn của máy chủ HTTP. Thường dùng: `SERVER_KEEP_ALIVE_TIMEOUT` và `SERVER_HEADERS_TIMEOUT` (mili giây), `SERVER_SHUTDOWN_TIMEOUT` (mili giây chờ các request đang chạy khi tắt).',
+					'Tùy chọn của máy chủ HTTP. Biến `SERVER_<OPTION>` đặt thuộc tính cùng tên (dạng camelCase) của máy chủ HTTP của Node.',
 					'Đặt `SERVER_KEEP_ALIVE_TIMEOUT` lớn hơn thời gian chờ của load balancer đứng trước.',
+					[
+						m('SERVER_KEEP_ALIVE_TIMEOUT', 'Thời gian (mili giây) giữ kết nối keep-alive không hoạt động.'),
+						m('SERVER_HEADERS_TIMEOUT', 'Thời gian (mili giây) chờ nhận đủ header của request.'),
+						m('SERVER_REQUEST_TIMEOUT', 'Thời gian (mili giây) chờ nhận đủ một request.'),
+						m('SERVER_SHUTDOWN_TIMEOUT', 'Thời gian (mili giây) chờ các request đang chạy khi máy chủ tắt.'),
+						m('SERVER_<OPTION>', 'Thuộc tính khác của máy chủ HTTP của Node.'),
+					],
 				),
 			],
 		},
@@ -83,8 +100,27 @@ export const configTables: Record<string, ConfigTable[]> = {
 				p(
 					'DB_*',
 					'DB_.+',
-					'Kết nối cơ sở dữ liệu. `DB_CLIENT` chọn loại (`pg`, `mysql`, `sqlite3`, `mssql`, `oracledb`, `cockroachdb`); `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD` cho máy chủ; `DB_FILENAME` cho SQLite; `DB_CONNECTION_STRING` thay cho các biến riêng lẻ; `DB_POOL__MIN`, `DB_POOL__MAX` cho pool kết nối; `DB_SSL__*` cho TLS. Biến `DB_*` khác được chuyển thẳng cho driver.',
+					'Kết nối cơ sở dữ liệu. Các biến `DB_*` không có ở dưới được chuyển thẳng cho driver.',
 					'Khi chạy cạnh hệ thống dùng chung cơ sở dữ liệu, các biến này phải trỏ tới cùng một cơ sở dữ liệu. Lệnh `bootstrap`, `install` và `migrate` chỉ chạy trên PostgreSQL và SQLite.',
+					[
+						m('DB_CLIENT', 'Loại cơ sở dữ liệu: `pg`, `cockroachdb`, `mysql`, `mssql`, `oracledb` hoặc `sqlite3`. Bắt buộc.'),
+						m('DB_HOST', 'Tên máy hoặc địa chỉ của máy chủ cơ sở dữ liệu.'),
+						m('DB_PORT', 'Cổng của máy chủ cơ sở dữ liệu. Số nguyên.'),
+						m('DB_DATABASE', 'Tên cơ sở dữ liệu.'),
+						m('DB_USER', 'Tài khoản đăng nhập cơ sở dữ liệu.'),
+						m('DB_PASSWORD', 'Mật khẩu của tài khoản đó.'),
+						m('DB_FILENAME', 'Đường dẫn tới file cơ sở dữ liệu (`sqlite3`). Bắt buộc với `sqlite3`.'),
+						m('DB_CONNECTION_STRING', 'Chuỗi kết nối, thay cho máy chủ, cổng, tên và tài khoản (`pg`, `cockroachdb`).'),
+						m('DB_CONNECT_STRING', 'Chuỗi kết nối của Oracle, dùng cùng `DB_USER` và `DB_PASSWORD` (`oracledb`).'),
+						m('DB_SOCKET_PATH', 'Đường dẫn socket Unix, thay cho máy chủ và cổng (`mysql`).'),
+						m('DB_TYPE', 'Kiểu xác thực của MSSQL; không đặt hoặc `default` là đăng nhập bằng tài khoản và mật khẩu (`mssql`).'),
+						m('DB_SEARCH_PATH', 'Các schema PostgreSQL mà truy vấn tìm bảng trong đó.'),
+						m('DB_VERSION', 'Phiên bản máy chủ cơ sở dữ liệu báo cho bộ dựng truy vấn, khi không tự nhận ra được.'),
+						m('DB_POOL__<OPTION>', 'Tùy chọn của pool kết nối, ví dụ `DB_POOL__MIN`, `DB_POOL__MAX` (số kết nối ít nhất, nhiều nhất).'),
+						m('DB_SSL__<OPTION>', 'Tùy chọn TLS của kết nối, ví dụ `DB_SSL__REJECT_UNAUTHORIZED`, `DB_SSL__CA`.'),
+						m('DB_EXCLUDE_TABLES', 'Các bảng bỏ qua khi đọc schema. Danh sách cách nhau bằng dấu phẩy.'),
+						m('DB_HEALTHCHECK_THRESHOLD', 'Thời gian (mili giây) mà kiểm tra cơ sở dữ liệu ở `/server/health` được phép trước khi báo cảnh báo. Không đặt thì 150.'),
+					],
 				),
 			],
 		},
@@ -168,16 +204,40 @@ export const configTables: Record<string, ConfigTable[]> = {
 				p(
 					'CONTENT_SECURITY_POLICY_*',
 					'CONTENT_SECURITY_POLICY_.+',
-					'Tùy biến header `Content-Security-Policy`, ví dụ `CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_ANCESTORS`.',
+					'Tùy biến header `Content-Security-Policy`; giá trị gộp vào chính sách mặc định của API.',
+					undefined,
+					[
+						m('CONTENT_SECURITY_POLICY_DIRECTIVES__<DIRECTIVE>', 'Giá trị của một chỉ thị, ví dụ `CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_ANCESTORS`.'),
+						m('CONTENT_SECURITY_POLICY_REPORT_ONLY', 'Gửi header ở chế độ chỉ báo cáo (`Content-Security-Policy-Report-Only`). Đúng hoặc sai.'),
+					],
 				),
 				v('CROSS_ORIGIN_OPENER_POLICY_ENABLED', 'Gửi header `Cross-Origin-Opener-Policy`. Đúng hoặc sai.'),
 				v('CROSS_ORIGIN_OPENER_POLICY', 'Giá trị của header đó. Chuỗi.'),
-				p('HSTS_*', 'HSTS_.+', 'Header `Strict-Transport-Security`: `HSTS_ENABLED` để bật, các biến `HSTS_*` khác là tùy chọn của header.'),
+				p(
+					'HSTS_*',
+					'HSTS_.+',
+					'Header `Strict-Transport-Security`. Các biến khác `HSTS_ENABLED` không đặt thì dùng mặc định của thư viện tạo header.',
+					undefined,
+					[
+						m('HSTS_ENABLED', 'Gửi header. Đúng hoặc sai.'),
+						m('HSTS_MAX_AGE', 'Thời gian (giây) trình duyệt nhớ chỉ dùng HTTPS.'),
+						m('HSTS_INCLUDE_SUB_DOMAINS', 'Áp dụng cho cả tên miền con. Đúng hoặc sai.'),
+						m('HSTS_PRELOAD', 'Thêm chỉ thị `preload`. Đúng hoặc sai.'),
+					],
+				),
 				p(
 					'HASH_*',
 					'HASH_.+',
-					'Tùy chọn của thuật toán băm mật khẩu argon2: `HASH_MEMORY_COST`, `HASH_LENGTH`, `HASH_TIME_COST`, `HASH_PARALLELISM`, `HASH_TYPE`, `HASH_ASSOCIATED_DATA`.',
+					'Tùy chọn của thuật toán băm mật khẩu argon2.',
 					SHARED,
+					[
+						m('HASH_MEMORY_COST', 'Bộ nhớ dùng khi băm (KiB). Số nguyên.'),
+						m('HASH_HASH_LENGTH', 'Độ dài của mã băm (byte). Số nguyên.'),
+						m('HASH_TIME_COST', 'Số vòng lặp. Số nguyên.'),
+						m('HASH_PARALLELISM', 'Số luồng chạy song song. Số nguyên.'),
+						m('HASH_TYPE', 'Biến thể: `0` argon2d, `1` argon2i, `2` argon2id.'),
+						m('HASH_ASSOCIATED_DATA', 'Dữ liệu đi kèm đưa vào mã băm. Chuỗi.'),
+					],
 				),
 			],
 		},
@@ -199,8 +259,22 @@ export const configTables: Record<string, ConfigTable[]> = {
 				p(
 					'RATE_LIMITER_*',
 					'RATE_LIMITER_(?!EMAIL_).+',
-					'Giới hạn số request theo địa chỉ IP: `RATE_LIMITER_ENABLED`, `RATE_LIMITER_POINTS` (số request), `RATE_LIMITER_DURATION` (số giây), `RATE_LIMITER_STORE` (`memory` hoặc `redis`). `RATE_LIMITER_GLOBAL_*` giới hạn tổng số request; `RATE_LIMITER_REGISTRATION_*` giới hạn đăng ký.',
+					'Giới hạn số request mà API nhận.',
 					'Nhiều instance thì dùng `redis` để bộ đếm chung.',
+					[
+						m('RATE_LIMITER_ENABLED', 'Giới hạn số request theo địa chỉ IP. Đúng hoặc sai.'),
+						m('RATE_LIMITER_POINTS', 'Số request mỗi địa chỉ IP được gửi trong một khoảng. Số nguyên.'),
+						m('RATE_LIMITER_DURATION', 'Độ dài một khoảng (giây). Số nguyên.'),
+						m('RATE_LIMITER_STORE', 'Nơi giữ bộ đếm: `memory` hoặc `redis`.'),
+						m('RATE_LIMITER_HEALTHCHECK_THRESHOLD', 'Thời gian (mili giây) mà kiểm tra bộ giới hạn ở `/server/health` được phép trước khi báo cảnh báo. Không đặt thì 150.'),
+						m('RATE_LIMITER_GLOBAL_ENABLED', 'Giới hạn tổng số request của mọi địa chỉ. Đúng hoặc sai.'),
+						m('RATE_LIMITER_GLOBAL_POINTS', 'Tổng số request được gửi trong một khoảng. Số nguyên.'),
+						m('RATE_LIMITER_GLOBAL_DURATION', 'Độ dài một khoảng của giới hạn tổng (giây). Số nguyên.'),
+						m('RATE_LIMITER_GLOBAL_HEALTHCHECK_THRESHOLD', 'Như `RATE_LIMITER_HEALTHCHECK_THRESHOLD`, cho giới hạn tổng. Không đặt thì 150.'),
+						m('RATE_LIMITER_REGISTRATION_ENABLED', 'Giới hạn số lần đăng ký tài khoản. Đúng hoặc sai.'),
+						m('RATE_LIMITER_REGISTRATION_POINTS', 'Số lần đăng ký được phép trong một khoảng. Số nguyên.'),
+						m('RATE_LIMITER_REGISTRATION_DURATION', 'Độ dài một khoảng của giới hạn đăng ký (giây). Số nguyên.'),
+					],
 				),
 				v('PRESSURE_LIMITER_ENABLED', 'Từ chối request bằng mã 503 khi máy chủ quá tải. Đúng hoặc sai.'),
 				v('PRESSURE_LIMITER_SAMPLE_INTERVAL', 'Khoảng cách giữa hai lần đo tải. Số mili giây.'),
@@ -325,7 +399,12 @@ export const configTables: Record<string, ConfigTable[]> = {
 				p(
 					'AUTH_<PROVIDER>_CLIENT_HTTP_*',
 					'AUTH_.+_CLIENT_HTTP_.+',
-					'Tùy chọn của kết nối HTTP tới nhà cung cấp, ví dụ thời gian chờ.',
+					'Tùy chọn của kết nối HTTP tới nhà cung cấp OpenID Connect.',
+					undefined,
+					[
+						m('AUTH_<PROVIDER>_CLIENT_HTTP_TIMEOUT', 'Thời gian chờ một request tới nhà cung cấp (mili giây). Số nguyên.'),
+						m('AUTH_<PROVIDER>_CLIENT_HTTP_<OPTION>', 'Tùy chọn khác của request HTTP tới nhà cung cấp.'),
+					],
 				),
 			],
 		},
@@ -354,8 +433,8 @@ export const configTables: Record<string, ConfigTable[]> = {
 			note: 'Trong tên biến, `<LOCATION>` là tên nơi lưu viết hoa, lấy từ `STORAGE_LOCATIONS`. Backoffice hỗ trợ hai driver: `local` và `s3`.',
 			rows: [
 				v('STORAGE_LOCATIONS', 'Tên các nơi lưu file. Danh sách cách nhau bằng dấu phẩy; nơi đầu tiên là mặc định.', SHARED),
-				p('STORAGE_<LOCATION>_DRIVER', 'STORAGE_.+_DRIVER', 'Driver của nơi lưu: `local` hoặc `s3`.'),
-				p('STORAGE_<LOCATION>_ROOT', 'STORAGE_.+_ROOT', 'Thư mục gốc chứa file (`local`), hoặc tiền tố khóa trong bucket (`s3`). Chuỗi đường dẫn.'),
+				p('STORAGE_<LOCATION>_DRIVER', 'STORAGE_.+_DRIVER', 'Driver của nơi lưu: `local` hoặc `s3`.', undefined, [m('STORAGE_LOCAL_DRIVER', 'Nơi lưu `local` của cấu hình mặc định.')]),
+				p('STORAGE_<LOCATION>_ROOT', 'STORAGE_.+_ROOT', 'Thư mục gốc chứa file (`local`), hoặc tiền tố khóa trong bucket (`s3`). Chuỗi đường dẫn.', undefined, [m('STORAGE_LOCAL_ROOT', 'Thư mục của nơi lưu `local` mặc định.')]),
 				p('STORAGE_<LOCATION>_KEY', 'STORAGE_.+_KEY', 'Access key của S3. Chuỗi.'),
 				p('STORAGE_<LOCATION>_SECRET', 'STORAGE_.+_SECRET', 'Secret key của S3. Chuỗi.'),
 				p('STORAGE_<LOCATION>_BUCKET', 'STORAGE_.+_BUCKET', 'Tên bucket của S3. Chuỗi.'),
@@ -440,8 +519,14 @@ export const configTables: Record<string, ConfigTable[]> = {
 				p(
 					'RATE_LIMITER_EMAIL_FLOWS_*',
 					'RATE_LIMITER_EMAIL_FLOWS_.+',
-					'Giới hạn tần suất của operation Send Email: `RATE_LIMITER_EMAIL_FLOWS_ENABLED`, `_POINTS`, `_DURATION`.',
+					'Giới hạn tần suất của operation Send Email.',
 					'Backoffice không gửi email: operation chạy đủ các bước và ghi log thay cho việc gửi.',
+					[
+						m('RATE_LIMITER_EMAIL_FLOWS_ENABLED', 'Bật giới hạn. Đúng hoặc sai.'),
+						m('RATE_LIMITER_EMAIL_FLOWS_POINTS', 'Số email trong một khoảng. Số nguyên.'),
+						m('RATE_LIMITER_EMAIL_FLOWS_DURATION', 'Độ dài một khoảng (giây). Số nguyên.'),
+						m('RATE_LIMITER_EMAIL_FLOWS_ERROR_MESSAGE', 'Thông báo lỗi khi vượt giới hạn. Chuỗi.'),
+					],
 				),
 			],
 		},
@@ -528,7 +613,17 @@ export const configTables: Record<string, ConfigTable[]> = {
 				v('LOG_LEVEL', 'Mức log thấp nhất được ghi: `fatal`, `error`, `warn`, `info`, `debug`, `trace` hoặc `silent`. Để trống là `info`.'),
 				v('LOG_STYLE', 'Dạng log: `pretty` (cho người đọc) hoặc `raw` (JSON, cho hệ thống thu log). Để trống là `pretty`.'),
 				v('LOG_HTTP_IGNORE_PATHS', 'Các đường dẫn mà request tới đó không được ghi log, ví dụ `/server/ping`. Danh sách cách nhau bằng dấu phẩy.'),
-				p('LOGGER_*', 'LOGGER_.+', 'Tùy chọn thêm của bộ ghi log, ví dụ `LOGGER_LEVELS` để đổi tên mức log.'),
+				p(
+					'LOGGER_*',
+					'LOGGER_.+',
+					'Tùy chọn thêm của bộ ghi log.',
+					undefined,
+					[
+						m('LOGGER_LEVELS', 'Đổi tên mức log trong trường `severity`, dạng `trace:DEBUG,info:INFO,error:ERROR`. Danh sách cách nhau bằng dấu phẩy.'),
+						m('LOGGER_<OPTION>', 'Tùy chọn khác của bộ ghi log, tên viết camelCase, ví dụ `LOGGER_MESSAGE_KEY`.'),
+						m('LOGGER_HTTP_<OPTION>', 'Tùy chọn của bộ ghi log cho request HTTP.'),
+					],
+				),
 			],
 		},
 		{

@@ -73,10 +73,22 @@ describe('configuration variables', () => {
 				tables.map((table) => [
 					!!table.title,
 					!!table.note,
-					table.rows.map((row) => [row.name, row.pattern, !!row.note]),
+					table.rows.map((row) => [row.name, row.pattern, !!row.note, row.members?.map((member) => member.name)]),
 				]),
 			]);
 
 		expect(shape(configTablesEn)).toEqual(shape(configTables));
+	});
+
+	// 2026-11-18: a family row lists its single variables, each with its own row and default.
+	test('every variable listed under a family fits the family pattern; every family variable with a default is listed', () => {
+		for (const row of rows.filter((candidate) => candidate.members)) {
+			const family = new RegExp(`^${row.pattern}$`);
+			for (const member of row.members!)
+				expect(family.test(member.name.replace(/<[A-Z]+>/g, 'X')), `${member.name} in ${row.name}`).toBe(true);
+		}
+
+		const listed = new Set(rows.flatMap((row) => row.members?.map((member) => member.name) ?? []));
+		expect(Object.keys(supported.members).filter((name) => !listed.has(name))).toEqual([]);
 	});
 });
