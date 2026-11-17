@@ -784,11 +784,15 @@ async function sixOperations(page: Page, url: AppUrl, tag: string, own: number, 
 		page.waitForResponse(itemsCall('GET')),
 		page.goto(url(`/content/${NEW.articles}`)),
 	]);
+	// `isVisible` does not wait (its timeout is ignored); the DR app renders the rows a moment after the response.
 	const otherListed = await page
 		.getByText(`${P} other`, { exact: true })
 		.first()
-		.isVisible({ timeout: 15_000 })
-		.catch(() => false);
+		.waitFor({ state: 'visible', timeout: 15_000 })
+		.then(
+			() => true,
+			() => false,
+		);
 
 	// 4: the item of another author: read-only, no save; 5: delete.
 	await page.goto(url(`/content/${NEW.articles}/${other}`));
