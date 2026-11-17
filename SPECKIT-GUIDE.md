@@ -3164,7 +3164,8 @@ T066–T095): 17 trang hướng dẫn (9 module, 8 tính năng riêng) với 24 
 `docs-shots/seed.ts` tạo một lần, `content.test.ts` kiểm link, anchor, ảnh; `docs:shots` so mỗi ảnh bằng
 `toHaveScreenshot` (`updateSnapshots: 'changed'`) nên chạy lại cho 0 ảnh đổi (SC-010). Bài học: `page.screenshot` cho
 ảnh khác từng byte do khử răng cưa; script đổi ngôn ngữ admin phải trả lại giá trị gốc, lượt chạy bị dừng có thể để
-lại `vi-VN`.
+lại `vi-VN`; `isVisible({ timeout })` của Playwright không chờ. Lượt 3 lên `main` `23232112` (+ `a5c4222c`, `ec0e8b61`
+sửa hai test E2E cũ); CI xanh 44112716532. Feature 033 đóng.
 Thư mục: `specs/033-docs-page/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng, không cột, không migration, không endpoint mới. Khác biệt giao diện ghi theo
 Nguyên tắc X từ D-215 (D-214.1 là số cuối đã dùng). Bố cục trang docs là câu hỏi design-system kế tiếp, Q-50 (`docs`,

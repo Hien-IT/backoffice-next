@@ -323,7 +323,7 @@ thấy endpoint tạo index.
 - [X] T064 Kiểm `git diff --stat` của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`; `check-bundle` xanh (file
   API là chunk lazy); `graphify update .`; cập nhật "Trạng thái" trong `SPECKIT-GUIDE.md` và `Status` của `spec.md`
   (lượt 2)
-- [ ] T065 Đóng lượt 2: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build` xanh; commit `feat(web): API reference
+- [X] T065 Đóng lượt 2: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build` xanh; commit `feat(web): API reference
   in the documentation area (spec 033)`; push khi CI của commit trước xanh; theo dõi CI (gồm parity Postgres và E2E)
   tới khi xanh
 
@@ -423,7 +423,7 @@ một link nội bộ thành sai và thấy test đỏ.
 - [X] T094 Cập nhật `CLAUDE.md` (dòng 033 của Active Technologies thành "implemented"; một mục Recent Changes),
   `SPECKIT-GUIDE.md` (dòng "Trạng thái" của 033; mục 2 thêm việc "feature sau 033 cập nhật trang tài liệu của mình"),
   `specs/033-docs-page/spec.md` (`Status: Done`, kết quả SC-007, SC-010); `graphify update .`
-- [ ] T095 Đóng lượt 3: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build`, `check-bundle` xanh;
+- [X] T095 Đóng lượt 3: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build`, `check-bundle` xanh;
   `git diff --stat` của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`; commit
   `feat(web): guides with screenshots in the documentation area (spec 033)`; push khi CI của commit trước xanh; theo dõi
   CI tới khi xanh; ghi mã run vào `spec.md` và `SPECKIT-GUIDE.md`
