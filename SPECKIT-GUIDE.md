@@ -48,6 +48,7 @@ Thêm mục mới (ví dụ spec 030) thì thêm một dòng ở đây, anchor l
   - [030: Index ghép, index trigram và tạo index không khóa bảng](#030-index-ghép-index-trigram-và-tạo-index-không-khóa-bảng)
   - [031: Cài extension bằng gói `.tgz` tải lên](#031-cài-extension-bằng-gói-tgz-tải-lên)
   - [032: Đồng bộ cấu hình từ môi trường khác (kéo qua URL và token)](#032-đồng-bộ-cấu-hình-từ-môi-trường-khác-kéo-qua-url-và-token)
+  - [033: Trang tài liệu (docs) trong app Backoffice](#033-trang-tài-liệu-docs-trong-app-backoffice)
 - [7. Phần chung của `/speckit.plan`](#7-phần-chung-của-speckitplan)
 - [8. Chọn model cho từng bước](#8-chọn-model-cho-từng-bước)
 - [9. Mẹo khi chạy](#9-mẹo-khi-chạy)
@@ -296,6 +297,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 030 | Index ghép, index trigram và tạo index không khóa bảng (bảng backoffice_indexes); chỉ Backoffice               | 006, 016, 022 | BE, FE |
 | 031 | Cài extension bằng gói .tgz tải lên (source upload, thư mục .upload); chỉ Backoffice                           | 020, 025  | BE, FE |
 | 032 | Đồng bộ cấu hình từ môi trường khác (kéo qua URL và token, so sánh và chọn dòng); chỉ Backoffice               | 006, 009, 010, 016, 025, 030, 031 | BE, FE |
+| 033 | Trang tài liệu trong app (`/admin/docs`: hướng dẫn có ảnh, API reference, Configuration); chỉ Backoffice       | 001, 012, 014–032 | FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -3089,6 +3091,218 @@ Ghi chú đưa vào spec và plan 032 (đọc code ngày 2026-11-14, chưa chạ
   và `use-comparison.ts` của 014 (chưa kiểm dùng lại được cho dòng bất kỳ hay không).
 - Hướng đã bàn và không chọn: file gói cấu hình commit vào git cùng CLI `config snapshot`, `config apply` cho CI. Chủ dự
   án chọn UI kéo trực tiếp; nếu sau này cần CI thì registry nhóm và diff của 032 dùng lại được.
+
+### 033: Trang tài liệu (docs) trong app Backoffice
+
+Trạng thái: soạn 2026-11-17 từ yêu cầu của chủ dự án ("làm 1 trang docs cho backoffice giống directus
+https://directus.com/docs/api/files#list-files, https://directus.com/docs/configuration/general, chức năng và hình ảnh
+của backoffice, trang docs là 1 path của backoffice"). 9 điểm A–I ở bảng dưới chủ dự án chốt 2026-11-17 ("Chốt theo đề
+xuất"); prompt viết theo đó. `/speckit.specify` chạy 2026-11-17 (spec.md: US1–US6, FR-001..FR-055 + FR-101,
+SC-001..SC-011, D-215 chờ duyệt, Q-50 mở cho bố cục khu tài liệu, checklists/requirements.md đạt, không marker clarify;
+thư mục tạo tay, không chạy `create-new-feature.sh`; 5 câu chờ `/speckit.clarify` ghi ở Assumptions của spec; gộp trang
+"Environment Sync" trùng ở hai danh sách của prompt nên có 17 trang hướng dẫn: 9 module, 8 tính năng riêng; hai mục
+[Inference] chờ plan xác nhận); `/speckit.clarify` chạy 2026-11-17 (5 câu; ba câu theo đề xuất: phần bổ sung API riêng
+cho docs, ảnh chụp tay rồi commit, đủ 17 trang hướng dẫn; hai câu khác đề xuất: không trang nào nhắc tên Directus kể cả
+trang vận hành nên không có D-215.1 và check-brand quét mọi nội dung docs (FR-047, SC-011); khối code tô màu bằng một
+thư viện mới (FR-010a), là dependency mới duy nhất, plan đề xuất thư viện và chủ dự án duyệt); `/speckit.plan` chạy
+2026-11-17 (research R1–R15 đọc code, chưa chạy thử: khu tài liệu là module ẩn thứ bảy `docs` nên dùng lại đăng ký
+route, tiêu đề sidebar, slot `navigation` và drawer dưới `xl`, guard không sửa; `libs/specs/index.js` đọc bằng
+`node:fs` và `dist/` không nằm trong git nên phần API là file JSON sinh ra và commit, mỗi resource một file, từ
+`openapi.json` (67 path, 133 operation, 23 tag) cộng file bổ sung OpenAPI trong `apps/web`; mặc định của biến sinh từ
+`DEFAULTS` bằng script, mô tả viết tay; đề xuất `highlight.js` 11.12.0 (BSD-3-Clause) sau khi so với prismjs 1.30.0 và
+shiki 4.6.0; `check-brand` quét thêm `.md`, `.yaml`, mô tả tĩnh có đúng một từ bị cấm ở một giá trị ví dụ; project
+Playwright `docs-shots` chạy tay; một test trong môi trường parity kiểm ví dụ GraphQL với schema của API; lệnh mới ở
+`scripts` của `package.json` vì `apps/web/project.json` đang bị session khác sửa; 7 mục [Unverified] có lượt kiểm; 8
+sửa câu chữ spec; data-model không bảng, contracts web/tests, quickstart; `CLAUDE.md` thêm một dòng Active
+Technologies). Chủ dự án duyệt 2026-11-17 sau plan ("Duyệt như đề xuất"): D-215, Q-50 phương án A
+(thân bài `text-base`, chủ dự án chọn riêng; khối code nền tối ở cả hai giao diện; mục menu "Tài liệu", icon
+`menu_book`), `highlight.js` 11.12.0, ba điểm Complexity Tracking, 8 sửa câu chữ spec. `/speckit.checklist` chạy
+2026-11-17 (content 14, design-system 11, security 10, a11y 10 mục, CHK001–CHK045; 26 phát hiện sửa cùng lượt vào
+spec và contracts: lớn nhất là FR-018a phạm vi tối thiểu của mỗi trang hướng dẫn; FR-021 và SC-004 mâu thuẫn với
+danh sách loại trừ endpoint không được phục vụ; FR-038 mâu thuẫn với mô tả endpoint tiếng Anh; màu cú pháp không
+được dùng thang `brand-*` vì thang này sinh từ màu dự án (từ khóa đổi sang `warning-300`); FR-037 che token, mã QR,
+URL và token của trang đồng bộ khi chụp; FR-046 bốn nguồn HTML qua bộ lọc; FR-048a không nới CSP; FR-027 ghi ai gọi
+được endpoint riêng; FR-041 bề rộng nhỏ nhất 768 px; FR-043 `prefers-reduced-motion`; cổng handoff-checklist và bảng
+tương phản của migration-guide). Chủ dự án duyệt 26 sửa cùng ngày ("Duyệt, chạy tasks"), gồm đổi màu từ
+khóa của bố cục Q-50 (CHK018); giấy phép của phần mô tả trong mô tả API tĩnh (CHK010) còn [Unverified], là task đầu
+lượt 2. `/speckit.tasks` chạy 2026-11-17 (95 task, ba lượt: lượt 1 khung và Cấu hình T001–T048 (Setup gồm T001 kiểm
+ba mục [Unverified] của research, T002 cài và audit `highlight.js`, T003 recipe Q-50 trước khi code giao diện), lượt 2
+API reference T049–T065, lượt 3 hướng dẫn và ảnh T066–T095 (17 trang, mỗi trang một task [P] gồm kịch bản chụp và
+markdown); 51 task [P]; MVP = Phase 1–3: khu tài liệu mở từ menu người dùng, có khung và trang mở đầu; hai điểm
+dừng hỏi chủ dự án: T049 gói mô tả API của Directus ghi giấy phép BUSL-1.1 (đọc `directus/packages/specs/package.json`
+khi viết tasks), T070 máy local chưa có trình duyệt Playwright); `/speckit.analyze` chạy 2026-11-17 (0 CRITICAL, 2
+HIGH, 9 MEDIUM, 11 LOW; 57/58 FR có task; chủ dự án "Sửa tất cả", sửa cùng ngày: U1 chủ dự án quyết định hiện nguyên
+văn phần mô tả lấy từ mô tả API tĩnh nên T049 không còn là điểm dừng; I1 không ghi đè khóa dịch có sẵn ở overlay
+(`overlay.test.ts` cấm), dùng khóa mới `docs_*`; C1 ca E2E kiểm CSP; C2 kiểm lọc HTML cho mô tả API, mô tả biến và
+kết quả tô màu; C3 SC-002 kiểm bằng đường đi không quá 4 lần bấm; C4 breadcrumb và câu dẫn; C5 T044 là bằng chứng
+của SC-007; I2 FR-044 tham chiếu SC-007; I3 trường `access` trong data-model; U2 script tự build gói mô tả, web
+không thêm dependency workspace; U3 ảnh trang đồng bộ dùng nguồn của profile `sync`; mười một LOW gồm typecheck ở
+cổng đóng lượt và T005a cài trình duyệt ở Phase 1; 96 task). Chưa có code.
+Thư mục: `specs/033-docs-page/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
+Dự kiến không sửa constitution: không bảng, không cột, không migration, không endpoint mới. Khác biệt giao diện ghi theo
+Nguyên tắc X từ D-215 (D-214.1 là số cuối đã dùng). Bố cục trang docs là câu hỏi design-system kế tiếp, Q-50 (`docs`,
+`design-system`, `specs` đang tới Q-49). Một dependency mới: thư viện tô màu cú pháp (clarify 2026-11-17); plan đề xuất,
+chủ dự án duyệt.
+
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Cách dùng mục này:** chạy 7 lệnh dưới theo thứ tự, mỗi lệnh một lượt, chép nguyên khối `text`. Sau `/speckit.clarify` trả lời tối đa 5 câu. Sau `/speckit.plan`
+chủ dự án duyệt D-215+ và Q-50 rồi mới chạy `/speckit.tasks`. Sau mỗi lệnh, cập nhật dòng "Trạng thái" ở trên như các
+feature trước.
+
+**Vì sao cần** (đọc code 2026-11-17): app không có trang tài liệu nào. Router chỉ có các trang công khai và
+`private-404` (`apps/web/src/router/index.ts:92`), sáu module tĩnh (`apps/web/src/modules/index.ts`), menu người dùng chỉ
+có Profile và Sign out (`apps/web/src/layout/UserMenu.vue:36`). Tài liệu của Backoffice hiện nằm trong `specs/`,
+`CLAUDE.md`, `deploy/README` và file này, viết cho người phát triển. Người dùng và người vận hành phải đọc docs của
+Directus, vốn mô tả bản Directus mới nhất và không có các tính năng riêng 022–032.
+
+**Docs của Directus** (xem bằng trình duyệt 2026-11-17, ba trang: `/docs/api/files`, `/docs/configuration/general`,
+`/docs/guides/files/upload`):
+
+- Khung: thanh trên có tab (Docs, API, Tutorials) và ô tìm kiếm; cột trái là menu theo nhóm; giữa là breadcrumb, tiêu
+  đề, câu dẫn; cột phải là "On this page". Cuối trang có link trang trước và trang sau.
+- API: menu trái 34 resource. Đầu trang là mô tả và danh sách endpoint (method + path). Mỗi endpoint có tên, mô tả,
+  Query Parameters hoặc Request Body (tên, kiểu, mô tả), Responses theo mã (200, 401) với "Show properties". Cột phải
+  dính theo cuộn: ví dụ theo tab SDK / REST / GraphQL và Response Example.
+- Configuration: 20 trang theo nhóm biến; mỗi trang là các bảng Variable / Description / Default Value, xen ghi chú.
+- Guide: văn xuôi theo bước, ảnh chụp Data Studio, ô cảnh báo, tab code.
+- Docs online đã có Environment Sync và toán tử `_json` của Directus, tức là không phải bản 11.17.4. Nội dung của
+  Backoffice lấy từ repo, không chép từ trang web. [Unverified] Giấy phép của nội dung docs Directus chưa được kiểm.
+
+**Nguồn có sẵn trong repo** (đọc code 2026-11-17):
+
+- OAS tĩnh: `libs/specs/src/openapi.yaml` (title đã là Backoffice, dòng 4) với 23 thư mục `paths` (activity, assets,
+  auth, collections, comments, extensions, fields, files, flows, folders, items, operations, permissions, presets,
+  relations, revisions, roles, schema, server, settings, users, utils, versions); `swagger-cli bundle` ghi ra
+  `dist/openapi.json`. Không có thư mục riêng cho policies, access, dashboards, panels, notifications, translations,
+  shares và không có path `/backoffice/*` nào.
+- `GET /server/specs/oas` (`apps/api/src/controllers/server.controller.ts:23`) dùng chính `spec` đó
+  (`apps/api/src/services/specifications.service.ts:4`, `:56`) cộng collection của user. Sửa `libs/specs` thì trả lời
+  của endpoint này đổi theo và lệch Directus.
+- Endpoint chỉ của Backoffice: `/backoffice/auth/passkey*`, `/backoffice/users/me/passkeys*`,
+  `/backoffice/collections/:collection/indexes`, `/backoffice/extensions/upload`, `/backoffice/permissions`,
+  `/backoffice/sync*` (năm file `apps/api/src/controllers/backoffice-*.controller.ts`).
+- Biến môi trường: `SUPPORTED_VARIABLES` là danh sách RegExp, không có mô tả hay mặc định
+  (`apps/api/src/config/supported-variables.ts:5`, ví dụ `LOGGER_.+`, `DB_.+`); `NOT_APPLICABLE_VARIABLES` rỗng (dòng
+  224). Mặc định nằm ở `libs/env/src/constants/defaults.ts`, tên biến của Directus ở
+  `libs/env/src/constants/directus-variables.ts`. Trang Configuration vì vậy cần một file dữ liệu viết tay (nhóm, tên,
+  mô tả); test đối chiếu tên với `SUPPORTED_VARIABLES` và mặc định với `defaults.ts`.
+- Markdown: `md()` (`apps/web/src/utils/markdown.ts:30`) chạy `marked` rồi DOMPurify. `apps/web/package.json` không có
+  thư viện tô màu code (highlight.js, shiki, prism); CodeMirror 5 đã có cho `input-code`.
+- Ảnh: `page.screenshot` đã dùng ở `apps/web-e2e/src/branding.spec.ts:69`. `apps/web/public` chỉ có `config.json` và
+  `favicon.ico`, nên ảnh đi qua asset của Vite. Máy local không có trình duyệt Playwright (ghi ở 032).
+
+**Ràng buộc phát hiện khi đọc code** (đưa vào spec và plan):
+
+- `check-brand` cấm chữ Directus trong chuỗi người dùng thấy (FR-030, FR-082 của 012) nhưng chỉ quét
+  `vue|ts|css|html|svg|json` (`apps/web/scripts/check-brand.mjs:32`), không quét `.md`. Nội dung docs viết bằng markdown
+  sẽ lọt qua. Trang vận hành (Configuration, chạy cạnh Directus) lại cần nhắc tên Directus. Đây là câu hỏi cho chủ dự án.
+- `check-bundle` giới hạn main bundle 350 KB gzip, không tính chunk lazy (`apps/web/scripts/check-bundle.mjs:1`). Route
+  docs, OAS và nội dung phải là chunk lazy.
+- File của web là file tĩnh công khai dưới `/admin/` (`apps/web/nginx.conf:45`). Route có chặn đăng nhập thì nội dung
+  docs vẫn tải được bằng URL của chunk. Docs không được chứa bí mật; "cần đăng nhập" chỉ là ẩn lối vào.
+- [Inference] `libs/specs/index.js` đọc `dist/openapi.json` bằng `node:fs` (graphify xếp vào nhóm `node:fs`, chưa mở
+  file), nên web không import `@backoffice/specs` trực tiếp được; plan chọn import file JSON hoặc sinh một file gọn lúc
+  build.
+
+**Ảnh hưởng tới Directus** (suy từ thiết kế, plan xác nhận): không. Không endpoint, bảng, cột, biến môi trường mới;
+`/server/specs/oas` không đổi nếu phần bổ sung OAS nằm ngoài `spec` của `libs/specs`. Directus app không có trang này.
+
+**Điểm đã chốt với chủ dự án 2026-11-17** (cột Chốt là câu trả lời, prompt bên dưới viết theo đó; cột Phương án khác
+là hướng không chọn):
+
+| #   | Câu hỏi              | Chốt                                                                                                                          | Phương án khác                                                        |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| A   | Trang nằm ở đâu      | Route `/admin/docs/...` trong `apps/web` (chunk lazy), dùng `marked` + DOMPurify đã có                                        | Site tĩnh VitePress do nginx phục vụ: thêm dependency, lệch design-system |
+| B   | Ai xem được          | User đã đăng nhập; chưa đăng nhập thì qua trang login rồi quay lại. Nội dung không bí mật (file tĩnh tải được)                | Công khai như Directus                                                |
+| C   | Nguồn API reference  | OAS tĩnh của `libs/specs` cộng một file bổ sung chỉ dùng cho docs (resource còn thiếu và `/backoffice/*`)                     | Gọi `/server/specs/oas` lúc chạy: có collection của user, khác nhau theo quyền |
+| D   | Ngôn ngữ nội dung    | vi-VN ở v1; chuỗi của khung trang theo overlay en-US/vi-VN                                                                    | Hai ngôn ngữ ngay từ đầu (gấp đôi nội dung)                           |
+| E   | Ảnh                  | Script Playwright chụp trên fixture (chromium 1280, light), ảnh commit vào repo, chạy lại khi giao diện đổi                   | Chụp tay                                                              |
+| F   | Lối vào              | Một mục "Tài liệu" trong menu người dùng                                                                                      | Một module trong sidebar                                              |
+| G   | Ví dụ code           | REST (curl) và GraphQL                                                                                                        | Thêm tab SDK như Directus                                             |
+| H   | Khi API là Directus  | Trang vẫn mở (nội dung tĩnh, không probe)                                                                                     | Ẩn như các trang chỉ của Backoffice                                   |
+| I   | Không làm ở v1       | Tìm kiếm toàn văn, Ask AI, nút gọi thử API, nhiều phiên bản docs, docs cho collection của user, Copy page, "Was this helpful" | –                                                                     |
+
+**Câu hỏi ở `/speckit.clarify`** (trả lời 2026-11-17: câu 1 không nhắc ở trang nào, không có D-215.1; câu 2, 3, 4
+theo đề xuất; câu 5 tô màu bằng thư viện mới):
+
+1. Docs có được nhắc tên Directus không? Đề xuất: trang hướng dẫn người dùng không nhắc; trang vận hành (Configuration,
+   chạy cạnh Directus, migration) được nhắc, ghi thành D mới; `check-brand` quét thêm `.md` của phần hướng dẫn.
+2. Resource không có trong OAS tĩnh (policies, access, dashboards, panels, notifications, translations, shares) và
+   `/backoffice/*`: viết file OAS bổ sung chỉ cho docs (đề xuất), hay thêm vào `libs/specs` (làm `/server/specs/oas`
+   lệch Directus, cần D)?
+3. Ảnh chụp ở đâu: script chạy tay ở máy có trình duyệt Playwright rồi commit (đề xuất; CI chỉ kiểm file ảnh được tham
+   chiếu có tồn tại), hay một job CI chụp và xuất artifact?
+4. Phạm vi hướng dẫn ở v1: mỗi module một trang và mỗi tính năng riêng 022–032 một trang (đề xuất), hay ít hơn?
+5. Khối code: `<pre>` thường không tô màu (đề xuất, không dependency), hay CodeMirror 5 chỉ đọc?
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/033-docs-page và đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Feature 033: trang tài liệu (docs) của Backoffice nằm ngay trong web app tại /admin/docs/..., bố cục theo docs của Directus (tham chiếu https://directus.com/docs/api/files#list-files, https://directus.com/docs/configuration/general, https://directus.com/docs/guides/files/upload): menu trái theo nhóm, nội dung ở giữa có breadcrumb, tiêu đề, câu dẫn, mục lục "Trên trang này" bên phải, mỗi tiêu đề có anchor chia sẻ được bằng URL, link trang trước và trang sau. Bối cảnh: app không có trang tài liệu; tài liệu hiện chỉ có trong specs/, CLAUDE.md, deploy/README, viết cho người phát triển; docs của Directus mô tả bản mới nhất và không có các tính năng riêng của Backoffice (022–032). Đây là tính năng chỉ của Backoffice (như 022, 025, 029, 030, 031, 032): Directus app không có trang này. Phạm vi đã chốt (chủ dự án 2026-11-17): 1. Ba phần nội dung. (a) Hướng dẫn sử dụng: mỗi module một trang (Content, Files, Users, Insights, Activity và Notifications, Settings gồm Data Model, Roles và Policies, Flows, Extensions, Environment Sync) và mỗi tính năng riêng của Backoffice một trang (ẩn hiện tìm kiếm/import/export theo collection, filter theo path json, quyền import/export theo policy, filter so sánh hai field, passkey, index, tải extension lên, đồng bộ môi trường), viết theo bước, kèm ảnh chụp màn hình Backoffice có alt. (b) API reference, mỗi resource một trang: mô tả, danh sách endpoint (method + path), từng endpoint có query parameters hoặc request body (tên, kiểu, mô tả), responses theo mã trạng thái, ví dụ REST (curl) và GraphQL, response mẫu; gồm cả các endpoint /backoffice/*. (c) Configuration: biến môi trường theo nhóm, bảng Tên / Mô tả / Mặc định, chỉ liệt kê biến Backoffice đọc và dùng. 2. Nguồn: API reference lấy từ OAS tĩnh trong repo (libs/specs) cộng một phần bổ sung chỉ dùng cho docs (resource OAS còn thiếu và /backoffice/*); không gọi /server/specs/oas lúc chạy nên mọi người thấy cùng nội dung và /server/specs/oas không đổi; Configuration lấy từ một danh sách viết tay được test đối chiếu với danh sách biến và mặc định của API; hướng dẫn là file markdown trong repo. 3. Quyền xem: user đã đăng nhập; người chưa đăng nhập mở link docs thì qua trang đăng nhập rồi quay lại đúng trang và anchor; nội dung docs không chứa bí mật (file của web là file tĩnh công khai). 4. Lối vào: một mục "Tài liệu" trong menu người dùng; link sâu tới từng trang và từng tiêu đề. 5. Ngôn ngữ: nội dung vi-VN ở v1; chuỗi của khung trang theo ngôn ngữ của user (en-US, vi-VN). 6. Ảnh: chụp bằng script trên dữ liệu fixture, commit vào repo, chạy lại được khi giao diện đổi; mỗi ảnh có alt. 7. Khi API là Directus: trang vẫn mở vì nội dung tĩnh. 8. Giao diện theo design-system (token, dark mode, bàn phím, responsive: dưới xl menu trái thành drawer, mục lục phải ẩn); bố cục docs ba cột, khối endpoint, bảng biến và ô ghi chú chưa có mẫu trong design-system: ghi thành câu hỏi mở theo Nguyên tắc XII (Q-50), không tự chọn. 9. Hiệu năng: trang docs không làm main bundle của app lớn thêm (nội dung tải khi mở trang). Ngoài phạm vi v1: tìm kiếm toàn văn, Ask AI, nút gọi thử API, tab SDK, nhiều phiên bản docs, docs cho collection của user, sửa docs trong app, Copy page, phản hồi "Was this helpful". Nội dung tự viết, không chép văn bản từ directus.com; mô tả endpoint lấy từ OAS đã có trong repo. Khác biệt với Directus ghi từ D-215, chủ dự án duyệt theo Nguyên tắc X (bảng "Khác biệt so với Directus" theo FR-101 để tests/parity/src/spec-differences.ts đọc được): D-215 trang /admin/docs và mục menu "Tài liệu" chỉ có ở app Backoffice. Câu hỏi mở ghi ở spec: docs có nhắc tên Directus không (FR-030, FR-082 của 012 cấm chữ Directus trong chuỗi người dùng thấy; trang vận hành cần nhắc). Kiểm thử: unit cho phần sinh nội dung (mọi path của OAS có mục, mọi biến trong trang Configuration khớp danh sách của API, mặc định khớp), kiểm link nội bộ, anchor và ảnh được tham chiếu đều tồn tại, a11y axe, E2E docs.spec.ts ba cấu hình (mở từ menu người dùng, đi qua menu trái, mở link có anchor, người chưa đăng nhập được đưa về đúng trang sau khi đăng nhập). Không có suite parity mới vì API không đổi. Tiêu chí chấp nhận: người dùng mở docs từ menu trong hai lần bấm; mỗi module và mỗi tính năng riêng có một trang hướng dẫn với ít nhất một ảnh; mỗi endpoint của OAS và mỗi endpoint /backoffice/* có mục; mỗi biến môi trường Backoffice dùng có một dòng; không link, anchor hay ảnh nào gãy.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Bỏ qua được: các điểm chủ dự án đã chốt (route trong app, quyền xem, nguồn OAS tĩnh, ngôn ngữ, lối vào, ví dụ REST và GraphQL, danh sách không làm ở v1). Hỏi nếu spec chưa rõ: 1. Docs có nhắc tên Directus không: đề xuất trang hướng dẫn người dùng không nhắc, trang vận hành (Configuration, chạy cạnh Directus, migration) được nhắc và ghi thành D-215.1; check-brand quét thêm markdown của phần hướng dẫn. 2. Resource không có trong OAS tĩnh (policies, access, dashboards, panels, notifications, translations, shares) và /backoffice/*: đề xuất file OAS bổ sung chỉ cho docs, không sửa spec của libs/specs để /server/specs/oas vẫn giống Directus. 3. Ảnh chụp ở đâu: đề xuất script Playwright chạy tay trên máy có trình duyệt (proxy-api, chromium 1280, light, vi-VN), ảnh commit; CI chỉ kiểm ảnh được tham chiếu có tồn tại, không chụp lại. 4. Phạm vi hướng dẫn v1: đề xuất mỗi module một trang và mỗi tính năng riêng 022–032 một trang. 5. Khối code: đề xuất pre thường không tô màu (không dependency mới), có nút chép. Ghi "Clarifications" vào spec; D-215.x cập nhật theo câu trả lời.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt D-215+ và Q-50)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Phần chung FE như mục 7. Đọc trước: apps/web/src/router/index.ts (route công khai, private-404 dòng 92, createWebHistory('/admin/') dòng 99) và router/guard (chuyển về login rồi quay lại), apps/web/src/modules/index.ts và modules/types.ts (sáu module tĩnh; docs là route riêng hay module), apps/web/src/layout (PrivateView.vue, AppSidebar.vue, PageHeader.vue, UserMenu.vue dòng 36), apps/web/src/utils/markdown.ts (md() dòng 30), apps/web/src/components (BoTabs, BoNotice, BoTable, BoMenu), apps/web/src/lang/overlay, apps/web/scripts/check-brand.mjs (đuôi file quét dòng 32, PATH_EXCEPTIONS) và check-bundle.mjs (350 KB, chunk lazy không tính), apps/web/vite.config (glob import, asset), apps/web/nginx.conf (location /admin/ dòng 45, cache), libs/specs (src/openapi.yaml, src/paths 23 thư mục, package.json build swagger-cli, index.js), apps/api/src/services/specifications.service.ts (dùng spec dòng 4, 56), apps/api/src/controllers/backoffice-*.controller.ts (năm file: route và payload của endpoint riêng), apps/api/src/config/supported-variables.ts (RegExp, dòng 5 và 224), libs/env/src/constants/defaults.ts và directus-variables.ts, apps/web-e2e/playwright.config.ts (projects dòng 30) và src/branding.spec.ts dòng 69 (page.screenshot), apps/web/fixtures, design-system/docs/layout-patterns.md và component-specs.md, design-system/qa/handoff-checklist.md. Quyết định kỹ thuật cần ghi ở plan: 1. Route /docs/:path(.*)* trong apps/web, component và nội dung là chunk lazy; cấu trúc thư mục nội dung (ví dụ apps/web/src/docs/guides/*.md, api/, configuration/) và cách nạp (import.meta.glob với ?raw, tải theo trang); menu trái sinh từ một file mục lục; mục lục phải sinh từ tiêu đề của trang; anchor ổn định (slug không dấu). 2. Markdown qua md() có sẵn; nêu rõ cú pháp mở rộng nào cần (ô ghi chú, tab code, bảng) và làm bằng renderer của marked hay component Vue; khối code tô màu bằng một thư viện mới (clarify câu 5, FR-010a): so sánh hai hoặc ba thư viện theo giấy phép, dung lượng nén, ngôn ngữ cần (shell, GraphQL, JSON), tô lúc build hay lúc chạy, kết quả audit, rồi đề xuất một để chủ dự án duyệt; màu theo token cho sáng và tối, đạt AA; thư viện nằm trong chunk lazy của docs; ngoài thư viện đó không thêm dependency; ảnh trong markdown đi qua asset của Vite. 3. API reference: web không import @backoffice/specs nếu index.js dùng node:fs; chọn import dist/openapi.json hoặc script build sinh một file gọn theo resource (mỗi resource một chunk); file OAS bổ sung chỉ cho docs đặt ở đâu để /server/specs/oas không đổi; component trang resource: danh sách endpoint, tham số, responses thu gọn được, ví dụ curl và GraphQL sinh từ OAS hay viết tay. 4. Configuration: file dữ liệu viết tay (nhóm, tên, mô tả, ghi chú); test đối chiếu tên với SUPPORTED_VARIABLES (RegExp) và mặc định với defaults.ts; nêu cách đưa hai danh sách đó vào test của web mà web không phụ thuộc apps/api lúc chạy. 5. Ảnh: script Playwright riêng (không nằm trong lượt E2E thường), dữ liệu fixture nào, kích thước, theme, ngôn ngữ, che dữ liệu động (ngày giờ, id) để ảnh ổn định; nơi lưu ảnh và giới hạn dung lượng repo. 6. Quyền xem: route private như các module; guard có sẵn giữ đường dẫn và hash sau đăng nhập hay cần sửa. 7. check-brand: quét mọi nội dung docs (markdown, phần bổ sung OAS, dữ liệu Configuration), không ngoại lệ (clarify câu 1, FR-047); kiểm mô tả trong libs/specs không có từ Directus đứng riêng; nêu cách viết ghi chú vận hành mà không gọi tên. 8. Bố cục: đề xuất recipe Q-50 (ba cột trong PrivateView hay layout riêng không sidebar module; drawer dưới xl; mục lục dính; khối endpoint hai cột) để chủ dự án duyệt. 9. a11y: landmark nav cho menu và mục lục, aria-current, bảng có caption, khối code cuộn bằng bàn phím, tab code theo BoTabs. 10. Rủi ro ghi ở plan: nội dung docs cũ đi so với code (test nào bắt được: OAS, biến môi trường, link, ảnh; phần văn xuôi không có test); ảnh nặng làm repo và image web lớn; file tĩnh công khai dù route cần đăng nhập; chữ Directus trong docs; OAS tĩnh thiếu resource. Kết quả: research.md R1–R?, data-model.md (không bảng; cấu trúc mục lục, kiểu trang, kiểu dòng biến), contracts web/tests, quickstart.md (cách thêm một trang, cách chụp lại ảnh).
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. content: mỗi module và mỗi tính năng riêng 022–032 có trang; mỗi endpoint OAS và /backoffice/* có mục; mỗi biến Backoffice dùng có dòng với mặc định đúng; không chép văn bản directus.com; không trang nào nhắc tên Directus (FR-047); mỗi ảnh có alt và nguồn chụp lại được. design-system: mọi màu, cỡ chữ, bóng từ token; dark mode; dưới xl; Q-50 được duyệt trước khi code; không chọn ngầm phần design-system chưa có. security: nội dung không chứa token, mật khẩu, URL nội bộ, dữ liệu thật trong ảnh; markdown chỉ qua md() (DOMPurify); không endpoint mới; /server/specs/oas không đổi. a11y: bàn phím qua menu, mục lục, tab code; axe sạch; tiêu đề đúng cấp.
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Chia ba lượt: lượt 1 khung và Configuration (route /docs lazy, mục "Tài liệu" ở menu người dùng, layout theo recipe Q-50, nạp markdown, menu trái, mục lục, anchor, trước/sau, overlay en-US/vi-VN, trang Configuration với file dữ liệu và test đối chiếu biến, check-brand, check-bundle, unit, a11y, E2E mở trang ba cấu hình); lượt 2 API reference (nguồn OAS cho web, file bổ sung cho resource thiếu và /backoffice/*, component trang resource, ví dụ curl và GraphQL, test mọi path có mục); lượt 3 hướng dẫn và ảnh (script chụp Playwright, trang cho từng module và từng tính năng riêng, test link, anchor, ảnh, E2E đủ ca, CLAUDE.md, đóng spec). Mỗi lượt kết thúc bằng lint, unit web và commit thẳng main sau khi CI của commit trước xanh (không stage apps/api/project.json, apps/web/project.json).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Lượt 1: khung trang docs và Configuration (route lazy, mục menu, layout Q-50, markdown, menu trái, mục lục, anchor, overlay, file dữ liệu biến môi trường và test đối chiếu). Comment theo Nguyên tắc IX ("DR"), mỗi chỗ sửa code port ghi `Backoffice (spec 033, D-215)`. Chạy lint (gồm check-brand), unit web, check-bundle trước khi commit; commit thẳng main khi CI của commit trước xanh; không stage apps/api/project.json, apps/web/project.json.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Lượt 2: API reference (nguồn OAS cho web, file bổ sung, trang resource, ví dụ curl và GraphQL, test mọi path của OAS và mọi endpoint /backoffice/* có mục). Chạy lint, unit web, check-bundle; kiểm GET /server/specs/oas không đổi (parity server); commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=033-docs-page khi chạy script .specify. Lượt 3: hướng dẫn và ảnh (script chụp, trang từng module và từng tính năng riêng 022–032, test link, anchor, ảnh; E2E docs.spec.ts ba cấu hình, a11y); cập nhật CLAUDE.md (Active Technologies, Recent Changes) và design-system/docs (recipe Q-50); đóng spec (Status, D-215.x duyệt). Commit thẳng main khi CI xanh; không stage hai project.json.
+```
+
+Ghi chú đưa vào spec và plan 033 (đọc code và xem docs Directus ngày 2026-11-17, chưa chạy thử):
+
+- Ảnh phải chụp trên máy có trình duyệt Playwright; máy local hiện không có. Lượt 3 cần cài trình duyệt ở máy hoặc một
+  job CI chụp và xuất artifact.
+- Văn xuôi của hướng dẫn không có test nào bắt được khi code đổi. Mỗi feature sau 033 thêm một việc: cập nhật trang
+  docs của nó (ghi vào mục 2 của file này khi 033 xong).
+- Nội dung hướng dẫn lấy từ `specs/<feature>/spec.md` (User Stories) và `quickstart.md` của từng feature, viết lại cho
+  người dùng; không chép chi tiết kỹ thuật nội bộ.
+- Hướng đã cân nhắc và không chọn: site VitePress riêng (thêm dependency và một bản build thứ hai trong image web);
+  API phục vụ docs (thêm endpoint, lệch Directus); sinh docs từ `/server/specs/oas` lúc chạy (mỗi user thấy khác nhau,
+  không có `/backoffice/*`).
 
 ---
 
