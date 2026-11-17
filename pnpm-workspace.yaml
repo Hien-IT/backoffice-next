@@ -356,3 +356,8 @@ auditConfig:
     # only creates ClientSecret, DefaultAzure, ManagedIdentity and UsernamePassword credentials. Owner 2026-10-24;
     # remove when @azure/identity takes msal-node 7.
     - GHSA-xcx6-jx8p-x3h5 # @azure/msal-node: authorization code flow parameters (fixed 7.1.0)
+    # picomatch 4.0.7 comes with @rollup/pluginutils through @rollup/plugin-node-resolve, which the extension manager
+    # calls as nodeResolve({ browser: true }) to bundle app extensions (spec 020): no include/exclude globs, so no glob
+    # from outside reaches picomatch. No fixed version exists yet (every <=4.0.7; npm audit reports it since CI
+    # 44143426516); accepted 2026-11-18, remove when a fixed picomatch is out.
+    - GHSA-fc5q-39xc-vjpf # picomatch: ReDoS through single-branch repeated extglobs (no fix yet)
