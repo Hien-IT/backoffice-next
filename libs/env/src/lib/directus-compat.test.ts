@@ -52,13 +52,10 @@ describe('§1 sources and precedence', () => {
 		expect(env({})['ROOT_REDIRECT']).toBe('./admin');
 	});
 
-	test('D-216: OPENAPI_ENABLED is off and ROBOTS_TXT has no default (DR: true and a default text)', () => {
-		expect(env({})['OPENAPI_ENABLED']).toBe(false);
+	test('D-216: ROBOTS_TXT has no default (DR: a default text); OPENAPI_ENABLED stays on like DR', () => {
 		expect(env({})['ROBOTS_TXT']).toBeUndefined();
-		expect(env({ OPENAPI_ENABLED: 'true', ROBOTS_TXT: 'User-agent: *' })).toMatchObject({
-			OPENAPI_ENABLED: true,
-			ROBOTS_TXT: 'User-agent: *',
-		});
+		expect(env({ ROBOTS_TXT: 'User-agent: *' })['ROBOTS_TXT']).toBe('User-agent: *');
+		expect(env({})['OPENAPI_ENABLED']).toBe(true);
 	});
 });
 

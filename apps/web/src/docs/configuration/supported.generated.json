@@ -50,7 +50,7 @@
 		{
 			"pattern": "OPENAPI_ENABLED",
 			"exact": true,
-			"default": "false"
+			"default": "true"
 		},
 		{
 			"pattern": "QUERYSTRING_MAX_PARSE_DEPTH",

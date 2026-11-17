@@ -77,8 +77,7 @@ xuất hiện một lần, sắp xếp A–Z, không bao giờ in giá trị.
 - **`SERVE_APP`**: mặc định của Directus là `true`. API mới chỉ cảnh báo (dòng 4 của `contracts/startup.md`, không
   phải dòng 3) khi key `SERVE_APP` có mặt trong cấu hình thô và giá trị sau ép kiểu là `true`; `false` hoặc không đặt
   thì không cảnh báo. Dù đặt hay không, `/admin` và `/admin/*` trả `404 ROUTE_NOT_FOUND`.
-- **`OPENAPI_ENABLED`, `ROBOTS_TXT`** (D-216, 2026-11-18): hai giá trị mặc định khác Directus. `OPENAPI_ENABLED` mặc
-  định `false` (Directus `true`); `ROBOTS_TXT` không có mặc định (Directus `User-agent: *\nDisallow: /`), khi chưa
+- **`ROBOTS_TXT`** (D-216, 2026-11-18): không có giá trị mặc định (Directus `User-agent: *\nDisallow: /`), khi chưa
   đặt thì `/robots.txt` trả `404 ROUTE_NOT_FOUND`.
 - Biến không thuộc `DIRECTUS_VARIABLES` (ví dụ `PATH`, `HOME`, `STORAGE_S3_FORCE_PATH_STYLE`,
   `UNIX_SOCKET_PATH`) không bao giờ bị cảnh báo. `UNIX_SOCKET_PATH`, `STORAGE_S3_FORCE_PATH_STYLE`

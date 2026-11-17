@@ -99,7 +99,6 @@ paths:
       operationId: oas
       description: >
         Chỉ tồn tại khi `OPENAPI_ENABLED` khác `false` (khi tắt: 404 ROUTE_NOT_FOUND).
-        D-216 (2026-11-18): mặc định của Backoffice là `false`, Directus là `true`.
         Body là tài liệu OpenAPI 3.0.1 do Directus sinh động cho người dùng public: `info.title`
         `Dynamic API Specification`; `info.version` là `object-hash({now: <ISO thời điểm request>, user})`
         nên đổi theo từng request (test đối chiếu bỏ qua trường này và ETag của response này);

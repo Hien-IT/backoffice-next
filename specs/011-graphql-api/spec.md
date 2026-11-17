@@ -505,8 +505,7 @@ benchmark query GraphQL đọc nhiều.
   trong tên type của scope `system`).
 - **FR-042**: `GRAPHQL_INTROSPECTION=false` PHẢI thêm quy tắc chặn introspection vào validation (lỗi như Directus)
   và tắt `/server/specs/graphql` (`404 ROUTE_NOT_FOUND`) và query `server_specs_graphql`; `server_specs_oas` chỉ phụ
-  thuộc `OPENAPI_ENABLED` như Directus (`resolvers/system.ts`). (D-216, 2026-11-18: `OPENAPI_ENABLED` mặc định
-  `false` ở Backoffice, nên `server_specs_oas` chỉ có khi đặt `true`.)
+  thuộc `OPENAPI_ENABLED` như Directus (`resolvers/system.ts`).
 - **FR-043**: `GET /server/specs/graphql/:scope?` (`items` mặc định, `system`; scope khác `404`) PHẢI trả SDL in từ
   schema của user gọi (`printSchema` như Directus, public cũng tải được), `Content-Disposition: attachment;
   filename="<project_name>_<yyyy-MM-dd>.graphql"`, `Content-Type: application/octet-stream; charset=utf-8` (đo
