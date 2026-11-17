@@ -28,9 +28,12 @@ export const BUDGET_018 = BUDGET_017 + 15 * 1024;
 // loader; the import map moves vue, vue-router, vue-i18n, pinia and @directus/extensions-sdk to their own entry chunks,
 // so the main bundle is the module script of index.html and every chunk it imports statically.
 export const BUDGET_020 = BUDGET_018 + 3 * 1024;
+// Feature 033 (SC-007, research R12): at most 2 KB over the 020 budget for the `docs` module record and the user menu
+// item; the documentation area, its content and highlight.js stay in lazy chunks.
+export const BUDGET_033 = BUDGET_020 + 2 * 1024;
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
 // its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword, tus-js-client by its
-// protocol header, Cropper.js (image editor) by its container class.
+// protocol header, Cropper.js (image editor) by its container class, highlight.js (spec 033) by its class prefix.
 export const LAZY_ONLY = [
 	'maplibre-gl',
 	'EditorJS',
@@ -43,6 +46,7 @@ export const LAZY_ONLY = [
 	'cropper-container',
 	'apexcharts-canvas',
 	'VErrorBoundary',
+	'hljs-',
 ];
 
 // Feature 015 (T101, CHK088): the lazy chunks of the image editor, resumable uploads and the theme data stay small. Each
@@ -152,7 +156,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const kb = (gzip / 1024).toFixed(1);
 
 	const leaks = lazyLeaks(files);
-	const limit = Math.min(LIMIT, BUDGET_020);
+	const limit = Math.min(LIMIT, BUDGET_033);
 
 	process.stdout.write(
 		`check-bundle: ${file} and ${files.length - 1} static imports ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`,

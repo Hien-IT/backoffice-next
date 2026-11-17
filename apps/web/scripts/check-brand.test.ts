@@ -51,6 +51,23 @@ test('JSON data is checked, except the generated theme data and the translations
 	]);
 });
 
+// Spec 033 (FR-047, research R9): the documentation content.
+test('Markdown and YAML are read as they are; lowercase identifiers stay fine', () => {
+	const root = src({
+		'docs/a.md': 'Bảng `directus_files`, gói `@directus/sdk`, cookie `directus_session_token`.',
+		'docs/b.md': '# Title\n\nLike Directus does.',
+		'docs/c.md': '```bash\ncurl https://x // Directus\n```',
+		'docs/d.yaml': 'description: Directus keeps this',
+		'docs/e.yml': 'summary: List files # directus_files',
+	});
+
+	expect(checkBrand(root)).toEqual([
+		'docs/b.md:3: Like Directus does.',
+		'docs/c.md:2: curl https://x // Directus',
+		'docs/d.yaml:1: description: Directus keeps this',
+	]);
+});
+
 test('stripComments keeps URLs', () => {
 	expect(stripComments("a('http://x') // c")).toBe("a('http://x') ");
 });

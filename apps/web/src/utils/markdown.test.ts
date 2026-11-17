@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { md } from './markdown.ts';
+import { md, sanitize } from './markdown.ts';
 
 describe('md', () => {
 	test('renders markdown', () => {
@@ -43,4 +43,25 @@ test('target: every link gets it, _blank with rel noopener (spec 020, v-md of ex
 		['_self', ''],
 	]);
 	expect(links(md('[a](/x)', { target: '_blank' }))).toEqual([['_blank', 'noopener noreferrer']]);
+});
+
+// Spec 033 (FR-046): the sanitizer on its own, for HTML the documentation area builds.
+describe('sanitize', () => {
+	test('filters like md() does', () => {
+		expect(sanitize('<p>Hi <script>alert(1)</script></p>')).toBe('<p>Hi </p>');
+		expect(sanitize('<img src="x" onerror="alert(1)">')).toBe('<img src="x">');
+	});
+
+	test('keeps classes, data attributes and buttons; links to another origin open in a new tab', () => {
+		const html = sanitize(
+			'<pre tabindex="0"><code class="hljs language-json"><span class="hljs-attr">a</span></code></pre>' +
+				'<button type="button" data-copy>Copy</button><a href="https://example.org/x">ext</a>',
+		);
+
+		expect(html).toContain('class="hljs-attr"');
+		expect(html).toContain('tabindex="0"');
+		expect(html).toContain('data-copy');
+		expect(html).toContain('target="_blank"');
+		expect(html).toContain('rel="noopener noreferrer"');
+	});
 });

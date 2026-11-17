@@ -3137,7 +3137,16 @@ văn phần mô tả lấy từ mô tả API tĩnh nên T049 không còn là đi
 kết quả tô màu; C3 SC-002 kiểm bằng đường đi không quá 4 lần bấm; C4 breadcrumb và câu dẫn; C5 T044 là bằng chứng
 của SC-007; I2 FR-044 tham chiếu SC-007; I3 trường `access` trong data-model; U2 script tự build gói mô tả, web
 không thêm dependency workspace; U3 ảnh trang đồng bộ dùng nguồn của profile `sync`; mười một LOW gồm typecheck ở
-cổng đóng lượt và T005a cài trình duyệt ở Phase 1; 96 task). Chưa có code.
+cổng đóng lượt và T005a cài trình duyệt ở Phase 1; 96 task). Tài liệu commit `2c332f62`. `/speckit.implement` lượt 1
+2026-11-17 (khung và Cấu hình, T001–T047): module ẩn `docs`, mục "Tài liệu" ở menu người dùng, `DocsRoute` và 7
+component, renderer markdown trên `Marked` riêng, `highlight.js` 11.12.0, script `sync-docs-config`, 10 trang biến môi
+trường, trang mở đầu, recipe Q-50 trong design-system. Local: unit web 503 file 4.666 test xanh (coverage 91,94 %),
+browser test 9 test xanh, E2E `docs.spec.ts` 12 ca xanh với Vite dev và API SQLite cục bộ; main bundle 280,5 → 280,7 KB
+nén, chunk `DocsRoute` 18,0 KB. Bài học: `SUPPORTED_VARIABLES` chỉ phục vụ cảnh báo biến không hỗ trợ nên thiếu 20 biến
+API đọc (`TUS_*`, `RETENTION_*`, `PRESSURE_LIMITER_*`...), script lấy thêm từ `DEFAULTS` (212 mục); axe đòi link trong
+đoạn văn luôn gạch chân (`link-in-text-block`); cuộn mượt tới anchor ngay sau khi tải trang bị cắt, phải nhảy tức
+thời; `page.goto` tới URL chỉ khác hash không nạp lại trang; email `.test` bị Joi từ chối khi bootstrap; nội dung nạp
+bằng `import()` cần `vi.waitFor`, `flushPromises` không đủ. Lượt 2 và lượt 3 chưa làm.
 Thư mục: `specs/033-docs-page/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng, không cột, không migration, không endpoint mới. Khác biệt giao diện ghi theo
 Nguyên tắc X từ D-215 (D-214.1 là số cuối đã dùng). Bố cục trang docs là câu hỏi design-system kế tiếp, Q-50 (`docs`,

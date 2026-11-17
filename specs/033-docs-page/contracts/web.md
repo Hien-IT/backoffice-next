@@ -75,7 +75,7 @@ Phương án A của research R3. Lượt 1 viết thành recipe trong `design-s
   câu dẫn `text-theme-xl text-gray-500 dark:text-gray-400` ở đầu cột bài viết.
 - **Bài viết**: `h2` `text-title-sm` có `border-t border-gray-200 dark:border-gray-800 pt-8 mt-10`; `h3`
   `text-theme-xl font-medium`; đoạn văn và danh sách `text-base` (design owner chọn 2026-11-17), `leading-7`;
-  link `text-brand-600 underline-offset-2 hover:underline`.
+  link `text-brand-600 underline underline-offset-2` (luôn gạch chân: axe `link-in-text-block`, đo ở lượt 1).
 - **Ô ghi chú**: `BoNotice` có sẵn, loại info và warning.
 - **Bảng** (biến, tham số): kiểu bảng tĩnh của design-system (`text-theme-sm`, hàng tiêu đề `bg-gray-50
   dark:bg-white/[0.03]`, viền `border-gray-200 dark:border-gray-800`), tên biến và tham số `font-mono`; bọc trong khung

@@ -1,6 +1,8 @@
 // FR-030, FR-082 (feature 012): no "DR" the user could see in apps/web/src. Comments (`Ported from`, notes
 // about DR behaviour), identifiers such as createDirectus and tests are ignored; translations/*.json are checked by sync-translations.test.ts.
 // JSON data is checked too (feature 015), except the files in PATH_EXCEPTIONS.
+// Spec 033 (FR-047, research R9): Markdown and YAML are checked too (the documentation area, src/docs); they are read
+// as they are, a `//` there is text, not a comment.
 // Usage: node scripts/check-brand.mjs [srcDir]
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
@@ -25,11 +27,14 @@ export const PATH_EXCEPTIONS = [
 	/^permissions\/app-permissions-data\.json$/,
 ];
 
+/** Files without code comments: every line is content (spec 033). */
+const RAW_TEXT = /\.(md|ya?ml)$/;
+
 function* files(dir) {
 	for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
 		const path = join(dir, entry.name);
 		if (entry.isDirectory()) yield* files(path);
-		else if (/\.(vue|ts|css|html|svg|json)$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) yield path;
+		else if (/\.(vue|ts|css|html|svg|json|md|ya?ml)$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) yield path;
 	}
 }
 
@@ -42,7 +47,7 @@ export function checkBrand(srcDir) {
 		const source = readFileSync(file, 'utf8');
 		const original = source.split('\n');
 
-		stripComments(source)
+		(RAW_TEXT.test(file) ? source : stripComments(source))
 			.split('\n')
 			.forEach((line, index) => {
 				// A line that compares API data with a DR value says so with `brand-allowed: <reason>`.

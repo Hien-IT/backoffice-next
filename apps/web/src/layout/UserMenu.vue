@@ -5,6 +5,8 @@
 // open a menu with profile
 // (/users/<id> like module-bar-avatar.vue, feature 015 FR-051) and sign out (/logout) instead of the avatar link plus the sign-out button with a confirm
 // dialog; the avatar.modified_on cache buster is not fetched (not in contracts/api-calls).
+// Backoffice (spec 033, D-215): a Documentation item before Sign out opens the documentation area (/docs); share users
+// have none.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoAvatar from '../components/BoAvatar.vue';
@@ -33,7 +35,11 @@ const items = computed<BoMenuItem[]>(() => {
 	// Share users have no profile.
 	if (!user || 'share' in user) return [signOut];
 
-	return [{ text: t('profile'), icon: 'account_circle', to: `/users/${user.id}` }, signOut];
+	return [
+		{ text: t('profile'), icon: 'account_circle', to: `/users/${user.id}` },
+		{ text: t('documentation'), icon: 'menu_book', to: '/docs' },
+		signOut,
+	];
 });
 </script>
 

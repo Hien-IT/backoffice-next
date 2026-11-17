@@ -486,6 +486,9 @@ catalogs:
     helmet:
       specifier: 8.1.0
       version: 8.1.0
+    highlight.js:
+      specifier: 11.12.0
+      version: 11.12.0
     icc:
       specifier: 3.0.0
       version: 3.0.0
@@ -1425,6 +1428,9 @@ importers:
       file-saver:
         specifier: 'catalog:'
         version: 2.0.5
+      highlight.js:
+        specifier: 'catalog:'
+        version: 11.12.0
       json-to-graphql-query:
         specifier: 'catalog:'
         version: 2.3.0
@@ -2028,6 +2034,7 @@ importers:
         version: 11.1.0
 
 packages:
+
   '@actions/github@9.1.1':
     resolution: {integrity: sha512-tL5JbYOBZHc0ngEnCsaDcryUizIUIlQyIMwy1Wkx93H5HzbBJ7TbiPx2PnFjBwZW0Vh05JmfFZhecE6gglYegA==}
 
@@ -8030,6 +8037,10 @@ packages:
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
 
+  highlight.js@11.12.0:
+    resolution: {integrity: sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg==}
+    engines: {node: '>=12.0.0'}
+
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
@@ -11319,6 +11330,7 @@ packages:
     resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
 snapshots:
+
   '@actions/github@9.1.1':
     dependencies:
       '@actions/http-client': 3.0.2
@@ -18318,6 +18330,8 @@ snapshots:
   helmet@8.1.0: {}
 
   help-me@5.0.0: {}
+
+  highlight.js@11.12.0: {}
 
   hookable@5.5.3: {}
 

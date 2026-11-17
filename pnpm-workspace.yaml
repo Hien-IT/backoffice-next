@@ -198,6 +198,7 @@ catalog:
   '@types/diff': 7.0.1
   dompurify: 3.4.17 # Directus 11.17.4 has 3.3.2; GHSA-mrv2-3pqr-j5jr (high), owner 2026-10-23
   mitt: 3.0.1
+  highlight.js: 11.12.0 # spec 033 (FR-010a, owner 2026-11-17): syntax colours of the docs code blocks; core + bash, json, graphql only
   '@material-symbols/font-400': 0.48.0
   '@fontsource/noto-sans': 5.3.0
   '@fontsource/outfit': 5.3.0

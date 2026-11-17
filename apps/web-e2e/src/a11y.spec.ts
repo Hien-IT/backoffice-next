@@ -65,6 +65,9 @@ const PRIVATE = [
 	'/admin/files/not-there',
 	'/admin/khong-co',
 	'/admin/settings/extensions',
+	// Spec 033 (FR-043, SC-009): the documentation area, a Markdown page and a variables page.
+	'/admin/docs',
+	'/admin/docs/configuration/security',
 ];
 
 for (const scheme of ['light', 'dark'] as const) {

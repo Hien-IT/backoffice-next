@@ -1,6 +1,7 @@
 // Ported from directus/app/src/modules/index.ts
 // Backoffice: the six internal modules are listed statically (D-41) and app extension modules are added by
 // extensions.ts (spec 020); the registered modules live here instead of the extensions store.
+// Backoffice (spec 033, D-215): a seventh, hidden module `docs`, the documentation area (no DR counterpart).
 import { sortBy } from 'lodash-es';
 import { shallowRef, type ShallowRef } from 'vue';
 import { router } from '../router/index.ts';
@@ -9,6 +10,7 @@ import { useUserStore } from '../stores/user.ts';
 import RouterPass from '../utils/router-passthrough.ts';
 import activity from './activity.ts';
 import content from './content.ts';
+import docs from './docs.ts';
 import files from './files.ts';
 import insights from './insights.ts';
 import settings from './settings.ts';
@@ -18,7 +20,7 @@ import users from './users.ts';
 export type { ModuleConfig } from './types.ts';
 
 export function getInternalModules(): ModuleConfig[] {
-	return sortBy([activity, content, files, insights, settings, users], 'id');
+	return sortBy([activity, content, docs, files, insights, settings, users], 'id');
 }
 
 export function registerModules(initial: ModuleConfig[]): {

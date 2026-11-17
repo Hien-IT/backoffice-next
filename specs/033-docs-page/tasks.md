@@ -50,31 +50,31 @@ xanh; theo dõi CI tới khi xanh.
 **Mục tiêu**: các điểm chưa kiểm của research có kết quả; dependency đã cài và audit; recipe Q-50 có trước khi code
 giao diện.
 
-- [ ] T001 Kiểm ba mục [Unverified] của `specs/033-docs-page/research.md`: (3) đọc
+- [X] T001 Kiểm ba mục [Unverified] của `specs/033-docs-page/research.md`: (3) đọc
   `apps/web/src/routes/login/SsoLinks.vue` và luồng `continue` để biết hash có sống qua đăng nhập SSO không; (5) đọc
   `apps/web/src/lang/translations/vi-VN.json` cho sáu khóa `documentation`, `previous`, `next`, `page_not_found`,
   `page_not_found_body`, `copy`; (7) đọc `apps/web/src/layout/MainContent.vue` và `PrivateView.vue` để biết phần tử nào
   cuộn. Ghi mục "Kết quả kiểm T001" vào research.md; nếu hash mất qua SSO thì đổi dòng [Unverified] ở Edge Cases của
   `spec.md` thành giới hạn đã xác nhận
-- [ ] T002 Thêm `highlight.js: 11.12.0` vào catalog của `pnpm-workspace.yaml` và `"highlight.js": "catalog:"` vào
+- [X] T002 Thêm `highlight.js: 11.12.0` vào catalog của `pnpm-workspace.yaml` và `"highlight.js": "catalog:"` vào
   `dependencies` của `apps/web/package.json`; `pnpm install`; chạy `pnpm audit` và ghi kết quả vào research R6; xác nhận
   bằng một lệnh `node -e` rằng `highlight.js/lib/core` và `lib/languages/{bash,json,graphql}` import được dạng ESM và
   đầu ra dùng class `hljs-*`, rồi bỏ nhãn [Unverified] của các dòng đó trong bảng R6. Kiểm `git diff pnpm-lock.yaml`
   không đổi gói nào ngoài `highlight.js`
-- [ ] T003 Viết recipe "Documentation area (Q-50; spec 033, D-215, no Directus counterpart)" vào
+- [X] T003 Viết recipe "Documentation area (Q-50; spec 033, D-215, no Directus counterpart)" vào
   `design-system/docs/component-specs.md` và một mục "15. Documentation area (033)" vào
   `design-system/docs/layout-patterns.md` theo `contracts/web.md` §4 và §5 (phương án A, thân bài `text-base`, khối code
   nền `gray-900` ở cả hai giao diện, từ khóa `warning-300`, không dùng `brand-*` cho màu cú pháp, recipe `FOCUS`, trạng
   thái đang tải). Tính tỉ lệ tương phản của từng cặp màu khối code trên `gray-900` và thêm vào bảng tương phản của
   `design-system/docs/migration-guide.md`; cặp dưới 4,5:1 đổi sang bậc sáng hơn cùng họ và sửa `contracts/web.md` §4
-- [ ] T004 [P] Thêm hai script `"sync-docs-api": "node scripts/sync-docs-api.mjs"` và `"sync-docs-config":
-  "node_modules/.bin/jiti scripts/sync-docs-config.mjs"` vào `scripts` của `apps/web/package.json` (không sửa
-  `apps/web/project.json`)
-- [ ] T005 [P] Tạo `apps/web/src/docs/types.ts` với các kiểu của `data-model.md` §1–§4 (`DocsNav`, `DocsSection`,
+- [X] T004 [P] Thêm script `"sync-docs-config": "jiti scripts/sync-docs-config.mjs"` vào `scripts` của
+  `apps/web/package.json` (không sửa `apps/web/project.json`). Script `sync-docs-api` thêm ở T058 cùng file của
+  nó (lượt 1: không để script trỏ tới file chưa có)
+- [X] T005 [P] Tạo `apps/web/src/docs/types.ts` với các kiểu của `data-model.md` §1–§4 (`DocsNav`, `DocsSection`,
   `DocsGroup`, `DocsPage`, `DocsHeading`, `DocsApiResource`, `DocsApiOperation`, `DocsApiParameter`,
   `SupportedGenerated`, `ConfigGroup`, `ConfigRow`)
 
-- [ ] T005a Cài trình duyệt Playwright một lần (`pnpm --filter @backoffice/web-e2e exec playwright install chromium`)
+- [X] T005a Cài trình duyệt Playwright một lần (`pnpm --filter @backoffice/web-e2e exec playwright install chromium`)
   để browser test và E2E của cả ba lượt chạy được ở máy local (analyze L9). Nếu không cài được: ghi vào
   `specs/033-docs-page/research.md`; browser test và E2E khi đó chỉ chạy ở CI, và T070 là điểm dừng
 
@@ -88,44 +88,44 @@ giao diện.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T006 [P] Sửa `apps/web/scripts/check-brand.test.ts`: file `.md` và `.yaml` có từ "Directus" đứng riêng bị báo; có
+- [X] T006 [P] Sửa `apps/web/scripts/check-brand.test.ts`: file `.md` và `.yaml` có từ "Directus" đứng riêng bị báo; có
   `directus_files`, `@directus/sdk`, `directus_session_token` thì không; dòng có `//` trong `.md` vẫn được quét nguyên
   văn (research R9)
-- [ ] T007 [P] Sửa `apps/web/scripts/check-bundle.test.ts`: có `BUDGET_033 = BUDGET_020 + 2 * 1024`; marker của
+- [X] T007 [P] Sửa `apps/web/scripts/check-bundle.test.ts`: có `BUDGET_033 = BUDGET_020 + 2 * 1024`; marker của
   `highlight.js` nằm trong main bundle là lỗi (research R12)
-- [ ] T008 [P] Viết `apps/web/src/docs/render.test.ts` theo `contracts/tests.md` §1: anchor không dấu ("Đồng bộ môi
+- [X] T008 [P] Viết `apps/web/src/docs/render.test.ts` theo `contracts/tests.md` §1: anchor không dấu ("Đồng bộ môi
   trường" → `dong-bo-moi-truong`), tiêu đề trùng thêm `-2`, tiêu đề "Cookie" và "Location" vẫn có `id` (mục [Unverified]
   số 4), danh sách `DocsHeading` hai cấp, `> [!NOTE]` và `> [!WARNING]` thành ô ghi chú, ảnh đổi `src` theo bảng URL và
   ném lỗi khi thiếu alt hoặc alt là tên file, bảng có khung cuộn `role="region"` `tabindex="0"` và `th scope="col"`,
   khối code có và không có ngôn ngữ, `<script>` và `onerror` bị lọc, link ngoài có `target="_blank"` và
   `rel="noopener noreferrer"`, link nội bộ không có
-- [ ] T009 [P] Viết `apps/web/src/docs/highlight.test.ts`: `bash`, `json`, `graphql` cho ra `span` có class `hljs-*`;
+- [X] T009 [P] Viết `apps/web/src/docs/highlight.test.ts`: `bash`, `json`, `graphql` cho ra `span` có class `hljs-*`;
   ngôn ngữ lạ và không ghi ngôn ngữ trả chữ đã escape, không ném lỗi
-- [ ] T010 [P] Sửa `apps/web/src/utils/markdown.test.ts`: `sanitize(html)` được export và lọc như phần lọc của `md()`;
+- [X] T010 [P] Sửa `apps/web/src/utils/markdown.test.ts`: `sanitize(html)` được export và lọc như phần lọc của `md()`;
   kết quả của `md()` với các ca hiện có không đổi
-- [ ] T011 [P] Viết `apps/web/src/docs/nav.test.ts`: `path` duy nhất; đúng ba phần theo thứ tự `guides`, `api`,
+- [X] T011 [P] Viết `apps/web/src/docs/nav.test.ts`: `path` duy nhất; đúng ba phần theo thứ tự `guides`, `api`,
   `configuration`; mọi `source` tồn tại; thứ tự phẳng cho trang trước và trang sau; hàm tìm trang theo path trả
   `undefined` cho path lạ
-- [ ] T012 [P] Viết `apps/web/src/modules/docs.test.ts` và sửa `apps/web/src/modules/index.test.ts`: module `docs` có
+- [X] T012 [P] Viết `apps/web/src/modules/docs.test.ts` và sửa `apps/web/src/modules/index.test.ts`: module `docs` có
   `hidden: true`, không `preRegisterCheck`, hai route `''` và `':path(.*)*'`; `getInternalModules()` trả bảy module
 
 ### Implementation
 
-- [ ] T013 Sửa `apps/web/scripts/check-brand.mjs`: quét thêm đuôi `md` và `yaml`; hai đuôi này quét nguyên văn, không qua
+- [X] T013 Sửa `apps/web/scripts/check-brand.mjs`: quét thêm đuôi `md` và `yaml`; hai đuôi này quét nguyên văn, không qua
   `stripComments`; không thêm mục nào vào `PATH_EXCEPTIONS` (T006 xanh)
-- [ ] T014 Sửa `apps/web/scripts/check-bundle.mjs`: thêm `BUDGET_033`, dùng nó làm giới hạn; thêm marker của
+- [X] T014 Sửa `apps/web/scripts/check-bundle.mjs`: thêm `BUDGET_033`, dùng nó làm giới hạn; thêm marker của
   `highlight.js` vào danh sách thư viện chỉ được ở chunk lazy (T007 xanh)
-- [ ] T015 Sửa `apps/web/src/utils/markdown.ts`: tách và export `sanitize(html: string): string` dùng chính instance
+- [X] T015 Sửa `apps/web/src/utils/markdown.ts`: tách và export `sanitize(html: string): string` dùng chính instance
   DOMPurify có hook link ngoài; `md()` gọi `sanitize` (T010 xanh)
-- [ ] T016 Viết `apps/web/src/docs/highlight.ts`: `highlight.js/lib/core` với ba ngôn ngữ `bash`, `json`, `graphql`;
+- [X] T016 Viết `apps/web/src/docs/highlight.ts`: `highlight.js/lib/core` với ba ngôn ngữ `bash`, `json`, `graphql`;
   hàm `highlight(code, lang)` trả HTML, ngôn ngữ lạ thì escape (T009 xanh)
-- [ ] T017 Viết `apps/web/src/docs/render.ts`: một instance `Marked` riêng với renderer của research R5, gọi `sanitize`
+- [X] T017 Viết `apps/web/src/docs/render.ts`: một instance `Marked` riêng với renderer của research R5, gọi `sanitize`
   rồi xử lý DOM để gắn `id` (slug bằng `@sindresorhus/slugify`, hậu tố khi trùng) và trả `{ html, headings }` (T008
   xanh)
-- [ ] T018 Viết `apps/web/src/docs/nav.ts` (trang mở đầu và khung ba phần; phần `guides` và `api` để trống cho tới lượt
+- [X] T018 Viết `apps/web/src/docs/nav.ts` (trang mở đầu và khung ba phần; phần `guides` và `api` để trống cho tới lượt
   3 và 2) và `apps/web/src/docs/docs.css` (kiểu bài viết, bảng, ô ghi chú, khối code và bảng màu cú pháp theo recipe
   của T003, chỉ dùng token) (T011 xanh)
-- [ ] T019 Viết `apps/web/src/modules/docs.ts` (`id: 'docs'`, `hidden: true`, `name: '$t:documentation'`, `icon:
+- [X] T019 Viết `apps/web/src/modules/docs.ts` (`id: 'docs'`, `hidden: true`, `name: '$t:documentation'`, `icon:
   'menu_book'`, hai route cùng `component: () => import('./docs/routes/DocsRoute.vue')`) và thêm vào
   `getInternalModules()` của `apps/web/src/modules/index.ts`, sửa chú thích "six internal modules" (T012 xanh)
 
@@ -141,50 +141,50 @@ URL, đăng nhập và thấy đúng tiêu đề.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T020 [P] [US1] Viết `apps/web/src/modules/docs/routes/DocsRoute.test.ts`: chọn loại trang theo path; trang mở đầu
+- [X] T020 [P] [US1] Viết `apps/web/src/modules/docs/routes/DocsRoute.test.ts`: chọn loại trang theo path; trang mở đầu
   ở `/docs`; path lạ hiện `page_not_found` và link về `/docs`; đang tải có `aria-busy`; lỗi tải hiện `BoNotice` và nút
   thử lại; đổi trang giữ nội dung cũ tới khi nội dung mới xong; cuộn tới anchor sau khi render và khi hash đổi; anchor
   lạ không lỗi; tiêu đề tab đổi theo trang; focus tới tiêu đề trang sau khi đổi trang; breadcrumb (phần, nhóm) và câu dẫn ở đầu cột
   bài viết (FR-004); trang có `backofficeOnly` hiện `BoNotice` `docs_backoffice_only` (FR-019); user không có quyền
   vào app thấy màn hình không có quyền của `PrivateView`, không thấy nội dung; cuộn tới anchor không dùng cuộn mượt
   khi `prefers-reduced-motion: reduce` (FR-043)
-- [ ] T021 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsNavigation.test.ts`: ba phần, nhóm thu gọn và mở
+- [X] T021 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsNavigation.test.ts`: ba phần, nhóm thu gọn và mở
   (`aria-expanded`), `aria-current="page"` ở trang đang mở, `nav` có `aria-label`
-- [ ] T022 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsToc.test.ts`: danh sách từ `headings`, bấm đổi hash
+- [X] T022 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsToc.test.ts`: danh sách từ `headings`, bấm đổi hash
   bằng `router.replace`, mục đang đọc có `aria-current="location"`, trang không có tiêu đề thì không hiện
-- [ ] T023 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsArticle.test.ts`, `DocsCodeBlock.test.ts`,
+- [X] T023 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsArticle.test.ts`, `DocsCodeBlock.test.ts`,
   `DocsPager.test.ts`: bài viết có `lang="vi"`; mỗi tiêu đề có nút chép link; khối code có nút chép lấy chữ gốc, báo
   `docs_copied` trong vùng `aria-live`, lỗi clipboard gọi `notify`; trang đầu không có link trước, trang cuối không có
   link sau; kết quả tô màu đi qua `sanitize` trước khi vào `v-html` (khối code chứa `<img onerror>` hiện thành chữ,
   FR-046)
-- [ ] T024 [P] [US1] Sửa `apps/web/src/layout/UserMenu.test.ts`: mục `documentation` (icon `menu_book`) trỏ `/docs`,
+- [X] T024 [P] [US1] Sửa `apps/web/src/layout/UserMenu.test.ts`: mục `documentation` (icon `menu_book`) trỏ `/docs`,
   đứng trước `sign_out`; user share không có mục này
-- [ ] T025 [P] [US1] Thêm vào `apps/web/src/lang/overlay.test.ts` một ca: mọi khóa `docs_*` của `contracts/web.md` §6
+- [X] T025 [P] [US1] Thêm vào `apps/web/src/lang/overlay.test.ts` một ca: mọi khóa `docs_*` của `contracts/web.md` §6
   có ở cả hai overlay. Hai ca có sẵn (hai overlay cùng tập khóa; khóa overlay không trùng khóa của bản dịch gốc)
   không sửa
 
 ### Implementation for User Story 1
 
-- [ ] T026 [US1] Thêm các khóa `docs_*` của `contracts/web.md` §6 vào `apps/web/src/lang/overlay/en-US.ts` và
+- [X] T026 [US1] Thêm các khóa `docs_*` của `contracts/web.md` §6 vào `apps/web/src/lang/overlay/en-US.ts` và
   `vi-VN.ts`. Không ghi đè khóa có sẵn của bản dịch gốc (`overlay.test.ts` cấm, analyze I1): nếu T001 thấy bản vi-VN
   của một khóa có sẵn thiếu hoặc không hợp thì thêm một khóa mới `docs_*` ở cả hai overlay (ví dụ `docs_title` cho
   mục menu) và dùng khóa đó thay khóa có sẵn (T025 xanh)
-- [ ] T027 [US1] Sửa `apps/web/src/layout/UserMenu.vue`: thêm mục "Tài liệu" cho user không phải share (T024 xanh)
-- [ ] T028 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsCodeBlock.vue` (T023 xanh phần code)
-- [ ] T029 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsPager.vue` (T023 xanh phần pager)
-- [ ] T030 [US1] Viết `apps/web/src/modules/docs/components/DocsArticle.vue`: hiện HTML của `render.ts`, gắn
+- [X] T027 [US1] Sửa `apps/web/src/layout/UserMenu.vue`: thêm mục "Tài liệu" cho user không phải share (T024 xanh)
+- [X] T028 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsCodeBlock.vue` (T023 xanh phần code)
+- [X] T029 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsPager.vue` (T023 xanh phần pager)
+- [X] T030 [US1] Viết `apps/web/src/modules/docs/components/DocsArticle.vue`: hiện HTML của `render.ts`, gắn
   `DocsCodeBlock` và nút chép link tiêu đề (T023 xanh)
-- [ ] T031 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsNavigation.vue` theo recipe menu trái của T003 (T021
+- [X] T031 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsNavigation.vue` theo recipe menu trái của T003 (T021
   xanh)
-- [ ] T032 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsToc.vue` với IntersectionObserver trên phần tử cuộn
+- [X] T032 [P] [US1] Viết `apps/web/src/modules/docs/components/DocsToc.vue` với IntersectionObserver trên phần tử cuộn
   mà T001 xác định; tôn trọng `prefers-reduced-motion` (T022 xanh)
-- [ ] T033 [US1] Viết `apps/web/src/modules/docs/routes/DocsRoute.vue`: `PrivateView`, slot `navigation`, nạp markdown
+- [X] T033 [US1] Viết `apps/web/src/modules/docs/routes/DocsRoute.vue`: `PrivateView`, slot `navigation`, nạp markdown
   bằng `import.meta.glob` lazy và ảnh bằng glob `?url` (research R4), lưới bài viết và mục lục, breadcrumb và câu dẫn ở đầu cột bài viết (prop `breadcrumb` của `PrivateView` không
   hiển thị, D-101), ghi chú `docs_backoffice_only`, các trạng thái (T020
   xanh)
-- [ ] T034 [US1] Viết `apps/web/src/docs/content/index.md` (trang mở đầu: ba phần của tài liệu, cách dùng menu trái, mục
+- [X] T034 [US1] Viết `apps/web/src/docs/content/index.md` (trang mở đầu: ba phần của tài liệu, cách dùng menu trái, mục
   lục và link tới tiêu đề); thêm vào `nav.ts`
-- [ ] T035 [US1] Viết `apps/web/src/modules/docs/routes/DocsRoute.browser.test.ts`: axe ở sáng và tối cho trang mở đầu;
+- [X] T035 [US1] Viết `apps/web/src/modules/docs/routes/DocsRoute.browser.test.ts`: axe ở sáng và tối cho trang mở đầu;
   Tab đi theo thứ tự menu trái, nội dung, mục lục; ở 768 px trang không cuộn ngang và không có mục lục; đổi giao diện
   sáng, tối và đổi ngôn ngữ khi đang đọc thì vị trí cuộn giữ nguyên
 
@@ -198,26 +198,26 @@ URL, đăng nhập và thấy đúng tiêu đề.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T036 [P] [US2] Viết `apps/web/scripts/sync-docs-config.test.ts`: chạy script vào file tạm và so với
+- [X] T036 [P] [US2] Viết `apps/web/scripts/sync-docs-config.test.ts`: chạy script vào file tạm và so với
   `docs/configuration/supported.generated.json` đã commit; mỗi mục có `pattern`, `exact`; `CONFIG_PATH` có mặc định
   hiển thị `.env`, không phải đường dẫn của máy
-- [ ] T037 [P] [US2] [US5] Viết `apps/web/src/docs/configuration/variables.test.ts`: mỗi mục của file sinh có đúng một
+- [X] T037 [P] [US2] [US5] Viết `apps/web/src/docs/configuration/variables.test.ts`: mỗi mục của file sinh có đúng một
   `ConfigRow`; mỗi `ConfigRow` khớp đúng một mục; mỗi biến ở đúng một nhóm; mỗi `description` không rỗng; thông báo lỗi
   nêu tên biến thiếu hoặc thừa
-- [ ] T038 [P] [US2] Viết `apps/web/src/modules/docs/components/DocsConfigGroup.test.ts`: ba cột `docs_variable`,
+- [X] T038 [P] [US2] Viết `apps/web/src/modules/docs/components/DocsConfigGroup.test.ts`: ba cột `docs_variable`,
   `docs_description`, `docs_default`; mặc định lấy từ file sinh, không có thì ô trống; mỗi bảng con là `h2` có anchor;
   `th scope="col"`; tên biến `font-mono`; mô tả có `<script>` hiện thành chữ, không thành phần tử (FR-046)
 
 ### Implementation for User Story 2
 
-- [ ] T039 [US2] Viết `apps/web/scripts/sync-docs-config.mjs` (chạy bằng `jiti`): đọc `SUPPORTED_VARIABLES` của
+- [X] T039 [US2] Viết `apps/web/scripts/sync-docs-config.mjs` (chạy bằng `jiti`): đọc `SUPPORTED_VARIABLES` của
   `apps/api/src/config/supported-variables.ts` và `DEFAULTS` của `libs/env/src/constants/defaults.ts`, ghi
   `apps/web/src/docs/configuration/supported.generated.json` với dòng `$source`; bảng nhỏ giá trị hiển thị thay cho
   mặc định phụ thuộc máy; chạy script và commit file sinh (T036 xanh)
-- [ ] T040 [US2] Viết `apps/web/src/docs/configuration/variables.ts`: các nhóm biến và một dòng cho mỗi mục của file
+- [X] T040 [US2] Viết `apps/web/src/docs/configuration/variables.ts`: các nhóm biến và một dòng cho mỗi mục của file
   sinh (khoảng 190 dòng); mỗi mô tả nêu biến làm gì và dạng giá trị (FR-030); biến dùng chung với hệ thống cùng DB ghi
   "phải trùng với hệ thống dùng chung cơ sở dữ liệu, nếu có"; không giá trị thật của bí mật (T037 xanh)
-- [ ] T041 [US2] Viết `apps/web/src/modules/docs/components/DocsConfigGroup.vue`; thêm mỗi nhóm thành một trang
+- [X] T041 [US2] Viết `apps/web/src/modules/docs/components/DocsConfigGroup.vue`; thêm mỗi nhóm thành một trang
   `configuration/<id>` trong `nav.ts`; `DocsRoute.vue` hiện trang loại `configuration` (T038 xanh)
 
 **Checkpoint**: trang `/admin/docs/configuration/general` có `PUBLIC_URL` với mặc định `/`; `variables.test.ts` xanh.
@@ -226,24 +226,24 @@ URL, đăng nhập và thấy đúng tiêu đề.
 
 **Goal**: không gì ở API đổi; khu tài liệu chạy ở cả ba cấu hình.
 
-- [ ] T042 [US6] Viết `apps/web-e2e/src/docs.spec.ts` với các ca lượt 1 của `contracts/tests.md` §3: mở từ menu người
+- [X] T042 [US6] Viết `apps/web-e2e/src/docs.spec.ts` với các ca lượt 1 của `contracts/tests.md` §3: mở từ menu người
   dùng trong hai lần bấm (ba cấu hình); đi ba trang bằng menu trái; URL có anchor khi đã đăng nhập; chưa đăng nhập mở
   URL có anchor rồi đăng nhập local; trang "Chung" có `PUBLIC_URL` mặc định `/`; URL không tồn tại; chỉ dùng bàn phím;
   trang đầu hiện dưới 2 giây; chromium-768: menu trái mở bằng nút, không có mục lục; không request API mới ngoài ghi
   `last_page` (helper `requests.ts`); ở `proxy-api` không có thông báo vi phạm CSP nào trong console khi mở một trang
   có khối code (FR-048a); từ trang mở đầu tới dòng của biến `PUBLIC_URL` chỉ bằng menu trái và mục lục trong không
   quá 4 lần bấm (SC-002)
-- [ ] T043 [US6] Sửa `apps/web-e2e/src/a11y.spec.ts`: thêm `/docs` và `/docs/configuration/general`; sửa
+- [X] T043 [US6] Sửa `apps/web-e2e/src/a11y.spec.ts`: thêm `/docs` và `/docs/configuration/general`; sửa
   `apps/web-e2e/src/helpers/allowed-paths.ts` nếu spec cần
-- [ ] T044 Đo và ghi vào research R6, R12: `nx run web:build`, `node apps/web/scripts/check-bundle.mjs` (main bundle trước
+- [X] T044 Đo và ghi vào research R6, R12: `nx run web:build`, `node apps/web/scripts/check-bundle.mjs` (main bundle trước
   và sau feature, SC-007), dung lượng nén của chunk khu tài liệu và phần `highlight.js` trong đó; bỏ nhãn [Unverified]
   số 1, 2, 4 trong bảng cuối research. Đây là bằng chứng của SC-007 (`BUDGET_033` chỉ là trần tuyệt đối): nếu main
   bundle tăng quá 2 KB nén so với trước feature thì chuyển phần thừa vào chunk lazy rồi đo lại
-- [ ] T045 Chạy `design-system/qa/handoff-checklist.md` cho khu tài liệu (token, bố cục, trạng thái, giao diện tối, trợ
+- [X] T045 Chạy `design-system/qa/handoff-checklist.md` cho khu tài liệu (token, bố cục, trạng thái, giao diện tối, trợ
   năng) và ghi kết quả vào mục "Kết quả lượt 1" của `specs/033-docs-page/research.md`
-- [ ] T046 [US6] Kiểm `git diff --stat` của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`, `directus/`; ghi
+- [X] T046 [US6] Kiểm `git diff --stat` của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`, `directus/`; ghi
   vào research rằng bộ đối chiếu của `/server/specs/oas` không cần sửa normalizer
-- [ ] T047 Chạy `graphify update .`; cập nhật dòng "Trạng thái" của mục 033 trong `SPECKIT-GUIDE.md` và `Status` của
+- [X] T047 Chạy `graphify update .`; cập nhật dòng "Trạng thái" của mục 033 trong `SPECKIT-GUIDE.md` và `Status` của
   `specs/033-docs-page/spec.md` (lượt 1)
 - [ ] T048 Đóng lượt 1: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build`, `check-bundle` xanh; `git add` theo
   đường dẫn; commit `feat(web): documentation area with the frame and the configuration reference (spec 033)`; push khi
@@ -301,7 +301,8 @@ thấy endpoint tạo index.
   tag, thay `$ref` của tham số, giữ `$ref` schema theo tên trong file, sinh curl, sinh ví dụ GraphQL theo quy tắc CRUD
   cho tag có `x-collection` và theo bảng viết tay cho operation khác (`false` khi không tương đương), danh sách loại
   trừ của T050, thay giá trị ví dụ có từ bị cấm, ghi `docs/api/generated/<resource>.json` và một file chỉ mục
-  `index.json` (id, tên, `backofficeOnly`) (T051 xanh)
+  `index.json` (id, tên, `backofficeOnly`); thêm script `"sync-docs-api": "node scripts/sync-docs-api.mjs"` vào
+  `apps/web/package.json` (T051 xanh)
 - [ ] T059 [US3] Chạy `pnpm --filter @backoffice/web sync-docs-api`; commit `apps/web/src/docs/api/generated/` (T052
   xanh)
 - [ ] T060 [P] [US3] Viết `apps/web/src/modules/docs/components/DocsEndpoint.vue` theo recipe khối endpoint của T003

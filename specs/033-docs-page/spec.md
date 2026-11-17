@@ -3,7 +3,7 @@
 **Feature Branch**: `033-docs-page` (làm trên `main` như 012–032, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=033-docs-page`)
 **Created**: 2026-11-17
-**Status**: Draft 2026-11-17. `/speckit.specify` chạy 2026-11-17 (thư mục tạo tay, không chạy `create-new-feature.sh`). Chín điểm phạm vi A–I chủ dự án chốt 2026-11-17 ("Chốt theo đề xuất"). `/speckit.clarify` chạy 2026-11-17 (5 câu: không nhắc tên Directus ở trang nào; phần bổ sung API riêng cho tài liệu; ảnh chụp tay rồi commit; đủ 17 trang hướng dẫn; khối code tô màu bằng thư viện mới). `/speckit.plan` chạy 2026-11-17 (research R1–R15 đọc code, chưa chạy thử; khu tài liệu là module ẩn `docs` trong shell có sẵn; đề xuất `highlight.js` 11.12.0 và bố cục phương án A cho Q-50; 8 sửa câu chữ spec). Chủ dự án kiêm tech lead và design owner duyệt 2026-11-17 sau plan ("Duyệt như đề xuất"): D-215, Q-50 phương án A (thân bài `text-base`, khối code nền tối ở cả hai giao diện, mục menu "Tài liệu" icon `menu_book`), `highlight.js` 11.12.0, ba điểm Complexity Tracking, 8 sửa câu chữ. `/speckit.checklist` chạy 2026-11-17 (content, design-system, security, a11y: 45 mục, 26 phát hiện sửa cùng lượt; chủ dự án duyệt 26 sửa cùng ngày; giấy phép của mô tả API tĩnh còn [Unverified], xác nhận ở đầu lượt 2). `/speckit.tasks` chạy 2026-11-17 (95 task, ba lượt: lượt 1 khung và Cấu hình T001–T048, lượt 2 API reference T049–T065, lượt 3 hướng dẫn và ảnh T066–T095; hai điểm dừng hỏi chủ dự án: T049 giấy phép BUSL-1.1 của gói mô tả API, T070 máy chụp ảnh). `/speckit.analyze` chạy 2026-11-17 (0 CRITICAL, 2 HIGH, 9 MEDIUM, 11 LOW; 57/58 FR có task; chủ dự án "Sửa tất cả", sửa cùng ngày; chủ dự án quyết định hiện nguyên văn mô tả lấy từ mô tả API tĩnh, T049 không còn là điểm dừng; 96 task sau khi thêm T005a). Chưa có code.
+**Status**: Draft 2026-11-17. `/speckit.specify` chạy 2026-11-17 (thư mục tạo tay, không chạy `create-new-feature.sh`). Chín điểm phạm vi A–I chủ dự án chốt 2026-11-17 ("Chốt theo đề xuất"). `/speckit.clarify` chạy 2026-11-17 (5 câu: không nhắc tên Directus ở trang nào; phần bổ sung API riêng cho tài liệu; ảnh chụp tay rồi commit; đủ 17 trang hướng dẫn; khối code tô màu bằng thư viện mới). `/speckit.plan` chạy 2026-11-17 (research R1–R15 đọc code, chưa chạy thử; khu tài liệu là module ẩn `docs` trong shell có sẵn; đề xuất `highlight.js` 11.12.0 và bố cục phương án A cho Q-50; 8 sửa câu chữ spec). Chủ dự án kiêm tech lead và design owner duyệt 2026-11-17 sau plan ("Duyệt như đề xuất"): D-215, Q-50 phương án A (thân bài `text-base`, khối code nền tối ở cả hai giao diện, mục menu "Tài liệu" icon `menu_book`), `highlight.js` 11.12.0, ba điểm Complexity Tracking, 8 sửa câu chữ. `/speckit.checklist` chạy 2026-11-17 (content, design-system, security, a11y: 45 mục, 26 phát hiện sửa cùng lượt; chủ dự án duyệt 26 sửa cùng ngày; giấy phép của mô tả API tĩnh còn [Unverified], xác nhận ở đầu lượt 2). `/speckit.tasks` chạy 2026-11-17 (95 task, ba lượt: lượt 1 khung và Cấu hình T001–T048, lượt 2 API reference T049–T065, lượt 3 hướng dẫn và ảnh T066–T095; hai điểm dừng hỏi chủ dự án: T049 giấy phép BUSL-1.1 của gói mô tả API, T070 máy chụp ảnh). `/speckit.analyze` chạy 2026-11-17 (0 CRITICAL, 2 HIGH, 9 MEDIUM, 11 LOW; 57/58 FR có task; chủ dự án "Sửa tất cả", sửa cùng ngày; chủ dự án quyết định hiện nguyên văn mô tả lấy từ mô tả API tĩnh, T049 không còn là điểm dừng; 96 task sau khi thêm T005a). `/speckit.implement` lượt 1 (khung và Cấu hình, T001–T047) làm 2026-11-17: module ẩn `docs`, mục "Tài liệu" ở menu người dùng, route và 7 component, renderer markdown, `highlight.js`, 10 trang biến môi trường với 212 biến, trang mở đầu; main bundle tăng 0,2 KB; unit web 4.666 test, browser test và E2E `docs.spec.ts` xanh trên máy. Lượt 2 (API reference) và lượt 3 (hướng dẫn và ảnh) chưa làm.
 **Input**: User description: "Feature 033: trang tài liệu (docs) của Backoffice nằm ngay trong web app tại /admin/docs/...,
 bố cục theo docs của Directus (tham chiếu https://directus.com/docs/api/files#list-files,
 https://directus.com/docs/configuration/general, https://directus.com/docs/guides/files/upload): menu trái theo nhóm,
@@ -226,8 +226,9 @@ API của Directus.
 - User đổi ngôn ngữ hoặc giao diện sáng, tối khi đang đọc: khung đổi theo, vị trí đọc giữ nguyên.
 - Tên kỹ thuật viết thường có chứa `directus` (tên bảng hệ thống, tên cookie mặc định, tên gói của extension): giữ
   nguyên trong tài liệu vì người đọc phải gõ đúng; từ "Directus" đứng riêng thì không xuất hiện (FR-047).
-- Đăng nhập bằng SSO sau khi mở một URL có anchor: [Unverified] anchor có thể mất qua vòng chuyển hướng của nhà cung
-  cấp; người dùng vẫn tới đúng trang. Lượt 1 xác nhận và ghi thành giới hạn nếu đúng (plan R2).
+- Đăng nhập bằng SSO sau khi mở một URL có anchor: [Inference, đọc code ở lượt 1, chưa chạy] anchor nằm trong tham
+  số `redirect` của trang đăng nhập nên đi qua vòng chuyển hướng của nhà cung cấp (research "Kết quả lượt 1"). Không
+  có E2E cho trường hợp này.
 - Một tính năng riêng bị tắt ở môi trường đang dùng (ví dụ passkey khi `PUBLIC_URL` không hợp lệ): trang hướng dẫn vẫn
   hiện và nêu điều kiện để tính năng có.
 
@@ -535,6 +536,16 @@ Hệ quả của câu 1 và câu 5 so với đề xuất ban đầu: không có 
   (FR-046), breadcrumb và câu dẫn (FR-004), bằng chứng của SC-007, trường "ai gọi được" trong data-model, một cách
   duy nhất để có file mô tả đã gộp, môi trường nguồn cho ảnh của trang đồng bộ, typecheck ở cổng đóng lượt, cài
   trình duyệt ở Phase 1, và bảy ca test nhỏ.
+
+### Sửa khi `/speckit.implement` lượt 1 (2026-11-17)
+
+- FR-030, FR-051: "biến Backoffice đọc và dùng" là danh sách hỗ trợ của API cộng 20 biến có mặc định mà API đọc
+  nhưng danh sách đó không nêu (`TUS_*`, `RETENTION_*`, `PRESSURE_LIMITER_*`...): 212 mục. Danh sách hỗ trợ một mình
+  không đủ (bảng hiện trạng dòng 6 chỉ mô tả danh sách đó). Biến API đọc mà không có mặc định và không nằm trong danh
+  sách nào thì không có nguồn để liệt kê tự động.
+- Q-50: link trong bài viết luôn gạch chân (axe `link-in-text-block`), khác câu "gạch chân khi hover" của bố cục đã
+  duyệt; recipe đã sửa.
+- FR-007, FR-043: nhảy tới anchor sau một lần tải trang là tức thời; cuộn mượt chỉ cho bước nhảy trong trang đang mở.
 
 ## Assumptions
 

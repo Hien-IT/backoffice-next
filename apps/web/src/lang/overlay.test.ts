@@ -30,3 +30,39 @@ test('D-106: the mail notice says Backoffice does not send email', () => {
 	expect(enUS.operations_mail_not_sent_notice).toMatch(/^Backoffice does not send email\./);
 	expect(viVN.operations_mail_not_sent_notice).toMatch(/^Backoffice không gửi email\./);
 });
+
+// Spec 033 (contracts/web.md §6): the frame strings of the documentation area exist in both languages; the keys the
+// generated translations already have (documentation, copy, page_not_found...) are used as they are, never shadowed.
+test('033: the docs_* keys of the documentation area are in both overlays', () => {
+	const keys = [
+		'docs_guides',
+		'docs_api',
+		'docs_configuration',
+		'docs_on_this_page',
+		'docs_previous',
+		'docs_next',
+		'docs_pager',
+		'docs_copied',
+		'docs_copy_failed',
+		'docs_copy_link',
+		'docs_note',
+		'docs_warning',
+		'docs_load_error',
+		'docs_retry',
+		'docs_back_home',
+		'docs_backoffice_only',
+		'docs_variable',
+		'docs_description',
+		'docs_default',
+	];
+
+	for (const key of keys) {
+		expect(enUS, key).toHaveProperty(key);
+		expect(viVN, key).toHaveProperty(key);
+	}
+
+	for (const key of ['documentation', 'copy', 'page_not_found', 'page_not_found_body', 'loading']) {
+		expect(enUSBase, key).toHaveProperty(key);
+		expect(enUS, key).not.toHaveProperty(key);
+	}
+});

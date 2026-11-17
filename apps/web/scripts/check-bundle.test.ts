@@ -10,6 +10,7 @@ import {
 	BUDGET_017,
 	BUDGET_018,
 	BUDGET_020,
+	BUDGET_033,
 	entrySize,
 	LAZY_BUDGETS_015,
 	LAZY_BUDGETS_016,
@@ -153,4 +154,11 @@ test('feature 020: 3 KB over 018, the main bundle follows static imports only, t
 	const sizes = Object.fromEntries(lazyChunkSizes(root, files).map((chunk) => [chunk.name, chunk.gzip]));
 	expect(sizes['theme data']).toBeNull();
 	expect(sizes['v-* shim']).toBeGreaterThan(0);
+});
+
+// Spec 033 (SC-007, research R12).
+test('feature 033: 2 KB over 020, highlight.js stays lazy', () => {
+	expect(BUDGET_033).toBe(BUDGET_020 + 2 * 1024);
+	expect(BUDGET_033).toBeLessThan(LIMIT);
+	expect(LAZY_ONLY).toContain('hljs-');
 });

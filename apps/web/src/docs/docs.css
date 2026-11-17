@@ -1,0 +1,347 @@
+/* Backoffice (spec 033, Q-50; component-specs "Documentation area"): the look of the documentation content. The article
+   is HTML built from Markdown (v-html), so it cannot carry utility classes: these rules use the theme tokens instead.
+   Loaded with the documentation route only. In `@layer components`, so utilities still win where a component adds one.
+   The code block is dark in both themes; its syntax colours never use `brand-*` (that scale follows the project colour
+   of the settings, D-158) and every pair is in the contrast table of design-system/docs/migration-guide.md. */
+@layer components {
+	.docs-article {
+		color: var(--color-gray-700);
+		font-size: 1rem;
+		line-height: 1.75rem;
+	}
+
+	.dark .docs-article {
+		color: var(--color-gray-300);
+	}
+
+	.docs-article > :first-child {
+		margin-top: 0;
+	}
+
+	.docs-article h2,
+	.docs-article h3 {
+		color: var(--color-gray-800);
+		scroll-margin-top: 6rem;
+	}
+
+	.dark .docs-article h2,
+	.dark .docs-article h3 {
+		color: var(--color-white);
+	}
+
+	.docs-article h2 {
+		margin-top: 2.5rem;
+		border-top: 1px solid var(--color-gray-200);
+		padding-top: 2rem;
+		font-size: var(--text-title-sm);
+		font-weight: 600;
+		line-height: var(--text-title-sm--line-height);
+	}
+
+	.dark .docs-article h2 {
+		border-top-color: var(--color-gray-800);
+	}
+
+	.docs-article h2:first-child {
+		border-top: 0;
+		padding-top: 0;
+	}
+
+	.docs-article h3 {
+		margin-top: 2rem;
+		font-size: var(--text-theme-xl);
+		font-weight: 500;
+		line-height: var(--text-theme-xl--line-height);
+	}
+
+	.docs-article h2:focus-visible,
+	.docs-article h3:focus-visible {
+		outline: 2px solid var(--color-brand-500);
+		outline-offset: 2px;
+	}
+
+	.docs-article p,
+	.docs-article ul,
+	.docs-article ol,
+	.docs-article blockquote {
+		margin-top: 1rem;
+	}
+
+	.docs-article ul,
+	.docs-article ol {
+		padding-inline-start: 1.5rem;
+	}
+
+	.docs-article ul {
+		list-style: disc;
+	}
+
+	.docs-article ol {
+		list-style: decimal;
+	}
+
+	.docs-article li + li {
+		margin-top: 0.375rem;
+	}
+
+	.docs-article li > p:first-child {
+		margin-top: 0;
+	}
+
+	.docs-article blockquote {
+		border-inline-start: 4px solid var(--color-gray-200);
+		padding-inline-start: 1rem;
+		color: var(--color-gray-500);
+	}
+
+	.dark .docs-article blockquote {
+		border-inline-start-color: var(--color-gray-700);
+		color: var(--color-gray-400);
+	}
+
+	/* Underlined: a link inside running text must not be told apart by colour alone (axe link-in-text-block). */
+	.docs-article a:not(.docs-anchor) {
+		color: var(--color-brand-600);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.dark .docs-article a:not(.docs-anchor) {
+		color: var(--color-brand-400);
+	}
+
+	.docs-article a:not(.docs-anchor):hover {
+		text-decoration-thickness: 2px;
+	}
+
+	.docs-article a:focus-visible,
+	.docs-copy:focus-visible,
+	.docs-code pre:focus-visible,
+	.docs-table:focus-visible {
+		outline: 2px solid var(--color-brand-500);
+		outline-offset: 2px;
+	}
+
+	.dark .docs-article a:focus-visible,
+	.dark .docs-article h2:focus-visible,
+	.dark .docs-article h3:focus-visible,
+	.dark .docs-copy:focus-visible,
+	.dark .docs-code pre:focus-visible,
+	.dark .docs-table:focus-visible {
+		outline-color: var(--color-brand-400);
+	}
+
+	/* The copy-link sign of a heading: shown on hover and on focus. */
+	.docs-anchor {
+		margin-inline-start: 0.375rem;
+		border-radius: 0.25rem;
+		color: var(--color-gray-500);
+		font-weight: 400;
+		text-decoration: none;
+		opacity: 0;
+	}
+
+	.dark .docs-anchor {
+		color: var(--color-gray-400);
+	}
+
+	.docs-article h2:hover .docs-anchor,
+	.docs-article h3:hover .docs-anchor,
+	.docs-anchor:focus-visible {
+		opacity: 1;
+	}
+
+	.docs-article :not(pre) > code,
+	.docs-inline-code {
+		border-radius: 0.375rem;
+		background: var(--color-gray-100);
+		padding: 0.125rem 0.375rem;
+		color: var(--color-gray-800);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 0.875em;
+		/* break-word, not anywhere: a name such as directus_session_token stays whole, the column takes its width. */
+		overflow-wrap: break-word;
+	}
+
+	.dark .docs-article :not(pre) > code,
+	.dark .docs-inline-code {
+		background: var(--color-gray-800);
+		color: var(--color-gray-200);
+	}
+
+	/* Note boxes: the BoNotice recipe, info and warning. */
+	.docs-note {
+		margin-top: 1rem;
+		border: 1px solid var(--color-blue-light-500);
+		border-radius: 0.75rem;
+		background: var(--color-blue-light-50);
+		padding: 1rem;
+		font-size: var(--text-theme-sm);
+		line-height: var(--text-theme-sm--line-height);
+	}
+
+	.dark .docs-note {
+		border-color: color-mix(in srgb, var(--color-blue-light-500) 30%, transparent);
+		background: color-mix(in srgb, var(--color-blue-light-500) 15%, transparent);
+	}
+
+	.docs-note-warning {
+		border-color: var(--color-warning-500);
+		background: var(--color-warning-50);
+	}
+
+	.dark .docs-note-warning {
+		border-color: color-mix(in srgb, var(--color-warning-500) 30%, transparent);
+		background: color-mix(in srgb, var(--color-warning-500) 15%, transparent);
+	}
+
+	.docs-note > .docs-note-title {
+		margin-top: 0;
+		color: var(--color-gray-800);
+		font-weight: 600;
+	}
+
+	.dark .docs-note > .docs-note-title {
+		color: var(--color-white);
+	}
+
+	.docs-note > .docs-note-title + * {
+		margin-top: 0.25rem;
+	}
+
+	/* Tables scroll in their own box, never the page. */
+	.docs-table {
+		margin-top: 1rem;
+		overflow-x: auto;
+		border: 1px solid var(--color-gray-200);
+		border-radius: 0.75rem;
+	}
+
+	.dark .docs-table {
+		border-color: var(--color-gray-800);
+	}
+
+	.docs-table table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: var(--text-theme-sm);
+		line-height: var(--text-theme-sm--line-height);
+	}
+
+	.docs-table th {
+		background: var(--color-gray-50);
+		padding: 0.75rem 1rem;
+		color: var(--color-gray-500);
+		font-weight: 500;
+		text-align: start;
+		white-space: nowrap;
+	}
+
+	.dark .docs-table th {
+		background: color-mix(in srgb, var(--color-white) 3%, transparent);
+		color: var(--color-gray-400);
+	}
+
+	.docs-table td {
+		border-top: 1px solid var(--color-gray-200);
+		padding: 0.75rem 1rem;
+		vertical-align: top;
+	}
+
+	.dark .docs-table td {
+		border-top-color: var(--color-gray-800);
+	}
+
+	/* Code block: one dark palette for both themes. */
+	.docs-code {
+		position: relative;
+		margin-top: 1rem;
+	}
+
+	.docs-code pre {
+		overflow-x: auto;
+		border: 1px solid var(--color-gray-900);
+		border-radius: 0.75rem;
+		background: var(--color-gray-900);
+		padding: 1rem;
+		padding-top: 2.75rem;
+		color: var(--color-gray-100);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: var(--text-theme-sm);
+		line-height: 1.5rem;
+	}
+
+	/* The dark page is gray-900 too: a border sets the block apart. */
+	.dark .docs-code pre {
+		border-color: var(--color-gray-700);
+	}
+
+	.docs-copy {
+		position: absolute;
+		top: 0.5rem;
+		inset-inline-end: 0.5rem;
+		border: 1px solid var(--color-gray-700);
+		border-radius: 0.375rem;
+		background: var(--color-gray-900);
+		padding: 0.125rem 0.5rem;
+		color: var(--color-gray-300);
+		font-size: var(--text-theme-xs);
+		line-height: var(--text-theme-xs--line-height);
+		cursor: pointer;
+	}
+
+	.docs-copy:hover {
+		background: var(--color-gray-800);
+		color: var(--color-white);
+	}
+
+	.docs-code .hljs-string,
+	.docs-code .hljs-regexp {
+		color: var(--color-success-400);
+	}
+
+	.docs-code .hljs-number,
+	.docs-code .hljs-literal {
+		color: var(--color-orange-400);
+	}
+
+	.docs-code .hljs-keyword,
+	.docs-code .hljs-built_in,
+	.docs-code .hljs-meta {
+		color: var(--color-warning-300);
+	}
+
+	/* `true` in JSON is a keyword inside a literal: it keeps the literal colour. */
+	.docs-code .hljs-literal .hljs-keyword {
+		color: inherit;
+	}
+
+	.docs-code .hljs-attr,
+	.docs-code .hljs-attribute,
+	.docs-code .hljs-symbol,
+	.docs-code .hljs-variable,
+	.docs-code .hljs-property {
+		color: var(--color-blue-light-300);
+	}
+
+	.docs-code .hljs-comment {
+		color: var(--color-gray-400);
+	}
+
+	.docs-code .hljs-punctuation,
+	.docs-code .hljs-operator {
+		color: var(--color-gray-300);
+	}
+
+	.docs-image {
+		margin-top: 1rem;
+		max-width: 100%;
+		height: auto;
+		border: 1px solid var(--color-gray-200);
+		border-radius: 0.75rem;
+	}
+
+	.dark .docs-image {
+		border-color: var(--color-gray-700);
+	}
+}

@@ -238,10 +238,63 @@ thử; lượt 1 xác nhận cho thư viện được chọn. Dung lượng nén
 
 | # | Việc | Kiểm ở |
 | --- | --- | --- |
-| 1 | Dung lượng nén của `highlight.js` (core + 3 ngôn ngữ) và của chunk khu tài liệu | Lượt 1 |
-| 2 | `pnpm audit` sau khi thêm `highlight.js` | Lượt 1 |
-| 3 | Hash qua vòng đăng nhập SSO | Lượt 1 (đọc code), ghi giới hạn nếu mất |
-| 4 | DOMPurify bỏ `id` kiểu `cookie`, `location` | Lượt 1 (test đơn vị của renderer) |
-| 5 | Bản vi-VN của các khóa dịch có sẵn | Lượt 1 |
+| 1 | Dung lượng nén của `highlight.js` (core + 3 ngôn ngữ) và của chunk khu tài liệu | Xong lượt 1 (mục "Kết quả lượt 1") |
+| 2 | `pnpm audit` sau khi thêm `highlight.js` | Xong lượt 1 |
+| 3 | Hash qua vòng đăng nhập SSO | Đọc code ở lượt 1: [Inference] anchor đi qua; chưa chạy |
+| 4 | DOMPurify bỏ `id` kiểu `cookie`, `location` | Xong lượt 1 (`render.test.ts`) |
+| 5 | Bản vi-VN của các khóa dịch có sẵn | Xong lượt 1 |
 | 6 | 133 operation của mô tả tĩnh đều được phục vụ | Lượt 2 |
-| 7 | Phần tử nào của shell cuộn (để cuộn tới anchor và đánh dấu mục đang đọc) | Lượt 1 |
+| 7 | Phần tử nào của shell cuộn (để cuộn tới anchor và đánh dấu mục đang đọc) | Xong lượt 1 |
+
+## Kết quả lượt 1 (2026-11-17)
+
+**Kết quả kiểm T001, T002, T044** (các mục [Unverified] số 1–5 và 7 của bảng trên):
+
+| # | Việc | Kết quả |
+| --- | --- | --- |
+| 1 | Dung lượng | [Verified, đo trên máy] Main bundle 280,5 KB nén trước feature (build commit `2c332f62` trong một worktree tạm), 280,7 KB sau: tăng 0,2 KB (SC-007 cho phép 2 KB). Chunk `DocsRoute` (route, 7 component, renderer, mục lục, `highlight.js` core và ba ngôn ngữ) 18,0 KB nén; CSS của khu tài liệu là file riêng; `variables` và `supported.generated` là hai chunk riêng, mỗi trang markdown một chunk. `highlight.js` chỉ nằm trong chunk `DocsRoute` |
+| 2 | `pnpm audit` | [Verified] Không có advisory nào cho `highlight.js` 11.12.0 (`pnpm audit --prod --json` không có tên gói). Lockfile chỉ thêm đúng gói này (14 dòng) |
+| 3 | Anchor qua SSO | [Inference, đọc code, chưa chạy] Link SSO lấy `window.location.href` của trang đăng nhập làm địa chỉ quay về (`SsoLinks.vue:72`); URL đó là `/admin/login?redirect=<đường dẫn và anchor đã mã hóa>`, nên anchor nằm trong query và đi qua vòng chuyển hướng; `ContinueAs.vue:59` mở lại `redirect`. Không có E2E cho SSO trong feature này |
+| 4 | `id` của tiêu đề | [Verified] `id` gắn sau khi lọc nên tiêu đề "Cookie", "Location" vẫn có anchor (`render.test.ts`) |
+| 5 | Khóa dịch có sẵn | [Verified] vi-VN có `documentation` ("Tài liệu"), `next`, `copy`, `page_not_found`, `page_not_found_body`; không có `previous`. Khu tài liệu dùng khóa mới `docs_previous`, `docs_next` (không ghi đè khóa gốc) |
+| 7 | Phần tử cuộn | [Verified] Trang cuộn trên document (`PrivateView` không `fill`); header dính ở trên nên tiêu đề có `scroll-margin-top` 6rem và mục lục quan sát theo viewport |
+
+**Phát hiện khi làm** (đã sửa trong lượt):
+
+- `SUPPORTED_VARIABLES` không phải toàn bộ biến API đọc: nó chỉ tồn tại cho cảnh báo "biến không hỗ trợ" nên bỏ qua các
+  biến mà danh sách của Directus không nêu. [Verified bằng grep trong `apps/api/src`] API đọc thêm 20 biến có mặc định:
+  `TUS_*` (4), `RETENTION_*` (3), `ACTIVITY_RETENTION`, `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION`,
+  `PRESSURE_LIMITER_*` (7), `MAX_RELATIONAL_DEPTH`, `FILES_MIME_TYPE_ALLOW_LIST`, `ACCEPT_TERMS`. Script lấy thêm mọi tên
+  có trong `DEFAULTS` mà cả `SUPPORTED_VARIABLES` lẫn danh sách của Directus không khớp: 192 + 20 = 212 mục. Biến API
+  đọc mà không có mặc định và không nằm trong hai danh sách thì script không thấy (không có nguồn nào liệt kê chúng).
+- `FILES_CONTENT_TYPE_ALLOW_LIST` có trong danh sách hỗ trợ nhưng API không đọc (ghi chú ở `supported-variables.ts:162`);
+  trang Cấu hình nói rõ điều đó.
+- axe báo `link-in-text-block` (serious): link trong đoạn văn chỉ khác chữ thường bằng màu. Link trong bài viết giờ luôn
+  gạch chân; recipe Q-50 và `contracts/web.md` §4 sửa theo.
+- Cuộn mượt tới anchor ngay sau khi tải trang bị cắt giữa chừng (thấy trong trình duyệt: dừng ở 11 px). Sau một lần
+  tải, nhảy tới anchor là tức thời; cuộn mượt chỉ dùng cho bước nhảy trong trang đang mở.
+- Trang mở từ link có anchor không nạp lại khi URL mới chỉ khác phần hash (E2E): hành vi của trình duyệt, không sửa.
+- Mặc định của vài biến là định danh dài (`directus_refresh_token`): ô Mặc định không ngắt giữa tên, chỉ ngắt sau dấu
+  phẩy của một danh sách.
+- Script `sync-docs-api` chưa thêm vào `package.json` ở lượt 1 (file của nó thuộc lượt 2).
+
+**Handoff checklist** (`design-system/qa/handoff-checklist.md`, phần áp dụng cho khu tài liệu):
+
+- Theme: chỉ token (`check-raw-colors` 0 lỗi); không font ngoài; branding không dùng trong bảng màu cú pháp.
+- Layout: shell có sẵn; không cuộn ngang ở 768 px (browser test và E2E chromium-768).
+- Components: `BoNotice`, `BoButton`, `BoIcon`, `BoTextOverflow`, `menu-dropdown-item` dùng nguyên; trạng thái mặc định,
+  hover, focus-visible, đang tải, lỗi, không tìm thấy đã có; không có trạng thái disabled.
+- Dark mode: xem trong trình duyệt ở sáng và tối; axe sạch ở cả hai.
+- Accessibility: axe (wcag2a/aa, wcag21a/aa) không có vi phạm serious trở lên cho trang mở đầu, một trang biến và một
+  bài có code ba ngôn ngữ, bảng, hai loại ô ghi chú; bảy cặp màu của khối code đã vào bảng tương phản; `FOCUS` ở mọi
+  phần tử tương tác; hai vùng `nav` có tên; `aria-current`; giảm chuyển động.
+- Câu hỏi mở: Q-50 duyệt 2026-11-17, không phần nào chọn ngầm. Một điểm lệch so với recipe đã duyệt: link trong bài luôn
+  gạch chân (do axe), đã ghi vào recipe.
+
+**Không đổi API** (T046): thay đổi của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`, `directus/`; bộ đối chiếu
+của `/server/specs/oas` không cần sửa normalizer.
+
+**Chạy trên máy** (2026-11-17): unit web 503 file, 4.666 test xanh, coverage 91,94 % dòng (file của khu tài liệu 100 %
+dòng); browser test của khu tài liệu 9 test xanh (chromium); E2E `docs.spec.ts` 12 ca xanh, 4 ca bỏ qua theo bề rộng,
+chạy với Vite dev và một API SQLite cục bộ (`E2E_CONFIG=proxy-api BASE_URL=http://127.0.0.1:4221`), chưa chạy với image
+nginx (CSP thật chỉ có ở CI); `a11y.spec.ts` chỉ chạy ở CI.

@@ -41,12 +41,14 @@ describe('UserMenu (FR-024)', () => {
 		expect(wrapper.get('img').attributes('src')).toBe('http://api.test/assets/a1?key=system-medium-cover');
 	});
 
-	test('menu: profile (/users/<id>, feature 015) and sign out (/logout); Esc returns focus to the avatar', async () => {
+	// Spec 033 (FR-014, D-215): Documentation (/docs) sits before Sign out.
+	test('menu: profile (/users/<id>, feature 015), documentation (/docs, spec 033) and sign out (/logout); Esc returns focus to the avatar', async () => {
 		const { trigger } = await render({ id: 'u1', email: 'ada@example.test', avatar: null });
 
 		const items = await openMenu(trigger);
 		expect(items.map((item) => [item.textContent?.replace(/\s+/g, ' ').trim(), item.getAttribute('href')])).toEqual([
 			['account_circle Profile', '/users/u1'],
+			['menu_book Documentation', '/docs'],
 			['Sign Out', '/logout'],
 		]);
 
@@ -54,7 +56,7 @@ describe('UserMenu (FR-024)', () => {
 		await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
 	});
 
-	test('share user: sign out only', async () => {
+	test('share user: sign out only (no profile, no documentation item)', async () => {
 		const { trigger } = await render({ share: 's1', admin_access: false, app_access: false });
 
 		expect(trigger.getAttribute('aria-label')).toBe('Unknown User');

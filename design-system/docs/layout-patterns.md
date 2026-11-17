@@ -700,3 +700,19 @@ of T115); approved by the design owner on 2026-10-18. Behaviour is the Directus 
   `aria-hidden`. Animations off with `prefers-reduced-motion`.
 - **768 px**: the grid keeps its size and scrolls; the detail panel stays the L-4 popover; the panel drawer is full
   screen.
+
+## 15. Documentation area (033, duyệt 2026-11-17)
+
+Recipe for spec 033 Q-50 (FR-042), approved by the owner on 2026-11-17 before the code. No Directus counterpart
+(D-215).
+
+- The documentation is a hidden module (`docs`) in the usual shell (§1, §2): no second shell. The sidebar shows the
+  module title row and, in its `navigation` slot, the documentation menu (parts, collapsible groups, page links); below
+  `xl` it is the drawer like every module.
+- The content area is a two-column grid from `xl`: the article (`max-w-3xl`, at the start) and a sticky "On this page"
+  column of `14rem`; below `xl` only the article.
+- Page title in the page header (`h1`); breadcrumb and lead at the top of the article; previous and next links at its
+  end.
+- Tab order: sidebar menu, article, "On this page". The two skip links of the shell apply. After a page change the focus
+  moves to the page title; after a jump to an anchor, to that heading.
+- Components, colors and states: `component-specs.md`, "Documentation area (Q-50)".

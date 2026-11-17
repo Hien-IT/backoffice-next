@@ -2115,6 +2115,68 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
   SyncRowDetail,SyncConfirmDialog,SyncResult}.vue`, `composables/use-environment-sync.ts`. No new component, no new
   color pair.
 
+### Documentation area (Q-50; spec 033, D-215, no Directus counterpart)
+
+Approved by the owner on 2026-11-17 (option A: inside the app shell; body text `text-base`; one dark code block palette
+for both themes; menu item "Documentation" / "Tài liệu" with the `menu_book` icon).
+
+- Routes `/docs` and `/docs/<part>/<page>` of the hidden module `docs` (no tile in the module grid; the sidebar title row
+  shows `menu_book` and the module name). Entry: the user menu item `documentation` (icon `menu_book`) before Sign out;
+  share users have none.
+- **Left menu** in the sidebar `navigation` slot (`<nav aria-label>` with the module name): the part name is a label
+  `text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400`; a group title is a button row with
+  `aria-expanded` and the chevron at the row end (D-129); a page row is a `menu-dropdown-item` link as in the Settings
+  sub-menu (layout-patterns §12), the open page has the active state and `aria-current="page"`.
+- **Content**: grid `xl:grid-cols-[minmax(0,1fr)_14rem] gap-8`; the article column is `max-w-3xl`, at the start of the
+  content like the item page (D-150). Top of the article: breadcrumb `text-theme-xs text-gray-500 dark:text-gray-400`
+  (part / group), then the lead `text-theme-xl text-gray-500 dark:text-gray-400`; the page title is the page header `h1`.
+- **"On this page"** column, from `xl` only: `sticky`, as high as the viewport at most, own scroll; title
+  `text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400`; an item `text-theme-sm text-gray-600
+  dark:text-gray-400`, third-level items indented `ps-3`; the item being read is `text-brand-600 dark:text-brand-400`
+  with a start border `border-s-2 border-brand-500` and `aria-current="location"` (never color alone).
+- **Article** (`lang="vi"`): `h2` `text-title-sm` with `border-t border-gray-200 dark:border-gray-800 pt-8 mt-10`
+  (none on the first), `h3` `text-theme-xl font-medium`; paragraphs and lists `text-base leading-7 text-gray-700
+  dark:text-gray-300`; links `text-brand-600 dark:text-brand-400 underline underline-offset-2` (always underlined: axe
+  `link-in-text-block`, a link in running text is not told apart by color alone; thicker underline on hover). Each heading has a
+  copy-link button (`ICON_BTN`, icon `link`, shown on hover and on focus) and `scroll-mt-24` so the sticky header does
+  not cover it.
+- **Note boxes**: `BoNotice`, types info and warning. A page or an endpoint that exists only at Backoffice starts with an
+  info `BoNotice` `docs_backoffice_only`.
+- **Tables** (variables, parameters): wrapper `overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800`
+  with `role="region"`, `aria-label` and `tabindex="0"`; `text-theme-sm`; header row `bg-gray-50 dark:bg-white/[0.03]`
+  with `th scope="col"` `text-start font-medium text-gray-500 dark:text-gray-400`; rows split by `border-t
+  border-gray-200 dark:border-gray-800`; cells `px-4 py-3 align-top`; variable and parameter names `font-mono`.
+- **Endpoint block**: Card (`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`).
+  Head: a method `BoChip` with the method as text (GET success, POST info, PATCH and PUT warning, DELETE error, HEAD and
+  SEARCH light) and the path in `font-mono text-theme-sm`. From `2xl` the body has two columns (description, parameters
+  and responses at the start; examples and the response example at the end, sticky); below `2xl` one column with the
+  examples last. The examples are `BoTabs` REST / GraphQL (no tabs with one example); the structure of the success
+  response is a closed `BoDetail`.
+- **Code block**: `rounded-xl bg-gray-900 text-gray-100 font-mono text-theme-sm overflow-x-auto p-4` in both themes
+  (`pre tabindex="0"` with `FOCUS`); copy button `ICON_BTN` at the top end, `text-gray-300 hover:text-white`, result
+  announced in an `aria-live="polite"` region. Syntax colors on `gray-900` (highlight.js classes): string `success-400`,
+  number and literal `orange-400`, keyword `warning-300`, attribute, symbol and JSON key `blue-light-300`, comment
+  `gray-400`, punctuation `gray-300`. No `brand-*` color here: that scale follows the project color of the settings
+  (D-158), so its contrast is not known in advance.
+- **Images**: `rounded-xl border border-gray-200 dark:border-gray-700 max-w-full`; the border separates a light
+  screenshot from the dark page.
+- **Previous / next**: two card links at the end of the article (`rounded-xl border border-gray-200 p-4
+  dark:border-gray-800`, label `text-theme-xs text-gray-500`, page name `text-theme-sm font-medium`).
+- **States**: every interactive element (menu row, "On this page" item, copy buttons, previous and next links, example
+  tabs) has `FOCUS` and the hover of its recipe; nothing is disabled. First load: skeleton lines in the article
+  (`animate-pulse rounded bg-gray-200 dark:bg-gray-800`, as layout-patterns §11) inside `aria-busy="true"`; a page change
+  keeps the old content until the new one is ready. Load error: danger `BoNotice` with a secondary retry button. Not
+  found: the `page_not_found` title, its body and a link to `/docs`.
+- **Below `xl`**: the sidebar is the drawer (layout-patterns §2), no "On this page" column, endpoint blocks in one
+  column; tables and code scroll in their own box, the page never scrolls sideways (768 px minimum).
+- **Motion**: scrolling to an anchor is instant under `prefers-reduced-motion: reduce`; collapsing a group has no
+  transition then.
+- **Headings**: Markdown pages start at `h2`; an API resource page has each endpoint as `h2` and its parts (parameters,
+  request body, responses, examples) as `h3`; a variables page has each table as `h2`.
+- Built: `modules/docs.ts`, `modules/docs/routes/DocsRoute.vue`, `modules/docs/components/{DocsNavigation,DocsToc,
+  DocsArticle,DocsApiResource,DocsEndpoint,DocsConfigGroup,DocsCodeBlock,DocsPager}.vue`, `docs/docs.css`. New color
+  pairs: the code block rows of the contrast table in `migration-guide.md`.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

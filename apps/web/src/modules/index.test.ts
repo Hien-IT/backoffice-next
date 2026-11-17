@@ -33,12 +33,14 @@ function setUser(admin: boolean, permissions: Record<string, unknown>) {
 }
 
 describe('getInternalModules', () => {
-	test('six modules sorted by id, with Directus names and icons', () => {
+	// Spec 033 (D-215): `docs`, the hidden documentation module, is the seventh.
+	test('seven modules sorted by id, with Directus names and icons', () => {
 		const modules = getInternalModules();
 
 		expect(modules.map((m) => [m.id, m.name, m.icon, m.hidden ?? false])).toEqual([
 			['activity', '$t:activity', 'notifications', true],
 			['content', '$t:content', 'box', false],
+			['docs', '$t:documentation', 'menu_book', true],
 			['files', '$t:file_library', 'folder', false],
 			['insights', '$t:insights', 'insights', false],
 			['settings', '$t:settings', 'settings', false],
@@ -49,7 +51,7 @@ describe('getInternalModules', () => {
 
 describe('registerModules (FR-022)', () => {
 	test.each([
-		['admin', true, {}, ['activity', 'content', 'files', 'insights', 'settings', 'users']],
+		['admin', true, {}, ['activity', 'content', 'docs', 'files', 'insights', 'settings', 'users']],
 		[
 			'partial',
 			false,
@@ -58,9 +60,9 @@ describe('registerModules (FR-022)', () => {
 				directus_users: { read: { access: 'full' } },
 				directus_dashboards: { read: { access: 'none' } },
 			},
-			['activity', 'content', 'files', 'users'],
+			['activity', 'content', 'docs', 'files', 'users'],
 		],
-		['none', false, {}, ['activity', 'content']],
+		['none', false, {}, ['activity', 'content', 'docs']],
 	])('%s user', async (_name, admin, permissions, expected) => {
 		setUser(admin, permissions);
 		const { registeredModules, onHydrateModules } = registerModules(getInternalModules());
