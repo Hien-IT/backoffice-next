@@ -122,7 +122,8 @@ tập header ở FR-104 và body theo quy tắc ở FR-103.
 6. **Given** request không kèm token và `OPENAPI_ENABLED` khác `false`, **When** gọi
    `GET /server/specs/oas`, **Then** nhận tài liệu OpenAPI giống Directus cho người dùng public.
 7. **Given** `OPENAPI_ENABLED=false`, **When** gọi `/server/specs/oas`, **Then** nhận lỗi
-   `ROUTE_NOT_FOUND` giống Directus.
+   `ROUTE_NOT_FOUND` giống Directus. (D-216, 2026-11-18: ở Backoffice `false` là giá trị mặc định; kịch bản 6
+   cần đặt `OPENAPI_ENABLED=true`.)
 8. **Given** request kèm token (hợp lệ hay không), **When** gọi `/server/info`, `/server/health`,
    `/server/specs/oas`, `/metrics`, **Then** ở feature này API mới trả như request public. Phần dành cho user
    đã đăng nhập và admin được làm ở feature 003/004 (khác biệt tạm thời, đã liệt kê).
@@ -473,7 +474,7 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   trọng vì `ETag` tính từ body.
 - **FR-043**: `GET /server/specs/oas` PHẢI trả tài liệu OpenAPI giống Directus cho người dùng
   public (các phần không thể trùng giữa hai server được liệt kê ở FR-105), và không tồn tại khi
-  `OPENAPI_ENABLED=false`. Để làm được, API mới chỉ đọc schema DB,
+  `OPENAPI_ENABLED=false` (D-216: mặc định ở Backoffice). Để làm được, API mới chỉ đọc schema DB,
   `directus_collections`, `directus_fields`, `directus_relations` và quyền của policy public
   (`directus_access`, `directus_policies`, `directus_permissions`), không ghi gì.
 - **FR-044**: Ở feature này, request kèm token tới `/server/info`, `/server/health`,
@@ -487,7 +488,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   và log HTTP, giống Directus. Các header bảo mật
   (`CONTENT_SECURITY_POLICY_*`, `CROSS_ORIGIN_OPENER_POLICY*`, `HSTS_*`), CORS (`CORS_*`),
   `ROOT_REDIRECT` và `/robots.txt` (`ROBOTS_TXT`) PHẢI giống Directus; tập header được so sánh ở
-  FR-104.
+  FR-104. (D-216, 2026-11-18: `ROBOTS_TXT` không có mặc định ở Backoffice, khi chưa đặt thì `/robots.txt` trả
+  `404 ROUTE_NOT_FOUND`; khi đã đặt thì giống Directus.)
 - **FR-046**: Rate limiter theo IP và toàn cục PHẢI áp dụng cho mọi route như Directus, dùng chung
   key và bộ đếm với Directus khi `RATE_LIMITER_STORE=redis`.
 - **FR-047**: `version` trong `/server/info` và `releaseId` trong `/server/health` PHẢI là `11.17.4`,
@@ -639,6 +641,7 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 | D-20 | Log khi Redis không truy cập được với `CACHE_STORE=redis` | Log `warn` tiền tố `[system-cache]`, `[deployment-cache]`, `[lock-cache]` (luôn có), thêm `[cache]` khi `CACHE_ENABLED=true` | Chỉ `[cache]` khi `CACHE_ENABLED=true` | Cache hệ thống, lock cache thuộc feature 002 | ngoài phạm vi (tạm thời) | 002 |
 | D-21 | Lấy IP client qua proxy tin cậy khi địa chỉ ở dạng IPv4 ánh xạ IPv6 (`::ffff:a.b.c.d`) | `proxy-addr` 2.0.7: kiểm tra tin cậy có lỗi giả mạo IP (cảnh báo critical của `pnpm audit`) | `proxy-addr` 2.0.8 đã vá: IP dạng này được kiểm như IPv4 | Bản vá bảo mật (T107, Complexity Tracking của plan); chỉ khác khi `IP_TRUST_PROXY` tin một dải mạng và request đi qua địa chỉ dạng này. Test đối chiếu hiện có không gặp trường hợp này | khác (gỡ khi Directus tham chiếu dùng `proxy-addr` ≥ 2.0.8) | — |
 | D-22 | Hiệu năng `/server/specs/oas` dưới tải (SC-006) | Đọc policy và permission từ permissions cache (bộ nhớ và Redis, luôn bật): 8 câu SQL mỗi request khi `CACHE_SCHEMA=false`, `CACHE_ENABLED=false` | Đọc lại từ DB mỗi request: 14 câu SQL; trên runner CI p95 cao hơn 11–21%, req/s ngang nhau. Benchmark vẫn đo và in kết quả nhưng không chặn CI | Permissions cache cần bus để xóa cache trên mọi instance, thuộc feature 002 (D-20) | ngoài phạm vi (tạm thời) | 002 |
+| D-216 | Giá trị mặc định của `OPENAPI_ENABLED` và `ROBOTS_TXT` (chủ dự án 2026-11-18) | `OPENAPI_ENABLED` mặc định `true`: có `/server/specs/oas` và query GraphQL `server_specs_oas`. `ROBOTS_TXT` mặc định `User-agent: *\nDisallow: /`: `/robots.txt` trả `200` | `OPENAPI_ENABLED` mặc định `false`: `/server/specs/oas` trả `404 ROUTE_NOT_FOUND` và không có `server_specs_oas` cho tới khi đặt `true`. `ROBOTS_TXT` không có mặc định: `/robots.txt` trả `404 ROUTE_NOT_FOUND` cho tới khi đặt biến. Khi hai biến được đặt, hành vi giống Directus. File env theo vendor của môi trường parity đặt cả hai; mặc định được kiểm bằng unit test của `apps/api` và `libs/env` | Chủ dự án quyết định: không công bố mô tả API và `robots.txt` khi chưa cấu hình | khác | — |
 
 Bản đồ route của D-09 (mỗi mã là một mục trong danh sách khác biệt được chấp nhận):
 

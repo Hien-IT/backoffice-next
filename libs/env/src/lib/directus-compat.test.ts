@@ -51,6 +51,15 @@ describe('§1 sources and precedence', () => {
 		expect(env({})['LOG_LEVEL']).toBeUndefined();
 		expect(env({})['ROOT_REDIRECT']).toBe('./admin');
 	});
+
+	test('D-216: OPENAPI_ENABLED is off and ROBOTS_TXT has no default (DR: true and a default text)', () => {
+		expect(env({})['OPENAPI_ENABLED']).toBe(false);
+		expect(env({})['ROBOTS_TXT']).toBeUndefined();
+		expect(env({ OPENAPI_ENABLED: 'true', ROBOTS_TXT: 'User-agent: *' })).toMatchObject({
+			OPENAPI_ENABLED: true,
+			ROBOTS_TXT: 'User-agent: *',
+		});
+	});
 });
 
 describe('§2 X and X_FILE', () => {

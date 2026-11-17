@@ -54,7 +54,7 @@ Xem [data-model.md](../data-model.md) §3, §4. Quy tắc hiện diện:
 | `Mutation.create_<c>_item(s)` | quyền create; `update_*` quyền update; `delete_*` quyền delete; không cho `directus_activity`, `directus_revisions` |
 | `Mutation.update_<c>` | singleton, quyền update |
 | `Subscription.<collection>_mutated` (tên collection đầy đủ, kể cả `directus_*`, ở cả hai scope; không qua scopeFilter) | user đọc được collection đó (FR-047; đo 2026-10-14: admin scope `items` có 221 field) |
-| `Query.server_specs_oas` | `OPENAPI_ENABLED !== false` |
+| `Query.server_specs_oas` | `OPENAPI_ENABLED !== false` (D-216: mặc định `false` ở Backoffice, `true` ở Directus) |
 | `Query.server_specs_graphql` | `GRAPHQL_INTROSPECTION !== false` |
 | `Query.users_me`, `Mutation.update_users_me` | accountability có `user` và `directus_users` đọc/sửa được |
 | `Query.collections*`, `fields*`, `relations*` | user đọc được `directus_collections`, `directus_fields`, `directus_relations` (hoặc admin) |
