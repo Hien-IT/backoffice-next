@@ -3,7 +3,7 @@
 // anchor), the method chip with its name and the path. Body: description, path and query parameters, request body,
 // responses (the structure of the success answer in a closed BoDetail), then the REST / GraphQL examples and the
 // response example; from `2xl` the examples sit in a second column. Text from the static API description is English
-// (`lang="en"`, FR-038, FR-039); the supplement is Vietnamese.
+// (`lang="en"`, FR-038, FR-039); the supplement is Vietnamese, or English in the English output.
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -11,10 +11,13 @@ import BoDetail from '../../../components/BoDetail.vue';
 import BoTabs from '../../../components/BoTabs.vue';
 import type { DocsApiOperation, DocsApiParameter, JsonSchema } from '../../../docs/types.ts';
 import { useCopy } from '../copy.ts';
+import { useDocsLang } from '../use-docs-lang.ts';
 import DocsCodeBlock from './DocsCodeBlock.vue';
 import DocsInlineText from './DocsInlineText.vue';
 
 const { operation, schemas } = defineProps<{ operation: DocsApiOperation; schemas: Record<string, JsonSchema> }>();
+
+const { lang } = useDocsLang();
 
 const { t } = useI18n();
 const router = useRouter();
@@ -163,7 +166,7 @@ const CELL = 'px-4 py-3 align-top';
 			<template v-if="operation.backofficeOnly && accessText">{{ ' ' }}</template>
 			<template v-if="accessText">{{ accessText }}.</template>
 			<template v-if="operation.accessNote">
-				<span lang="vi">{{ operation.accessNote }}</span>
+				<span :lang="lang">{{ operation.accessNote }}</span>
 			</template>
 		</p>
 

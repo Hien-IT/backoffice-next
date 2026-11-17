@@ -60,7 +60,8 @@ if (docsShots) {
 		{
 			name: 'docs-shots',
 			testMatch: /docs-shots\/.*\.shots\.ts$/,
-			snapshotPathTemplate: '../web/src/docs/content/images/{arg}{ext}',
+			// English pictures (DOCS_LANG=en, lang.ts) go to images/en/ under the same names.
+			snapshotPathTemplate: `../web/src/docs/content/images/${process.env['DOCS_LANG'] === 'en' ? 'en/' : ''}{arg}{ext}`,
 			use: { ...devices['Desktop Chrome'], viewport: VIEWPORTS[1280], deviceScaleFactor: 1, colorScheme: 'light' },
 		},
 	];

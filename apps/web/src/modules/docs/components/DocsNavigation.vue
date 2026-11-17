@@ -6,10 +6,12 @@ import { ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoTextOverflow from '../../../components/BoTextOverflow.vue';
-import { docsNav, normalizePath, pageLink } from '../../../docs/nav.ts';
+import { normalizePath, pageLink } from '../../../docs/nav.ts';
 import type { DocsGroup, DocsPage } from '../../../docs/types.ts';
+import { useDocsLang } from '../use-docs-lang.ts';
 
 const route = useRoute();
+const { lang, nav: docsNav } = useDocsLang();
 
 const isActive = (page: DocsPage) => normalizePath(route.params['path'] as string | string[] | undefined) === page.path;
 
@@ -68,7 +70,7 @@ const GROUP =
 						<BoIcon :name="isOpen(section.id, group) ? 'expand_less' : 'expand_more'" size="sm" class="shrink-0" />
 					</button>
 
-					<ul v-show="isOpen(section.id, group)" class="m-0 flex list-none flex-col gap-1 p-0" lang="vi">
+					<ul v-show="isOpen(section.id, group)" class="m-0 flex list-none flex-col gap-1 p-0" :lang="lang">
 						<li v-for="page in group.pages" :key="page.path">
 							<RouterLink
 								:to="pageLink(page)"

@@ -6,6 +6,7 @@ tags:
       path: /notifications
       id: { singular: Notification, plural: Notifications }
       noun: thông báo
+      noun-en: { singular: Notification, plural: Notifications }
       schema: Notifications
 components:
   schemas:

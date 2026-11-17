@@ -6,6 +6,7 @@ tags:
       path: /translations
       id: { singular: Translation, plural: Translations }
       noun: chuỗi dịch
+      noun-en: { singular: Translation String, plural: Translation Strings }
       schema: Translations
 components:
   schemas:

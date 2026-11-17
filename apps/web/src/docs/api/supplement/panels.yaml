@@ -6,6 +6,7 @@ tags:
       path: /panels
       id: { singular: Panel, plural: Panels }
       noun: panel
+      noun-en: { singular: Panel, plural: Panels }
       schema: Panels
 components:
   schemas:

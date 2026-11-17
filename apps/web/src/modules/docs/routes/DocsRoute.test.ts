@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ref } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import { renderDoc } from '../../../docs/render.ts';
+import { i18n } from '../../../lang/index.ts';
 import { useUserStore } from '../../../stores/user.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
 import type { AppUser } from '../../../types/user.ts';
@@ -17,15 +18,15 @@ vi.mock('../../../docs/render.ts', async (importOriginal) => {
 	return { ...actual, renderDoc: vi.fn(actual.renderDoc) };
 });
 
-// One extra page that only Backoffice has (the real ones come with wave 3).
+// One extra page that only Backoffice has.
 vi.mock('../../../docs/nav.ts', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('../../../docs/nav.ts')>();
 	return {
 		...actual,
-		findPage: (path: string) =>
+		findPage: (path: string, nav = actual.docsNav) =>
 			path === 'guides/only-here'
-				? { ...actual.docsNav.intro, path, title: 'Chỉ ở đây', backofficeOnly: true }
-				: actual.findPage(path),
+				? { ...nav.intro, path, title: 'Chỉ ở đây', backofficeOnly: true }
+				: actual.findPage(path, nav),
 	};
 });
 
@@ -39,7 +40,9 @@ enableAutoUnmount(afterEach);
 const scrollIntoView = vi.fn();
 let reducedMotion = false;
 
+// The content in Vietnamese (the app language vi-VN); one test below opens the English content.
 beforeEach(() => {
+	i18n.global.locale.value = 'vi-VN';
 	scrollIntoView.mockReset();
 	reducedMotion = false;
 	Element.prototype.scrollIntoView = scrollIntoView;
@@ -54,7 +57,10 @@ beforeEach(() => {
 	})) as unknown as typeof window.matchMedia;
 });
 
-afterEach(() => vi.mocked(renderDoc).mockClear());
+afterEach(() => {
+	vi.mocked(renderDoc).mockClear();
+	i18n.global.locale.value = 'en-US';
+});
 
 const ROUTES: RouteRecordRaw[] = [
 	{ path: '/docs/:path(.*)*', component: { render: () => null } },
@@ -118,6 +124,26 @@ describe('DocsRoute', () => {
 		]);
 		// The last page of the API part (the Backoffice routes) comes before the first configuration page.
 		expect(wrapper.find('[data-docs-previous]').attributes('href')).toBe('/docs/api/backoffice');
+	});
+
+	// Amendment 2026-11-18: English content for every app language but Vietnamese; a language change reloads the page.
+	test('en-US shows the English content; switching to vi-VN shows the same page in Vietnamese', async () => {
+		i18n.global.locale.value = 'en-US';
+		const { wrapper } = await open('/docs/configuration/general');
+
+		expect(title()).toBe('General');
+		expect(wrapper.find('[data-docs-lead]').attributes('lang')).toBe('en');
+		expect(wrapper.findAll('h2').map((h2) => h2.attributes('id'))).toEqual([
+			'general',
+			'http-server',
+			'first-admin-account',
+		]);
+		expect(wrapper.find('tr[data-variable="PUBLIC_URL"]').findAll('td')[2]!.text()).toBe('/');
+
+		i18n.global.locale.value = 'vi-VN';
+		await vi.waitFor(() => expect(title()).toBe('Chung'));
+		await vi.waitFor(() => expect(wrapper.findAll('h2').map((h2) => h2.attributes('id'))[0]).toBe('chung'));
+		expect(wrapper.find('[data-docs-lead]').attributes('lang')).toBe('vi');
 	});
 
 	test('an API page: the resource, one card per endpoint, "On this page" lists the endpoints', async () => {

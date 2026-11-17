@@ -4,6 +4,7 @@
 // parts in backticks; the default comes from the generated list, so it is the one the API uses.
 import BoNotice from '../../../components/BoNotice.vue';
 import type { ConfigTable, DocsHeading } from '../../../docs/types.ts';
+import { useDocsLang } from '../use-docs-lang.ts';
 import DocsInlineText from './DocsInlineText.vue';
 
 const { tables, headings, defaults } = defineProps<{
@@ -14,6 +15,8 @@ const { tables, headings, defaults } = defineProps<{
 	defaults: Record<string, string | undefined>;
 }>();
 
+const { lang } = useDocsLang();
+
 const titled = () => tables.filter((table) => table.title);
 const headingOf = (table: ConfigTable) => headings[titled().indexOf(table)];
 </script>
@@ -21,9 +24,9 @@ const headingOf = (table: ConfigTable) => headings[titled().indexOf(table)];
 <template>
 	<div class="docs-article">
 		<template v-for="(table, index) in tables" :key="table.title ?? index">
-			<h2 v-if="table.title" :id="headingOf(table)?.id" tabindex="-1" lang="vi">{{ table.title }}</h2>
+			<h2 v-if="table.title" :id="headingOf(table)?.id" tabindex="-1" :lang="lang">{{ table.title }}</h2>
 
-			<BoNotice v-if="table.note" type="info" class="mt-4" lang="vi">
+			<BoNotice v-if="table.note" type="info" class="mt-4" :lang="lang">
 				<DocsInlineText :text="table.note" />
 			</BoNotice>
 
@@ -42,7 +45,7 @@ const headingOf = (table: ConfigTable) => headings[titled().indexOf(table)];
 							<td>
 								<code class="docs-inline-code whitespace-nowrap">{{ row.name }}</code>
 							</td>
-							<td lang="vi">
+							<td :lang="lang">
 								<DocsInlineText :text="row.description" />
 								<p v-if="row.note" class="mt-1 text-gray-500 dark:text-gray-400" data-note>
 									<DocsInlineText :text="row.note" />

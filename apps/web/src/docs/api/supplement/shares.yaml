@@ -6,6 +6,7 @@ tags:
       path: /shares
       id: { singular: Share, plural: Shares }
       noun: link chia sẻ
+      noun-en: { singular: Share, plural: Shares }
       schema: Shares
 paths:
   /shares/auth:

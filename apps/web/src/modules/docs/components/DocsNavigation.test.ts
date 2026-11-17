@@ -6,7 +6,7 @@ import type { DocsNav } from '../../../docs/types.ts';
 import { i18n } from '../../../lang/index.ts';
 import DocsNavigation from './DocsNavigation.vue';
 
-// A small table of contents with a titled group; the real one has no guides before wave 3.
+// A small table of contents with a titled group, the same for both languages.
 vi.mock('../../../docs/nav.ts', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('../../../docs/nav.ts')>();
 	const page = (path: string, title: string) => ({ path, title, lead: 'x', kind: 'markdown' as const, source: 'x' });
@@ -29,7 +29,7 @@ vi.mock('../../../docs/nav.ts', async (importOriginal) => {
 			},
 		],
 	};
-	return { ...actual, docsNav };
+	return { ...actual, docsNav, docsNavs: { vi: docsNav, en: docsNav } };
 });
 
 enableAutoUnmount(afterEach);

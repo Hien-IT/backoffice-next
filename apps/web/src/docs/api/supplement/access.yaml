@@ -6,6 +6,7 @@ tags:
       path: /access
       id: { singular: Access, plural: AccessItems }
       noun: bản ghi gắn chính sách
+      noun-en: { singular: Policy Assignment, plural: Policy Assignments }
       schema: Access
 components:
   schemas:

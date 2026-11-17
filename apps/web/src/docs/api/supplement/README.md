@@ -10,3 +10,7 @@ Mỗi file là một mảnh OpenAPI 3 (`tags`, `paths`, `components.schemas`) v�
 - `x-access` trên một thao tác: ai gọi được (`admin`, `authenticated`, `public`).
 
 Văn bản viết tiếng Việt (`x-lang` mặc định `vi`). Không viết từ thương hiệu bị cấm (FR-047).
+
+Bản tiếng Anh (`../generated/en/`): `x-crud` có thêm `noun-en` (`singular`, `plural`) cho tên bảy thao tác chuẩn; mọi văn
+bản khác đi qua `en.json` (văn bản tiếng Việt → tiếng Anh). `node apps/web/scripts/sync-docs-api.mjs --missing` in các
+văn bản còn thiếu; script dừng khi bản tiếng Anh còn chữ tiếng Việt.

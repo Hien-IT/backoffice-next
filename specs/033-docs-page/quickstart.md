@@ -58,9 +58,20 @@ Chạy bằng tay trên máy có trình duyệt Playwright; CI không chụp.
    đổi mới khác. Muốn ghi lại tất cả: thêm `--update-snapshots=all`. Rà từng ảnh mới: không dữ liệu thật, không token,
    không từ thương hiệu bị cấm.
 5. Commit ảnh cùng thay đổi giao diện.
+6. Bản tiếng Anh: chạy lại với `DOCS_LANG=en` trên một API khác (database riêng, dữ liệu mẫu tiếng Anh) và một nguồn
+   đồng bộ khác; ảnh ra `content/images/en/` cùng tên. Thư mục chạy API cần có `package.json` (một file tối thiểu là đủ)
+   thì extension tải lên mới nạp.
 
 Thêm một ảnh mới: thêm một bước `shot(page, '<slug>-<n>', { mask })` vào `apps/web-e2e/src/docs-shots/<slug>.shots.ts`,
-che vùng có ngày giờ, id hay URL bằng `mask`; ảnh chưa có được ghi ở lần chạy đầu.
+che vùng có ngày giờ, id hay URL bằng `mask`; ảnh chưa có được ghi ở lần chạy đầu. Chữ tiếng Việt trong script (nhãn,
+dữ liệu mẫu) đi qua `L()` của `docs-shots/lang.ts` với bản tiếng Anh tương ứng.
+
+## Thêm hoặc sửa nội dung hai ngôn ngữ
+
+- Trang hướng dẫn: sửa cả `content/<trang>.md` và `content/en/<trang>.md` (cùng mục, cùng bước, cùng ảnh).
+- Biến cấu hình: một dòng ở `variables.ts` và một dòng cùng chỗ ở `variables.en.ts`.
+- Phần bổ sung API: viết tiếng Việt trong YAML, rồi `node apps/web/scripts/sync-docs-api.mjs --missing` liệt kê văn bản
+  chưa có bản tiếng Anh; thêm vào `apps/web/src/docs/api/supplement/en.json` rồi chạy `sync-docs-api`.
 
 ## Kiểm tra trước khi commit
 

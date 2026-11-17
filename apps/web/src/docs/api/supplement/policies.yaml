@@ -6,6 +6,7 @@ tags:
       path: /policies
       id: { singular: Policy, plural: Policies }
       noun: chính sách truy cập
+      noun-en: { singular: Access Policy, plural: Access Policies }
       schema: Policies
 paths:
   /policies/me/globals:

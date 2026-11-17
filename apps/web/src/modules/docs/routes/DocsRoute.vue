@@ -3,7 +3,8 @@
 // counterpart. The page is found in docs/nav.ts by the route path; its content is loaded on demand (a Markdown file, or
 // the variables of one configuration group) and shown in the usual shell: the documentation menu in the sidebar
 // `navigation` slot, the article, and the "On this page" column from `xl`. While another page loads, the page shown
-// stays; the first load shows skeleton lines.
+// stays; the first load shows skeleton lines. The content is in the docs language (useDocsLang: Vietnamese for vi-VN,
+// English otherwise, amendment 2026-11-18): the same page reloads in the other language when the app language changes.
 import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute } from 'vue-router';
@@ -12,7 +13,14 @@ import BoNotice from '../../../components/BoNotice.vue';
 import '../../../docs/docs.css';
 import { findPage, locate, neighbours, normalizePath } from '../../../docs/nav.ts';
 import { createSlugger, renderDoc } from '../../../docs/render.ts';
-import type { ConfigTable, DocsApiResource, DocsHeading, DocsPage, SupportedGenerated } from '../../../docs/types.ts';
+import type {
+	ConfigTable,
+	DocsApiResource,
+	DocsHeading,
+	DocsLang,
+	DocsPage,
+	SupportedGenerated,
+} from '../../../docs/types.ts';
 import PrivateView from '../../../layout/PrivateView.vue';
 import DocsApiPage from '../components/DocsApiResource.vue';
 import DocsArticle from '../components/DocsArticle.vue';
@@ -20,33 +28,41 @@ import DocsConfigGroup from '../components/DocsConfigGroup.vue';
 import DocsNavigation from '../components/DocsNavigation.vue';
 import DocsPager from '../components/DocsPager.vue';
 import DocsToc from '../components/DocsToc.vue';
+import { useDocsLang } from '../use-docs-lang.ts';
 
-type Content = { page: DocsPage; headings: DocsHeading[] } & (
+type Content = { page: DocsPage; lang: DocsLang; headings: DocsHeading[] } & (
 	| { kind: 'markdown'; html: string }
 	| { kind: 'api'; resource: DocsApiResource }
 	| { kind: 'configuration'; tables: ConfigTable[]; defaults: Record<string, string | undefined> }
 );
 
-// One lazy chunk per Markdown page; the images are assets, only their URLs are in this chunk (research R4).
+// One lazy chunk per Markdown page (English under content/en/); the images are assets, only their URLs are in this
+// chunk (research R4), the English screenshots under images/en/ with the same file names.
 const markdownFiles = import.meta.glob<string>('../../../docs/content/**/*.md', { query: '?raw', import: 'default' });
-// One lazy chunk per API resource (research R7).
-const apiFiles = import.meta.glob<DocsApiResource>(['../../../docs/api/generated/*.json', '!**/index.json'], {
+// One lazy chunk per API resource and language (research R7).
+const apiFiles = import.meta.glob<DocsApiResource>(['../../../docs/api/generated/**/*.json', '!**/index.json'], {
 	import: 'default',
 });
-const imageUrls = import.meta.glob<string>('../../../docs/content/images/*.png', {
+const imageUrls = import.meta.glob<string>('../../../docs/content/images/**/*.png', {
 	eager: true,
 	query: '?url',
 	import: 'default',
 });
-const images = Object.fromEntries(
-	Object.entries(imageUrls).map(([file, url]) => [`images/${file.split('/').pop()}`, url]),
-);
+const imagesOf = (lang: DocsLang) =>
+	Object.fromEntries(
+		Object.entries(imageUrls)
+			.filter(([file]) => file.includes('/images/en/') === (lang === 'en'))
+			.map(([file, url]) => [`images/${file.split('/').pop()}`, url]),
+	);
+const images = { vi: imagesOf('vi'), en: imagesOf('en') };
+const dir = (lang: DocsLang) => (lang === 'en' ? 'en/' : '');
 
 const route = useRoute();
 const { t } = useI18n();
+const { lang, nav } = useDocsLang();
 
 const path = computed(() => normalizePath(route.params['path'] as string | string[] | undefined));
-const page = computed(() => findPage(path.value));
+const page = computed(() => findPage(path.value, nav.value));
 
 const content = shallowRef<Content | null>(null);
 const loading = ref(false);
@@ -62,20 +78,21 @@ const title = computed(() => shown.value?.title ?? t('page_not_found'));
 
 const crumbs = computed(() => {
 	if (!shown.value) return [];
-	const { section, group } = locate(shown.value.path);
+	const { section, group } = locate(shown.value.path, nav.value);
 	return [section ? t(section.titleKey) : null, group?.title ?? null].filter((crumb): crumb is string => !!crumb);
 });
 
-const around = computed(() => (shown.value ? neighbours(shown.value.path) : {}));
+const around = computed(() => (shown.value ? neighbours(shown.value.path, nav.value) : {}));
 
-async function build(target: DocsPage): Promise<Content> {
+async function build(target: DocsPage, lang: DocsLang): Promise<Content> {
 	if (target.kind === 'api') {
-		const loadResource = apiFiles[`../../../docs/api/generated/${target.source}.json`];
+		const loadResource = apiFiles[`../../../docs/api/generated/${dir(lang)}${target.source}.json`];
 		if (!loadResource) throw new Error(`docs: no API resource "${target.source}"`);
 		const resource = await loadResource();
 
 		return {
 			page: target,
+			lang,
 			kind: 'api',
 			resource,
 			headings: resource.operations.map((operation) => ({
@@ -87,8 +104,10 @@ async function build(target: DocsPage): Promise<Content> {
 	}
 
 	if (target.kind === 'configuration') {
-		const [{ configTables }, supported] = await Promise.all([
-			import('../../../docs/configuration/variables.ts'),
+		const [configTables, supported] = await Promise.all([
+			lang === 'en'
+				? import('../../../docs/configuration/variables.en.ts').then((module) => module.configTablesEn)
+				: import('../../../docs/configuration/variables.ts').then((module) => module.configTables),
 			import('../../../docs/configuration/supported.generated.json').then(
 				(module) => module.default as SupportedGenerated,
 			),
@@ -98,6 +117,7 @@ async function build(target: DocsPage): Promise<Content> {
 
 		return {
 			page: target,
+			lang,
 			kind: 'configuration',
 			tables,
 			defaults: Object.fromEntries(supported.variables.map((variable) => [variable.pattern, variable.default])),
@@ -107,16 +127,16 @@ async function build(target: DocsPage): Promise<Content> {
 		};
 	}
 
-	const load = markdownFiles[`../../../docs/content/${target.source}.md`];
+	const load = markdownFiles[`../../../docs/content/${dir(lang)}${target.source}.md`];
 	if (!load) throw new Error(`docs: no content for "${target.path}"`);
 
 	const { html, headings } = renderDoc(await load(), {
-		images,
+		images: images[lang],
 		base: import.meta.env.BASE_URL,
 		labels: { copy: t('copy'), copyLink: t('docs_copy_link'), note: t('docs_note'), warning: t('docs_warning') },
 	});
 
-	return { page: target, kind: 'markdown', html, headings };
+	return { page: target, lang, kind: 'markdown', html, headings };
 }
 
 const reducedMotion = () =>
@@ -155,7 +175,7 @@ async function load(changed: boolean) {
 	loading.value = true;
 
 	try {
-		const next = await build(target);
+		const next = await build(target, lang.value);
 		if (current !== loads) return;
 		content.value = next;
 	} catch {
@@ -177,6 +197,8 @@ async function load(changed: boolean) {
 }
 
 watch(path, (_now, before) => void load(before !== undefined), { immediate: true });
+// The same page in the other language: the page on screen stays until the new content is there.
+watch(lang, () => void load(false));
 watch(
 	() => route.hash,
 	() => {
@@ -195,7 +217,9 @@ watch(
 			<div
 				class="min-w-0"
 				:class="shown?.kind === 'api' ? 'max-w-none' : 'max-w-3xl'"
-				:aria-busy="loading && !ready ? 'true' : undefined" data-docs-main>
+				:aria-busy="loading && !ready ? 'true' : undefined"
+				data-docs-main
+			>
 				<template v-if="!shown">
 					<p class="text-base text-gray-700 dark:text-gray-300">{{ $t('page_not_found_body') }}</p>
 					<p class="mt-4">
@@ -212,7 +236,9 @@ watch(
 					<p v-if="crumbs.length" class="mb-2 text-theme-xs text-gray-500 dark:text-gray-400" data-docs-breadcrumb>
 						{{ crumbs.join(' / ') }}
 					</p>
-					<p class="mb-6 text-theme-xl text-gray-500 dark:text-gray-400" lang="vi" data-docs-lead>{{ shown.lead }}</p>
+					<p class="mb-6 text-theme-xl text-gray-500 dark:text-gray-400" :lang="lang" data-docs-lead>
+						{{ shown.lead }}
+					</p>
 
 					<BoNotice v-if="shown.backofficeOnly" type="info" class="mb-6" data-docs-backoffice-only>
 						{{ $t('docs_backoffice_only') }}

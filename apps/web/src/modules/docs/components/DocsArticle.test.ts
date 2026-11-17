@@ -40,10 +40,14 @@ async function article() {
 	return { wrapper, router };
 }
 
-test('the content is marked as Vietnamese', async () => {
+test('the content is marked with the docs language: English for en-US, Vietnamese for vi-VN', async () => {
 	const { wrapper } = await article();
+	expect(wrapper.find('.docs-article').attributes('lang')).toBe('en');
 
+	i18n.global.locale.value = 'vi-VN';
+	await flushPromises();
 	expect(wrapper.find('.docs-article').attributes('lang')).toBe('vi');
+	i18n.global.locale.value = 'en-US';
 });
 
 test('the copy button of a code block copies its text and announces it', async () => {

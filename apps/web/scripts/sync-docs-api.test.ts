@@ -10,6 +10,7 @@ import {
 	EXCLUDED,
 	GRAPHQL,
 	HOST,
+	loadEnglish,
 	loadSpec,
 	loadSupplements,
 	OUT_DIR,
@@ -49,8 +50,10 @@ describe('sync-docs-api', () => {
 		const dir = mkdtempSync(join(tmpdir(), 'docs-api-'));
 		writeFiles(renderFiles(spec, supplements), dir);
 
-		const names = readdirSync(dir).sort();
-		expect(readdirSync(OUT_DIR).sort()).toEqual(names);
+		const names = (readdirSync(dir, { recursive: true }) as string[]).filter((name) => name.endsWith('.json')).sort();
+		expect(
+			(readdirSync(OUT_DIR, { recursive: true }) as string[]).filter((name) => name.endsWith('.json')).sort(),
+		).toEqual(names);
 		for (const name of names)
 			expect(readFileSync(join(OUT_DIR, name), 'utf8'), name).toBe(readFileSync(join(dir, name), 'utf8'));
 	});
@@ -113,6 +116,22 @@ describe('sync-docs-api', () => {
 		const text = Object.values(renderFiles(spec, supplements)).join('\n');
 
 		expect(text).not.toMatch(/(?<![A-Za-z])Directus(?![A-Za-z])/);
+	});
+
+	// Amendment 2026-11-18: the English output has every resource and operation, in English, with English anchors.
+	test('English: the same resources and operations, no Vietnamese text left; a text missing from en.json fails', () => {
+		const english = buildResources(spec, supplements, { lang: 'en', english: loadEnglish() });
+
+		expect(english.missing).toEqual([]);
+		expect(english.resources.map((r) => [r.id, r.operations.map((o) => o.id)])).toEqual(
+			resources.map((r) => [r.id, r.operations.map((o) => o.id)]),
+		);
+		const text = JSON.stringify(english.resources);
+		expect(text).not.toMatch(/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i);
+		expect(english.resources.flatMap((r) => r.operations).every((o) => o.lang === 'en')).toBe(true);
+		expect(english.resources.find((r) => r.id === 'dashboards')!.operations[0]!.anchor).toBe('list-dashboards');
+
+		expect(() => renderFiles(spec, supplements, {})).toThrow(/have no English in supplement\/en\.json/);
 	});
 
 	test('a supplement may not define a tag or a schema twice', () => {

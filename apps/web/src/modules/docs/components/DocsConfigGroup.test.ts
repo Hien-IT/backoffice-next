@@ -89,8 +89,10 @@ test('descriptions are text: backticks become code, markup never becomes an elem
 	expect(wrapper.findAll('tbody')[1]!.find('td code').text()).toBe('DB_*');
 });
 
-test('the note of a table is a notice; the Vietnamese parts are marked', () => {
+test('the note of a table is a notice; the parts are marked with the docs language (vi-VN here)', () => {
+	i18n.global.locale.value = 'vi-VN';
 	const wrapper = group();
+	i18n.global.locale.value = 'en-US';
 
 	expect(wrapper.find('[role="status"], [role="alert"], .mt-4').text()).toContain('Đọc khi khởi động');
 	expect(wrapper.find('h2').attributes('lang')).toBe('vi');

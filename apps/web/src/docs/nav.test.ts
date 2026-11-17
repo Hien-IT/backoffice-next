@@ -2,9 +2,20 @@
 import { describe, expect, test } from 'vitest';
 import apiIndex from './api/generated/index.json';
 import { configGroups } from './configuration/groups.ts';
-import { docsNav, findPage, flatPages, locate, neighbours, normalizePath, pageLink } from './nav.ts';
+import {
+	docsLangOf,
+	docsNav,
+	docsNavs,
+	findPage,
+	flatPages,
+	locate,
+	neighbours,
+	normalizePath,
+	pageLink,
+} from './nav.ts';
 
-const markdown = import.meta.glob('./content/**/*.md');
+// The Vietnamese files; the English ones under content/en/ mirror them (content.test.ts).
+const markdown = Object.keys(import.meta.glob('./content/**/*.md')).filter((file) => !file.startsWith('./content/en/'));
 
 describe('docs nav', () => {
 	test('three parts in order, the introduction first', () => {
@@ -36,7 +47,7 @@ describe('docs nav', () => {
 			sources('markdown')
 				.map((source) => `./content/${source}.md`)
 				.sort(),
-		).toEqual(Object.keys(markdown).sort());
+		).toEqual(markdown.sort());
 		expect(sources('configuration').sort()).toEqual(configGroups.map((group) => group.id).sort());
 		expect(sources('api').sort()).toEqual(apiIndex.resources.map((resource) => resource.id).sort());
 	});
@@ -63,5 +74,17 @@ describe('docs nav', () => {
 		expect(normalizePath(undefined)).toBe('');
 		expect(pageLink(docsNav.intro)).toBe('/docs');
 		expect(pageLink({ path: 'configuration/general' })).toBe('/docs/configuration/general');
+	});
+
+	test('one nav per language: the same pages in the same order, the texts in that language', () => {
+		const paths = (lang: 'vi' | 'en') => flatPages(docsNavs[lang]).map((page) => [page.path, page.kind, page.source]);
+
+		expect(paths('en')).toEqual(paths('vi'));
+		expect(docsNavs.vi).toBe(docsNav);
+		expect(findPage('configuration/general', docsNavs.en)?.title).toBe('General');
+		expect(docsNavs.en.intro.title).toBe('Getting Started');
+		expect(docsLangOf('vi-VN')).toBe('vi');
+		expect(docsLangOf('en-US')).toBe('en');
+		expect(docsLangOf('fr-FR')).toBe('en');
 	});
 });

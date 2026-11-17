@@ -8,6 +8,7 @@ tags:
       path: /backoffice/permissions
       id: { singular: BackofficePermission, plural: BackofficePermissions }
       noun: quyền import, export
+      noun-en: { singular: Import and Export Permission, plural: Import and Export Permissions }
       schema: BackofficePermissions
       access: authenticated
       access-note: Theo quyền đọc, ghi của người gọi trên collection permission, như các quyền thường.

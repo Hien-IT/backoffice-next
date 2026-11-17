@@ -430,6 +430,22 @@ một link nội bộ thành sai và thấy test đỏ.
 
 **Checkpoint**: lượt 3 trên `main`, CI xanh, spec đóng.
 
+## Phase 10: Sửa đổi 2026-11-18, bản tiếng Anh (FR-038, FR-039)
+
+- [X] T096 `docs/types.ts` (`DocsLang`), `nav.ts` (`docsNavs`, `docsLangOf`, một menu mỗi ngôn ngữ, cùng đường dẫn),
+  `configuration/groups.ts` (`en`), `modules/docs/use-docs-lang.ts`; `DocsRoute.vue` nạp nội dung, ảnh, API, bảng cấu
+  hình theo ngôn ngữ và nạp lại khi ngôn ngữ đổi; các component dùng `:lang` của bản đang hiện
+- [X] T097 [P] `content/en/index.md` và 17 `content/en/guides/*.md` (cùng cấu trúc, nhãn en-US của app, anchor tiếng Anh)
+- [X] T098 [P] `configuration/variables.en.ts` (`configTablesEn`, cùng dòng); test cùng dạng trong `variables.test.ts`
+- [X] T099 [P] `scripts/sync-docs-api.mjs` ghi `generated/en/` (CRUD từ `noun-en`, bảng `supplement/en.json`, `--missing`,
+  dừng khi còn chữ tiếng Việt); test trong `sync-docs-api.test.ts`
+- [X] T100 `docs-shots/lang.ts` (`DOCS_LANG`, `L()`), dữ liệu mẫu và nhãn theo ngôn ngữ, `snapshotPathTemplate` ra
+  `images/en/`, `signedIn` tạo dữ liệu mẫu trước; chụp 24 ảnh tiếng Anh, hai lần chạy cho 0 ảnh đổi
+- [X] T101 `content.test.ts` cho hai ngôn ngữ (link, anchor, ảnh, bản tiếng Anh đủ trang, cùng ảnh, không chữ tiếng
+  Việt), `nav.test.ts`, test của component và route (ca en-US rồi vi-VN), E2E `docs.spec.ts` theo tiếng Anh và một ca
+  admin vi-VN
+- [ ] T102 Commit `feat(web): English documentation content (spec 033 amendment)`; push khi CI trước xanh; theo dõi CI
+
 ## Dependencies & Execution Order
 
 - **Phase 1** trước mọi thứ (T005a ngay sau T002): T003 (recipe) phải xong trước mọi task viết giao diện (T018 phần CSS, T028–T033, T041,

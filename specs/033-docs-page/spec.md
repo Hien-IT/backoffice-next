@@ -338,11 +338,16 @@ API của Directus.
 
 **Ngôn ngữ, giao diện, hiệu năng**
 
-- **FR-038**: Nội dung tài liệu ở v1 là tiếng Việt; ngoại lệ: mô tả endpoint, tham số và schema lấy từ mô tả API tĩnh
-  hiện nguyên văn tiếng Anh (sửa khi checklist 2026-11-17). Chuỗi của khung (mục menu, "Trên trang này", trước, sau, chép, thông
-  báo lỗi, không tìm thấy) theo ngôn ngữ của user, có en-US và vi-VN.
-- **FR-039**: Vùng nội dung được đánh dấu ngôn ngữ tiếng Việt để trình đọc màn hình đọc đúng khi khung là tiếng Anh.
-  Đoạn tiếng Anh của FR-038 được đánh dấu là tiếng Anh (sửa khi checklist 2026-11-17).
+- **FR-038**: Nội dung tài liệu có hai bản, tiếng Việt và tiếng Anh, theo ngôn ngữ của user: vi-VN đọc bản tiếng Việt,
+  mọi ngôn ngữ khác đọc bản tiếng Anh; đổi ngôn ngữ thì trang đang mở hiện lại bằng ngôn ngữ mới (sửa đổi 2026-11-18,
+  trước đó chỉ có tiếng Việt). Bản tiếng Anh gồm hướng dẫn, trang mở đầu, tên và câu dẫn của menu, mô tả biến cấu hình,
+  văn bản của phần bổ sung API và giá trị mẫu trong ví dụ; ảnh của bản tiếng Anh chụp app ở en-US với dữ liệu mẫu tiếng
+  Anh. Trong bản tiếng Việt, mô tả endpoint, tham số và schema lấy từ mô tả API tĩnh hiện nguyên văn tiếng Anh (sửa khi
+  checklist 2026-11-17). Chuỗi của khung (mục menu, "Trên trang này", trước, sau, chép, thông báo lỗi, không tìm thấy)
+  theo ngôn ngữ của user, có en-US và vi-VN. Anchor theo tiêu đề của từng bản, nên link có anchor gửi giữa hai ngôn ngữ
+  mở đúng trang nhưng ở đầu trang (FR-007, anchor không có thì giữ nguyên trang).
+- **FR-039**: Vùng nội dung được đánh dấu ngôn ngữ của bản đang hiện (`vi` hoặc `en`) để trình đọc màn hình đọc đúng.
+  Đoạn tiếng Anh của FR-038 trong bản tiếng Việt được đánh dấu là tiếng Anh (sửa khi checklist 2026-11-17).
 - **FR-040**: Giao diện theo design-system: màu, chữ, bóng từ token; giao diện sáng và tối; branding của settings áp
   lên như các trang khác.
 - **FR-041**: Dưới mốc `xl`, menu trái mở bằng một nút và mục lục bên phải ẩn; bảng và khối code cuộn ngang trong khung
@@ -561,6 +566,16 @@ Hệ quả của câu 1 và câu 5 so với đề xuất ban đầu: không có 
 - FR-035, SC-010: mỗi ảnh là một so sánh `toHaveScreenshot` với file đã commit, ghi lại chỉ khi khác (ngưỡng mặc định
   của Playwright), vì `page.screenshot` cho ảnh khác từng byte do khử răng cưa dù màn hình không đổi.
 - FR-016: trang Đồng bộ môi trường nằm ở nhóm tính năng riêng, không lặp ở nhóm module (17 trang).
+
+### Sửa đổi 2026-11-18: bản tiếng Anh (chủ dự án)
+
+- Chủ dự án chốt: sửa thẳng trong 033 (không mở feature mới); dịch toàn bộ; ngôn ngữ theo ngôn ngữ của app (vi-VN →
+  tiếng Việt, ngôn ngữ khác → tiếng Anh), không thêm nút chuyển; chụp bộ ảnh tiếng Anh riêng.
+- FR-038, FR-039 sửa như trên. Tệp: `content/en/` (trang mở đầu và 17 hướng dẫn), `content/images/en/` (24 ảnh cùng
+  tên), `configuration/variables.en.ts` (cùng nhóm, bảng, dòng với `variables.ts`), `api/generated/en/` (sinh từ phần
+  bổ sung qua bảng `api/supplement/en.json` và `noun-en` của `x-crud`; script dừng khi bản tiếng Anh còn chữ tiếng
+  Việt), `nav.ts` dựng một menu cho mỗi ngôn ngữ với cùng đường dẫn.
+- Ảnh tiếng Anh: `DOCS_LANG=en` cho `docs:shots`, trên một database riêng với dữ liệu mẫu tiếng Anh (`docs-shots/lang.ts`).
 
 ## Assumptions
 

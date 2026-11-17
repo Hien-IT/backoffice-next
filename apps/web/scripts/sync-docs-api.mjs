@@ -5,6 +5,11 @@
 // and the relation routes it describes wrongly). The supplement never reaches /server/specs/oas (FR-023).
 // Usage: `pnpm --filter @backoffice/web sync-docs-api`, or `node scripts/sync-docs-api.mjs [outDir]`. The output is
 // committed; scripts/sync-docs-api.test.ts runs the script again into a temporary folder and compares.
+// English output (amendment 2026-11-18): generated/en/<resource>.json, the same resources with the supplement texts and
+// the Vietnamese sample values put into English through supplement/en.json (Vietnamese text → English text; a string is
+// replaced whole, or each double-quoted part of it, as in the curl and GraphQL examples); the standard operations of an
+// `x-crud` tag take their English names from `noun-en`. The script fails on any text still Vietnamese in the English
+// output; `node scripts/sync-docs-api.mjs --missing` prints those texts as a JSON object to fill in.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -17,6 +22,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 export const SPEC = join(ROOT, 'libs/specs/dist/openapi.json');
 export const SUPPLEMENT_DIR = join(ROOT, 'apps/web/src/docs/api/supplement');
 export const OUT_DIR = join(ROOT, 'apps/web/src/docs/api/generated');
+export const ENGLISH = join(SUPPLEMENT_DIR, 'en.json');
 
 export const HOST = 'https://backoffice.example.com';
 
@@ -225,6 +231,11 @@ export function loadSpec(path = SPEC) {
 	return JSON.parse(readFileSync(path, 'utf8'));
 }
 
+/** Vietnamese text → English text of the supplement and the sample values (supplement/en.json). */
+export function loadEnglish(path = ENGLISH) {
+	return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
+}
+
 export function loadSupplements(dir = SUPPLEMENT_DIR) {
 	return readdirSync(dir)
 		.filter((file) => file.endsWith('.yaml'))
@@ -232,10 +243,50 @@ export function loadSupplements(dir = SUPPLEMENT_DIR) {
 		.map((file) => ({ file, doc: yaml.load(readFileSync(join(dir, file), 'utf8')) ?? {} }));
 }
 
+/** The texts of the seven standard operations, in Vietnamese (`noun`) or English (`noun-en`, like the static names). */
+function crudTexts(crud, lang) {
+	if (lang === 'en') {
+		const { singular, plural } = crud['noun-en'] ?? {};
+		if (!singular || !plural) throw new Error(`sync-docs-api: x-crud of ${crud.path} has no noun-en`);
+		const lower = plural.toLowerCase();
+		return {
+			success: 'Successful request',
+			keys: 'The keys of the items to update or delete.',
+			list: [`List ${plural}`, `The ${lower} the caller may read.`],
+			create: [`Create a ${singular}`, `Create a ${singular.toLowerCase()}, or several when the body is an array.`],
+			updateMany: [
+				`Update Multiple ${plural}`,
+				`Update several ${lower} at once: \`keys\` are their keys, \`data\` the new values.`,
+			],
+			deleteMany: [`Delete Multiple ${plural}`, `Delete several ${lower} at once.`],
+			get: [`Retrieve a ${singular}`, `One ${singular.toLowerCase()} by its key.`],
+			update: [`Update a ${singular}`, `Update a ${singular.toLowerCase()}; only the fields sent change.`],
+			delete: [`Delete a ${singular}`, `Delete a ${singular.toLowerCase()}.`],
+		};
+	}
+
+	const { noun } = crud;
+	return {
+		success: 'Thành công',
+		keys: 'Khóa của các mục cần sửa hoặc xóa.',
+		list: [`Liệt kê ${noun}`, `Các ${noun} mà người gọi được đọc.`],
+		create: [`Tạo ${noun}`, `Tạo một ${noun}, hoặc nhiều khi thân request là một mảng.`],
+		updateMany: [
+			`Sửa nhiều ${noun}`,
+			`Sửa nhiều ${noun} một lúc: \`keys\` là khóa của các mục, \`data\` là giá trị mới.`,
+		],
+		deleteMany: [`Xóa nhiều ${noun}`, `Xóa nhiều ${noun} một lúc.`],
+		get: [`Lấy một ${noun}`, `Một ${noun} theo khóa.`],
+		update: [`Sửa một ${noun}`, `Sửa một ${noun}; chỉ các field gửi lên bị đổi.`],
+		delete: [`Xóa một ${noun}`, `Xóa một ${noun}.`],
+	};
+}
+
 /** The seven standard operations of a collection, from `x-crud` of a supplement tag. */
-function expandCrud(tag) {
+function expandCrud(tag, lang) {
 	const crud = tag['x-crud'];
-	const { path, id, noun, schema } = crud;
+	const { path, id, schema } = crud;
+	const text = crudTexts(crud, lang);
 	const ref = { $ref: `#/components/schemas/${schema}` };
 	const one = { $ref: '#/components/parameters/Id' };
 	const list = ['Fields', 'Limit', 'Offset', 'Sort', 'Filter', 'Search', 'Meta'].map((p) => ({
@@ -244,11 +295,11 @@ function expandCrud(tag) {
 	const single = ['Fields', 'Meta'].map((p) => ({ $ref: `#/components/parameters/${p}` }));
 	const unauthorized = { $ref: '#/components/responses/UnauthorizedError' };
 	const data = (schemaOf) => ({
-		description: 'Thành công',
+		description: text.success,
 		content: { 'application/json': { schema: { type: 'object', properties: { data: schemaOf } } } },
 	});
 	const keys = {
-		description: 'Khóa của các mục cần sửa hoặc xóa.',
+		description: text.keys,
 		required: true,
 		content: { 'application/json': { schema: { type: 'array', items: { type: 'string' }, example: ['<id>'] } } },
 	};
@@ -259,16 +310,16 @@ function expandCrud(tag) {
 			get: {
 				...base,
 				operationId: `get${id.plural}`,
-				summary: `Liệt kê ${noun}`,
-				description: `Các ${noun} mà người gọi được đọc.`,
+				summary: text.list[0],
+				description: text.list[1],
 				parameters: list,
 				responses: { 200: data({ type: 'array', items: ref }), 401: unauthorized },
 			},
 			post: {
 				...base,
 				operationId: `create${id.singular}`,
-				summary: `Tạo ${noun}`,
-				description: `Tạo một ${noun}, hoặc nhiều khi thân request là một mảng.`,
+				summary: text.create[0],
+				description: text.create[1],
 				parameters: single,
 				requestBody: { required: true, content: { 'application/json': { schema: ref } } },
 				responses: { 200: data(ref), 401: unauthorized },
@@ -276,8 +327,8 @@ function expandCrud(tag) {
 			patch: {
 				...base,
 				operationId: `update${id.plural}`,
-				summary: `Sửa nhiều ${noun}`,
-				description: `Sửa nhiều ${noun} một lúc: \`keys\` là khóa của các mục, \`data\` là giá trị mới.`,
+				summary: text.updateMany[0],
+				description: text.updateMany[1],
 				parameters: single,
 				requestBody: {
 					required: true,
@@ -295,26 +346,26 @@ function expandCrud(tag) {
 			delete: {
 				...base,
 				operationId: `delete${id.plural}`,
-				summary: `Xóa nhiều ${noun}`,
-				description: `Xóa nhiều ${noun} một lúc.`,
+				summary: text.deleteMany[0],
+				description: text.deleteMany[1],
 				requestBody: keys,
-				responses: { 204: { description: 'Thành công' }, 401: unauthorized },
+				responses: { 204: { description: text.success }, 401: unauthorized },
 			},
 		},
 		[`${path}/{id}`]: {
 			get: {
 				...base,
 				operationId: `get${id.singular}`,
-				summary: `Lấy một ${noun}`,
-				description: `Một ${noun} theo khóa.`,
+				summary: text.get[0],
+				description: text.get[1],
 				parameters: [one, ...single],
 				responses: { 200: data(ref), 401: unauthorized, 404: { $ref: '#/components/responses/NotFoundError' } },
 			},
 			patch: {
 				...base,
 				operationId: `update${id.singular}`,
-				summary: `Sửa một ${noun}`,
-				description: `Sửa một ${noun}; chỉ các field gửi lên bị đổi.`,
+				summary: text.update[0],
+				description: text.update[1],
 				parameters: [one, ...single],
 				requestBody: { required: true, content: { 'application/json': { schema: ref } } },
 				responses: { 200: data(ref), 401: unauthorized },
@@ -322,10 +373,10 @@ function expandCrud(tag) {
 			delete: {
 				...base,
 				operationId: `delete${id.singular}`,
-				summary: `Xóa một ${noun}`,
-				description: `Xóa một ${noun}.`,
+				summary: text.delete[0],
+				description: text.delete[1],
 				parameters: [one],
-				responses: { 204: { description: 'Thành công' }, 401: unauthorized },
+				responses: { 204: { description: text.success }, 401: unauthorized },
 			},
 		},
 	};
@@ -440,6 +491,35 @@ function localRefs(value, used) {
 	);
 }
 
+// Letters only Vietnamese has: a text with one is not English yet.
+const VIETNAMESE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+
+/**
+ * Puts Vietnamese texts into English with the table of supplement/en.json: a string found whole is replaced, otherwise
+ * each double-quoted part found in the table (sample values inside the curl and GraphQL examples). A text that stays
+ * Vietnamese is added to `missing` (the quoted part when only that is Vietnamese).
+ */
+function translate(value, english, missing) {
+	if (typeof value === 'string') {
+		if (Object.hasOwn(english, value)) return english[value];
+		const out = value.replace(/"([^"]*)"/g, (whole, inner) =>
+			Object.hasOwn(english, inner) ? `"${english[inner]}"` : whole,
+		);
+		if (VIETNAMESE.test(out)) {
+			const quoted = [...out.matchAll(/"([^"]*)"/g)]
+				.map(([, inner]) => inner)
+				.filter((inner) => VIETNAMESE.test(inner));
+			if (VIETNAMESE.test(out.replace(/"[^"]*"/g, '""')) || quoted.length === 0) missing.add(value);
+			else for (const inner of quoted) missing.add(inner);
+		}
+		return out;
+	}
+	if (Array.isArray(value)) return value.map((item) => translate(item, english, missing));
+	if (value && typeof value === 'object')
+		return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, translate(v, english, missing)]));
+	return value;
+}
+
 /** Every string of the output without the brand word of FR-047 (one example value of the static description has it). */
 function rebrand(value) {
 	if (typeof value === 'string') return value.replace(BRAND, 'Backoffice');
@@ -449,8 +529,13 @@ function rebrand(value) {
 	return value;
 }
 
-/** The resources of the static description and the supplement (data-model §3). */
-export function buildResources(spec, supplements) {
+/**
+ * The resources of the static description and the supplement (data-model §3). `lang: 'en'` gives the English output:
+ * every text through `english` (supplement/en.json); the Vietnamese texts left are listed in `missing`.
+ */
+export function buildResources(spec, supplements, { lang = 'vi', english = {} } = {}) {
+	const missing = new Set();
+	const supplementLang = (value) => (lang === 'en' ? 'en' : (value ?? 'vi'));
 	const components = clone(spec.components);
 	const tags = new Map(spec.tags.map((tag) => [tag.name, { ...tag, lang: 'en' }]));
 	const sources = [{ paths: spec.paths, lang: 'en' }];
@@ -458,8 +543,9 @@ export function buildResources(spec, supplements) {
 	for (const { file, doc } of supplements) {
 		for (const tag of doc.tags ?? []) {
 			if (tags.has(tag.name)) throw new Error(`sync-docs-api: ${file} defines the tag ${tag.name} again`);
-			tags.set(tag.name, { ...tag, lang: tag['x-lang'] ?? 'vi' });
-			if (tag['x-crud']) sources.push({ paths: expandCrud(tag), lang: tag['x-lang'] ?? 'vi', crud: tag['x-crud'] });
+			tags.set(tag.name, { ...tag, lang: supplementLang(tag['x-lang']) });
+			if (tag['x-crud'])
+				sources.push({ paths: expandCrud(tag, lang), lang: supplementLang(tag['x-lang']), crud: tag['x-crud'] });
 		}
 
 		for (const [name, schema] of Object.entries(doc.components?.schemas ?? {})) {
@@ -467,7 +553,7 @@ export function buildResources(spec, supplements) {
 			components.schemas[name] = { ...schema, 'x-lang': 'vi' };
 		}
 
-		if (doc.paths) sources.push({ paths: doc.paths, lang: doc['x-lang'] ?? 'vi' });
+		if (doc.paths) sources.push({ paths: doc.paths, lang: supplementLang(doc['x-lang']) });
 	}
 
 	const resolve = (ref) => {
@@ -575,7 +661,9 @@ export function buildResources(spec, supplements) {
 	const out = [...resources.values()]
 		.map((resource) => {
 			const anchors = new Map();
-			const operations = resource.operations.map((operation) => {
+			// English: the texts first, as the anchors come from the summaries.
+			const listed = lang === 'en' ? translate(resource.operations, english, missing) : resource.operations;
+			const operations = listed.map((operation) => {
 				const base = slug(operation.summary);
 				const count = (anchors.get(base) ?? 0) + 1;
 				anchors.set(base, count);
@@ -585,7 +673,8 @@ export function buildResources(spec, supplements) {
 			const schemas = {};
 			for (const name of [...resource.used].sort()) {
 				const nested = new Set();
-				schemas[name] = localRefs(components.schemas[name], nested);
+				const schema = localRefs(components.schemas[name], nested);
+				schemas[name] = lang === 'en' ? translate(schema, english, missing) : schema;
 			}
 
 			return rebrand({
@@ -593,7 +682,10 @@ export function buildResources(spec, supplements) {
 					'libs/specs/dist/openapi.json + apps/web/src/docs/api/supplement, generated by apps/web/scripts/sync-docs-api.mjs',
 				id: resource.id,
 				name: resource.tag.name,
-				description: resource.tag.description ?? '',
+				description:
+					lang === 'en'
+						? translate(resource.tag.description ?? '', english, missing)
+						: (resource.tag.description ?? ''),
 				lang: resource.tag.lang,
 				...(resource.tag['x-collection'] ? { collection: resource.tag['x-collection'] } : {}),
 				backofficeOnly: resource.backofficeOnly,
@@ -603,15 +695,26 @@ export function buildResources(spec, supplements) {
 		})
 		.sort((a, b) => Number(a.backofficeOnly) - Number(b.backofficeOnly) || a.name.localeCompare(b.name));
 
-	return { resources: out, excluded: excluded.sort() };
+	return { resources: out, excluded: excluded.sort(), missing: [...missing].sort() };
 }
 
-/** The files to write: one per resource and index.json; the text of each, with a final newline. */
-export function renderFiles(spec, supplements) {
+/**
+ * The files to write: one per resource, the English ones under `en/`, and index.json; the text of each, with a final
+ * newline. Fails while the English output still has Vietnamese text.
+ */
+export function renderFiles(spec, supplements, english = loadEnglish()) {
 	const { resources } = buildResources(spec, supplements);
+	const englishBuild = buildResources(spec, supplements, { lang: 'en', english });
+	if (englishBuild.missing.length > 0) {
+		throw new Error(
+			`sync-docs-api: ${englishBuild.missing.length} texts have no English in supplement/en.json (run with --missing)`,
+		);
+	}
 	const files = {};
 
 	for (const resource of resources) files[`${resource.id}.json`] = `${JSON.stringify(resource, null, '\t')}\n`;
+	for (const resource of englishBuild.resources)
+		files[`en/${resource.id}.json`] = `${JSON.stringify(resource, null, '\t')}\n`;
 
 	files['index.json'] = `${JSON.stringify(
 		{
@@ -634,10 +737,18 @@ export function renderFiles(spec, supplements) {
 export function writeFiles(files, outDir = OUT_DIR) {
 	rmSync(outDir, { recursive: true, force: true });
 	mkdirSync(outDir, { recursive: true });
-	for (const [name, text] of Object.entries(files)) writeFileSync(join(outDir, name), text);
+	for (const [name, text] of Object.entries(files)) {
+		mkdirSync(dirname(join(outDir, name)), { recursive: true });
+		writeFileSync(join(outDir, name), text);
+	}
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href && process.argv[2] === '--missing') {
+	// The Vietnamese texts of the English output with no English yet, merged into the table as `"<text>": ""`.
+	const english = loadEnglish();
+	const { missing } = buildResources(loadSpec(), loadSupplements(), { lang: 'en', english });
+	process.stdout.write(`${JSON.stringify(Object.fromEntries(missing.map((text) => [text, ''])), null, '\t')}\n`);
+} else if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const out = resolve(process.argv[2] ?? OUT_DIR);
 	const files = renderFiles(loadSpec(), loadSupplements());
 	writeFiles(files, out);

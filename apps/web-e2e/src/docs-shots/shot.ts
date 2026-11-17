@@ -4,6 +4,7 @@ import { test as base, expect, type Locator, type Page } from '@playwright/test'
 import { AdminApi } from '../helpers/api.js';
 import { ADMIN } from '../helpers/config.js';
 import { login, resetLastPage } from '../helpers/login.js';
+import { LOCALE } from './lang.js';
 import { seed, type Seeded } from './seed.js';
 
 // Masked areas (dates, ids, URLs) are painted in the gray-200 of the theme, like an empty field.
@@ -43,7 +44,7 @@ interface Fixtures {
 
 /**
  * `test` of the screenshot scripts: the sample data (seed.ts, created once and reused) and an admin signed in with
- * Vietnamese as language. The admin's language and last page are put back after each test.
+ * the language of the run (lang.ts). The admin's language and last page are put back after each test.
  */
 export const test = base.extend<{ signedIn: Page }, Fixtures>({
 	api: [
@@ -55,9 +56,10 @@ export const test = base.extend<{ signedIn: Page }, Fixtures>({
 		{ scope: 'worker' },
 	],
 	data: [async ({ api }, use) => use(await seed(api)), { scope: 'worker' }],
-	signedIn: async ({ page, api }, use) => {
+	// `data` first: on a new database a script that shows the sample data without asking for it still finds it.
+	signedIn: async ({ page, api, data: _data }, use) => {
 		const { language } = await api.call<{ language: string | null }>('GET', '/users/me?fields=language');
-		await api.call('PATCH', '/users/me', { data: { language: 'vi-VN', theme_light: null, appearance: 'light' } });
+		await api.call('PATCH', '/users/me', { data: { language: LOCALE, theme_light: null, appearance: 'light' } });
 		await resetLastPage(api);
 
 		await page.goto('/admin/login');

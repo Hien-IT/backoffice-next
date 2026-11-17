@@ -3,6 +3,7 @@
 import { describe, expect, test } from 'vitest';
 import { configGroups } from './groups.ts';
 import supported from './supported.generated.json';
+import { configTablesEn } from './variables.en.ts';
 import { configTables } from './variables.ts';
 
 const rows = Object.entries(configTables).flatMap(([group, tables]) =>
@@ -60,6 +61,22 @@ describe('configuration variables', () => {
 	});
 
 	test('no secret value: descriptions never show a real key or password', () => {
-		for (const row of rows) expect(`${row.description} ${row.note ?? ''}`, row.name).not.toMatch(/(?:sk|pk)_[a-z]+_|-----BEGIN|password=\S/i);
+		for (const row of rows)
+			expect(`${row.description} ${row.note ?? ''}`, row.name).not.toMatch(/(?:sk|pk)_[a-z]+_|-----BEGIN|password=\S/i);
+	});
+
+	// Amendment 2026-11-18: the English tables have the same rows; only the texts differ.
+	test('variables.en.ts has the same groups, tables and rows in the same order', () => {
+		const shape = (all: typeof configTables) =>
+			Object.entries(all).map(([group, tables]) => [
+				group,
+				tables.map((table) => [
+					!!table.title,
+					!!table.note,
+					table.rows.map((row) => [row.name, row.pattern, !!row.note]),
+				]),
+			]);
+
+		expect(shape(configTablesEn)).toEqual(shape(configTables));
 	});
 });

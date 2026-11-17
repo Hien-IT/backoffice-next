@@ -4,10 +4,12 @@
 // of the code blocks, the copy-link sign of a heading, links to other documentation pages and to anchors.
 import { useRouter } from 'vue-router';
 import { useCopy } from '../copy.ts';
+import { useDocsLang } from '../use-docs-lang.ts';
 
 defineProps<{ html: string }>();
 
 const router = useRouter();
+const { lang } = useDocsLang();
 const { announced, copy } = useCopy();
 
 function onClick(event: MouseEvent) {
@@ -45,9 +47,9 @@ function onClick(event: MouseEvent) {
 
 <template>
 	<div>
-		<!-- The content is Vietnamese whatever the language of the frame (FR-039). -->
+		<!-- The content is in the docs language: Vietnamese for vi-VN, English otherwise (FR-039, amendment 2026-11-18). -->
 		<!-- eslint-disable-next-line vue/no-v-html -->
-		<div class="docs-article" lang="vi" @click="onClick" v-html="html" />
+		<div class="docs-article" :lang="lang" @click="onClick" v-html="html" />
 		<span class="sr-only" aria-live="polite">{{ announced }}</span>
 	</div>
 </template>

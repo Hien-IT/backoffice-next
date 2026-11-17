@@ -2,15 +2,21 @@
 
 export type DocsSectionId = 'guides' | 'api' | 'configuration';
 
+/** The language of the content: English for every app language other than Vietnamese (amendment 2026-11-18). */
+export type DocsLang = 'vi' | 'en';
+
 export interface DocsPage {
 	/** Unique, the URL after `/docs/`: '' (introduction), 'guides/files', 'api/files', 'configuration/general'. */
 	path: string;
-	/** Shown in the left menu, the breadcrumb and as the page title. */
+	/** Shown in the left menu, the breadcrumb and as the page title (in the language of the nav it belongs to). */
 	title: string;
 	/** One sentence under the title. */
 	lead: string;
 	kind: 'markdown' | 'api' | 'configuration';
-	/** markdown: file under `content/` without `.md`; api: name of the generated file; configuration: group id. */
+	/**
+	 * markdown: file under `content/` (English: `content/en/`) without `.md`; api: name of the generated file (English:
+	 * `generated/en/`); configuration: group id.
+	 */
 	source: string;
 	/** The page describes something only Backoffice has (FR-019, FR-027). */
 	backofficeOnly?: boolean;
@@ -48,7 +54,7 @@ export interface DocsApiParameter {
 	type: string;
 	required: boolean;
 	description: string;
-	/** `en` when the text comes from the static API description (FR-038), `vi` from the supplement. */
+	/** `en` when the text comes from the static API description or the English output (FR-038), `vi` from the supplement. */
 	lang: 'en' | 'vi';
 }
 
@@ -120,4 +126,5 @@ export interface ConfigGroupMeta {
 	id: string;
 	title: string;
 	lead: string;
+	en: { title: string; lead: string };
 }

@@ -6,6 +6,7 @@ tags:
       path: /dashboards
       id: { singular: Dashboard, plural: Dashboards }
       noun: dashboard
+      noun-en: { singular: Dashboard, plural: Dashboards }
       schema: Dashboards
 components:
   schemas:

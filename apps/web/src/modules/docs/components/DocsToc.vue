@@ -5,10 +5,12 @@
 import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { DocsHeading } from '../../../docs/types.ts';
+import { useDocsLang } from '../use-docs-lang.ts';
 
 const { headings } = defineProps<{ headings: DocsHeading[] }>();
 
 const router = useRouter();
+const { lang } = useDocsLang();
 const active = ref<string | null>(null);
 
 let observer: IntersectionObserver | null = null;
@@ -71,7 +73,7 @@ const OTHER = 'border-transparent text-gray-600 hover:text-gray-800 dark:text-gr
 		<p class="mb-2 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
 			{{ $t('docs_on_this_page') }}
 		</p>
-		<ul class="m-0 list-none p-0" lang="vi">
+		<ul class="m-0 list-none p-0" :lang="lang">
 			<li v-for="heading in headings" :key="heading.id">
 				<a
 					:href="`#${heading.id}`"

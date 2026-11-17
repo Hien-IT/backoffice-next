@@ -385,3 +385,22 @@ Main bundle 280,9 KB nén, không đổi so với lượt 2 (ảnh và Markdown 
 **Bẫy gặp**: script chụp đổi ngôn ngữ của admin rồi trả lại giá trị đọc lúc đầu; một lượt chạy bị dừng giữa chừng để
 lại `vi-VN` và các lượt sau trả lại `vi-VN`, nên E2E (chờ chữ tiếng Anh) hỏng tới khi đặt lại `language = null`.
 
+## Sửa đổi 2026-11-18: bản tiếng Anh
+
+**Quyết định của chủ dự án**: sửa trong 033; dịch toàn bộ; ngôn ngữ theo ngôn ngữ app (vi-VN → tiếng Việt, còn lại →
+tiếng Anh); chụp bộ ảnh tiếng Anh.
+
+**Cách tổ chức**: bản tiếng Anh nằm cạnh bản tiếng Việt với cùng tên file (`content/en/`, `images/en/`,
+`generated/en/`, `variables.en.ts`), nên đường dẫn trang giống nhau ở hai ngôn ngữ; chỉ anchor khác (theo tiêu đề).
+Phần API không chép đôi YAML: script dịch văn bản của phần bổ sung qua một bảng vi → en (`supplement/en.json`, 199
+mục: thay cả chuỗi, hoặc từng đoạn trong nháy kép của ví dụ curl, GraphQL) và dựng bảy thao tác CRUD từ `noun-en`
+theo cách đặt tên của mô tả tĩnh ("List Dashboards", "Retrieve a Panel"). Bẫy: một số giá trị mẫu tiếng Việt không có
+dấu (`Doanh thu`, `Ghi log`, `anh-bia.jpg`) không bị kiểm chữ tiếng Việt bắt được, phải thêm tay vào bảng.
+
+**Ảnh**: dựng hai API SQLite mới (đích 8168, nguồn 8169) và web 4222; API cần một `package.json` trong thư mục chạy để
+nạp extension (không có thì extension tải lên có `schema: null`). Trên database mới, script nào không xin `data` chạy
+trước khi dữ liệu mẫu có; `signedIn` giờ phụ thuộc `data`. 24 ảnh tiếng Anh 1,9 MB; hai lần chạy liền nhau cho 0 ảnh
+đổi; `passkey-1` (trang đăng nhập) giống ảnh tiếng Việt vì trang đăng nhập hiện theo ngôn ngữ mặc định của dự án.
+
+**Chạy trên máy**: unit web 508 file, 4.796 test xanh; browser test khu tài liệu 15; E2E `docs.spec.ts` 19 ca xanh, 5 bỏ
+qua theo bề rộng; a11y không báo lỗi ở các trang tài liệu; main bundle 280,9 KB nén (không đổi).

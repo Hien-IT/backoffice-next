@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AdminApi } from '../helpers/api.js';
+import { L, LOCALE } from './lang.js';
 
 export const COLLECTION = 'products';
 export const SOURCE_URL = process.env['DOCS_SYNC_SOURCE_URL'] ?? 'http://127.0.0.1:8167';
@@ -27,7 +28,8 @@ export interface Seeded {
 
 type Row = Record<string, unknown> & { id: string };
 
-const vi = (translation: string) => [{ language: 'vi-VN', translation }];
+/** A field label in the language of the run. */
+const vi = (translation: string) => [{ language: LOCALE, translation: L(translation) }];
 
 const FIELDS = [
 	{
@@ -47,16 +49,16 @@ const FIELDS = [
 			translations: vi('Trạng thái'),
 			options: {
 				choices: [
-					{ text: 'Đang bán', value: 'published' },
-					{ text: 'Bản nháp', value: 'draft' },
-					{ text: 'Ngừng bán', value: 'archived' },
+					{ text: L('Đang bán'), value: 'published' },
+					{ text: L('Bản nháp'), value: 'draft' },
+					{ text: L('Ngừng bán'), value: 'archived' },
 				],
 			},
 			display_options: {
 				choices: [
-					{ text: 'Đang bán', value: 'published', foreground: '#FFFFFF', background: '#039855' },
-					{ text: 'Bản nháp', value: 'draft', foreground: '#344054', background: '#F2F4F7' },
-					{ text: 'Ngừng bán', value: 'archived', foreground: '#FFFFFF', background: '#667085' },
+					{ text: L('Đang bán'), value: 'published', foreground: '#FFFFFF', background: '#039855' },
+					{ text: L('Bản nháp'), value: 'draft', foreground: '#344054', background: '#F2F4F7' },
+					{ text: L('Ngừng bán'), value: 'archived', foreground: '#FFFFFF', background: '#667085' },
 				],
 			},
 		},
@@ -97,57 +99,57 @@ const FIELDS = [
 const PRODUCTS = [
 	{
 		status: 'published',
-		name: 'Áo thun cotton',
+		name: L('Áo thun cotton'),
 		sku: 'AT-001',
 		price: 189000,
 		stock: 42,
 		min_stock: 10,
-		specs: { color: 'trắng', weight: 180, tags: ['cotton', 'mùa hè'] },
+		specs: { color: L('trắng'), weight: 180, tags: ['cotton', L('mùa hè')] },
 	},
 	{
 		status: 'published',
-		name: 'Áo sơ mi linen',
+		name: L('Áo sơ mi linen'),
 		sku: 'SM-014',
 		price: 459000,
 		stock: 6,
 		min_stock: 8,
-		specs: { color: 'be', weight: 220, tags: ['linen'] },
+		specs: { color: L('be'), weight: 220, tags: ['linen'] },
 	},
 	{
 		status: 'published',
-		name: 'Quần jean ống đứng',
+		name: L('Quần jean ống đứng'),
 		sku: 'QJ-203',
 		price: 529000,
 		stock: 18,
 		min_stock: 5,
-		specs: { color: 'xanh', weight: 640, tags: ['denim'] },
+		specs: { color: L('xanh'), weight: 640, tags: ['denim'] },
 	},
 	{
 		status: 'draft',
-		name: 'Váy hoa nhí',
+		name: L('Váy hoa nhí'),
 		sku: 'VH-031',
 		price: 389000,
 		stock: 3,
 		min_stock: 6,
-		specs: { color: 'đỏ', weight: 260, tags: ['mùa hè', 'hoa'] },
+		specs: { color: L('đỏ'), weight: 260, tags: [L('mùa hè'), L('hoa')] },
 	},
 	{
 		status: 'published',
-		name: 'Mũ lưỡi trai',
+		name: L('Mũ lưỡi trai'),
 		sku: 'ML-007',
 		price: 129000,
 		stock: 55,
 		min_stock: 15,
-		specs: { color: 'đen', weight: 90, tags: ['phụ kiện'] },
+		specs: { color: L('đen'), weight: 90, tags: [L('phụ kiện')] },
 	},
 	{
 		status: 'archived',
-		name: 'Khăn len',
+		name: L('Khăn len'),
 		sku: 'KL-002',
 		price: 159000,
 		stock: 0,
 		min_stock: 4,
-		specs: { color: 'xám', weight: 150, tags: ['mùa đông'] },
+		specs: { color: L('xám'), weight: 150, tags: [L('mùa đông')] },
 	},
 ];
 
@@ -165,9 +167,9 @@ async function ensureCollection(api: AdminApi): Promise<number[]> {
 				schema: {},
 				meta: {
 					icon: 'inventory_2',
-					note: 'Danh mục sản phẩm của cửa hàng',
+					note: L('Danh mục sản phẩm của cửa hàng'),
 					display_template: '{{name}}',
-					translations: [{ language: 'vi-VN', translation: 'Sản phẩm', singular: 'Sản phẩm', plural: 'Sản phẩm' }],
+					translations: [{ language: LOCALE, translation: L('Sản phẩm'), singular: L('Sản phẩm'), plural: L('Sản phẩm') }],
 				},
 				fields: FIELDS,
 			},
@@ -179,12 +181,12 @@ async function ensureCollection(api: AdminApi): Promise<number[]> {
 }
 
 async function ensurePolicyAndRole(api: AdminApi): Promise<{ roleId: string; policyId: string }> {
-	let policy = await findOne(api, `/policies?filter[name][_eq]=${encodeURIComponent('Biên tập')}&fields=id`);
+	let policy = await findOne(api, `/policies?filter[name][_eq]=${encodeURIComponent(L('Biên tập'))}&fields=id`);
 	if (!policy) {
 		policy = await api.createPolicy({
-			name: 'Biên tập',
+			name: L('Biên tập'),
 			icon: 'edit_note',
-			description: 'Sửa sản phẩm và file',
+			description: L('Sửa sản phẩm và file'),
 			admin_access: false,
 			app_access: true,
 			enforce_tfa: false,
@@ -216,9 +218,9 @@ async function ensurePolicyAndRole(api: AdminApi): Promise<{ roleId: string; pol
 		});
 	}
 
-	let role = await findOne(api, `/roles?filter[name][_eq]=${encodeURIComponent('Biên tập viên')}&fields=id`);
+	let role = await findOne(api, `/roles?filter[name][_eq]=${encodeURIComponent(L('Biên tập viên'))}&fields=id`);
 	if (!role) {
-		role = await api.createRole({ name: 'Biên tập viên', icon: 'badge', description: 'Quản lý danh mục sản phẩm' });
+		role = await api.createRole({ name: L('Biên tập viên'), icon: 'badge', description: L('Quản lý danh mục sản phẩm') });
 		await api.call('POST', '/access', { data: { role: role.id, policy: policy.id } });
 	}
 
@@ -227,8 +229,8 @@ async function ensurePolicyAndRole(api: AdminApi): Promise<{ roleId: string; pol
 
 async function ensureUsers(api: AdminApi, roleId: string): Promise<string[]> {
 	const people = [
-		{ first_name: 'Lan', last_name: 'Nguyễn', email: 'lan.nguyen@example.com', title: 'Biên tập viên' },
-		{ first_name: 'Minh', last_name: 'Trần', email: 'minh.tran@example.com', title: 'Quản lý kho' },
+		{ first_name: 'Lan', last_name: L('Nguyễn'), email: 'lan.nguyen@example.com', title: L('Biên tập viên') },
+		{ first_name: 'Minh', last_name: L('Trần'), email: 'minh.tran@example.com', title: L('Quản lý kho') },
 	];
 	const ids: string[] = [];
 
@@ -244,16 +246,16 @@ async function ensureUsers(api: AdminApi, roleId: string): Promise<string[]> {
 }
 
 async function ensureFiles(api: AdminApi): Promise<{ folderId: string; fileIds: string[] }> {
-	let folder = await findOne(api, `/folders?filter[name][_eq]=${encodeURIComponent('Ảnh sản phẩm')}&fields=id`);
+	let folder = await findOne(api, `/folders?filter[name][_eq]=${encodeURIComponent(L('Ảnh sản phẩm'))}&fields=id`);
 	if (!folder) {
-		folder = await api.call<Row>('POST', '/folders', { data: { name: 'Ảnh sản phẩm' } });
-		await api.call('POST', '/folders', { data: { name: 'Tài liệu' } });
+		folder = await api.call<Row>('POST', '/folders', { data: { name: L('Ảnh sản phẩm') } });
+		await api.call('POST', '/folders', { data: { name: L('Tài liệu') } });
 	}
 
 	const files = [
-		['ao-thun-cotton.jpg', 'Áo thun cotton', 'tests/parity/fixtures/assets/image.jpg'],
-		['quan-jean.jpg', 'Quần jean ống đứng', 'tests/parity/fixtures/assets/files-image.jpg'],
-		['khan-len.jpg', 'Khăn len', 'tests/parity/fixtures/assets/img_grayscale.jpg'],
+		['ao-thun-cotton.jpg', L('Áo thun cotton'), 'tests/parity/fixtures/assets/image.jpg'],
+		['quan-jean.jpg', L('Quần jean ống đứng'), 'tests/parity/fixtures/assets/files-image.jpg'],
+		['khan-len.jpg', L('Khăn len'), 'tests/parity/fixtures/assets/img_grayscale.jpg'],
 	] as const;
 	const ids: string[] = [];
 
@@ -274,7 +276,7 @@ async function ensureFiles(api: AdminApi): Promise<{ folderId: string; fileIds: 
 }
 
 async function ensureFlow(api: AdminApi): Promise<string> {
-	const name = 'Cảnh báo hàng sắp hết';
+	const name = L('Cảnh báo hàng sắp hết');
 	const found = await findOne(api, `/flows?filter[name][_eq]=${encodeURIComponent(name)}&fields=id`);
 	if (found) return found.id;
 
@@ -283,7 +285,7 @@ async function ensureFlow(api: AdminApi): Promise<string> {
 			name,
 			icon: 'notifications_active',
 			color: null,
-			description: 'Ghi log khi một sản phẩm được sửa còn ít hơn 5 cái',
+			description: L('Ghi log khi một sản phẩm được sửa còn ít hơn 5 cái'),
 			status: 'active',
 			accountability: 'all',
 			trigger: 'event',
@@ -294,18 +296,18 @@ async function ensureFlow(api: AdminApi): Promise<string> {
 		data: {
 			flow: flow.id,
 			key: 'ghi_log',
-			name: 'Ghi log',
+			name: L('Ghi log'),
 			type: 'log',
 			position_x: 37,
 			position_y: 1,
-			options: { message: 'Sản phẩm {{$trigger.keys}} sắp hết hàng' },
+			options: { message: L('Sản phẩm {{$trigger.keys}} sắp hết hàng') },
 		},
 	});
 	const check = await api.call<Row>('POST', '/operations?fields=id', {
 		data: {
 			flow: flow.id,
 			key: 'kiem_tra_ton',
-			name: 'Kiểm tra tồn kho',
+			name: L('Kiểm tra tồn kho'),
 			type: 'condition',
 			position_x: 19,
 			position_y: 1,
@@ -318,18 +320,18 @@ async function ensureFlow(api: AdminApi): Promise<string> {
 }
 
 async function ensureDashboard(api: AdminApi): Promise<string> {
-	const name = 'Bán hàng';
+	const name = L('Bán hàng');
 	const found = await findOne(api, `/dashboards?filter[name][_eq]=${encodeURIComponent(name)}&fields=id`);
 	if (found) return found.id;
 
 	const dashboard = await api.call<Row>('POST', '/dashboards?fields=id', {
-		data: { name, icon: 'storefront', note: 'Tình hình bán hàng và tồn kho' },
+		data: { name, icon: 'storefront', note: L('Tình hình bán hàng và tồn kho') },
 	});
 	await api.call('POST', '/panels', {
 		data: [
 			{
 				dashboard: dashboard.id,
-				name: 'Sản phẩm đang bán',
+				name: L('Sản phẩm đang bán'),
 				icon: 'inventory_2',
 				type: 'metric',
 				show_header: true,
@@ -341,7 +343,7 @@ async function ensureDashboard(api: AdminApi): Promise<string> {
 			},
 			{
 				dashboard: dashboard.id,
-				name: 'Tổng tồn kho',
+				name: L('Tổng tồn kho'),
 				icon: 'warehouse',
 				type: 'metric',
 				show_header: true,
@@ -353,7 +355,7 @@ async function ensureDashboard(api: AdminApi): Promise<string> {
 			},
 			{
 				dashboard: dashboard.id,
-				name: 'Sắp hết hàng',
+				name: L('Sắp hết hàng'),
 				icon: 'warning',
 				type: 'list',
 				show_header: true,
@@ -366,7 +368,7 @@ async function ensureDashboard(api: AdminApi): Promise<string> {
 					limit: 5,
 					sortField: 'stock',
 					sortDirection: 'asc',
-					displayTemplate: '{{name}} — còn {{stock}}',
+					displayTemplate: L('{{name}} — còn {{stock}}'),
 				},
 			},
 		],
@@ -375,13 +377,13 @@ async function ensureDashboard(api: AdminApi): Promise<string> {
 }
 
 async function ensureNotification(api: AdminApi, adminId: string): Promise<void> {
-	const subject = 'Sản phẩm Váy hoa nhí sắp hết hàng';
+	const subject = L('Sản phẩm Váy hoa nhí sắp hết hàng');
 	if (await findOne(api, `/notifications?filter[subject][_eq]=${encodeURIComponent(subject)}&fields=id`)) return;
 	await api.call('POST', '/notifications', {
 		data: {
 			recipient: adminId,
 			subject,
-			message: 'Còn 3 cái, dưới mức tối thiểu 6.',
+			message: L('Còn 3 cái, dưới mức tối thiểu 6.'),
 			collection: COLLECTION,
 			item: '4',
 		},
@@ -435,7 +437,7 @@ async function ensureSyncSource(): Promise<void> {
 		await call('POST', '/collections', {
 			collection: 'orders',
 			schema: {},
-			meta: { icon: 'receipt_long', note: 'Đơn hàng' },
+			meta: { icon: 'receipt_long', note: L('Đơn hàng') },
 			fields: [
 				{
 					field: 'id',
@@ -449,10 +451,10 @@ async function ensureSyncSource(): Promise<void> {
 		});
 	}
 
-	const flows = (await call('GET', `/flows?filter[name][_eq]=${encodeURIComponent('Gửi hóa đơn')}&fields=id`)) as Row[];
+	const flows = (await call('GET', `/flows?filter[name][_eq]=${encodeURIComponent(L('Gửi hóa đơn'))}&fields=id`)) as Row[];
 	if (!flows.length) {
 		await call('POST', '/flows', {
-			name: 'Gửi hóa đơn',
+			name: L('Gửi hóa đơn'),
 			icon: 'mail',
 			status: 'inactive',
 			trigger: 'manual',
@@ -474,8 +476,8 @@ export async function seed(api: AdminApi): Promise<Seeded> {
 	await ensureIndex(api);
 	await ensureExtension(api);
 	await ensureSyncSource();
-	const jsonPathBookmark = await ensureBookmark(api, admin.id, 'Màu đỏ', { 'json(specs, color)': { _eq: 'đỏ' } });
-	const fieldCompareBookmark = await ensureBookmark(api, admin.id, 'Dưới mức tối thiểu', {
+	const jsonPathBookmark = await ensureBookmark(api, admin.id, L('Màu đỏ'), { 'json(specs, color)': { _eq: L('đỏ') } });
+	const fieldCompareBookmark = await ensureBookmark(api, admin.id, L('Dưới mức tối thiểu'), {
 		stock: { _lt: '$FIELD(min_stock)' },
 	});
 
