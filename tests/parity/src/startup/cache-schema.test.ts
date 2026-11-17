@@ -20,6 +20,8 @@ async function startApi(extra: Record<string, string>): Promise<{ api: RunningAp
 		REDIS: 'redis://127.0.0.1:6108',
 		CACHE_STORE: 'redis',
 		RATE_LIMITER_ENABLED: 'false',
+		// D-216: OPENAPI_ENABLED is off by default at Backoffice; the freeze case compares /server/specs/oas.
+		OPENAPI_ENABLED: 'true',
 		...extra,
 	});
 
