@@ -50,7 +50,7 @@
 		{
 			"pattern": "OPENAPI_ENABLED",
 			"exact": true,
-			"default": "true"
+			"default": "false"
 		},
 		{
 			"pattern": "QUERYSTRING_MAX_PARSE_DEPTH",
@@ -64,8 +64,7 @@
 		},
 		{
 			"pattern": "ROBOTS_TXT",
-			"exact": true,
-			"default": "User-agent: *\nDisallow: /"
+			"exact": true
 		},
 		{
 			"pattern": "TEMP_PATH",

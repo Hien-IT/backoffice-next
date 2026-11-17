@@ -145,7 +145,13 @@ export async function createExpressApp(options: ExpressAppOptions = {}): Promise
 		}
 	});
 
-	app.get('/robots.txt', (_, res) => {
+	app.get('/robots.txt', (_, res, next) => {
+		// D-216: without ROBOTS_TXT the route falls through to the 404 handler (DR always answers its default).
+		if (!env['ROBOTS_TXT']) {
+			next();
+			return;
+		}
+
 		res.set('Content-Type', 'text/plain');
 		res.status(200);
 		res.send(env['ROBOTS_TXT']);

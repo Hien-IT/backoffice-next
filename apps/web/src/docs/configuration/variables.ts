@@ -41,7 +41,7 @@ export const configTables: Record<string, ConfigTable[]> = {
 					'Nơi chuyển hướng khi mở đường dẫn gốc `/`. Đường dẫn tương đối, URL, hoặc `false` để không chuyển hướng.',
 				),
 				v('OPENAPI_ENABLED', 'Bật tài liệu OpenAPI ở `/server/specs/oas`. Đúng hoặc sai.'),
-				v('ROBOTS_TXT', 'Nội dung trả về ở `/robots.txt`. Chuỗi nhiều dòng.'),
+				v('ROBOTS_TXT', 'Nội dung trả về ở `/robots.txt`. Chuỗi nhiều dòng. Không đặt thì `/robots.txt` trả 404.'),
 				v('TEMP_PATH', 'Thư mục chứa file tạm của API, ví dụ file đang upload. Chuỗi đường dẫn.'),
 				v('MAX_PAYLOAD_SIZE', 'Kích thước tối đa của thân request. Chuỗi kích thước như `1mb`, `512kb`.'),
 				v('QUERYSTRING_MAX_PARSE_DEPTH', 'Độ sâu tối đa khi phân tích tham số query lồng nhau. Số nguyên.'),

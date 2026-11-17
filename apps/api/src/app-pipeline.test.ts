@@ -176,10 +176,16 @@ describe('root routes', () => {
 	});
 
 	test('GET /robots.txt returns ROBOTS_TXT', async () => {
-		const res = await (await start()).get('/robots.txt');
+		const res = await (await start({ ROBOTS_TXT: 'User-agent: *\nDisallow: /' })).get('/robots.txt');
 		expect(res.status).toBe(200);
 		expect(res.headers['content-type']).toBe('text/plain; charset=utf-8');
 		expect(res.text).toBe('User-agent: *\nDisallow: /');
+	});
+
+	test('GET /robots.txt → 404 without ROBOTS_TXT (D-216)', async () => {
+		const res = await (await start()).get('/robots.txt');
+		expect(res.status).toBe(404);
+		expect(res.body.errors[0].extensions.code).toBe('ROUTE_NOT_FOUND');
 	});
 });
 

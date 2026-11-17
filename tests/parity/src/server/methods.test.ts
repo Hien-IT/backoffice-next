@@ -79,10 +79,11 @@ describe('router behaviour', () => {
 		expect(result.backoffice.headers['location']).toBe('./admin');
 	});
 
-	it('GET /robots.txt (default ROBOTS_TXT)', async () => {
+	// D-216: Backoffice has no ROBOTS_TXT default (404), so the vendor env files set it for both apps.
+	it('GET /robots.txt (ROBOTS_TXT of the vendor env file)', async () => {
 		const result = await parity({ path: '/robots.txt' });
 		assertParity(result);
-		expect(result.backoffice.text).toBe('User-agent: *\nDisallow: /');
+		expect(result.backoffice.text).toBe('User-agent: *');
 	});
 
 	it('GET /admin and /admin/content: Directus serves the app, Backoffice 404 (D-08)', async () => {

@@ -17,7 +17,7 @@ export const DEFAULTS: Env = {
 	QUERY_LIMIT_DEFAULT: 100,
 	MAX_BATCH_MUTATION: Infinity,
 	MAX_IMPORT_ERRORS: 1000,
-	ROBOTS_TXT: 'User-agent: *\nDisallow: /',
+	// D-216: no ROBOTS_TXT default (DR: 'User-agent: *\nDisallow: /'), /robots.txt answers 404 until it is set.
 
 	TEMP_PATH: './node_modules/.directus',
 
@@ -161,7 +161,7 @@ export const DEFAULTS: Env = {
 	REVISIONS_RETENTION: '90d',
 	FLOW_LOGS_RETENTION: '90d',
 
-	OPENAPI_ENABLED: true,
+	OPENAPI_ENABLED: false, // D-216: off by default (DR: true)
 	GRAPHQL_INTROSPECTION: true,
 	GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT: 5,
 	GRAPHQL_QUERY_TOKEN_LIMIT: 5000,

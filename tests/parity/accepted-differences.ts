@@ -727,4 +727,12 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'The documentation area /admin/docs (guides, API reference, configuration) and its "Documentation" item in the user menu exist in the Backoffice app only; the content is static, so it opens the same when the API is Directus. No API change; E2E docs.spec.ts in the three configurations.',
 	},
+	// Owner change 2026-11-18 (D-216): two env defaults differ from Directus.
+	{
+		id: 'D-216',
+		feature: '001',
+		kind: 'doc',
+		reason:
+			'Defaults at Backoffice: OPENAPI_ENABLED is false (Directus true: /server/specs/oas and the GraphQL server_specs_oas answer 404 / are absent until it is set to true) and ROBOTS_TXT has no default (Directus "User-agent: *\\nDisallow: /": /robots.txt answers 404 ROUTE_NOT_FOUND until it is set). The vendor env files of the parity environment set both, so the pairs answer the same; the defaults are checked by apps/api unit tests.',
+	},
 ];
