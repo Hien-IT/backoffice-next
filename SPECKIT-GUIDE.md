@@ -3146,7 +3146,17 @@ nén, chunk `DocsRoute` 18,0 KB. Bài học: `SUPPORTED_VARIABLES` chỉ phục 
 API đọc (`TUS_*`, `RETENTION_*`, `PRESSURE_LIMITER_*`...), script lấy thêm từ `DEFAULTS` (212 mục); axe đòi link trong
 đoạn văn luôn gạch chân (`link-in-text-block`); cuộn mượt tới anchor ngay sau khi tải trang bị cắt, phải nhảy tức
 thời; `page.goto` tới URL chỉ khác hash không nạp lại trang; email `.test` bị Joi từ chối khi bootstrap; nội dung nạp
-bằng `import()` cần `vi.waitFor`, `flushPromises` không đủ. Lượt 2 và lượt 3 chưa làm.
+bằng `import()` cần `vi.waitFor`, `flushPromises` không đủ. Lượt 1 lên `main` `6f6b067b`. `/speckit.implement` lượt 2
+2026-11-17 (API reference, T049–T064): script `sync-docs-api` gộp mô tả tĩnh và phần bổ sung OpenAPI (`x-crud` cho 7
+resource còn thiếu và `/backoffice/permissions`, 4 route quan hệ, 26 route `/backoffice/*` có ghi ai gọi được) thành
+31 file JSON commit vào repo, 210 operation; `DocsApiResource` và `DocsEndpoint` (card, chip method, bảng tham số,
+tab REST/GraphQL, trả lời mẫu); test parity `docs/graphql-examples.test.ts` (suite full). Đối chiếu 133 operation với
+controller: 6 operation của mô tả tĩnh sai so với API (`/auth/oauth*` 404, `/relations/{id}` gọi theo collection và
+field, `/extensions/{bundle}/{name}` 404), loại có lý do. Local: 170 ví dụ GraphQL hợp lệ với SDL của API SQLite cục
+bộ, unit web 4.715 test xanh, browser test 11 và E2E 15 ca xanh; main bundle 280,9 KB nén. Bài học: YAML dạng `{...}`
+cắt giá trị có dấu phẩy thành khóa mới (đặt mô tả trong nháy đơn); `/items/{collection}` cũng kết thúc bằng tham số,
+chỉ `/{id}` mới là một item; card hai cột cần trang API dùng hết bề rộng cột bài viết; input GraphQL của collection
+không có trường tên. Lượt 3 chưa làm.
 Thư mục: `specs/033-docs-page/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng, không cột, không migration, không endpoint mới. Khác biệt giao diện ghi theo
 Nguyên tắc X từ D-215 (D-214.1 là số cuối đã dùng). Bố cục trang docs là câu hỏi design-system kế tiếp, Q-50 (`docs`,

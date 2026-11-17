@@ -1,0 +1,29 @@
+tags:
+  - name: Panels
+    description: Panel là một ô trên dashboard (biểu đồ, số liệu, danh sách...), có vị trí và kích thước trên lưới.
+    x-collection: directus_panels
+    x-crud:
+      path: /panels
+      id: { singular: Panel, plural: Panels }
+      noun: panel
+      schema: Panels
+components:
+  schemas:
+    Panels:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d }
+        dashboard: { type: string, description: 'Dashboard chứa panel.', example: 0f6c1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b }
+        name: { type: string, nullable: true, description: 'Tên hiện trên đầu panel.', example: Tổng đơn }
+        icon: { type: string, nullable: true, description: 'Icon.', example: shopping_cart }
+        color: { type: string, nullable: true, description: 'Màu nhấn.', example: null }
+        show_header: { type: boolean, description: 'Hiện phần đầu của panel.', example: true }
+        note: { type: string, nullable: true, description: 'Ghi chú.', example: null }
+        type: { type: string, description: 'Loại panel, ví dụ `metric`, `time-series`, `list`.', example: metric }
+        position_x: { type: integer, description: 'Cột bắt đầu trên lưới.', example: 1 }
+        position_y: { type: integer, description: 'Hàng bắt đầu trên lưới.', example: 1 }
+        width: { type: integer, description: 'Số cột chiếm.', example: 12 }
+        height: { type: integer, description: 'Số hàng chiếm.', example: 6 }
+        options: { type: object, nullable: true, description: 'Tùy chọn riêng của loại panel.', example: { collection: articles, function: count } }
+        date_created: { type: string, format: date-time, description: 'Lúc tạo.', example: '2026-11-17T08:00:00.000Z' }
+        user_created: { type: string, description: 'User tạo.', example: 9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d }

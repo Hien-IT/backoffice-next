@@ -82,6 +82,9 @@ export const FULL_FILES = [
 	// Spec 032: the environment sync routes on the main pair and profile `sync` (each file but route.test.ts skips
 	// without the profile).
 	'src/sync/**/*.test.ts',
+	// Spec 033 (FR-055): the GraphQL examples of the documentation area against the schema of the Backoffice API (no
+	// comparison with Directus).
+	'src/docs/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

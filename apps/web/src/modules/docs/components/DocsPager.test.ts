@@ -11,7 +11,10 @@ enableAutoUnmount(afterEach);
 const page = (path: string, title: string): DocsPage => ({ path, title, lead: 'x', kind: 'markdown', source: 'x' });
 
 async function pager(props: { previous?: DocsPage; next?: DocsPage }) {
-	const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: { render: () => null } }] });
+	const router = createRouter({
+		history: createMemoryHistory(),
+		routes: [{ path: '/:p(.*)*', component: { render: () => null } }],
+	});
 	await router.push('/docs');
 	return mount(DocsPager, { props, global: { plugins: [i18n, router] } });
 }

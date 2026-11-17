@@ -42,7 +42,10 @@ afterEach(() => {
 });
 
 async function toc(headings = HEADINGS) {
-	const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: { render: () => null } }] });
+	const router = createRouter({
+		history: createMemoryHistory(),
+		routes: [{ path: '/:p(.*)*', component: { render: () => null } }],
+	});
 	await router.push('/docs');
 	const wrapper = mount(DocsToc, { props: { headings }, global: { plugins: [i18n, router] } });
 	await flushPromises();
@@ -80,7 +83,10 @@ test('the heading being read is marked: the first of the visible ones', async ()
 	expect(wrapper.find('a[aria-current="location"]').classes()).toContain('border-brand-500');
 
 	// Nothing in the band (between two headings): the last one read stays marked.
-	notify([{ target: { id: 'mot-a' }, isIntersecting: false }, { target: { id: 'hai' }, isIntersecting: false }]);
+	notify([
+		{ target: { id: 'mot-a' }, isIntersecting: false },
+		{ target: { id: 'hai' }, isIntersecting: false },
+	]);
 	await flushPromises();
 	expect(current(wrapper)).toEqual(['Một A']);
 });

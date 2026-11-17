@@ -58,8 +58,7 @@ function go(id: string) {
 const LINK =
 	'block border-s-2 py-1 text-theme-sm no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const CURRENT = 'border-brand-500 text-brand-600 dark:text-brand-400';
-const OTHER =
-	'border-transparent text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90';
+const OTHER = 'border-transparent text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90';
 </script>
 
 <template>
@@ -69,7 +68,9 @@ const OTHER =
 		:aria-label="$t('docs_on_this_page')"
 		data-docs-toc
 	>
-		<p class="mb-2 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">{{ $t('docs_on_this_page') }}</p>
+		<p class="mb-2 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400">
+			{{ $t('docs_on_this_page') }}
+		</p>
 		<ul class="m-0 list-none p-0" lang="vi">
 			<li v-for="heading in headings" :key="heading.id">
 				<a

@@ -1,0 +1,78 @@
+# The static description addresses a relation by a numeric id (/relations/{id}); the API addresses it by collection
+# and field. These replace the three excluded operations (sync-docs-api.mjs EXCLUDED).
+paths:
+  /relations/{collection}:
+    get:
+      operationId: getRelationsInCollection
+      summary: Liệt kê quan hệ của một collection
+      description: Mọi quan hệ có field nằm trong collection này.
+      tags: [Relations]
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Relations' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /relations/{collection}/{field}:
+    get:
+      operationId: getRelationByField
+      summary: Lấy quan hệ của một field
+      description: Quan hệ có field nhiều-một (hoặc field nối) là field này.
+      tags: [Relations]
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+        - { name: field, in: path, required: true, description: 'Tên field.', schema: { type: string } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Relations' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    patch:
+      operationId: updateRelationByField
+      summary: Sửa quan hệ của một field
+      description: Sửa phần `schema` (ví dụ hành động khi xóa) hoặc phần `meta` của quan hệ.
+      tags: [Relations]
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+        - { name: field, in: path, required: true, description: 'Tên field.', schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schema: { type: object, description: 'Phần ở cơ sở dữ liệu.', example: { on_delete: SET NULL } }
+                meta: { type: object, description: 'Phần cấu hình của app.', example: { sort_field: sort } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Relations' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+    delete:
+      operationId: deleteRelationByField
+      summary: Xóa quan hệ của một field
+      description: Xóa quan hệ; field vẫn còn.
+      tags: [Relations]
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+        - { name: field, in: path, required: true, description: 'Tên field.', schema: { type: string } }
+      responses:
+        '204': { description: 'Thành công' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }

@@ -1,0 +1,18 @@
+tags:
+  - name: Translations
+    description: Chuỗi dịch tùy biến của dự án, theo cặp ngôn ngữ và khóa; dùng được trong tên field, ghi chú và lựa chọn.
+    x-collection: directus_translations
+    x-crud:
+      path: /translations
+      id: { singular: Translation, plural: Translations }
+      noun: chuỗi dịch
+      schema: Translations
+components:
+  schemas:
+    Translations:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d }
+        language: { type: string, description: 'Mã ngôn ngữ.', example: vi-VN }
+        key: { type: string, description: 'Khóa.', example: greeting }
+        value: { type: string, description: 'Chuỗi đã dịch.', example: Xin chào }

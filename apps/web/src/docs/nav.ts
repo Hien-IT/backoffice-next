@@ -1,8 +1,22 @@
 // Backoffice (spec 033, data-model §1, research R4): the table of contents of the documentation area. It gives the left
 // menu, the breadcrumb and the previous / next links. Titles and leads are content (Vietnamese, FR-038); the three part
-// names are frame strings (i18n keys). Guides come with wave 3 and the API reference with wave 2 of the feature.
+// names are frame strings (i18n keys). Guides come with wave 3 of the feature. The API part follows the generated index
+// (scripts/sync-docs-api.mjs): resources by name, the Backoffice-only routes in a last group.
+import apiIndex from './api/generated/index.json';
 import { configGroups } from './configuration/groups.ts';
 import type { DocsGroup, DocsNav, DocsPage, DocsSection } from './types.ts';
+
+/** A page of the API part: the title is the resource name (technical, as in the API), the lead is Vietnamese. */
+function apiPage(resource: (typeof apiIndex.resources)[number]): DocsPage {
+	return {
+		path: `api/${resource.id}`,
+		title: resource.name,
+		lead: `${resource.operations} endpoint của ${resource.name}: tham số, trả lời và ví dụ gọi bằng REST, GraphQL.`,
+		kind: 'api',
+		source: resource.id,
+		...(resource.backofficeOnly ? { backofficeOnly: true } : {}),
+	};
+}
 
 export const docsNav: DocsNav = {
 	intro: {
@@ -14,7 +28,17 @@ export const docsNav: DocsNav = {
 	},
 	sections: [
 		{ id: 'guides', titleKey: 'docs_guides', groups: [] },
-		{ id: 'api', titleKey: 'docs_api', groups: [] },
+		{
+			id: 'api',
+			titleKey: 'docs_api',
+			groups: [
+				{ pages: apiIndex.resources.filter((resource) => !resource.backofficeOnly).map(apiPage) },
+				{
+					title: 'Chỉ có ở Backoffice',
+					pages: apiIndex.resources.filter((resource) => resource.backofficeOnly).map(apiPage),
+				},
+			],
+		},
 		{
 			id: 'configuration',
 			titleKey: 'docs_configuration',
@@ -42,7 +66,10 @@ export function flatPages(nav: DocsNav = docsNav): DocsPage[] {
 
 /** `guides/files/` and `/guides/files` are the page `guides/files`. */
 export function normalizePath(path: string | string[] | undefined): string {
-	return [path ?? []].flat().join('/').replace(/^\/+|\/+$/g, '');
+	return [path ?? []]
+		.flat()
+		.join('/')
+		.replace(/^\/+|\/+$/g, '');
 }
 
 export function findPage(path: string, nav: DocsNav = docsNav): DocsPage | undefined {

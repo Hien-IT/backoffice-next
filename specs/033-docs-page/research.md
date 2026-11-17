@@ -243,7 +243,7 @@ thử; lượt 1 xác nhận cho thư viện được chọn. Dung lượng nén
 | 3 | Hash qua vòng đăng nhập SSO | Đọc code ở lượt 1: [Inference] anchor đi qua; chưa chạy |
 | 4 | DOMPurify bỏ `id` kiểu `cookie`, `location` | Xong lượt 1 (`render.test.ts`) |
 | 5 | Bản vi-VN của các khóa dịch có sẵn | Xong lượt 1 |
-| 6 | 133 operation của mô tả tĩnh đều được phục vụ | Lượt 2 |
+| 6 | 133 operation của mô tả tĩnh đều được phục vụ | Xong lượt 2: 127 khớp, 6 loại có lý do (mục "Kết quả lượt 2") |
 | 7 | Phần tử nào của shell cuộn (để cuộn tới anchor và đánh dấu mục đang đọc) | Xong lượt 1 |
 
 ## Kết quả lượt 1 (2026-11-17)
@@ -298,3 +298,56 @@ của `/server/specs/oas` không cần sửa normalizer.
 dòng); browser test của khu tài liệu 9 test xanh (chromium); E2E `docs.spec.ts` 12 ca xanh, 4 ca bỏ qua theo bề rộng,
 chạy với Vite dev và một API SQLite cục bộ (`E2E_CONFIG=proxy-api BASE_URL=http://127.0.0.1:4221`), chưa chạy với image
 nginx (CSP thật chỉ có ở CI); `a11y.spec.ts` chỉ chạy ở CI.
+
+## Kết quả lượt 2 (2026-11-17)
+
+**Đối chiếu 133 operation với route của API** (T050; [Verified] bằng đọc decorator của các controller và gọi thử API
+SQLite cục bộ):
+
+| Operation | Trong mô tả tĩnh | Thực tế | Xử lý |
+| --- | --- | --- | --- |
+| `oauth` | `GET /auth/oauth` | 404 (`ROUTE_NOT_FOUND`); danh sách nhà cung cấp ở `GET /auth` | Loại, có lý do |
+| `oauthProvider` | `GET /auth/oauth/{provider}` | 404; SSO bắt đầu ở `/auth/login/{provider}` | Loại, có lý do |
+| `getRelation`, `updateRelation`, `deleteRelation` | `/relations/{id}` | Quan hệ được gọi theo collection và field (`:collection/:field`) | Loại; `relations.yaml` bổ sung 4 route đúng |
+| `updateExtensionBundle` | `PATCH /extensions/{bundle}/{name}` | 404; extension sửa theo id | Loại, có lý do |
+
+127 operation còn lại khớp route của controller (cùng method, cùng hình đường dẫn). `GET /server/ping` không nằm trong
+controller mà ở `app-pipeline.ts:162`; trả `pong`.
+
+Route API phục vụ mà tài liệu v1 không có mục (ngoài mô tả tĩnh và ngoài FR-022): `GET /auth`,
+`/auth/login/{provider}` (và callback), `GET /server/health`, `GET /server/specs/oas`, `GET /server/specs/graphql`,
+`POST /server/setup`, `/files/tus*`, `POST /files/import`, `/flows/trigger/{id}`, `/assets/folder/{id}`,
+`POST /assets/files`, `GET /metrics`, `/graphql*`, `GET /roles/me`, `GET /permissions/me/{collection}`, `PATCH /fields/{collection}`,
+`GET /extensions/registry*` và `install`/`reinstall`/`uninstall`, `DELETE /extensions/{id}`,
+`GET /extensions/sources/{chunk}`, `POST /settings/owner`, `POST /users/me/tfa/generate`, `POST /users/{id}/tfa/disable`,
+`POST /users/register`, `GET /users/register/verify-email`, `POST /utils/revert/{revision}`,
+`POST /utils/translations/generate`, `POST /utils/resolve-redirect`, và phương thức `SEARCH` của mọi collection.
+
+**Phần bổ sung** (`apps/web/src/docs/api/supplement/`): 7 resource (policies, access, dashboards, panels,
+notifications, translations, shares) qua phần mở rộng `x-crud` (bảy thao tác chuẩn mỗi resource) cộng 4 route riêng
+(`/policies/me/globals`, `/shares/auth`, `/shares/invite`, `/shares/info/{id}`); 4 route quan hệ; 26 route
+`/backoffice/*` (7 qua `x-crud` của `/backoffice/permissions`, 19 viết tay), mỗi route ghi ai gọi được. Kết quả: 31
+resource, 210 operation (127 từ mô tả tĩnh, 83 từ phần bổ sung). Bẫy gặp: YAML dạng `{ ... }` hiểu dấu phẩy trong giá
+trị chưa đặt trong nháy là ranh giới (một mô tả bị cắt thành khóa mới); mọi mô tả trong dạng đó giờ đặt trong nháy đơn.
+
+**Ví dụ GraphQL** (T054, T063): 170 ví dụ (163 scope system, 7 scope items); 40 operation không có tương đương GraphQL
+(`false`): `/backoffice/*`, import/export, schema, asset, so sánh/lưu/đẩy version, share auth/invite/info,
+`track/page`, và tạo collection (input GraphQL của collection không có trường tên). [Verified trên máy] Cả 170 hợp lệ
+với SDL của API SQLite cục bộ (`/server/specs/graphql/system` và `/server/specs/graphql/` sau khi tạo collection
+`articles`), bằng `validate` của gói `graphql` 16.12.0. Lỗi tìm ra và đã sửa: ví dụ sửa quan hệ gửi `schema` thiếu năm
+trường bắt buộc của input (đổi sang `meta`); route một item của Items bị nhận nhầm vì `/items/{collection}` cũng kết thúc
+bằng tham số (giờ chỉ `/{id}` là một item). Test parity `tests/parity/src/docs/graphql-examples.test.ts` (suite full,
+Postgres) chỉ chạy ở CI.
+
+**Giấy phép** (T049): chủ dự án quyết định 2026-11-17 hiện nguyên văn mô tả lấy từ mô tả tĩnh; dòng `$source` của mỗi
+file sinh ghi `libs/specs/dist/openapi.json` và tên script, không có từ bị cấm.
+
+**Dung lượng** (đo trên máy): main bundle 280,9 KB nén (trước feature 280,5 KB; lượt 2 thêm 0,2 KB do chuỗi i18n mới);
+chunk `DocsRoute` 22,0 KB (có `index.json` của phần API); mỗi resource một chunk, ví dụ Files 3,0 KB, Backoffice 6,6 KB;
+`apps/web/src/docs/api/generated` nặng 624 KB trên đĩa (32 file).
+
+**Bố cục**: trang API không giới hạn `max-w-3xl` (card hai cột trong 768 px quá chật cho bảng tham số; thấy trong trình
+duyệt ở 1600 px); recipe Q-50 đã sửa.
+
+**Chạy trên máy**: unit web 507 file, 4.715 test xanh (coverage 91,98 % dòng; file khu tài liệu 100 % dòng); browser
+test khu tài liệu 11 test xanh; E2E `docs.spec.ts` 15 ca xanh, 5 ca bỏ qua theo bề rộng (Vite dev, API SQLite cục bộ).

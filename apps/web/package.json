@@ -10,6 +10,7 @@
 		"test": "vitest run",
 		"lint": "eslint src scripts && node ../../tools/check-raw-colors.mjs ../.. && node scripts/check-brand.mjs",
 		"test:unit": "vitest run --project unit --coverage.enabled=false",
+		"sync-docs-api": "node scripts/sync-docs-api.mjs",
 		"sync-docs-config": "jiti scripts/sync-docs-config.mjs"
 	},
 	"dependencies": {

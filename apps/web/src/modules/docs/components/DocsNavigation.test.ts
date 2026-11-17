@@ -22,7 +22,11 @@ vi.mock('../../../docs/nav.ts', async (importOriginal) => {
 				],
 			},
 			{ id: 'api', titleKey: 'docs_api', groups: [] },
-			{ id: 'configuration', titleKey: 'docs_configuration', groups: [{ pages: [page('configuration/general', 'Chung')] }] },
+			{
+				id: 'configuration',
+				titleKey: 'docs_configuration',
+				groups: [{ pages: [page('configuration/general', 'Chung')] }],
+			},
 		],
 	};
 	return { ...actual, docsNav };
@@ -42,7 +46,8 @@ async function navigation(path: string) {
 	return mount(DocsNavigation, { global: { plugins: [i18n, router] } });
 }
 
-const links = (wrapper: Awaited<ReturnType<typeof navigation>>) => wrapper.findAll('a').map((a) => a.attributes('href'));
+const links = (wrapper: Awaited<ReturnType<typeof navigation>>) =>
+	wrapper.findAll('a').map((a) => a.attributes('href'));
 
 describe('DocsNavigation', () => {
 	test('a named navigation with the introduction, the parts that have pages, and their pages', async () => {

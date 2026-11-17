@@ -1,0 +1,19 @@
+tags:
+  - name: Access
+    description: Mỗi bản ghi Access gắn một chính sách truy cập cho một role hoặc cho một user.
+    x-collection: directus_access
+    x-crud:
+      path: /access
+      id: { singular: Access, plural: AccessItems }
+      noun: bản ghi gắn chính sách
+      schema: Access
+components:
+  schemas:
+    Access:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 7c0b9b1e-1f0a-4c55-8d4c-2b7a9c1e3f40 }
+        role: { type: string, nullable: true, description: 'Role được gắn; trống khi gắn cho user.', example: 3f2a1b4c-5d6e-4f70-8a9b-0c1d2e3f4a5b }
+        user: { type: string, nullable: true, description: 'User được gắn; trống khi gắn cho role.', example: null }
+        policy: { type: string, description: 'Chính sách được gắn.', example: 2e1f3c5d-8a51-4b4c-9a0b-0f1e2d3c4b5a }
+        sort: { type: integer, nullable: true, description: 'Thứ tự trong danh sách chính sách của role hoặc user.', example: 1 }

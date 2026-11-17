@@ -12,8 +12,9 @@ import BoNotice from '../../../components/BoNotice.vue';
 import '../../../docs/docs.css';
 import { findPage, locate, neighbours, normalizePath } from '../../../docs/nav.ts';
 import { createSlugger, renderDoc } from '../../../docs/render.ts';
-import type { ConfigTable, DocsHeading, DocsPage, SupportedGenerated } from '../../../docs/types.ts';
+import type { ConfigTable, DocsApiResource, DocsHeading, DocsPage, SupportedGenerated } from '../../../docs/types.ts';
 import PrivateView from '../../../layout/PrivateView.vue';
+import DocsApiPage from '../components/DocsApiResource.vue';
 import DocsArticle from '../components/DocsArticle.vue';
 import DocsConfigGroup from '../components/DocsConfigGroup.vue';
 import DocsNavigation from '../components/DocsNavigation.vue';
@@ -22,17 +23,24 @@ import DocsToc from '../components/DocsToc.vue';
 
 type Content = { page: DocsPage; headings: DocsHeading[] } & (
 	| { kind: 'markdown'; html: string }
+	| { kind: 'api'; resource: DocsApiResource }
 	| { kind: 'configuration'; tables: ConfigTable[]; defaults: Record<string, string | undefined> }
 );
 
 // One lazy chunk per Markdown page; the images are assets, only their URLs are in this chunk (research R4).
 const markdownFiles = import.meta.glob<string>('../../../docs/content/**/*.md', { query: '?raw', import: 'default' });
+// One lazy chunk per API resource (research R7).
+const apiFiles = import.meta.glob<DocsApiResource>(['../../../docs/api/generated/*.json', '!**/index.json'], {
+	import: 'default',
+});
 const imageUrls = import.meta.glob<string>('../../../docs/content/images/*.png', {
 	eager: true,
 	query: '?url',
 	import: 'default',
 });
-const images = Object.fromEntries(Object.entries(imageUrls).map(([file, url]) => [`images/${file.split('/').pop()}`, url]));
+const images = Object.fromEntries(
+	Object.entries(imageUrls).map(([file, url]) => [`images/${file.split('/').pop()}`, url]),
+);
 
 const route = useRoute();
 const { t } = useI18n();
@@ -46,7 +54,9 @@ const failed = ref(false);
 
 /** The page on screen: the loaded one while the next loads, otherwise the page of the route. */
 const shown = computed(() => (page.value && content.value && loading.value ? content.value.page : page.value));
-const ready = computed(() => (content.value && shown.value && content.value.page.path === shown.value.path ? content.value : null));
+const ready = computed(() =>
+	content.value && shown.value && content.value.page.path === shown.value.path ? content.value : null,
+);
 
 const title = computed(() => shown.value?.title ?? t('page_not_found'));
 
@@ -59,6 +69,23 @@ const crumbs = computed(() => {
 const around = computed(() => (shown.value ? neighbours(shown.value.path) : {}));
 
 async function build(target: DocsPage): Promise<Content> {
+	if (target.kind === 'api') {
+		const loadResource = apiFiles[`../../../docs/api/generated/${target.source}.json`];
+		if (!loadResource) throw new Error(`docs: no API resource "${target.source}"`);
+		const resource = await loadResource();
+
+		return {
+			page: target,
+			kind: 'api',
+			resource,
+			headings: resource.operations.map((operation) => ({
+				id: operation.anchor,
+				text: operation.summary,
+				level: 2 as const,
+			})),
+		};
+	}
+
 	if (target.kind === 'configuration') {
 		const [{ configTables }, supported] = await Promise.all([
 			import('../../../docs/configuration/variables.ts'),
@@ -92,7 +119,8 @@ async function build(target: DocsPage): Promise<Content> {
 	return { page: target, kind: 'markdown', html, headings };
 }
 
-const reducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reducedMotion = () =>
+	typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
  * To the heading of the hash (focused for the keyboard and screen readers); an unknown anchor leaves the page as is.
@@ -164,7 +192,10 @@ watch(
 		</template>
 
 		<div class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_14rem]" data-docs>
-			<div class="max-w-3xl min-w-0" :aria-busy="loading && !ready ? 'true' : undefined" data-docs-main>
+			<div
+				class="min-w-0"
+				:class="shown?.kind === 'api' ? 'max-w-none' : 'max-w-3xl'"
+				:aria-busy="loading && !ready ? 'true' : undefined" data-docs-main>
 				<template v-if="!shown">
 					<p class="text-base text-gray-700 dark:text-gray-300">{{ $t('page_not_found_body') }}</p>
 					<p class="mt-4">
@@ -205,6 +236,7 @@ watch(
 					</div>
 
 					<DocsArticle v-else-if="ready.kind === 'markdown'" :html="ready.html" />
+					<DocsApiPage v-else-if="ready.kind === 'api'" :resource="ready.resource" />
 					<DocsConfigGroup v-else :tables="ready.tables" :headings="ready.headings" :defaults="ready.defaults" />
 
 					<DocsPager :previous="around.previous" :next="around.next" />

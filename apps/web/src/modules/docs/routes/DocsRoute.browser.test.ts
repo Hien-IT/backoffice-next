@@ -63,6 +63,16 @@ describe.each(['light', 'dark'] as const)('axe (%s)', (scheme) => {
 		expect(await serious()).toEqual([]);
 	});
 
+	// Spec 033 T062: an API page with REST and GraphQL tabs, parameter and body tables, the Backoffice notice.
+	test('API pages: Files and the Backoffice routes', async () => {
+		theme();
+		await open('/docs/api/files');
+		expect(await serious()).toEqual([]);
+
+		await open('/docs/api/backoffice');
+		expect(await serious()).toEqual([]);
+	});
+
 	test('an article with code in the three languages, a table, both note boxes and a quote', async () => {
 		theme();
 		const { html } = renderDoc(
@@ -104,7 +114,9 @@ describe.each(['light', 'dark'] as const)('axe (%s)', (scheme) => {
 		host.className = 'bg-white p-6 dark:bg-gray-900';
 		mount(DocsArticle, { props: { html }, attachTo: host, global: { plugins: [i18n, router] } });
 
-		expect(host.querySelectorAll('.docs-code .hljs-string, .docs-code .hljs-attr, .docs-code .hljs-keyword').length).toBeGreaterThan(2);
+		expect(
+			host.querySelectorAll('.docs-code .hljs-string, .docs-code .hljs-attr, .docs-code .hljs-keyword').length,
+		).toBeGreaterThan(2);
 		expect(await serious()).toEqual([]);
 		host.remove();
 	});

@@ -92,7 +92,8 @@ describe('DocsRoute', () => {
 			'#gui-link-toi-mot-muc',
 		]);
 		expect(wrapper.find('[data-docs-previous]').exists()).toBe(false);
-		expect(wrapper.find('[data-docs-next]').attributes('href')).toBe('/docs/configuration/general');
+		// The API part comes first in the menu after the introduction (resources by name).
+		expect(wrapper.find('[data-docs-next]').attributes('href')).toBe('/docs/api/access');
 		expect(wrapper.find('[data-docs-main]').attributes('aria-busy')).toBeUndefined();
 	});
 
@@ -115,7 +116,27 @@ describe('DocsRoute', () => {
 			'Máy chủ HTTP',
 			'Tài khoản admin đầu tiên',
 		]);
-		expect(wrapper.find('[data-docs-previous]').attributes('href')).toBe('/docs');
+		// The last page of the API part (the Backoffice routes) comes before the first configuration page.
+		expect(wrapper.find('[data-docs-previous]').attributes('href')).toBe('/docs/api/backoffice');
+	});
+
+	test('an API page: the resource, one card per endpoint, "On this page" lists the endpoints', async () => {
+		const { wrapper } = await open('/docs/api/files');
+
+		expect(title()).toBe('Files');
+		expect(wrapper.find('[data-docs-breadcrumb]').text()).toBe('API');
+		expect(wrapper.find('[data-docs-lead]').text()).toContain('endpoint của Files');
+		expect(wrapper.findAll('section[data-operation]').length).toBeGreaterThan(3);
+		expect(wrapper.find('#list-files').exists()).toBe(true);
+		expect(wrapper.findAll('[data-docs-toc] a').map((a) => a.attributes('href'))).toContain('#list-files');
+	});
+
+	test('the Backoffice API page starts with the notice and sits in its own menu group', async () => {
+		const { wrapper } = await open('/docs/api/backoffice');
+
+		expect(wrapper.find('[data-docs-breadcrumb]').text()).toBe('API / Chỉ có ở Backoffice');
+		expect(wrapper.find('[data-docs-backoffice-only]').exists()).toBe(true);
+		expect(wrapper.find('[data-operation="createIndex"]').exists()).toBe(true);
 	});
 
 	test('an unknown documentation path: not found inside the frame, with a link home', async () => {
@@ -133,7 +154,9 @@ describe('DocsRoute', () => {
 		const { wrapper } = await open('/docs/guides/only-here');
 
 		expect(title()).toBe('Chỉ ở đây');
-		expect(wrapper.find('[data-docs-backoffice-only]').text()).toContain('Available only when the server is Backoffice.');
+		expect(wrapper.find('[data-docs-backoffice-only]').text()).toContain(
+			'Available only when the server is Backoffice.',
+		);
 		expect((await open('/docs')).wrapper.find('[data-docs-backoffice-only]').exists()).toBe(false);
 	});
 

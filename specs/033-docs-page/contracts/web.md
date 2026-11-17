@@ -80,6 +80,8 @@ Phương án A của research R3. Lượt 1 viết thành recipe trong `design-s
 - **Bảng** (biến, tham số): kiểu bảng tĩnh của design-system (`text-theme-sm`, hàng tiêu đề `bg-gray-50
   dark:bg-white/[0.03]`, viền `border-gray-200 dark:border-gray-800`), tên biến và tham số `font-mono`; bọc trong khung
   `overflow-x-auto rounded-xl border`.
+- **Trang API**: cột bài viết không giới hạn `max-w-3xl` (đo trong trình duyệt ở lượt 2: card hai cột trong 768 px quá
+  chật cho bảng tham số).
 - **Khối endpoint**: Card (`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`).
   Đầu card: chip method và path `font-mono`. Chip method có chữ, màu theo token: GET `success`, POST `blue-light`, PATCH
   và PUT `warning`, DELETE `error`, HEAD và SEARCH `gray`. Từ `2xl`, thân card hai cột (mô tả, tham số, trả lời bên

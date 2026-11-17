@@ -54,6 +54,20 @@ test('033: the docs_* keys of the documentation area are in both overlays', () =
 		'docs_variable',
 		'docs_description',
 		'docs_default',
+		'docs_endpoints',
+		'docs_query_parameters',
+		'docs_path_parameters',
+		'docs_request_body',
+		'docs_responses',
+		'docs_response_example',
+		'docs_required',
+		'docs_access_admin',
+		'docs_access_authenticated',
+		'docs_access_public',
+		'docs_name',
+		'docs_type',
+		'docs_examples',
+		'docs_response_structure',
 	];
 
 	for (const key of keys) {

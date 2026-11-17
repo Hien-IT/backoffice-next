@@ -1,0 +1,22 @@
+tags:
+  - name: Dashboards
+    description: Dashboard của module Insights, mỗi dashboard chứa nhiều panel.
+    x-collection: directus_dashboards
+    x-crud:
+      path: /dashboards
+      id: { singular: Dashboard, plural: Dashboards }
+      noun: dashboard
+      schema: Dashboards
+components:
+  schemas:
+    Dashboards:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 0f6c1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b }
+        name: { type: string, description: 'Tên dashboard.', example: Doanh thu }
+        icon: { type: string, description: 'Icon.', example: insights }
+        note: { type: string, nullable: true, description: 'Ghi chú.', example: null }
+        color: { type: string, nullable: true, description: 'Màu nhấn.', example: null }
+        date_created: { type: string, format: date-time, description: 'Lúc tạo.', example: '2026-11-17T08:00:00.000Z' }
+        user_created: { type: string, description: 'User tạo.', example: 9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d }
+        panels: { type: array, items: { type: string }, description: 'Các panel của dashboard.', example: [] }

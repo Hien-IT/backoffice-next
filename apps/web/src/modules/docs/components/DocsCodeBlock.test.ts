@@ -16,7 +16,8 @@ beforeEach(() => {
 
 afterEach(() => resetNotices());
 
-const block = (props: { code: string; language?: string | null }) => mount(DocsCodeBlock, { props, global: { plugins: [i18n] } });
+const block = (props: { code: string; language?: string | null }) =>
+	mount(DocsCodeBlock, { props, global: { plugins: [i18n] } });
 
 test('a known language is highlighted; the block is reachable by keyboard', () => {
 	const wrapper = block({ code: '{"a": 1}', language: 'json' });

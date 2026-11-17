@@ -2147,8 +2147,10 @@ for both themes; menu item "Documentation" / "Tài liệu" with the `menu_book` 
   with `th scope="col"` `text-start font-medium text-gray-500 dark:text-gray-400`; rows split by `border-t
   border-gray-200 dark:border-gray-800`; cells `px-4 py-3 align-top`; variable and parameter names `font-mono`.
 - **Endpoint block**: Card (`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`).
-  Head: a method `BoChip` with the method as text (GET success, POST info, PATCH and PUT warning, DELETE error, HEAD and
-  SEARCH light) and the path in `font-mono text-theme-sm`. From `2xl` the body has two columns (description, parameters
+  Head: a method chip with the method as text, the Badge "light" recipe (GET success, POST info, PATCH and PUT warning,
+  DELETE error, HEAD and SEARCH light) and the path in `font-mono text-theme-sm`. An API page takes the whole article
+  column (no `max-w-3xl`), so the card has room for its two columns (measured in the browser 2026-11-17: 768 px left
+  each column too narrow for the parameter tables). From `2xl` the body has two columns (description, parameters
   and responses at the start; examples and the response example at the end, sticky); below `2xl` one column with the
   examples last. The examples are `BoTabs` REST / GraphQL (no tabs with one example); the structure of the success
   response is a closed `BoDetail`.

@@ -48,6 +48,8 @@ export interface DocsApiParameter {
 	type: string;
 	required: boolean;
 	description: string;
+	/** `en` when the text comes from the static API description (FR-038), `vi` from the supplement. */
+	lang: 'en' | 'vi';
 }
 
 export interface DocsApiOperation {
@@ -57,6 +59,7 @@ export interface DocsApiOperation {
 	path: string;
 	summary: string;
 	description: string;
+	lang: 'en' | 'vi';
 	query: DocsApiParameter[];
 	pathParams: DocsApiParameter[];
 	body?: { contentType: string; required: boolean; schema: JsonSchema };
@@ -67,6 +70,8 @@ export interface DocsApiOperation {
 	backofficeOnly: boolean;
 	/** Who may call it; required when `backofficeOnly` (FR-027). */
 	access?: 'admin' | 'authenticated' | 'public';
+	/** More on `access` (e.g. per the caller's permissions). */
+	accessNote?: string;
 }
 
 export interface DocsApiResource {
@@ -74,6 +79,7 @@ export interface DocsApiResource {
 	id: string;
 	name: string;
 	description: string;
+	lang: 'en' | 'vi';
 	collection?: string;
 	backofficeOnly: boolean;
 	operations: DocsApiOperation[];

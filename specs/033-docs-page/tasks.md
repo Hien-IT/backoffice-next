@@ -245,7 +245,7 @@ URL, đăng nhập và thấy đúng tiêu đề.
   vào research rằng bộ đối chiếu của `/server/specs/oas` không cần sửa normalizer
 - [X] T047 Chạy `graphify update .`; cập nhật dòng "Trạng thái" của mục 033 trong `SPECKIT-GUIDE.md` và `Status` của
   `specs/033-docs-page/spec.md` (lượt 1)
-- [ ] T048 Đóng lượt 1: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build`, `check-bundle` xanh; `git add` theo
+- [X] T048 Đóng lượt 1: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build`, `check-bundle` xanh; `git add` theo
   đường dẫn; commit `feat(web): documentation area with the frame and the configuration reference (spec 033)`; push khi
   CI của commit trước xanh; theo dõi CI (unit, browser, E2E ba cấu hình) tới khi xanh
 
@@ -259,57 +259,57 @@ URL, đăng nhập và thấy đúng tiêu đề.
 **Independent Test**: mở trang Files, tới "List Files", đọc tham số `fields` và ví dụ REST; mở nhóm endpoint riêng và
 thấy endpoint tạo index.
 
-- [ ] T049 [US3] Ghi vào research R7 quyết định của chủ dự án 2026-11-17 (analyze U1): phần mô tả lấy từ mô tả API
+- [X] T049 [US3] Ghi vào research R7 quyết định của chủ dự án 2026-11-17 (analyze U1): phần mô tả lấy từ mô tả API
   tĩnh được hiện nguyên văn trong tài liệu (gói nguồn `directus/packages/specs` ghi `"license": "BUSL-1.1"`). Không
   có điểm dừng. Dòng `$source` của mỗi file sinh ghi đường dẫn `libs/specs/dist/openapi.json` và tên script, không
   chứa từ bị cấm của FR-047
-- [ ] T050 [US3] Đối chiếu 133 operation của `libs/specs/dist/openapi.json` với route của các controller trong
+- [X] T050 [US3] Đối chiếu 133 operation của `libs/specs/dist/openapi.json` với route của các controller trong
   `apps/api/src/controllers/` (mục [Unverified] số 6): ghi bảng kết quả vào research R7; operation Backoffice không
   phục vụ vào danh sách loại trừ có lý do; liệt kê mọi route của năm `backoffice-*.controller.ts` kèm ai gọi được
   (admin, user đã đăng nhập, không cần đăng nhập)
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T051 [P] [US3] Viết `apps/web/scripts/sync-docs-api.test.ts`: chạy script vào thư mục tạm và so với
+- [X] T051 [P] [US3] Viết `apps/web/scripts/sync-docs-api.test.ts`: chạy script vào thư mục tạm và so với
   `docs/api/generated/` đã commit; mọi operation của `openapi.json` trừ danh sách loại trừ có trong đầu ra; mọi route
   của T050 có trong file bổ sung; `example` có từ "Directus" đứng riêng đã được thay; lệnh curl dùng
   `https://backoffice.example.com` và `<token>`
-- [ ] T052 [P] [US3] [US5] Viết `apps/web/src/docs/api/generated.test.ts`: mỗi operation có `rest`; `graphql` là chuỗi
+- [X] T052 [P] [US3] [US5] Viết `apps/web/src/docs/api/generated.test.ts`: mỗi operation có `rest`; `graphql` là chuỗi
   hoặc `false`, không thiếu; `anchor` duy nhất trong resource; mọi `$ref` trỏ tới `schemas` của chính file; operation
   dưới `/backoffice/` có `backofficeOnly` và trường ai gọi được
-- [ ] T053 [P] [US3] Viết `apps/web/src/modules/docs/components/DocsApiResource.test.ts` và `DocsEndpoint.test.ts`: danh
+- [X] T053 [P] [US3] Viết `apps/web/src/modules/docs/components/DocsApiResource.test.ts` và `DocsEndpoint.test.ts`: danh
   sách endpoint link tới anchor; endpoint là `h2`, các phần là `h3`; tham số tách query, đường dẫn và thân request;
   trả lời theo mã, cấu trúc trong `BoDetail` đóng sẵn; tab REST / GraphQL bằng `BoTabs`, `graphql: false` thì không có
   tab; endpoint không tham số, trả 204 hoặc không có trả lời mẫu thì không hiện phần trống; chip method có chữ; ghi chú
   `docs_backoffice_only`; mô tả lấy từ mô tả tĩnh có `lang="en"`; mô tả có `<script>` hoặc `onerror` bị lọc (FR-046)
-- [ ] T054 [P] [US3] Viết `tests/parity/src/docs/graphql-examples.test.ts`: đọc mọi `apps/web/src/docs/api/generated/*.json`,
+- [X] T054 [P] [US3] Viết `tests/parity/src/docs/graphql-examples.test.ts`: đọc mọi `apps/web/src/docs/api/generated/*.json`,
   lấy SDL hai scope từ `/server/specs/graphql` của Backoffice đang chạy, `parse` và `validate` từng ví dụ `graphql`
   khác `false`; 0 lỗi (`contracts/tests.md` §4)
 
 ### Implementation for User Story 3
 
-- [ ] T055 [US3] Bảo đảm `libs/specs/dist/openapi.json` có trước khi script và test của web chạy: `sync-docs-api.mjs`
+- [X] T055 [US3] Bảo đảm `libs/specs/dist/openapi.json` có trước khi script và test của web chạy: `sync-docs-api.mjs`
   gọi `pnpm --filter @backoffice/specs build` khi file chưa có (không thêm dependency workspace vào
   `apps/web/package.json`, analyze U2); xác nhận bằng một lần chạy `sync-docs-api.test.ts` sau khi xóa
   `libs/specs/dist`
-- [ ] T056 [P] [US3] Viết bảy file bổ sung OpenAPI `apps/web/src/docs/api/supplement/{policies,access,dashboards,panels,
+- [X] T056 [P] [US3] Viết bảy file bổ sung OpenAPI `apps/web/src/docs/api/supplement/{policies,access,dashboards,panels,
   notifications,translations,shares}.yaml` từ controller và service tương ứng trong `apps/api/src` (tag, path, tham
   số, trả lời, giá trị ví dụ)
-- [ ] T057 [P] [US3] Viết `apps/web/src/docs/api/supplement/backoffice.yaml` cho mọi route `/backoffice/*` của T050, mỗi
+- [X] T057 [P] [US3] Viết `apps/web/src/docs/api/supplement/backoffice.yaml` cho mọi route `/backoffice/*` của T050, mỗi
   operation ghi ai gọi được
-- [ ] T058 [US3] Viết `apps/web/scripts/sync-docs-api.mjs`: gộp `openapi.json` và file bổ sung, một resource cho mỗi
+- [X] T058 [US3] Viết `apps/web/scripts/sync-docs-api.mjs`: gộp `openapi.json` và file bổ sung, một resource cho mỗi
   tag, thay `$ref` của tham số, giữ `$ref` schema theo tên trong file, sinh curl, sinh ví dụ GraphQL theo quy tắc CRUD
   cho tag có `x-collection` và theo bảng viết tay cho operation khác (`false` khi không tương đương), danh sách loại
   trừ của T050, thay giá trị ví dụ có từ bị cấm, ghi `docs/api/generated/<resource>.json` và một file chỉ mục
   `index.json` (id, tên, `backofficeOnly`); thêm script `"sync-docs-api": "node scripts/sync-docs-api.mjs"` vào
   `apps/web/package.json` (T051 xanh)
-- [ ] T059 [US3] Chạy `pnpm --filter @backoffice/web sync-docs-api`; commit `apps/web/src/docs/api/generated/` (T052
+- [X] T059 [US3] Chạy `pnpm --filter @backoffice/web sync-docs-api`; commit `apps/web/src/docs/api/generated/` (T052
   xanh)
-- [ ] T060 [P] [US3] Viết `apps/web/src/modules/docs/components/DocsEndpoint.vue` theo recipe khối endpoint của T003
-- [ ] T061 [US3] Viết `apps/web/src/modules/docs/components/DocsApiResource.vue`; phần `api` của `nav.ts` lấy từ
+- [X] T060 [P] [US3] Viết `apps/web/src/modules/docs/components/DocsEndpoint.vue` theo recipe khối endpoint của T003
+- [X] T061 [US3] Viết `apps/web/src/modules/docs/components/DocsApiResource.vue`; phần `api` của `nav.ts` lấy từ
   `index.json` (resource xếp theo bảng chữ cái, nhóm endpoint riêng ở cuối); `DocsRoute.vue` nạp lazy file của resource
   và hiện trang loại `api` (T053 xanh)
-- [ ] T062 [US3] Thêm vào `apps/web-e2e/src/docs.spec.ts` ca "trang Files có List Files; trang endpoint riêng có endpoint
+- [X] T062 [US3] Thêm vào `apps/web-e2e/src/docs.spec.ts` ca "trang Files có List Files; trang endpoint riêng có endpoint
   index" (`proxy-directus`, `proxy-api`) và ca "từ trang mở đầu tới mục List Files chỉ bằng menu trái và mục lục trong
   không quá 4 lần bấm" (SC-002); thêm một trang resource vào `DocsRoute.browser.test.ts` (axe sáng và tối) và
   `/docs/api/files` vào `apps/web-e2e/src/a11y.spec.ts`
@@ -318,9 +318,9 @@ thấy endpoint tạo index.
 
 ## Phase 7: Đóng lượt 2
 
-- [ ] T063 Chạy `TEST_DB=postgres` test `tests/parity/src/docs/graphql-examples.test.ts` trên môi trường parity local
+- [X] T063 Chạy `TEST_DB=postgres` test `tests/parity/src/docs/graphql-examples.test.ts` trên môi trường parity local
   (T054 xanh); ví dụ sai thì sửa quy tắc hoặc bảng viết tay của `sync-docs-api.mjs`, chạy lại T059
-- [ ] T064 Kiểm `git diff --stat` của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`; `check-bundle` xanh (file
+- [X] T064 Kiểm `git diff --stat` của lượt không chạm `apps/api/src`, `libs/specs`, `libs/env`; `check-bundle` xanh (file
   API là chunk lazy); `graphify update .`; cập nhật "Trạng thái" trong `SPECKIT-GUIDE.md` và `Status` của `spec.md`
   (lượt 2)
 - [ ] T065 Đóng lượt 2: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build` xanh; commit `feat(web): API reference

@@ -1,0 +1,47 @@
+tags:
+  - name: Policies
+    description: Chính sách truy cập gom các quyền (permission) và các cờ truy cập. Một chính sách được gắn cho role hoặc cho từng user qua resource Access.
+    x-collection: directus_policies
+    x-crud:
+      path: /policies
+      id: { singular: Policy, plural: Policies }
+      noun: chính sách truy cập
+      schema: Policies
+paths:
+  /policies/me/globals:
+    get:
+      operationId: getMyPolicyGlobals
+      summary: Lấy các cờ truy cập của user hiện tại
+      description: Gộp các cờ của mọi chính sách user đang có (qua role và gắn trực tiếp).
+      tags: [Policies]
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      app_access: { type: boolean, example: true }
+                      admin_access: { type: boolean, example: false }
+                      enforce_tfa: { type: boolean, example: false }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+components:
+  schemas:
+    Policies:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 2e1f3c5d-8a51-4b4c-9a0b-0f1e2d3c4b5a }
+        name: { type: string, description: 'Tên chính sách.', example: Biên tập }
+        icon: { type: string, description: 'Icon.', example: edit }
+        description: { type: string, nullable: true, description: 'Mô tả.', example: 'Sửa nội dung, không sửa cấu hình.' }
+        ip_access: { type: array, items: { type: string }, nullable: true, description: 'Các địa chỉ hoặc dải IP được dùng chính sách này; trống là mọi địa chỉ.', example: null }
+        enforce_tfa: { type: boolean, description: 'Bắt buộc xác thực hai bước.', example: false }
+        admin_access: { type: boolean, description: 'Toàn quyền admin.', example: false }
+        app_access: { type: boolean, description: 'Được vào app web.', example: true }
+        permissions: { type: array, items: { type: integer }, description: 'Các permission của chính sách.', example: [12, 13] }
+        users: { type: array, items: { type: string }, description: 'Các bản ghi Access gắn chính sách cho user.', example: [] }
+        roles: { type: array, items: { type: string }, description: 'Các bản ghi Access gắn chính sách cho role.', example: [] }

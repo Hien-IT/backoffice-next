@@ -2,7 +2,8 @@
 // §3): the documentation area, /admin/docs. It is content of the app itself, so it opens the same in the three
 // configurations (also when the API is Directus): from the user menu, through its menu in the sidebar, by a link with an
 // anchor, and after a sign-in for someone who was not signed in. The frame is English here (the admin's language); the
-// content is Vietnamese. The API part comes with wave 2, the guides with wave 3.
+// content is Vietnamese (the API descriptions taken from the static description are English). The guides come with
+// wave 3.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, e2eConfig } from './helpers/config.js';
@@ -128,6 +129,38 @@ test.describe('proxy-api', () => {
 		await expect(row.locator('td').nth(2)).toHaveText('/');
 	});
 
+	test('API: the Files page has List Files with its examples; reached in at most 4 clicks (SC-002)', async ({ page }) => {
+		test.skip(!wide(page), 'the click count is for the inline sidebar');
+		await signIn(page);
+		await page.goto('/admin/docs');
+		await expect(title(page)).toHaveText('Bắt đầu');
+
+		// Click 1: the resource in the menu. Click 2: the endpoint in "On this page".
+		await (await menuLink(page, 'Files')).click();
+		await expect(title(page)).toHaveText('Files');
+		await page.getByRole('navigation', { name: 'On this page' }).getByRole('link', { name: 'List Files', exact: true }).click();
+
+		const card = page.locator('section[data-operation="getFiles"]');
+		await expect(card.locator('#list-files')).toBeInViewport();
+		await expect(card.locator('[data-method]')).toHaveText('GET');
+		await expect(card.locator('[data-path]')).toHaveText('/files');
+		await expect(card.getByRole('tab', { name: 'GraphQL' })).toBeVisible();
+		await card.getByRole('tab', { name: 'GraphQL' }).click();
+		await expect(card.getByRole('tabpanel')).toContainText('files(limit: 2)');
+	});
+
+	test('API: the Backoffice routes page says who may call each endpoint (FR-027)', async ({ page }) => {
+		await signIn(page);
+		await page.goto('/admin/docs/api/backoffice');
+
+		await expect(title(page)).toHaveText('Backoffice');
+		await expect(page.locator('[data-docs-backoffice-only]')).toBeVisible();
+		await expect(page.locator('section[data-operation="createIndex"] [data-access]')).toHaveText(
+			'Available only when the server is Backoffice. Admin only.',
+		);
+		await expect(page.locator('section[data-operation="getPasskeyRp"] [data-access]')).toContainText('No sign-in needed');
+	});
+
 	test('an unknown documentation page: not found in the frame, with a link home (FR-009)', async ({ page }) => {
 		await signIn(page);
 		await page.goto('/admin/docs/khong/co/trang-nay');
@@ -177,7 +210,8 @@ test.describe('proxy-api', () => {
 		await page.goto('/admin/docs');
 		await expect(title(page)).toHaveText('Bắt đầu');
 
-		const link = await menuLink(page, 'Chung');
+		// The first page of the API part: the walk does not depend on how many resources the menu lists.
+		const link = await menuLink(page, 'Access');
 		await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
 
 		for (let i = 0; i < 40 && !(await link.evaluate((el) => el === document.activeElement)); i++) {
@@ -188,7 +222,7 @@ test.describe('proxy-api', () => {
 		expect(await link.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe('none');
 		await page.keyboard.press('Enter');
 
-		await expect(page).toHaveURL(/\/admin\/docs\/configuration\/general$/);
+		await expect(page).toHaveURL(/\/admin\/docs\/api\/access$/);
 		// The focus moves to the title of the new page.
 		await expect(title(page)).toBeFocused();
 	});

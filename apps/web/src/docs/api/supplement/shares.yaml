@@ -1,0 +1,106 @@
+tags:
+  - name: Shares
+    description: Link chia sẻ một item cho người không có tài khoản, có thể có mật khẩu, thời hạn và số lần dùng. App web của Backoffice không có màn hình chia sẻ; API vẫn phục vụ.
+    x-collection: directus_shares
+    x-crud:
+      path: /shares
+      id: { singular: Share, plural: Shares }
+      noun: link chia sẻ
+      schema: Shares
+paths:
+  /shares/auth:
+    post:
+      operationId: authenticateShare
+      summary: Đăng nhập bằng một link chia sẻ
+      description: Đổi mã và mật khẩu (nếu có) của link chia sẻ lấy token có quyền đọc item được chia sẻ.
+      tags: [Shares]
+      x-access: public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [share]
+              properties:
+                share: { type: string, description: 'Mã link chia sẻ.', example: 4d3c2b1a-0f9e-4d8c-b7a6-5f4e3d2c1b0a }
+                password: { type: string, description: 'Mật khẩu của link, nếu có.', example: '<password>' }
+                mode: { type: string, enum: [json, cookie, session], description: 'Nơi nhận token.', example: json }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      access_token: { type: string, example: eyJhbGciOiJI... }
+                      expires: { type: integer, example: 900000 }
+                      refresh_token: { type: string, example: yuOJkjdPXMd... }
+  /shares/invite:
+    post:
+      operationId: inviteShare
+      summary: Gửi link chia sẻ cho người nhận
+      description: Backoffice không gửi email; thao tác chạy đủ các bước và ghi link vào log.
+      tags: [Shares]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [share, emails]
+              properties:
+                share: { type: string, description: 'Mã link chia sẻ.', example: 4d3c2b1a-0f9e-4d8c-b7a6-5f4e3d2c1b0a }
+                emails: { type: array, items: { type: string }, description: 'Email người nhận.', example: [an@example.com] }
+      responses:
+        '204': { description: 'Thành công' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /shares/info/{id}:
+    get:
+      operationId: getShareInfo
+      summary: Lấy thông tin công khai của một link chia sẻ
+      description: Tên, thời hạn và việc link có cần mật khẩu không; không cần đăng nhập.
+      tags: [Shares]
+      x-access: public
+      parameters:
+        - { name: id, in: path, required: true, description: 'Mã link chia sẻ.', schema: { type: string } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id: { type: string, example: 4d3c2b1a-0f9e-4d8c-b7a6-5f4e3d2c1b0a }
+                      collection: { type: string, example: articles }
+                      item: { type: string, example: '1' }
+                      password: { type: boolean, example: false }
+                      max_uses: { type: integer, nullable: true, example: null }
+                      times_used: { type: integer, example: 0 }
+                      date_start: { type: string, nullable: true, example: null }
+                      date_end: { type: string, nullable: true, example: null }
+components:
+  schemas:
+    Shares:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh, cũng là mã của link.', example: 4d3c2b1a-0f9e-4d8c-b7a6-5f4e3d2c1b0a }
+        name: { type: string, nullable: true, description: 'Tên link.', example: Bài cho đối tác }
+        collection: { type: string, description: 'Collection của item được chia sẻ.', example: articles }
+        item: { type: string, description: 'Khóa của item được chia sẻ.', example: '1' }
+        role: { type: string, nullable: true, description: 'Role mà người mở link dùng để đọc.', example: null }
+        password: { type: string, nullable: true, description: 'Mật khẩu (lưu dạng băm); trống là không cần mật khẩu.', example: null }
+        date_start: { type: string, format: date-time, nullable: true, description: 'Bắt đầu có hiệu lực.', example: null }
+        date_end: { type: string, format: date-time, nullable: true, description: 'Hết hiệu lực.', example: null }
+        times_used: { type: integer, description: 'Số lần đã dùng.', example: 0 }
+        max_uses: { type: integer, nullable: true, description: 'Số lần dùng tối đa; trống là không giới hạn.', example: null }
+        user_created: { type: string, description: 'User tạo.', example: 9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d }
+        date_created: { type: string, format: date-time, description: 'Lúc tạo.', example: '2026-11-17T08:00:00.000Z' }

@@ -1,0 +1,23 @@
+tags:
+  - name: Notifications
+    description: Thông báo gửi tới một user trong app (chuông ở sidebar). Backoffice không gửi email cho thông báo.
+    x-collection: directus_notifications
+    x-crud:
+      path: /notifications
+      id: { singular: Notification, plural: Notifications }
+      noun: thông báo
+      schema: Notifications
+components:
+  schemas:
+    Notifications:
+      type: object
+      properties:
+        id: { type: integer, description: 'Mã định danh.', example: 42 }
+        timestamp: { type: string, format: date-time, description: 'Lúc gửi.', example: '2026-11-17T08:00:00.000Z' }
+        status: { type: string, description: '`inbox` hoặc `archived` (đã đọc).', example: inbox }
+        recipient: { type: string, description: 'User nhận.', example: 9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d }
+        sender: { type: string, nullable: true, description: 'User gửi.', example: null }
+        subject: { type: string, description: 'Tiêu đề.', example: Báo cáo tháng đã xong }
+        message: { type: string, nullable: true, description: 'Nội dung (markdown).', example: Mở báo cáo ở module Insights. }
+        collection: { type: string, nullable: true, description: 'Collection của item liên quan.', example: articles }
+        item: { type: string, nullable: true, description: 'Khóa của item liên quan.', example: '1' }

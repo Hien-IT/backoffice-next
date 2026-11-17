@@ -1,0 +1,476 @@
+# The routes under /backoffice/ (specs 025, 029, 030, 031, 032). None of them exists at the system that shares the
+# database (it answers 404).
+tags:
+  - name: Backoffice
+    description: Các endpoint chỉ có ở Backoffice, dưới tiền tố `/backoffice/`. Hệ thống dùng chung cơ sở dữ liệu trả 404 cho các đường dẫn này. Gồm quyền import, export theo chính sách, passkey, index của collection, tải extension lên và đồng bộ môi trường.
+    x-backoffice-only: true
+    x-crud:
+      path: /backoffice/permissions
+      id: { singular: BackofficePermission, plural: BackofficePermissions }
+      noun: quyền import, export
+      schema: BackofficePermissions
+      access: authenticated
+      access-note: Theo quyền đọc, ghi của người gọi trên collection permission, như các quyền thường.
+paths:
+  /backoffice/collections/{collection}/indexes:
+    get:
+      operationId: listIndexes
+      summary: Liệt kê index của một collection
+      description: Các index do Backoffice tạo cho collection, kèm trạng thái (`creating`, `ready`, `failed`). `meta` cho biết cơ sở dữ liệu có hỗ trợ index trigram và tạo index không khóa bảng không.
+      tags: [Backoffice]
+      x-access: admin
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/BackofficeIndexes' } }
+                  meta:
+                    type: object
+                    properties:
+                      trigram: { type: boolean, example: true }
+                      concurrent: { type: boolean, example: true }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+    post:
+      operationId: createIndex
+      summary: Tạo index cho một collection
+      description: Trả 202 ngay; index được dựng nền, mặc định không khóa bảng. Theo dõi trạng thái bằng thao tác liệt kê. Thêm `?concurrentIndexCreation=false` để dựng có khóa bảng.
+      tags: [Backoffice]
+      x-access: admin
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+        - { name: concurrentIndexCreation, in: query, required: false, description: '`false` để dựng index có khóa bảng.', schema: { type: boolean } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fields]
+              properties:
+                fields: { type: array, items: { type: string }, description: 'Từ 1 tới 8 field có cột thật.', example: [status, date_created] }
+                type: { type: string, enum: [btree, trigram], description: '`trigram` cho tìm kiếm `?search=` trên Postgres, một field chuỗi.', example: btree }
+                unique: { type: boolean, description: 'Index duy nhất.', example: false }
+      responses:
+        '202':
+          description: Đã nhận, index đang được dựng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/BackofficeIndexes' }
+        '400': { description: 'Thân request sai, field không có cột hoặc kiểu không hợp' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/collections/{collection}/indexes/{name}:
+    delete:
+      operationId: deleteIndex
+      summary: Xóa một index
+      description: Xóa index ở cơ sở dữ liệu và dòng định nghĩa của nó.
+      tags: [Backoffice]
+      x-access: admin
+      parameters:
+        - { name: collection, in: path, required: true, description: 'Tên collection.', schema: { type: string } }
+        - { name: name, in: path, required: true, description: 'Tên index.', schema: { type: string } }
+      responses:
+        '204': { description: 'Thành công' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/extensions/upload:
+    get:
+      operationId: getExtensionUploadLimit
+      summary: Lấy giới hạn tải extension lên
+      description: Kích thước tối đa của gói `.tgz` (theo `FILES_MAX_UPLOAD_SIZE`); `null` là không giới hạn.
+      tags: [Backoffice]
+      x-access: admin
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      max_upload_size: { type: integer, nullable: true, example: 52428800 }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+    post:
+      operationId: uploadExtension
+      summary: Cài extension từ gói tải lên
+      description: Nhận một gói `npm pack` (`.tgz`) dạng multipart, kiểm tên, loại và chế độ sandbox của `MARKETPLACE_TRUST`, rồi cài như một extension nguồn `upload`.
+      tags: [Backoffice]
+      x-access: admin
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: 'Gói `.tgz`.' }
+      responses:
+        '200':
+          description: Đã cài
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id: { type: string, example: 6b5a4c3d-2e1f-4a0b-9c8d-7e6f5a4b3c2d }
+                      name: { type: string, example: my-extension }
+        '400': { description: 'Gói sai dạng, trùng tên, không chạy trong sandbox hoặc vượt `EXTENSIONS_LIMIT`' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/auth/passkey:
+    get:
+      operationId: getPasskeyRp
+      summary: Kiểm tra passkey có bật không
+      description: Trả RP ID của máy chủ. 404 khi `PUBLIC_URL` không phải URL tuyệt đối có tên miền (passkey tắt).
+      tags: [Backoffice]
+      x-access: public
+      responses:
+        '200':
+          description: Passkey đang bật
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      rp_id: { type: string, example: backoffice.example.com }
+        '404': { description: 'Passkey tắt' }
+  /backoffice/auth/passkey/login/options:
+    post:
+      operationId: passkeyLoginOptions
+      summary: Bắt đầu đăng nhập bằng passkey
+      description: Trả tùy chọn WebAuthn (challenge dùng một lần, hết hạn sau 5 phút) để trình duyệt hỏi passkey.
+      tags: [Backoffice]
+      x-access: public
+      responses:
+        '200':
+          description: Tùy chọn WebAuthn
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: object, example: { challenge: '<challenge>', rpId: backoffice.example.com, allowCredentials: [] } }
+  /backoffice/auth/passkey/login:
+    post:
+      operationId: passkeyLogin
+      summary: Đăng nhập bằng passkey
+      description: Gửi trả lời của trình duyệt cho challenge; trả token như đăng nhập bằng mật khẩu, theo `mode`.
+      tags: [Backoffice]
+      x-access: public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response]
+              properties:
+                response: { type: object, description: 'Trả lời WebAuthn của trình duyệt (`id`, `response`).', example: { id: '<credential-id>', response: {} } }
+                mode: { type: string, enum: [json, cookie, session], description: 'Nơi nhận token.', example: session }
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      expires: { type: integer, example: 900000 }
+        '401': { description: 'Passkey không hợp lệ hoặc user không đăng nhập được' }
+  /backoffice/users/me/passkeys:
+    get:
+      operationId: listMyPasskeys
+      summary: Liệt kê passkey của user hiện tại
+      description: Không trả khóa công khai hay mã của thiết bị.
+      tags: [Backoffice]
+      x-access: authenticated
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/BackofficePasskeys' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+    post:
+      operationId: registerPasskey
+      summary: Lưu một passkey mới
+      description: Gửi trả lời của trình duyệt cho tùy chọn đăng ký cùng tên passkey. Tối đa 10 passkey mỗi user.
+      tags: [Backoffice]
+      x-access: authenticated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response, name]
+              properties:
+                response: { type: object, description: 'Trả lời WebAuthn của trình duyệt.', example: { id: '<credential-id>', response: {} } }
+                name: { type: string, description: 'Tên passkey, 1 tới 100 ký tự.', example: Máy làm việc }
+      responses:
+        '200':
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/BackofficePasskeys' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/users/me/passkeys/options:
+    post:
+      operationId: passkeyRegistrationOptions
+      summary: Bắt đầu thêm passkey
+      description: Cần mật khẩu hiện tại của user; trả tùy chọn WebAuthn để trình duyệt tạo passkey.
+      tags: [Backoffice]
+      x-access: authenticated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string, description: 'Mật khẩu hiện tại.', example: '<password>' }
+      responses:
+        '200':
+          description: Tùy chọn WebAuthn
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: object, example: { challenge: '<challenge>', rp: { id: backoffice.example.com } } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/users/me/passkeys/{id}:
+    patch:
+      operationId: renamePasskey
+      summary: Đổi tên một passkey
+      tags: [Backoffice]
+      x-access: authenticated
+      parameters:
+        - { name: id, in: path, required: true, description: 'Mã passkey.', schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: 'Tên mới, 1 tới 100 ký tự.', example: Điện thoại }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/BackofficePasskeys' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+    delete:
+      operationId: deleteMyPasskey
+      summary: Xóa một passkey của user hiện tại
+      tags: [Backoffice]
+      x-access: authenticated
+      parameters:
+        - { name: id, in: path, required: true, description: 'Mã passkey.', schema: { type: string } }
+      responses:
+        '204': { description: 'Thành công' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/users/{user}/passkeys:
+    get:
+      operationId: listUserPasskeys
+      summary: Liệt kê passkey của một user
+      tags: [Backoffice]
+      x-access: admin
+      parameters:
+        - { name: user, in: path, required: true, description: 'Mã user.', schema: { type: string } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/BackofficePasskeys' } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/users/{user}/passkeys/{id}:
+    delete:
+      operationId: deleteUserPasskey
+      summary: Xóa một passkey của một user
+      description: Dùng khi user mất thiết bị; admin không thêm hay đổi tên passkey của người khác.
+      tags: [Backoffice]
+      x-access: admin
+      parameters:
+        - { name: user, in: path, required: true, description: 'Mã user.', schema: { type: string } }
+        - { name: id, in: path, required: true, description: 'Mã passkey.', schema: { type: string } }
+      responses:
+        '204': { description: 'Thành công' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/sync:
+    get:
+      operationId: getSyncInfo
+      summary: Lấy thông tin phiên bản để đồng bộ
+      description: Phiên bản Backoffice, phiên bản tương thích, loại cơ sở dữ liệu và các migration đã chạy. Hai môi trường chỉ đồng bộ được khi các giá trị này khớp.
+      tags: [Backoffice]
+      x-access: admin
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      backoffice: { type: string, example: 1.0.0 }
+                      directus: { type: string, example: 11.17.4 }
+                      vendor: { type: string, example: postgres }
+                      migrations: { type: object, example: { directus: ['20201028A'], backoffice: ['20261026A'] } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/sync/state:
+    get:
+      operationId: getSyncState
+      summary: Đọc trạng thái cấu hình
+      description: Cấu hình của các nhóm được chọn (data model, flow, quyền, settings...). Môi trường đích gọi thao tác này ở môi trường nguồn khi so sánh.
+      tags: [Backoffice]
+      x-access: admin
+      parameters:
+        - { name: groups, in: query, required: false, description: 'Các nhóm cần đọc, cách nhau bằng dấu phẩy; trống là mọi nhóm.', schema: { type: string } }
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: object, example: { info: { backoffice: 1.0.0 }, state: {} } }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/sync/diff:
+    post:
+      operationId: diffSync
+      summary: So sánh cấu hình với một môi trường nguồn
+      description: Máy chủ gọi môi trường nguồn bằng URL và static token admin trong thân request (không lưu lại), so từng dòng cấu hình và trả trạng thái của mỗi dòng cùng một mã hash của lần so sánh.
+      tags: [Backoffice]
+      x-access: admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, token]
+              properties:
+                url: { type: string, description: 'URL của môi trường nguồn.', example: 'https://staging.example.com' }
+                token: { type: string, description: 'Static token của một admin ở nguồn.', example: '<token>' }
+                groups: { type: array, items: { type: string }, description: 'Các nhóm cần so; trống là mọi nhóm.', example: [flows, access] }
+      responses:
+        '200':
+          description: Kết quả so sánh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      hash: { type: string, example: 3f9a1c... }
+                      groups: { type: array, items: { type: string }, example: [flows, access] }
+                      rows: { type: array, items: { type: object }, example: [{ id: 'flows/flow:Nightly', state: source_only, selectable: true }] }
+        '400': { description: 'URL bị chặn, nguồn không trả lời, phiên bản hoặc migration khác nhau' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+  /backoffice/sync/apply:
+    post:
+      operationId: applySync
+      summary: Áp dụng các dòng đã chọn
+      description: So sánh lại dưới khóa, từ chối khi một bên đã đổi (hash khác), rồi ghi các dòng đã chọn trong một transaction. Lỗi giữa chừng thì không dòng nào được ghi.
+      tags: [Backoffice]
+      x-access: admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, token, hash, selected]
+              properties:
+                url: { type: string, description: 'URL của môi trường nguồn.', example: 'https://staging.example.com' }
+                token: { type: string, description: 'Static token của một admin ở nguồn.', example: '<token>' }
+                hash: { type: string, description: 'Mã hash của lần so sánh.', example: 3f9a1c... }
+                selected: { type: array, items: { type: string }, description: 'Mã các dòng cần áp dụng.', example: ['flows/flow:Nightly'] }
+      responses:
+        '200':
+          description: Kết quả áp dụng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: object, example: { created: 1, updated: 0, deleted: 0 } }
+        '400': { description: 'So sánh đã cũ, phụ thuộc thiếu, hoặc thao tác làm mất quyền admin của người gọi' }
+        '401': { $ref: '#/components/responses/UnauthorizedError' }
+        '503': { description: 'Một lượt áp dụng khác đang chạy' }
+components:
+  schemas:
+    BackofficePermissions:
+      type: object
+      properties:
+        id: { type: integer, description: 'Mã định danh.', example: 7 }
+        policy: { type: string, description: 'Chính sách truy cập.', example: 2e1f3c5d-8a51-4b4c-9a0b-0f1e2d3c4b5a }
+        collection: { type: string, description: 'Collection.', example: articles }
+        action: { type: string, description: '`import` hoặc `export`.', example: export }
+        permissions: { type: object, nullable: true, description: 'Bộ lọc dòng được import hoặc export.', example: { status: { _eq: published } } }
+        fields: { type: array, items: { type: string }, nullable: true, description: 'Các field được import hoặc export.', example: ['*'] }
+        options: { type: object, nullable: true, description: 'Tùy chọn, ví dụ các định dạng file được phép.', example: { formats: [csv, json] } }
+    BackofficeIndexes:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d }
+        collection: { type: string, description: 'Collection.', example: articles }
+        name: { type: string, description: 'Tên index ở cơ sở dữ liệu.', example: articles_status_date_created_index }
+        fields: { type: array, items: { type: string }, description: 'Các field của index.', example: [status, date_created] }
+        type: { type: string, description: '`btree` hoặc `trigram`.', example: btree }
+        unique: { type: boolean, description: 'Index duy nhất.', example: false }
+        status: { type: string, description: '`creating`, `ready` hoặc `failed`.', example: ready }
+        error: { type: string, nullable: true, description: 'Lỗi khi dựng index.', example: null }
+        missing: { type: boolean, nullable: true, description: 'Dòng `ready` mà index không còn ở cơ sở dữ liệu.', example: false }
+    BackofficePasskeys:
+      type: object
+      properties:
+        id: { type: string, format: uuid, description: 'Mã định danh.', example: 1f2e3d4c-5b6a-4987-a6b5-c4d3e2f1a0b9 }
+        name: { type: string, description: 'Tên passkey.', example: Máy làm việc }
+        date_created: { type: string, format: date-time, nullable: true, description: 'Lúc thêm.', example: '2026-11-17T08:00:00.000Z' }
+        last_used: { type: string, format: date-time, nullable: true, description: 'Lần đăng nhập gần nhất.', example: null }
+        device_type: { type: string, nullable: true, description: '`singleDevice` hoặc `multiDevice`.', example: multiDevice }
+        backed_up: { type: boolean, description: 'Passkey được đồng bộ sang thiết bị khác.', example: true }
+        transports: { type: array, items: { type: string }, nullable: true, description: 'Cách trình duyệt nói chuyện với thiết bị.', example: [internal, hybrid] }

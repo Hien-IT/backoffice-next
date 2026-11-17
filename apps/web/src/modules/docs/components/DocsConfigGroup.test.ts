@@ -13,7 +13,12 @@ const TABLES: ConfigTable[] = [
 		note: 'Đọc khi khởi động; xem `CONFIG_PATH`.',
 		rows: [
 			{ name: 'PORT', pattern: 'PORT', description: 'Cổng API lắng nghe. Số nguyên.' },
-			{ name: 'SECRET', pattern: 'SECRET', description: 'Chuỗi bí mật <script>alert(1)</script>.', note: 'Phải trùng ở mọi instance.' },
+			{
+				name: 'SECRET',
+				pattern: 'SECRET',
+				description: 'Chuỗi bí mật <script>alert(1)</script>.',
+				note: 'Phải trùng ở mọi instance.',
+			},
 		],
 	},
 	{ title: 'Kết nối', rows: [{ name: 'DB_*', pattern: 'DB_.+', description: 'Kết nối: `DB_CLIENT`, `DB_HOST`.' }] },
@@ -48,7 +53,12 @@ test('each table is a second-level heading with its anchor, in a labelled scroll
 test('three columns with scoped header cells; the default comes from the generated list', () => {
 	const wrapper = group();
 
-	expect(wrapper.findAll('thead')[0]!.findAll('th').map((th) => [th.text(), th.attributes('scope')])).toEqual([
+	expect(
+		wrapper
+			.findAll('thead')[0]!
+			.findAll('th')
+			.map((th) => [th.text(), th.attributes('scope')]),
+	).toEqual([
 		['Variable', 'col'],
 		['Description', 'col'],
 		['Default', 'col'],
@@ -66,7 +76,9 @@ test('descriptions are text: backticks become code, markup never becomes an elem
 	const wrapper = group();
 
 	expect(wrapper.find('script').exists()).toBe(false);
-	expect(wrapper.findAll('tbody')[0]!.findAll('tr')[1]!.findAll('td')[1]!.text()).toContain('<script>alert(1)</script>');
+	expect(wrapper.findAll('tbody')[0]!.findAll('tr')[1]!.findAll('td')[1]!.text()).toContain(
+		'<script>alert(1)</script>',
+	);
 	expect(
 		wrapper
 			.findAll('tbody')[1]!
