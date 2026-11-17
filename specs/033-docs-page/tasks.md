@@ -447,7 +447,7 @@ một link nội bộ thành sai và thấy test đỏ.
 - [X] T103 Biến của từng nhóm trong trang Cấu hình: `ConfigMember`, `members` của `supported.generated.json`,
   `DocsConfigDefault.vue`, dòng thụt vào trong `DocsConfigGroup.vue`, dữ liệu ở `variables.ts` và `variables.en.ts`,
   test trong `variables.test.ts` và `DocsConfigGroup.test.ts`
-- [ ] T102 Commit `feat(web): English documentation content (spec 033 amendment)`; push khi CI trước xanh; theo dõi CI
+- [X] T102 Commit `feat(web): English documentation content (spec 033 amendment)`; push khi CI trước xanh; theo dõi CI
 
 ## Dependencies & Execution Order
 

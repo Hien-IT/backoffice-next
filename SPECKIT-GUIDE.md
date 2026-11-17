@@ -3168,7 +3168,8 @@ lại `vi-VN`; `isVisible({ timeout })` của Playwright không chờ. Lượt 3
 sửa hai test E2E cũ); CI xanh 44112716532. Feature 033 đóng.
 Sửa đổi 2026-11-18 (chủ dự án): thêm bản tiếng Anh, chọn theo ngôn ngữ của app (vi-VN → tiếng Việt, còn lại → tiếng
 Anh), dịch toàn bộ (hướng dẫn, menu, biến cấu hình, phần bổ sung API qua `supplement/en.json`), 24 ảnh tiếng Anh chụp
-bằng `DOCS_LANG=en`; spec 033 Phase 10 (T096–T102).
+bằng `DOCS_LANG=en`; spec 033 Phase 10 (T096–T103): `00db302a`, CI xanh 44158240153. Cùng ngày trang Cấu hình hiện
+từng biến của mỗi nhóm (`DB_*`, `RATE_LIMITER_*`...) với mặc định lấy từ API: `cf23ebf0`, CI xanh 44183639114.
 Thư mục: `specs/033-docs-page/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng, không cột, không migration, không endpoint mới. Khác biệt giao diện ghi theo
 Nguyên tắc X từ D-215 (D-214.1 là số cuối đã dùng). Bố cục trang docs là câu hỏi design-system kế tiếp, Q-50 (`docs`,

@@ -582,6 +582,8 @@ Hệ quả của câu 1 và câu 5 so với đề xuất ban đầu: không có 
   cho mỗi biến, với mô tả và mặc định riêng; mặc định lấy từ `DEFAULTS` của API qua `members` của
   `supported.generated.json`; tên mỗi biến đã đối chiếu với code đọc nó; tùy chọn chuyển thẳng cho thư viện ghi dạng
   `<OPTION>`. Sửa luôn tên sai `HASH_LENGTH` thành `HASH_HASH_LENGTH` (tùy chọn `hashLength` của argon2).
+- Lên `main`: bản tiếng Anh `00db302a` (CI xanh 44158240153 ở `864cbeb8`, sau hai bản sửa CI của D-216 `66652490`,
+  `864cbeb8`); biến của từng nhóm `cf23ebf0` (CI xanh 44183639114).
 
 ## Assumptions
 
