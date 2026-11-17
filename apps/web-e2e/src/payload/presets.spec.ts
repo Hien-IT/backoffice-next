@@ -99,6 +99,10 @@ function withoutCamera<T>(writes: readonly T[]): T[] {
 		delete (copy as { body?: { layout_options?: { map?: Record<string, unknown> } } }).body?.layout_options?.map?.[
 			'cameraOptions'
 		];
+		// `page: 1` is the map default that useItems writes once the map data loads (as DR); it lands before or after the
+		// last step depending on timing (CI 44063771232), so it is dropped like the camera.
+		const mapQuery = (copy as { body?: { layout_query?: { map?: Record<string, unknown> } } }).body?.layout_query?.map;
+		if (mapQuery?.['page'] === 1) delete mapQuery['page'];
 		// Key order differs between writes (the camera comes first or last): compare deeply, not as JSON text.
 		if (!isDeepStrictEqual(copy, result.at(-1))) result.push(copy);
 	}
