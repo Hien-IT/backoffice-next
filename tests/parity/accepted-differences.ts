@@ -719,4 +719,12 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'The Settings page of the environment sync is in the Backoffice app only, hidden when the API is Directus (probe GET /backoffice/sync 404); E2E settings-sync.spec.ts in the three configurations.',
 	},
+	// Spec 033 (D-215): the documentation area of the app.
+	{
+		id: 'D-215',
+		feature: '033',
+		kind: 'doc',
+		reason:
+			'The documentation area /admin/docs (guides, API reference, configuration) and its "Documentation" item in the user menu exist in the Backoffice app only; the content is static, so it opens the same when the API is Directus. No API change; E2E docs.spec.ts in the three configurations.',
+	},
 ];

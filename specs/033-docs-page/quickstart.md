@@ -47,14 +47,20 @@ Quy tắc chữ:
 Chạy bằng tay trên máy có trình duyệt Playwright; CI không chụp.
 
 1. Cài trình duyệt một lần: `pnpm --filter @backoffice/web-e2e exec playwright install chromium`.
-2. Dựng môi trường `web` của parity như khi chạy E2E (xem `tests/parity/README.md`).
-3. `DOCS_SHOTS=1 E2E_CONFIG=proxy-api pnpm --filter @backoffice/web-e2e docs:shots`.
-4. Xem `git status`: chỉ ảnh của màn hình đã đổi mới khác. Rà từng ảnh mới: không dữ liệu thật, không từ thương hiệu
-   bị cấm.
+2. Chạy một API Backoffice (đích, có extension `parity-panel-counter` trong `EXTENSIONS_PATH`) và app web trỏ vào nó,
+   cộng một API Backoffice thứ hai làm nguồn cho ảnh Đồng bộ môi trường (`IMPORT_IP_DENY_LIST` của API đích không chặn
+   địa chỉ của nguồn). Môi trường `web` của parity cũng dùng được.
+3. `DOCS_SYNC_SOURCE_URL=<url nguồn> DOCS_SYNC_SOURCE_TOKEN=<static token admin của nguồn> E2E_CONFIG=<cấu hình>
+   BASE_URL=<url app web> pnpm --filter @backoffice/web-e2e docs:shots` (script đặt `DOCS_SHOTS=1`; không có token thì
+   ảnh Đồng bộ môi trường bị bỏ qua). Dữ liệu mẫu (`docs-shots/seed.ts`) được tạo một lần, chạy lại không tạo thêm.
+4. Mỗi ảnh là một `toHaveScreenshot` so với file đã commit (`updateSnapshots: 'changed'`): ảnh chỉ được ghi lại khi màn
+   hình khác (ngưỡng mặc định của Playwright, nhiễu khử răng cưa không tính). Xem `git status`: chỉ ảnh của màn hình đã
+   đổi mới khác. Muốn ghi lại tất cả: thêm `--update-snapshots=all`. Rà từng ảnh mới: không dữ liệu thật, không token,
+   không từ thương hiệu bị cấm.
 5. Commit ảnh cùng thay đổi giao diện.
 
-Thêm một ảnh mới: thêm một bước `shot('<slug>-<n>')` vào `apps/web-e2e/src/docs-shots/<slug>.shots.ts`, che vùng có
-ngày giờ hoặc id bằng `mask`.
+Thêm một ảnh mới: thêm một bước `shot(page, '<slug>-<n>', { mask })` vào `apps/web-e2e/src/docs-shots/<slug>.shots.ts`,
+che vùng có ngày giờ, id hay URL bằng `mask`; ảnh chưa có được ghi ở lần chạy đầu.
 
 ## Kiểm tra trước khi commit
 

@@ -68,6 +68,7 @@ const PRIVATE = [
 	// Spec 033 (FR-043, SC-009): the documentation area, a Markdown page and a variables page.
 	'/admin/docs',
 	'/admin/docs/configuration/security',
+	'/admin/docs/guides/files',
 	// Spec 033 T062: an API page.
 	'/admin/docs/api/files',
 ];

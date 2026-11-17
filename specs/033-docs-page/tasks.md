@@ -339,73 +339,73 @@ một link nội bộ thành sai và thấy test đỏ.
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T066 [P] [US5] Viết `apps/web/src/docs/content.test.ts` theo `contracts/tests.md` §1: link `/docs/...` trỏ tới
+- [X] T066 [P] [US5] Viết `apps/web/src/docs/content.test.ts` theo `contracts/tests.md` §1: link `/docs/...` trỏ tới
   trang có trong `nav.ts`; anchor của link có trong trang đích; ảnh được nhắc tới tồn tại, có alt không rỗng và không
   là tên file; mọi ảnh trong thư mục được dùng; mỗi ảnh ≤ 300 KB, tổng ≤ 8 MB; mỗi trang hướng dẫn có ít nhất một ảnh
   và một danh sách đánh số; trang của FR-017 có `backofficeOnly`
-- [ ] T067 [P] [US4] Sửa `apps/web/src/docs/nav.test.ts`: phần `guides` có đúng 17 trang của FR-016 và FR-017, chia hai
+- [X] T067 [P] [US4] Sửa `apps/web/src/docs/nav.test.ts`: phần `guides` có đúng 17 trang của FR-016 và FR-017, chia hai
   nhóm "Module" (9) và "Tính năng riêng" (8)
 
 ### Implementation: công cụ chụp
 
-- [ ] T068 [US4] Sửa `apps/web-e2e/playwright.config.ts`: khi `DOCS_SHOTS=1` chỉ có project `docs-shots` (chromium
+- [X] T068 [US4] Sửa `apps/web-e2e/playwright.config.ts`: khi `DOCS_SHOTS=1` chỉ có project `docs-shots` (chromium
   1280×800, `deviceScaleFactor: 1`, `colorScheme: 'light'`, `testMatch: 'docs-shots/*.shots.ts'`); khi không đặt thì
   các project hiện có không chạy file `.shots.ts`. Thêm script `"docs:shots": "playwright test --config
   playwright.config.ts"` vào `apps/web-e2e/package.json`
-- [ ] T069 [US4] Viết `apps/web-e2e/src/docs-shots/shot.ts`: helper `shot(page, name, { mask })` ghi
+- [X] T069 [US4] Viết `apps/web-e2e/src/docs-shots/shot.ts`: helper `shot(page, name, { mask })` ghi
   `apps/web/src/docs/content/images/<name>.png` với `animations: 'disabled'`, `caret: 'hide'`; fixture đăng nhập bằng
   user có ngôn ngữ vi-VN, `page.clock.install` với giờ cố định; che token, mã QR, URL và token của trang đồng bộ
   (FR-037)
-- [ ] T070 [US4] Dựng ở máy local môi trường `web` của parity và profile `sync` (nguồn `backoffice-api-sync` cho ảnh
+- [X] T070 [US4] Dựng ở máy local môi trường `web` của parity và profile `sync` (nguồn `backoffice-api-sync` cho ảnh
   của trang đồng bộ môi trường, như `apps/web-e2e/src/settings-sync.spec.ts`). **Nếu T005a không cài được trình
   duyệt hoặc môi trường không chạy được: dừng và báo chủ dự án** (clarify câu 3: ảnh chụp tay trên máy có trình
   duyệt)
 
 ### Implementation: 9 trang module (mỗi task: kịch bản chụp + trang markdown theo FR-018, FR-018a, FR-020)
 
-- [ ] T071 [P] [US4] Content: `apps/web-e2e/src/docs-shots/content.shots.ts`, `apps/web/src/docs/content/guides/content.md`
-- [ ] T072 [P] [US4] Files: `apps/web-e2e/src/docs-shots/files.shots.ts`, `apps/web/src/docs/content/guides/files.md`
-- [ ] T073 [P] [US4] Users: `apps/web-e2e/src/docs-shots/users.shots.ts`, `apps/web/src/docs/content/guides/users.md`
-- [ ] T074 [P] [US4] Insights: `apps/web-e2e/src/docs-shots/insights.shots.ts`,
+- [X] T071 [P] [US4] Content: `apps/web-e2e/src/docs-shots/content.shots.ts`, `apps/web/src/docs/content/guides/content.md`
+- [X] T072 [P] [US4] Files: `apps/web-e2e/src/docs-shots/files.shots.ts`, `apps/web/src/docs/content/guides/files.md`
+- [X] T073 [P] [US4] Users: `apps/web-e2e/src/docs-shots/users.shots.ts`, `apps/web/src/docs/content/guides/users.md`
+- [X] T074 [P] [US4] Insights: `apps/web-e2e/src/docs-shots/insights.shots.ts`,
   `apps/web/src/docs/content/guides/insights.md`
-- [ ] T075 [P] [US4] Activity và Notifications: `apps/web-e2e/src/docs-shots/activity.shots.ts`,
+- [X] T075 [P] [US4] Activity và Notifications: `apps/web-e2e/src/docs-shots/activity.shots.ts`,
   `apps/web/src/docs/content/guides/activity-notifications.md`
-- [ ] T076 [P] [US4] Data Model: `apps/web-e2e/src/docs-shots/data-model.shots.ts`,
+- [X] T076 [P] [US4] Data Model: `apps/web-e2e/src/docs-shots/data-model.shots.ts`,
   `apps/web/src/docs/content/guides/data-model.md`
-- [ ] T077 [P] [US4] Roles và Policies: `apps/web-e2e/src/docs-shots/roles-policies.shots.ts`,
+- [X] T077 [P] [US4] Roles và Policies: `apps/web-e2e/src/docs-shots/roles-policies.shots.ts`,
   `apps/web/src/docs/content/guides/roles-policies.md`
-- [ ] T078 [P] [US4] Flows: `apps/web-e2e/src/docs-shots/flows.shots.ts`, `apps/web/src/docs/content/guides/flows.md`
-- [ ] T079 [P] [US4] Extensions: `apps/web-e2e/src/docs-shots/extensions.shots.ts`,
+- [X] T078 [P] [US4] Flows: `apps/web-e2e/src/docs-shots/flows.shots.ts`, `apps/web/src/docs/content/guides/flows.md`
+- [X] T079 [P] [US4] Extensions: `apps/web-e2e/src/docs-shots/extensions.shots.ts`,
   `apps/web/src/docs/content/guides/extensions.md`
 
 ### Implementation: 8 trang tính năng riêng (nội dung lấy từ User Stories và quickstart của spec tương ứng, viết lại cho người dùng)
 
-- [ ] T080 [P] [US4] Ẩn hiện tìm kiếm, import, export theo collection (spec 022, 024):
+- [X] T080 [P] [US4] Ẩn hiện tìm kiếm, import, export theo collection (spec 022, 024):
   `apps/web-e2e/src/docs-shots/collection-toggles.shots.ts`, `apps/web/src/docs/content/guides/collection-toggles.md`
-- [ ] T081 [P] [US4] Filter theo path json (spec 023): `apps/web-e2e/src/docs-shots/json-path-filter.shots.ts`,
+- [X] T081 [P] [US4] Filter theo path json (spec 023): `apps/web-e2e/src/docs-shots/json-path-filter.shots.ts`,
   `apps/web/src/docs/content/guides/json-path-filter.md`
-- [ ] T082 [P] [US4] Quyền import, export theo policy (spec 025):
+- [X] T082 [P] [US4] Quyền import, export theo policy (spec 025):
   `apps/web-e2e/src/docs-shots/import-export-permissions.shots.ts`,
   `apps/web/src/docs/content/guides/import-export-permissions.md`
-- [ ] T083 [P] [US4] Filter so sánh hai field (spec 028): `apps/web-e2e/src/docs-shots/field-compare-filter.shots.ts`,
+- [X] T083 [P] [US4] Filter so sánh hai field (spec 028): `apps/web-e2e/src/docs-shots/field-compare-filter.shots.ts`,
   `apps/web/src/docs/content/guides/field-compare-filter.md`
-- [ ] T084 [P] [US4] Passkey (spec 029; chụp trên replica `backoffice-api-passkey` với virtual authenticator, nêu điều
+- [X] T084 [P] [US4] Passkey (spec 029; chụp trên replica `backoffice-api-passkey` với virtual authenticator, nêu điều
   kiện `PUBLIC_URL`): `apps/web-e2e/src/docs-shots/passkey.shots.ts`, `apps/web/src/docs/content/guides/passkey.md`
-- [ ] T085 [P] [US4] Index (spec 030): `apps/web-e2e/src/docs-shots/collection-indexes.shots.ts`,
+- [X] T085 [P] [US4] Index (spec 030): `apps/web-e2e/src/docs-shots/collection-indexes.shots.ts`,
   `apps/web/src/docs/content/guides/collection-indexes.md`
-- [ ] T086 [P] [US4] Tải extension lên (spec 031): `apps/web-e2e/src/docs-shots/extension-upload.shots.ts`,
+- [X] T086 [P] [US4] Tải extension lên (spec 031): `apps/web-e2e/src/docs-shots/extension-upload.shots.ts`,
   `apps/web/src/docs/content/guides/extension-upload.md`
-- [ ] T087 [P] [US4] Đồng bộ môi trường (spec 032; nguồn là `backoffice-api-sync` của profile `sync`; URL và token trong ảnh là giá trị giả hoặc được che):
+- [X] T087 [P] [US4] Đồng bộ môi trường (spec 032; nguồn là `backoffice-api-sync` của profile `sync`; URL và token trong ảnh là giá trị giả hoặc được che):
   `apps/web-e2e/src/docs-shots/environment-sync.shots.ts`, `apps/web/src/docs/content/guides/environment-sync.md`
 
 ### Ghép và kiểm
 
-- [ ] T088 [US4] Thêm 17 trang vào phần `guides` của `apps/web/src/docs/nav.ts` (hai nhóm; 8 trang tính năng riêng có
+- [X] T088 [US4] Thêm 17 trang vào phần `guides` của `apps/web/src/docs/nav.ts` (hai nhóm; 8 trang tính năng riêng có
   `backofficeOnly: true`) (T067 xanh)
-- [ ] T089 [US4] Chạy `DOCS_SHOTS=1 E2E_CONFIG=proxy-api pnpm --filter @backoffice/web-e2e docs:shots`; rà từng ảnh
+- [X] T089 [US4] Chạy `DOCS_SHOTS=1 E2E_CONFIG=proxy-api pnpm --filter @backoffice/web-e2e docs:shots`; rà từng ảnh
   (không dữ liệu thật, không token, không từ "Directus" đứng riêng); chạy lần hai và kiểm `git status` không báo ảnh
   nào đổi (SC-010), ghi kết quả vào `spec.md`; commit `apps/web/src/docs/content/images/` (T066 xanh)
-- [ ] T090 [US4] Thêm vào `apps/web-e2e/src/docs.spec.ts` một ca mở trang hướng dẫn Files và thấy ảnh đã tải, không có vi phạm CSP trong console (`proxy-api`); thêm một
+- [X] T090 [US4] Thêm vào `apps/web-e2e/src/docs.spec.ts` một ca mở trang hướng dẫn Files và thấy ảnh đã tải, không có vi phạm CSP trong console (`proxy-api`); thêm một
   trang hướng dẫn vào `DocsRoute.browser.test.ts` (ảnh, bảng, code, ô ghi chú; axe sáng và tối) và vào
   `apps/web-e2e/src/a11y.spec.ts`
 
@@ -413,14 +413,14 @@ một link nội bộ thành sai và thấy test đỏ.
 
 ## Phase 9: Polish + đóng lượt 3
 
-- [ ] T091 [P] Thêm entry `doc` cho D-215 vào `tests/parity/accepted-differences.ts` (feature `033`, không `removeAt`);
+- [X] T091 [P] Thêm entry `doc` cho D-215 vào `tests/parity/accepted-differences.ts` (feature `033`, không `removeAt`);
   `tests/parity/src/accepted-differences.test.ts` xanh
-- [ ] T092 [P] Rà link chéo FR-020 ở 17 trang (mỗi chỗ nhắc endpoint hoặc biến có link), rà phạm vi tối thiểu của
+- [X] T092 [P] Rà link chéo FR-020 ở 17 trang (mỗi chỗ nhắc endpoint hoặc biến có link), rà phạm vi tối thiểu của
   từng trang theo FR-018a và rà nội dung theo FR-045 (tự viết); chạy `design-system/qa/handoff-checklist.md` cho khu tài liệu lần cuối; ghi kết quả vào research "Kết quả lượt
   3"
-- [ ] T093 [P] Sửa `specs/033-docs-page/quickstart.md` cho khớp tên lệnh và đường dẫn thật; thêm ghi chú "(033: ...)" vào
+- [X] T093 [P] Sửa `specs/033-docs-page/quickstart.md` cho khớp tên lệnh và đường dẫn thật; thêm ghi chú "(033: ...)" vào
   `specs/012-backoffice-web-shell/spec.md` ở chỗ nói sáu module nội bộ và menu người dùng
-- [ ] T094 Cập nhật `CLAUDE.md` (dòng 033 của Active Technologies thành "implemented"; một mục Recent Changes),
+- [X] T094 Cập nhật `CLAUDE.md` (dòng 033 của Active Technologies thành "implemented"; một mục Recent Changes),
   `SPECKIT-GUIDE.md` (dòng "Trạng thái" của 033; mục 2 thêm việc "feature sau 033 cập nhật trang tài liệu của mình"),
   `specs/033-docs-page/spec.md` (`Status: Done`, kết quả SC-007, SC-010); `graphify update .`
 - [ ] T095 Đóng lượt 3: `nx run web:lint`, `pnpm --filter @backoffice/web typecheck`, `nx run web:test`, `nx run web:build`, `check-bundle` xanh;

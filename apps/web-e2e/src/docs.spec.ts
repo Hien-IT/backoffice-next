@@ -2,8 +2,7 @@
 // §3): the documentation area, /admin/docs. It is content of the app itself, so it opens the same in the three
 // configurations (also when the API is Directus): from the user menu, through its menu in the sidebar, by a link with an
 // anchor, and after a sign-in for someone who was not signed in. The frame is English here (the admin's language); the
-// content is Vietnamese (the API descriptions taken from the static description are English). The guides come with
-// wave 3.
+// content is Vietnamese (the API descriptions taken from the static description are English).
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, e2eConfig } from './helpers/config.js';
@@ -159,6 +158,37 @@ test.describe('proxy-api', () => {
 			'Available only when the server is Backoffice. Admin only.',
 		);
 		await expect(page.locator('section[data-operation="getPasskeyRp"] [data-access]')).toContainText('No sign-in needed');
+	});
+
+	test('the Files guide: steps, screenshots loaded, a link to the API, no CSP violation (FR-018, FR-034)', async ({
+		page,
+	}) => {
+		const csp: string[] = [];
+		page.on('console', (message) => {
+			if (/Content Security Policy/i.test(message.text())) csp.push(message.text());
+		});
+
+		await signIn(page);
+		await page.goto('/admin/docs');
+		await expect(title(page)).toHaveText('Bắt đầu');
+		await (await menuLink(page, 'Thư viện tệp')).click();
+		await expect(page).toHaveURL(/\/admin\/docs\/guides\/files$/);
+		await expect(title(page)).toHaveText('Thư viện tệp');
+
+		const article = page.locator('.docs-article');
+		await expect(article.locator('ol > li').first()).toBeVisible();
+		const images = article.locator('img.docs-image');
+		await expect(images).toHaveCount(2);
+		for (const image of await images.all()) {
+			await image.scrollIntoViewIfNeeded();
+			await expect(image).toHaveAttribute('alt', /.{20,}/);
+			await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth)).toBeGreaterThan(0);
+		}
+
+		await article.getByRole('link', { name: 'tải file lên', exact: true }).click();
+		await expect(page).toHaveURL(/\/admin\/docs\/api\/files#create-a-file$/);
+		await expect(page.locator('#create-a-file')).toBeInViewport();
+		expect(csp).toEqual([]);
 	});
 
 	test('an unknown documentation page: not found in the frame, with a link home (FR-009)', async ({ page }) => {

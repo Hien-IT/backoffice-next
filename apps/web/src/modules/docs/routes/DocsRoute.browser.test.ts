@@ -63,14 +63,24 @@ describe.each(['light', 'dark'] as const)('axe (%s)', (scheme) => {
 		expect(await serious()).toEqual([]);
 	});
 
-	// Spec 033 T062: an API page with REST and GraphQL tabs, parameter and body tables, the Backoffice notice.
-	test('API pages: Files and the Backoffice routes', async () => {
+	// Spec 033 T062: API pages with REST and GraphQL tabs, parameter and body tables, the Backoffice notice. Their DOM is
+	// large: axe takes 15 to 20 s on a CI runner (1.7 s locally), hence one page per test and a longer timeout.
+	test.each(['/docs/api/files', '/docs/api/backoffice'])('API page %s', { timeout: 60_000 }, async (path) => {
 		theme();
-		await open('/docs/api/files');
+		await open(path);
 		expect(await serious()).toEqual([]);
+	});
 
-		await open('/docs/api/backoffice');
-		expect(await serious()).toEqual([]);
+	// Spec 033 T090: guide pages with screenshots, numbered steps, a code block, note and warning boxes.
+	test('guide pages: field compare filter and environment sync', async () => {
+		theme();
+		for (const path of ['/docs/guides/field-compare-filter', '/docs/guides/environment-sync']) {
+			await open(path);
+			const images = [...document.querySelectorAll<HTMLImageElement>('.docs-article img.docs-image')];
+			expect(images.length, path).toBeGreaterThan(0);
+			await vi.waitFor(() => expect(images.every((image) => image.complete && image.naturalWidth > 0)).toBe(true));
+			expect(await serious(), path).toEqual([]);
+		}
 	});
 
 	test('an article with code in the three languages, a table, both note boxes and a quote', async () => {

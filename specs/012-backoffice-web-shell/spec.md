@@ -441,7 +441,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   PHẢI khớp và hiện cùng khung để `last_page` và link từ Directus không rơi vào 404.
 - **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060) (đã gỡ ở 015: màn user `/users/<id>`, D-48; `/users/me` bỏ như Directus); menu user dưới logo
   sidebar PHẢI có hồ sơ và đăng xuất (mục đích như `module-bar-avatar.vue`, vị trí theo `layout-patterns.md`, D-52,
-  D-127).
+  D-127) (033: thêm mục "Tài liệu" mở khu tài liệu `/admin/docs`, module nội bộ thứ bảy ẩn khỏi khối module, D-215).
 - **FR-025**: Path không khớp PHẢI hiện trang 404 private trong bố cục (đã đăng nhập) như `private-not-found.vue`.
 - **FR-026**: Vùng logo của sidebar PHẢI hiện `project_logo` từ `/assets/<id>` hoặc logo Backoffice và tên dự án
   (`project_name` hoặc `Backoffice`), bấm mở `project_url` nếu có, và chạy thanh tiến trình khi hàng đợi request còn

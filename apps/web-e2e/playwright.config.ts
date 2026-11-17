@@ -49,6 +49,23 @@ else if (process.env['PLAYWRIGHT_MSEDGE'] === '1') {
 	});
 }
 
+// Spec 033 (FR-034, FR-035, research R10): DOCS_SHOTS=1 runs only the screenshot scripts of the documentation area
+// (src/docs-shots/*.shots.ts, never matched by the projects above), by hand on a machine with chromium: one width, one
+// pixel ratio, light theme. Each picture is a screenshot assertion against the committed file, rewritten only when it
+// differs (`updateSnapshots: 'changed'`), so anti-aliasing noise does not rewrite a picture whose screen did not change
+// (SC-010).
+const docsShots = process.env['DOCS_SHOTS'] === '1';
+if (docsShots) {
+	projects = [
+		{
+			name: 'docs-shots',
+			testMatch: /docs-shots\/.*\.shots\.ts$/,
+			snapshotPathTemplate: '../web/src/docs/content/images/{arg}{ext}',
+			use: { ...devices['Desktop Chrome'], viewport: VIEWPORTS[1280], deviceScaleFactor: 1, colorScheme: 'light' },
+		},
+	];
+}
+
 export default defineConfig({
 	testDir: './src',
 	forbidOnly: !!process.env['CI'],
@@ -58,6 +75,7 @@ export default defineConfig({
 	timeout: 120_000,
 	use: { baseURL: webUrl, trace: 'retain-on-failure' },
 	projects,
+	...(docsShots ? { updateSnapshots: 'changed' as const } : {}),
 	...(e2eConfig === 'dev' && !process.env['BASE_URL']
 		? {
 				webServer: {

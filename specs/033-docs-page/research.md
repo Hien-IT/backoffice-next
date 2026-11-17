@@ -351,3 +351,37 @@ duyệt ở 1600 px); recipe Q-50 đã sửa.
 
 **Chạy trên máy**: unit web 507 file, 4.715 test xanh (coverage 91,98 % dòng; file khu tài liệu 100 % dòng); browser
 test khu tài liệu 11 test xanh; E2E `docs.spec.ts` 15 ca xanh, 5 ca bỏ qua theo bề rộng (Vite dev, API SQLite cục bộ).
+
+## Kết quả lượt 3 (2026-11-17)
+
+**Hướng dẫn**: 17 trang (`apps/web/src/docs/content/guides/*.md`), 9 trang module và 8 trang tính năng riêng (nhóm
+"Tính năng riêng", `backofficeOnly`), mỗi trang có bước đánh số, ít nhất một ảnh có mô tả, điều kiện hay quyền cần có
+và link chéo tới mục API, trang cấu hình (FR-018, FR-018a, FR-020). Môi trường đồng bộ nằm ở nhóm tính năng riêng (một
+trang, không lặp ở nhóm module). Văn bản tự viết theo màn hình của app (FR-045); không trang nào có từ bị cấm.
+
+**Ảnh**: 24 ảnh PNG 1280×800 (chromium, dpr 1, sáng, vi-VN), 2,0 MB tổng, lớn nhất 240 KB (`files-2`, ảnh mẫu đổi sang
+ảnh xám vì ảnh màu vượt 300 KB). Dữ liệu mẫu do `docs-shots/seed.ts` tạo một lần (collection `products`, vai trò, chính
+sách, người dùng `@example.com`, thư mục, file từ `tests/parity/fixtures/assets`, flow, dashboard, thông báo, index,
+extension `parity-panel-counter`, nguồn đồng bộ có collection `orders`); vùng thay đổi theo lần chạy (thời gian của
+Hoạt động, URL nguồn của Đồng bộ) được che (FR-037). Môi trường chụp: hai API Backoffice SQLite cục bộ (đích và nguồn)
+và Vite dev, thay cho môi trường `web` của parity ghi ở T070; quickstart ghi cả hai cách.
+
+**SC-010** [Verified trên máy]: lần đầu chụp bằng `page.screenshot` cho 8 ảnh khác từng byte giữa hai lần chạy (2 đến
+321 điểm ảnh, khử răng cưa của logo, ảnh thu nhỏ và viền; mắt thường không thấy khác). Đổi `shot()` sang
+`toHaveScreenshot` với `snapshotPathTemplate` trỏ vào thư mục ảnh và `updateSnapshots: 'changed'` (ngưỡng mặc định
+0,2, `maxDiffPixels: 0`): hai lần chạy tiếp theo cho 0 ảnh đổi; một ảnh bị thay bằng ảnh khác được ghi lại đúng như cũ;
+một ảnh bị xóa được tạo lại giống từng byte.
+
+**Test**: `content.test.ts` (37 test: link `/docs/...` và anchor của cả ba phần, ảnh được dùng, tồn tại, có mô tả,
+≤ 300 KB, tổng ≤ 8 MB, mỗi hướng dẫn có bước, ảnh và mục); thử làm gãy một anchor thì test báo đúng link. Browser test
+thêm hai trang hướng dẫn (ảnh tải xong, axe sáng và tối); E2E thêm ca hướng dẫn Files (ảnh tải xong, link sang mục API,
+không vi phạm CSP) và trang `/admin/docs/guides/files` trong `a11y.spec.ts`.
+
+**Chạy trên máy**: unit web 508 file, 4.752 test xanh; browser test khu tài liệu 13 test xanh; E2E `docs.spec.ts` 17
+ca xanh, 5 ca bỏ qua theo bề rộng; a11y không báo lỗi nào ở các trang tài liệu (các lỗi còn lại của lượt chạy cục bộ là
+fixture flow, dashboard của parity không có trên API cục bộ và màu chip trạng thái của dữ liệu mẫu ở `/admin/content`).
+Main bundle 280,9 KB nén, không đổi so với lượt 2 (ảnh và Markdown là chunk lazy).
+
+**Bẫy gặp**: script chụp đổi ngôn ngữ của admin rồi trả lại giá trị đọc lúc đầu; một lượt chạy bị dừng giữa chừng để
+lại `vi-VN` và các lượt sau trả lại `vi-VN`, nên E2E (chờ chữ tiếng Anh) hỏng tới khi đặt lại `language = null`.
+

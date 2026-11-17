@@ -118,6 +118,9 @@ Thêm mục mới (ví dụ spec 030) thì thêm một dòng ở đây, anchor l
    Directus". Trong plan mới viết "port `api/src/database/run-ast/lib/apply-query` sang NestJS".
 3. **Luôn chỉ ra file tham chiếu trong `directus/`.** Claude sẽ đọc code gốc để giữ đúng luồng.
 
+Từ feature 033, feature nào đổi màn hình, endpoint hay biến môi trường thì cập nhật luôn trang tài liệu của mình
+(`apps/web/src/docs`: trang hướng dẫn, phần bổ sung API, `configuration/variables.ts`) và chụp lại ảnh bằng `docs:shots`.
+
 ---
 
 ## 3. Chuẩn bị trước khi chạy Spec Kit (đã làm sẵn)
@@ -3156,7 +3159,12 @@ field, `/extensions/{bundle}/{name}` 404), loại có lý do. Local: 170 ví d�
 bộ, unit web 4.715 test xanh, browser test 11 và E2E 15 ca xanh; main bundle 280,9 KB nén. Bài học: YAML dạng `{...}`
 cắt giá trị có dấu phẩy thành khóa mới (đặt mô tả trong nháy đơn); `/items/{collection}` cũng kết thúc bằng tham số,
 chỉ `/{id}` mới là một item; card hai cột cần trang API dùng hết bề rộng cột bài viết; input GraphQL của collection
-không có trường tên. Lượt 3 chưa làm.
+không có trường tên. Lượt 2 lên `main` `44749941`. `/speckit.implement` lượt 3 2026-11-17 (hướng dẫn và ảnh,
+T066–T095): 17 trang hướng dẫn (9 module, 8 tính năng riêng) với 24 ảnh PNG (2,0 MB), dữ liệu mẫu do
+`docs-shots/seed.ts` tạo một lần, `content.test.ts` kiểm link, anchor, ảnh; `docs:shots` so mỗi ảnh bằng
+`toHaveScreenshot` (`updateSnapshots: 'changed'`) nên chạy lại cho 0 ảnh đổi (SC-010). Bài học: `page.screenshot` cho
+ảnh khác từng byte do khử răng cưa; script đổi ngôn ngữ admin phải trả lại giá trị gốc, lượt chạy bị dừng có thể để
+lại `vi-VN`.
 Thư mục: `specs/033-docs-page/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "Feature còn lại".
 Dự kiến không sửa constitution: không bảng, không cột, không migration, không endpoint mới. Khác biệt giao diện ghi theo
 Nguyên tắc X từ D-215 (D-214.1 là số cuối đã dùng). Bố cục trang docs là câu hỏi design-system kế tiếp, Q-50 (`docs`,

@@ -92,8 +92,8 @@ describe('DocsRoute', () => {
 			'#gui-link-toi-mot-muc',
 		]);
 		expect(wrapper.find('[data-docs-previous]').exists()).toBe(false);
-		// The API part comes first in the menu after the introduction (resources by name).
-		expect(wrapper.find('[data-docs-next]').attributes('href')).toBe('/docs/api/access');
+		// The guides come first in the menu after the introduction.
+		expect(wrapper.find('[data-docs-next]').attributes('href')).toBe('/docs/guides/content');
 		expect(wrapper.find('[data-docs-main]').attributes('aria-busy')).toBeUndefined();
 	});
 
