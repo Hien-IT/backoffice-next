@@ -1,6 +1,6 @@
 // Backoffice (spec 032, D-214, research R3/R7/R10/R14, data-model.md): compares the source and target states into rows
 // with one of four states, their dependencies, the rows deleted with them, and whether they can be ticked.
-import type { Relation, SchemaOverview, Snapshot } from '@backoffice/types';
+import type { Relation, SchemaOverview, Snapshot, SnapshotField } from '@backoffice/types';
 import deepDiff from 'deep-diff';
 import { getSnapshotDiff } from '../utils/get-snapshot-diff.js';
 import { getVersionedHash } from '../utils/get-versioned-hash.js';
@@ -151,10 +151,26 @@ function deltaChanges(diff: deepDiff.Diff<unknown, unknown>[]): SyncChange[] {
 	});
 }
 
-function diffSchema(source: Snapshot, target: Snapshot): SyncRow[] {
+/** Folder ids of `options.folder` (upload folder of file, file-image, files, rich text, block editor) in a snapshot. */
+export const optionFolder = (field: SnapshotField | undefined): string | null => {
+	const folder = field?.meta?.options?.['folder'];
+	return typeof folder === 'string' ? folder : null;
+};
+
+function diffSchema(source: Snapshot, target: Snapshot, ctx: DiffContext): SyncRow[] {
 	const delta = getSnapshotDiff(target, source);
 	const rows: SyncRow[] = [];
 	const created = new Set<string>();
+	const fieldOf = (snapshot: Snapshot, collection: string, field: string) =>
+		snapshot.fields.find((f) => f.collection === collection && f.field === field);
+
+	// A field pulled with a new upload folder needs that folder at the target, like a settings field (FR-020).
+	const needFolder = (row: SyncRow, collection: string, field: string) => {
+		const folder = optionFolder(fieldOf(source, collection, field));
+		if (!folder || folder === optionFolder(fieldOf(target, collection, field))) return;
+		row.depends.push(rowId('folders', 'folder', folder));
+		if (ctx.targetRefs && !ctx.targetRefs.folders.has(folder)) row.depends.push(`?folders/folder:${folder}`);
+	};
 
 	for (const { collection, diff } of delta.collections) {
 		const state = deltaState(diff);
@@ -168,6 +184,7 @@ function diffSchema(source: Snapshot, target: Snapshot): SyncRow[] {
 			row.source = { ...((diff[0] as { rhs?: Row }).rhs ?? {}), fields } as Row;
 			const group = ((diff[0] as { rhs?: Row }).rhs?.['meta'] as Row | null)?.['group'];
 			if (typeof group === 'string') row.depends.push(rowId('schema', 'collection', group));
+			for (const f of delta.fields) if (f.collection === collection) needFolder(row, collection, f.field);
 		} else if (state === 'target_only') {
 			row.target = (diff[0] as { lhs?: Row }).lhs ?? {};
 		} else {
@@ -186,6 +203,7 @@ function diffSchema(source: Snapshot, target: Snapshot): SyncRow[] {
 		else if (state === 'target_only') row.target = (diff[0] as { lhs?: Row }).lhs ?? {};
 		else row.changes = deltaChanges(diff);
 		row.depends.push(rowId('schema', 'collection', collection));
+		needFolder(row, collection, field);
 		rows.push(row);
 	}
 
@@ -347,7 +365,7 @@ export function diffStates(
 	let rows: SyncRow[] = [];
 
 	if (groups.includes('schema') && source.schema && target.schema) {
-		rows.push(...diffSchema(source.schema as Snapshot, target.schema as Snapshot));
+		rows.push(...diffSchema(source.schema as Snapshot, target.schema as Snapshot, ctx));
 	}
 
 	for (const kind of TABLE_KINDS) {
@@ -487,12 +505,13 @@ function link(rows: SyncRow[], target: SyncState, groups: readonly GroupKey[], c
 	}
 
 	// Keep the dependencies that still need applying: a row the target lacks (source_only), or a "!" row that must
-	// change first; an unknown one ("?…") blocks the row. A row that exists at the target (same or changed) is enough.
+	// change first; one missing at the target ("?…") blocks the row unless its row is listed to tick along (FR-020).
+	// A row that exists at the target (same or changed) is enough.
 	const needed = (d: string) =>
 		d.startsWith('!') ? byId.get(d.slice(1))?.state !== 'same' : byId.get(d)?.state === 'source_only';
 
 	for (const r of rows) {
-		const blocked = r.depends.filter((d) => d.startsWith('?'));
+		const blocked = r.depends.filter((d) => d.startsWith('?') && byId.get(d.slice(1))?.state !== 'source_only');
 		r.depends = [
 			...new Set(
 				r.depends

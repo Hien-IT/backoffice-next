@@ -294,6 +294,75 @@ describe('settings, extensions, data model', () => {
 		expect(find(rows, 'schema/field:articles.title')).toMatchObject({ state: 'source_only', depends: [] });
 		expect(rows.find((r) => r.id === 'schema/field:tags.id')).toBeUndefined();
 	});
+
+	test('an upload folder in field options needs that folder at the target or ticked along', () => {
+		const snapshot = (collections: string[], fields: [string, string, string | null][]): Snapshot =>
+			({
+				version: 1,
+				directus: '11.17.4',
+				vendor: 'postgres',
+				collections: collections.map((c) => ({
+					collection: c,
+					meta: { collection: c, group: null },
+					schema: { name: c },
+				})),
+				fields: fields.map(([c, f, folder]) => ({
+					collection: c,
+					field: f,
+					type: 'uuid',
+					meta: { collection: c, field: f, options: folder ? { folder } : null },
+					schema: { name: f, table: c },
+				})),
+				relations: [],
+			}) as unknown as Snapshot;
+
+		const source: SyncState = {
+			schema: snapshot(
+				['articles', 'tags'],
+				[
+					['articles', 'id', null],
+					['articles', 'cover', 'f-new'],
+					['articles', 'photo', 'f-old'],
+					['articles', 'same', 'f-gone'],
+					['tags', 'icon', 'f-new'],
+				],
+			),
+			folders: [{ id: 'f-new', name: 'New', parent: null }],
+			settings: { id: 1, storage_default_folder: 'f-new' },
+		};
+
+		const target: SyncState = {
+			schema: snapshot(
+				['articles'],
+				[
+					['articles', 'id', null],
+					['articles', 'same', 'f-gone'],
+				],
+			),
+			folders: [],
+			settings: { id: 1, storage_default_folder: null },
+		};
+
+		// The changed field keeps the folder the target already has; refs come from the target database.
+		(source.schema as Snapshot).fields.find((f) => f.field === 'same')!.meta.note = 'changed';
+		const refs = { ...ctx, targetRefs: { ...ctx.targetRefs, folders: new Set(['f-old']) } };
+
+		const without = diffStates(source, target, ['schema', 'settings'], refs);
+		expect(find(without, 'schema/field:articles.cover')).toMatchObject({ selectable: false, reason: 'sync_needs_row' });
+		expect(find(without, 'schema/collection:tags')).toMatchObject({ selectable: false, reason: 'sync_needs_row' });
+		expect(find(without, 'schema/field:articles.photo')).toMatchObject({ selectable: true, depends: [] });
+		expect(find(without, 'schema/field:articles.same')).toMatchObject({ selectable: true, depends: [] });
+		expect(find(without, 'settings/field:storage_default_folder')).toMatchObject({ selectable: false });
+
+		const along = diffStates(source, target, ['schema', 'settings', 'folders'], refs);
+		for (const id of [
+			'schema/field:articles.cover',
+			'schema/collection:tags',
+			'settings/field:storage_default_folder',
+		]) {
+			expect(find(along, id)).toMatchObject({ selectable: true, depends: ['folders/folder:f-new'] });
+		}
+	});
 });
 
 test('hash: ignored values and extension ids do not change it; a compared value does', () => {

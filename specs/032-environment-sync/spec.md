@@ -341,6 +341,10 @@ Directus trên cùng DB: thấy flow và collection đó, sửa được như b�
   - Field settings (clarify 2026-11-14): trỏ tới file chỉ tick được khi file đó có ở đích; nếu không, field hiện là
     khác nhau, không tick được, có lý do, và không bị đặt rỗng. Trỏ tới folder hoặc role chỉ tick được khi folder hoặc
     role đó có ở đích hoặc được tick kèm.
+  - Folder upload trong options field (owner 2026-11-19): field (hoặc collection mới chứa field) có `options.folder`
+    (interface file, file-image, files, rich text, block editor) khác với đích chỉ tick được khi folder đó có ở đích
+    hoặc được tick kèm, như field settings trỏ tới folder; trước đây field kéo về có thể trỏ tới folder không có ở đích
+    và upload báo lỗi khóa ngoại.
   - Chiều ngược (checklist 2026-11-14): dòng ở đích dựa vào một dòng bị tick xóa (permission, preset, quyền
     import/export và index của collection bị xóa; permission của policy bị xóa; liên kết và preset của role bị xóa;
     folder con của folder bị xóa) được tick xóa kèm, không bỏ tick được khi dòng kia còn tick, và có tên trong hộp xác

@@ -152,6 +152,42 @@ describe.skipIf(!TARGET)('profile sync: refusals when applying', () => {
 		expect(status(await target('GET', `/folders/${child}`))).toBe(403);
 	});
 
+	test('FR-020: a field whose upload folder (options.folder) is missing at the target needs that folder', async () => {
+		const folder = await sourceFolder();
+		const collection = `parity_sync_folder_${uuid().slice(0, 8)}`;
+		const row = `schema/collection:${collection}`;
+		const body = collectionBody(collection);
+		await source('POST', '/collections', {
+			...body,
+			fields: [
+				...body.fields,
+				{ field: 'cover', type: 'uuid', meta: { interface: 'file-image', options: { folder } }, schema: {} },
+			],
+		});
+
+		try {
+			// Without the folders group nothing can bring the folder: the new collection is blocked.
+			const schemaOnly = (await diff(['schema'])).body.data;
+			expect(rowOf(schemaOnly.rows, row)).toMatchObject({ selectable: false, reason: 'sync_needs_row' });
+
+			const compared = (await diff(['schema', 'folders'])).body.data;
+			expect(rowOf(compared.rows, row)).toMatchObject({ selectable: true, depends: [`folders/folder:${folder}`] });
+
+			const alone = await apply(compared, [row]);
+			expect(status(alone)).toBe(400);
+			expect(reason(alone)).toBe(`Row "${row}" needs "folders/folder:${folder}"`);
+			expect(status(await target('GET', `/collections/${collection}`))).toBe(403);
+
+			const along = await apply(compared, [row, `folders/folder:${folder}`]);
+			expect(status(along), JSON.stringify(along.body)).toBe(200);
+			expect((await target('GET', `/fields/${collection}/cover`)).body.data.meta.options).toEqual({ folder });
+			expect(status(await target('GET', `/folders/${folder}`))).toBe(200);
+		} finally {
+			await source('DELETE', `/collections/${collection}`).catch(() => undefined);
+			await target('DELETE', `/collections/${collection}`);
+		}
+	}, 120_000);
+
 	test('FR-026: two applies at once: one runs; the other gets 503 (same node at once) or 400 (stale), never both run', async () => {
 		const folder = await sourceFolder();
 		const compared = (await diff(['folders'])).body.data;

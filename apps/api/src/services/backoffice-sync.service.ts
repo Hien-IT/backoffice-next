@@ -10,13 +10,12 @@ import { useLock } from '../lock/index.js';
 import { useLogger } from '../logger/index.js';
 import { getSchema } from '../schema/get-database-schema.js';
 import { afterCommit, applySchema, assertCallerAdmin, writeRows } from '../sync/apply.js';
-import { diffStates, hashStates } from '../sync/diff.js';
+import { diffStates, hashStates, optionFolder } from '../sync/diff.js';
 import { fetchInfo, fetchState, normalizeUrl } from '../sync/source.js';
 import { readState } from '../sync/state.js';
 import {
 	GROUP_KEYS,
 	type GroupKey,
-	type Row,
 	type SyncInfo,
 	type SyncResult,
 	type SyncRow,
@@ -184,7 +183,7 @@ export class BackofficeSyncService {
 		}
 
 		const targetState = await readState(groups, this.context());
-		const targetRefs = await this.targetRefs(sourceState.settings);
+		const targetRefs = await this.targetRefs(sourceState);
 		const rows = diffStates(sourceState, targetState, groups, { schema: this.schema, targetRefs });
 		await this.addImpact(rows);
 
@@ -296,9 +295,21 @@ export class BackofficeSyncService {
 		return { ...counts, ...after };
 	}
 
-	/** Files, folders and roles at the target that settings fields of the source point at (clarify 2). */
-	private async targetRefs(settings: Row | null | undefined) {
+	/** Files, folders and roles at the target that settings fields and field options of the source point at (clarify 2). */
+	private async targetRefs({ settings, schema }: SyncState) {
 		const refs = { files: new Set<string>(), folders: new Set<string>(), roles: new Set<string>() };
+
+		// Upload folders in the field options of the source schema (FR-020).
+		const folders = [...new Set(((schema as Snapshot | undefined)?.fields ?? []).map(optionFolder))].filter(
+			(id): id is string => id !== null,
+		);
+
+		if (folders.length > 0) {
+			for (const { id } of await this.knex.select('id').from('directus_folders').whereIn('id', folders)) {
+				refs.folders.add(String(id));
+			}
+		}
+
 		if (!settings) return refs;
 
 		const tables = { directus_files: refs.files, directus_folders: refs.folders, directus_roles: refs.roles } as const;
