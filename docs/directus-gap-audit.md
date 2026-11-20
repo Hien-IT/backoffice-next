@@ -1,33 +1,37 @@
-# Rà phần còn thiếu so với Directus 11.17.4 (spec 001–029)
+# Rà phần còn thiếu so với Directus 11.17.4 (spec 001–033)
 
 Ngày rà: 2026-10-20, trên `main` tại `f3762da` (spec 001–019). Rà lại 2026-11-03, trên `main` tại `4ac8dd3c` (spec
 001–029), thêm phép so từng file (mục 7). Rà tĩnh: so route, id, tên file giữa `directus/` và `apps/`, đọc bảng D-id và
-bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành vi. Các mục ghi [Inference] là suy luận, chưa đo.
+bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành vi. Các mục ghi [Inference] là suy luận, chưa đo. Rà lại
+2026-11-18, trên `main` tại `d6ca2bed` (spec 001–033), thêm phép so route từng controller (mục 8).
 
 Kết luận 2026-11-03: mọi phần Directus còn thiếu đều có D-id đã duyệt hoặc thuộc hiến pháp mục XI. Không thấy phần thiếu
 nào không có căn cứ.
 
+Kết luận 2026-11-18: không có phần thiếu mới. Danh sách thiếu trùng lần rà 2026-11-03; thêm một khác biệt có D-id:
+`ROBOTS_TXT` không có mặc định (D-216). Thư mục `directus/` không đổi từ `4ac8dd3c`.
+
 ## 1. Tổng quan
 
-| Phần                                          | Directus | Backoffice                                                             | Phần thiếu                                                                                                 |
-| --------------------------------------------- | -------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Controller API (file, kể cả thư mục `utils`)  | 36       | 35: 33 port, 2 riêng (`backoffice-passkeys`, `backoffice-permissions`) | `deployment`, `deployment-webhooks`, `mcp` (mục 2); `not-found` thay bằng `errors/error-handler.filter.ts` |
-| Auth driver                                   | 5        | 4                                                                      | `saml` (D-24)                                                                                              |
-| Schedule                                      | 5        | 3                                                                      | `project` (D-38), `telemetry` (hiến pháp XI)                                                               |
-| Flow operation (API)                          | 15       | 15                                                                     | —                                                                                                          |
-| DB vendor                                     | 7        | 7                                                                      | — (CLI tạo, migrate DB chỉ trên Postgres, SQLite: D-145)                                                   |
-| Storage driver                                | 6        | 2 (local, s3)                                                          | 4, D-16                                                                                                    |
-| Biến env trong danh sách Directus             | 236      | 192                                                                    | 44 (mục 2.1)                                                                                               |
-| Lệnh CLI                                      | 9        | 9                                                                      | — (từ 021; giới hạn vendor D-145)                                                                          |
-| Module app                                    | 8        | 6                                                                      | `visual`, `deployment` (mục 2)                                                                             |
-| Route Settings                                | 12       | 10                                                                     | `ai`, `system-logs` (D-93)                                                                                 |
-| Interface                                     | 68       | 67                                                                     | `system-mcp-prompts-collection-validation` (mục 2)                                                         |
-| Display                                       | 18       | 18                                                                     | —                                                                                                          |
-| Layout                                        | 5        | 5                                                                      | —                                                                                                          |
-| Panel                                         | 11       | 11                                                                     | —                                                                                                          |
-| Operation (app)                               | 15       | 15                                                                     | —                                                                                                          |
-| File ngôn ngữ app                             | 70       | 2                                                                      | D-46                                                                                                       |
-| File nguồn (`api/src`, `app/src`, không test) | 1673     | 1384 có bản ghi port                                                   | 289 (mục 7)                                                                                                |
+| Phần                                          | Directus | Backoffice                                                                                       | Phần thiếu                                                                                                 |
+| --------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Controller API (file, kể cả thư mục `utils`)  | 36       | 38: 33 port, 5 riêng (`backoffice-extensions`, `-indexes`, `-passkeys`, `-permissions`, `-sync`) | `deployment`, `deployment-webhooks`, `mcp` (mục 2); `not-found` thay bằng `errors/error-handler.filter.ts` |
+| Auth driver                                   | 5        | 4                                                                                                | `saml` (D-24)                                                                                              |
+| Schedule                                      | 5        | 3                                                                                                | `project` (D-38), `telemetry` (hiến pháp XI)                                                               |
+| Flow operation (API)                          | 15       | 15                                                                                               | —                                                                                                          |
+| DB vendor                                     | 7        | 7                                                                                                | — (CLI tạo, migrate DB chỉ trên Postgres, SQLite: D-145)                                                   |
+| Storage driver                                | 6        | 2 (local, s3)                                                                                    | 4, D-16                                                                                                    |
+| Biến env trong danh sách Directus             | 236      | 192                                                                                              | 44 (mục 2.1)                                                                                               |
+| Lệnh CLI                                      | 9        | 9                                                                                                | — (từ 021; giới hạn vendor D-145)                                                                          |
+| Module app                                    | 8        | 7: 6 port, 1 riêng (`docs`, 033)                                                                 | `visual`, `deployment` (mục 2)                                                                             |
+| Route Settings                                | 12       | 11: 10 port, 1 riêng (`sync`, 032)                                                               | `ai`, `system-logs` (D-93)                                                                                 |
+| Interface                                     | 68       | 67                                                                                               | `system-mcp-prompts-collection-validation` (mục 2)                                                         |
+| Display                                       | 18       | 18                                                                                               | —                                                                                                          |
+| Layout                                        | 5        | 5                                                                                                | —                                                                                                          |
+| Panel                                         | 11       | 11                                                                                               | —                                                                                                          |
+| Operation (app)                               | 15       | 15                                                                                               | —                                                                                                          |
+| File ngôn ngữ app                             | 70       | 2                                                                                                | D-46                                                                                                       |
+| File nguồn (`api/src`, `app/src`, không test) | 1673     | 1384 có bản ghi port                                                                             | 289 (mục 7)                                                                                                |
 
 ## 2. Không làm, có chủ đích (hiến pháp mục XI hoặc D-id đã duyệt)
 
@@ -47,6 +51,7 @@ nào không có căn cứ.
 | Báo cáo chủ dự án (`COMPLIANCE_URL`, `schedules/project.ts`)                                                   | Không gửi; `setOwner` vẫn ghi `directus_settings`                                                      | D-38 (010)                         |
 | `/deployments`, webhook deployment                                                                             | Không có                                                                                               | Hiến pháp XI                       |
 | `/mcp`, `/ai/*`                                                                                                | Không có (`404`)                                                                                       | Hiến pháp XI; xem mục 4.2          |
+| `ROBOTS_TXT` mặc định `User-agent: *\nDisallow: /`                                                             | Không có mặc định; `/robots.txt` trả `404 ROUTE_NOT_FOUND` cho đến khi đặt biến                        | D-216 (2026-11-18)                 |
 | Telemetry, `requestCounter`, `REDIS_COUNTERS_NAMESPACE`                                                        | Không có                                                                                               | Hiến pháp XI                       |
 
 44 biến env của Directus chưa hỗ trợ (khi có trong env, API ghi một dòng `warn` lúc khởi động, FR-014 của 001):
@@ -71,7 +76,7 @@ nào không có căn cứ.
 | Link "Report bug", "Request feature"                                                                                      | Không có                                                                                                                                    | D-94, D-95 (016)                                     |
 | AI assistant, realtime, collab                                                                                            | Không có                                                                                                                                    | Hiến pháp XI                                         |
 | Banner license, bước license ở `/setup`                                                                                   | Không có                                                                                                                                    | D-53 (012)                                           |
-| Link docs                                                                                                                 | Không có                                                                                                                                    | D-49 (012), D-100 (016)                              |
+| Link docs của Directus                                                                                                    | Không có; Backoffice có tài liệu riêng ở `/admin/docs`                                                                                      | D-49 (012), D-100 (016), D-215 (033)                 |
 | Breadcrumb                                                                                                                | Không có                                                                                                                                    | D-101 (016)                                          |
 | 68 gói ngôn ngữ khác                                                                                                      | Chỉ `en-US`, `vi-VN`                                                                                                                        | D-46 (012)                                           |
 | Theme Directus                                                                                                            | Theme TailAdmin, override từ settings; chọn theme Directus và theme overrides ẩn ở Appearance và trang user                                 | D-43, D-47, D-89, D-168; hiến pháp XII               |
@@ -169,13 +174,13 @@ lệnh trong image API (`node cli.js <lệnh>`), D-123 gỡ ở 021; tạo và m
 
 ### 5.1 Chờ người duyệt hoặc người dùng
 
-| Mục                                                | Spec                                          | Trạng thái                          |
-| -------------------------------------------------- | --------------------------------------------- | ----------------------------------- |
-| T075: buổi dùng thử SC-003 với 5 người dùng nội bộ | 012 `tasks.md:533`                            | Đã làm (owner báo 2026-10-23)       |
-| Q-7: logo, favicon                                 | 012                                           | Đóng 2026-10-20: giữ chữ "B"        |
-| Q-1..Q-12: recipe design cho màn CMS, SC-009       | 014                                           | Đóng 2026-10-20: design owner duyệt |
-| D-44: `/register`                                  | 012                                           | Bỏ (owner 2026-10-20)               |
-| M-1: độ tương phản ô mờ của ma trận quyền          | 025 (`design-system/docs/migration-guide.md`) | Mở, chờ design owner                |
+| Mục                                                | Spec                                          | Trạng thái                                   |
+| -------------------------------------------------- | --------------------------------------------- | -------------------------------------------- |
+| T075: buổi dùng thử SC-003 với 5 người dùng nội bộ | 012 `tasks.md:533`                            | Đã làm (owner báo 2026-10-23)                |
+| Q-7: logo, favicon                                 | 012                                           | Đóng 2026-10-20: giữ chữ "B"                 |
+| Q-1..Q-12: recipe design cho màn CMS, SC-009       | 014                                           | Đóng 2026-10-20: design owner duyệt          |
+| D-44: `/register`                                  | 012                                           | Bỏ (owner 2026-10-20)                        |
+| M-1: độ tương phản ô mờ của ma trận quyền          | 025 (`design-system/docs/migration-guide.md`) | Đóng 2026-11-19: viền nét đứt, không opacity |
 
 ### 5.2 Thiếu bản ghi duyệt
 
@@ -185,7 +190,7 @@ lệnh trong image API (`node cli.js <lệnh>`), D-123 gỡ ở 021; tạo và m
 
 - Nightly (`.github/workflows/nightly.yml:2-4`): lịch tắt "cho đến khi xong mọi chức năng". Mọi feature đã xong, có thể
   bật lại `cron: '0 18 * * *'`. Cần kiểm trước: startup test cho các vendor khác (ghi chú cùng file) đã hỗ trợ chưa.
-  Ngày 2026-11-03 vẫn chỉ có `workflow_dispatch`.
+  Ngày 2026-11-18 vẫn chỉ có `workflow_dispatch`.
 - ~~Benchmark web "files: next page" đỏ~~: chạy lại 2026-10-20 trên 7fb8faf thì đạt (run 39417286435; 126 / 112 ms so
   với 113 ms), không sửa code. Ngưỡng p95 trong `SPECKIT-GUIDE.md` §11 không đo lại trong CI thường, chỉ chạy job
   `benchmark` hằng tuần.
@@ -212,7 +217,7 @@ bỏ "tìm kiếm toàn cục" (Directus 11.17.4 không có trong `directus/app/
 2. ~~Quyết 4.3, 4.4, 4.6~~: đã làm 4.3, 4.4; 4.6 ghi D-123, rồi làm ở 021. 3.2 (`/shared` chỉ-đọc, D-126) và D-44
    (`/register`) bỏ (owner 2026-10-20).
 3. ~~Dọn 4.5 và mục 5.4~~: đã làm 2026-10-20.
-4. Bật lại nightly sau khi chạy tay `workflow_dispatch` một lần xanh. Còn mở ngày 2026-11-03.
+4. Bật lại nightly sau khi chạy tay `workflow_dispatch` một lần xanh. Còn mở ngày 2026-11-18.
 5. ~~Xin duyệt D-16, 019, Q-1..Q-12, Q-7~~: đã duyệt 2026-10-20. ~~T075~~: đã làm 2026-10-23.
 
 ## 7. Rà từng file (2026-11-03)
@@ -250,3 +255,16 @@ có bản ghi port, 289 không có.
   xanh, không kiểm lại trong lần rà này.
 - Phép so chỉ phủ `api/src` và `app/src`; `directus/packages/*` (env, errors, memory, storage, utils, validation…) port
   sang `libs/` và không đếm ở đây.
+
+## 8. Rà lại 2026-11-18 (spec 030–033)
+
+- Chạy lại các phép so của mục 1 và mục 7 tại `d6ca2bed`: 1673 file nguồn, 289 file không có bản ghi port, cùng danh
+  sách với 2026-11-03. Controller, auth driver, schedule, storage driver, lệnh CLI, module, route Settings, interface,
+  display, layout, panel, operation: phần thiếu không đổi. 192 mục env được hỗ trợ, 44 mục chưa hỗ trợ, không đổi.
+- So route từng controller: mỗi `router.<method>(<path>)` của 33 controller Directus đã port đều có decorator Nest cùng
+  method và path. Khác biệt chỉ ở cú pháp tham số tùy chọn của Express 5 (`/:pk/:filename?` thành hai route) và route
+  login, GraphQL đăng ký tĩnh thay vì `router.use`.
+- Spec 030–033 chỉ thêm phần riêng của Backoffice (`/backoffice/*`, trang `/settings/sync`, module `docs`); không bỏ
+  phần nào của Directus.
+- Còn mở: nightly (mục 5.3). M-1 đóng 2026-11-19 (viền nét đứt thay opacity).
+- Phép so vẫn là rà tĩnh. Không chạy parity, E2E hay app trong lần rà này.
