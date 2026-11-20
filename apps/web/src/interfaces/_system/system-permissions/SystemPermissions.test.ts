@@ -505,13 +505,17 @@ describe('import and export (backoffice_permissions)', () => {
 		);
 	});
 
-	test('a cell of a collection whose toggle is off is muted with the hint, and stays editable', async () => {
+	test('a cell of a collection whose toggle is off has a dashed outline and the hint, and stays editable', async () => {
 		const { wrapper } = await renderBo([EXPORT], { bo_show_export: false });
 		const cell = toggle(wrapper, 'bo_std', 'export');
 
-		expect(cell.classes()).toContain('opacity-50');
+		expect(cell.classes()).toContain('muted');
+		// M-1: no opacity, the text keeps its contrast
+		expect(cell.classes()).not.toContain('opacity-50');
+		expect(cell.find('[title]').classes()).toContain('outline-dashed');
 		expect(cell.find('[title]').attributes('title')).toContain(t('bo_toggle_off_hint'));
 		expect(cell.findComponent(BoMenu).exists()).toBe(true);
-		expect(toggle(wrapper, 'bo_std', 'import').classes()).not.toContain('opacity-50');
+		expect(toggle(wrapper, 'bo_std', 'import').classes()).not.toContain('muted');
+		expect(toggle(wrapper, 'bo_std', 'import').find('[title]').classes()).not.toContain('outline-dashed');
 	});
 });

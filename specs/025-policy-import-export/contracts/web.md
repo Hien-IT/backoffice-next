@@ -9,7 +9,7 @@ Mọi màn hình không nêu giữ nguyên.
 | Cột | create, read, update, delete, import, export (API là Backoffice); create, read, update, delete (API là Directus, FR-034). Không cột share. |
 | Nguồn | 5 action: o2m `permissions` của policy (như nay). import, export: `GET /backoffice/permissions?filter[policy][_eq]=<id>&limit=-1`, staging riêng, ghi sau khi policy lưu (`POST`, `PATCH` batch, `DELETE`). |
 | Ô import/export | bấm: menu All access / No access / Use custom như action khác; trạng thái none / full / partial (có bộ lọc, field hay định dạng). Ô import của collection hệ thống bị khóa (chỉ admin import được, như Directus; analyze I1). |
-| Ô khi toggle 024 tắt | `opacity-50`, `title` = "Đã tắt trong Data Model" (overlay `bo_toggle_off_hint`), vẫn sửa, lưu được (FR-025). |
+| Ô khi toggle 024 tắt | chip có viền nét đứt `outline-1 outline-dashed outline-offset-2 outline-gray-500`, không giảm opacity (M-1, owner 2026-11-19; trước đó `opacity-50`), `title` = "Đã tắt trong Data Model" (overlay `bo_toggle_off_hint`), vẫn sửa, lưu được (FR-025). |
 | All access / No access của hàng | 6 action; không đụng dòng `share` cũ (FR-023, FR-024). |
 | Hàng `directus_shares` | vẫn hiện (FR-023). |
 | Save | nút bật khi có sửa ở nguồn nào; `useEditsGuard` theo cả hai; lưu policy trước, dòng mới sau; lỗi nguồn hai → dialog lỗi, staging giữ. |
@@ -60,4 +60,4 @@ custom (clarify câu 5).
 ## 5. Design system (XII)
 
 Không màu, token, component mới: cột và ô dùng `PermissionsToggle` hiện có; tab mới dùng `BoTabs`, checkbox của
-`design-system` (`BoCheckbox`); ô mờ bằng `opacity-50` (Tailwind) và `title`; không hex, không palette ngoài theme.
+`design-system` (`BoCheckbox`); ô của toggle tắt bằng viền nét đứt gray-500 (Tailwind) và `title`; không hex, không palette ngoài theme.

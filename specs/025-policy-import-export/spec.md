@@ -316,8 +316,9 @@ schema.
 - **FR-023**: Dòng `share` đã có trong `directus_permissions` KHÔNG ĐƯỢC bị đổi hay xóa từ ma trận (kể cả nút No access
   của hàng). Hàng `directus_shares` vẫn hiện.
 - **FR-024**: Nút All access, No access của hàng PHẢI gồm import, export.
-- **FR-025**: Ô import, export của collection có toggle 024 tắt PHẢI hiện mờ kèm ghi chú (toggle tắt trong Data Model),
-  vẫn sửa và lưu được.
+- **FR-025**: Ô import, export của collection có toggle 024 tắt PHẢI có dấu hiệu riêng kèm ghi chú (toggle tắt trong Data Model),
+  vẫn sửa và lưu được. Dấu hiệu là viền nét đứt quanh chip, chữ giữ nguyên độ tương phản (M-1, owner 2026-11-19; trước
+  đó ô hiện mờ bằng opacity).
 - **FR-026**: Drawer Use custom của import, export PHẢI có ba phần: bộ lọc dòng, field, định dạng. Ô có Use custom hiện
   trạng thái một phần như action khác.
 - **FR-027**: Lưu policy PHẢI lưu cả quyền import, export. Nhân bản policy PHẢI chép cả quyền import, export.

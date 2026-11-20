@@ -17,7 +17,7 @@ const props = defineProps<{
 	action: MatrixAction;
 	permission?: Permission | undefined;
 	appMinimal?: Partial<Permission> | undefined;
-	/** Backoffice (spec 025, FR-025): the cell is muted with this hint (the bo_show_* toggle is off); still editable. */
+	/** Backoffice (spec 025, FR-025): the chip gets a dashed outline and this hint (the bo_show_* toggle is off); still editable. */
 	mutedHint?: string | undefined;
 }>();
 
@@ -99,14 +99,16 @@ const LEVEL = {
 	custom: 'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400',
 	none: 'border border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
 };
+// No opacity (M-1): the chip stays operable, so its text keeps the full contrast; gray-500 is 3:1 or more in both themes.
+const MUTED = 'outline-1 outline-dashed outline-offset-2 outline-gray-500 focus-visible:outline-solid';
 const LEVEL_ICON = { all: 'check', custom: 'rule', none: 'block' };
 </script>
 
 <template>
-	<div :class="[{ 'has-app-minimal': !!appMinimal, 'muted opacity-50': !!mutedHint }, appMinimalLevel]">
+	<div :class="[{ 'has-app-minimal': !!appMinimal, muted: !!mutedHint }, appMinimalLevel]">
 		<span
 			v-if="appMinimalLevel === 'full'"
-			:class="[CHIP, LEVEL.all]"
+			:class="[CHIP, LEVEL.all, mutedHint && MUTED]"
 			class="all cursor-default"
 			:title="tooltip"
 			role="img"
@@ -120,7 +122,7 @@ const LEVEL_ICON = { all: 'check', custom: 'rule', none: 'block' };
 			<template #trigger>
 				<button
 					type="button"
-					:class="[CHIP, LEVEL[permissionLevel], permissionLevel]"
+					:class="[CHIP, LEVEL[permissionLevel], permissionLevel, mutedHint && MUTED]"
 					class="cursor-pointer"
 					:title="tooltip"
 					:aria-label="appMinimal ? `${levelName} (${tooltip})` : levelName"

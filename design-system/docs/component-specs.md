@@ -1706,7 +1706,9 @@ Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
   `border border-gray-300 text-gray-500 dark:border-gray-700` + `block` icon; custom =
   `bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400` + `rule` icon. App-minimal chips are
   static (`cursor-default`, a `lock` icon, tooltip `required_for_app_access`). Menu: `all_access`, `no_access`, divider,
-  `use_custom`.
+  `use_custom`. An import or export chip of a collection whose toggle is off (spec 025, FR-025) keeps its level colors
+  and adds `outline-1 outline-dashed outline-offset-2 outline-gray-500 focus-visible:outline-solid`, with the hint in
+  `title` and in the accessible name; no opacity (M-1).
 - Footer (with `app_access`): `reset_system_permissions_to` followed by two link Buttons `app_access_minimum` and
   `recommended_defaults`; confirmation BoDialog with Cancel first. Add collection: a secondary Button
   `permission_add_collection` opening a BoMenu (managed collections, divider, system ones; existing rows disabled).
